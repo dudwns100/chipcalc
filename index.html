@@ -4,7 +4,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>반도체 추정원가 계산기</title>
+<title>반도체 추정원가 계산기 | Semiconductor Cost Estimator</title>
+<meta name="description" content="차량용 반도체 Die 원가·OSAT·판매가를 자동 계산하는 무료 도구. DPW 공식, 웨이퍼 가격 매트릭스, 가격 변동 시뮬레이터 제공. Free automotive semiconductor cost estimation tool.">
+<meta name="keywords" content="반도체 원가 계산기, 반도체 제조원가, Die 원가, OSAT 비용, 웨이퍼 가격, 차량용 반도체, AEC-Q100, semiconductor cost estimator, wafer price, die cost, OSAT cost, automotive IC">
+<meta name="author" content="ChipCalc">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="반도체 추정원가 계산기 | Semiconductor Cost Estimator">
+<meta property="og:description" content="차량용 반도체 Die 원가·OSAT·판매가 자동 계산. AEC-Q100 패키지 37종, 웨이퍼 가격 매트릭스 62항목 내장.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/">
+<meta property="og:locale" content="ko_KR">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="반도체 추정원가 계산기">
+<meta name="twitter:description" content="Die 원가·OSAT·판매가 자동 계산 무료 도구">
+
+<!-- Structured Data (JSON-LD) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebApplication",
+  "name":"반도체 추정원가 계산기",
+  "alternateName":"Semiconductor Cost Estimator",
+  "description":"차량용 반도체 Die 원가, OSAT, 판매가를 자동으로 계산하는 무료 온라인 도구입니다.",
+  "url":"https://dudwns100.github.io/chipcalc/",
+  "applicationCategory":"BusinessApplication",
+  "operatingSystem":"Web Browser",
+  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+  "inLanguage":["ko","en"]
+}
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -21,11 +54,73 @@
   --r:8px;--r2:12px;--r3:16px;
   --sh:0 2px 8px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.05);
   --sh2:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.05);
+  --topbar-bg:rgba(255,255,255,0.92);
 }
+
+/* ── DARK MODE ── */
+body.dark{
+  --bg:#1c1c1e;--surface:#2c2c2e;--s2:#3a3a3c;--s3:#2c2c2e;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
+  --l1:#f2f2f7;--l2:#ebebf5;--l3:#aeaeb2;--l4:#636366;
+  --blue-t:rgba(0,113,227,0.18);--blue-s:rgba(0,113,227,0.35);
+  --green-t:rgba(48,185,74,0.15);--green-s:rgba(48,185,74,0.35);
+  --orange-t:rgba(242,90,0,0.15);--orange-s:rgba(242,90,0,0.35);
+  --red-t:rgba(228,54,42,0.15);--red-s:rgba(228,54,42,0.35);
+  --purple-t:rgba(110,68,204,0.18);--purple-s:rgba(110,68,204,0.35);
+  --sh:0 2px 8px rgba(0,0,0,0.25),0 1px 3px rgba(0,0,0,0.18);
+  --sh2:0 4px 16px rgba(0,0,0,0.30),0 2px 6px rgba(0,0,0,0.20);
+  --topbar-bg:rgba(28,28,30,0.92);
+}
+body.dark input[type="number"],body.dark input[type="text"],body.dark select{background:var(--s2);color:var(--l1);border-color:var(--border2)}
+body.dark select{background-color:var(--s2)}
+body.dark .lpanel{background:var(--surface)}
+body.dark .ccard,body.dark .rcard{background:var(--surface)}
+body.dark .ccard-hd:hover,body.dark .rcard-hd:hover,body.dark .brow:hover,body.dark .dpw-row:hover,body.dark .sim-drow:hover{background:var(--s2)}
+body.dark .brow.hl{background:rgba(0,113,227,0.18)}
+body.dark .fi-b{background:rgba(0,113,227,0.15);border-color:rgba(0,113,227,0.3)}
+body.dark .fi-o{background:rgba(242,90,0,0.15);border-color:rgba(242,90,0,0.3)}
+body.dark .fi-g{background:rgba(48,185,74,0.15);border-color:rgba(48,185,74,0.3)}
+body.dark .matrix-wrap,body.dark .dpw-table,body.dark .sim-detail,body.dark .bdl{border-color:var(--border)}
+body.dark .note{background:rgba(0,113,227,0.15)}
+body.dark .note.ok{background:rgba(48,185,74,0.15)}
+body.dark .note.warn{background:rgba(242,90,0,0.15)}
+body.dark .sim-card{background:var(--s2)}
+body.dark .sim-card.base{background:rgba(0,113,227,0.18)}
+body.dark .sim-card.up{background:rgba(228,54,42,0.18)}
+body.dark .sim-card.dn{background:rgba(48,185,74,0.18)}
+body.dark .sel-badge{background:rgba(0,113,227,0.18)}
+body.dark .ptrack{background:var(--s2)}
+
+/* ── TOPBAR CONTROLS ── */
+.topbar-r{display:flex;align-items:center;gap:6px}
+
+.mode-toggle{
+  display:flex;align-items:center;gap:0;
+  background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px;
+}
+.mode-btn{
+  height:22px;padding:0 9px;border:none;border-radius:18px;
+  font-family:var(--font);font-size:10px;font-weight:500;
+  cursor:pointer;background:transparent;color:var(--l3);
+  transition:all 0.15s;white-space:nowrap;
+}
+.mode-btn.active{background:var(--surface);color:var(--l1);box-shadow:0 1px 3px rgba(0,0,0,0.12)}
+
+.lang-toggle{
+  display:flex;align-items:center;gap:0;
+  background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px;
+}
+.lang-btn{
+  height:22px;padding:0 10px;border:none;border-radius:18px;
+  font-family:var(--font);font-size:10px;font-weight:600;
+  cursor:pointer;background:transparent;color:var(--l3);
+  transition:all 0.15s;letter-spacing:0.03em;
+}
+.lang-btn.active{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(0,113,227,0.3)}
 body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:12px;line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100vh}
 
 /* ── TOPBAR ── */
-.topbar{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
 .topbar-l{display:flex;align-items:center;gap:9px}
 .app-icon{width:26px;height:26px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;box-shadow:0 2px 6px rgba(0,113,227,0.35);flex-shrink:0}
 .app-title{font-size:14px;font-weight:600;letter-spacing:-0.01em}
@@ -134,7 +229,7 @@ option{color:var(--l1);font-weight:400;background:#fff}
 .hero{background:linear-gradient(145deg,#0071e3 0%,#0051a8 100%);border-radius:var(--r2);padding:14px 18px 13px;box-shadow:0 6px 20px rgba(0,113,227,0.26);position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none}
 .hero::after{content:'';position:absolute;bottom:-50px;left:-15px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none}
-.hero-top{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;margin-bottom:10px}
+.hero-top{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:center;margin-bottom:10px}
 .hero-label{font-size:8.5px;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:2px}
 .hero-val{font-size:30px;font-weight:700;color:#fff;font-family:var(--mono);line-height:1;letter-spacing:-0.02em;margin-bottom:2px;position:relative;z-index:1}
 .hero-sub{font-size:13px;color:rgba(255,255,255,0.7);font-family:var(--mono);position:relative;z-index:1}
@@ -298,11 +393,21 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   <div class="topbar-l">
     <div class="app-icon">IC</div>
     <div>
-      <span class="app-title">반도체 추정원가 계산기</span>
+      <span class="app-title" data-i="app-title">반도체 추정원가 계산기</span>
       <span class="app-sub">· Chip Cost Estimator</span>
     </div>
   </div>
-  <div class="ver">v4.3</div>
+  <div class="topbar-r">
+    <span class="ver">v1.0</span>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀ Light</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾ Dark</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">한국어</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
+    </div>
+  </div>
 </div>
 
 <div class="layout">
@@ -312,7 +417,7 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   <!-- 제품 검색 -->
   <div class="ccard collapsed" id="cc-search">
     <div class="ccard-hd" onclick="toggleCard('cc-search')">
-      <div class="ccard-hd-l"><div class="ccard-icon ci-purple" style="background:var(--purple-t);color:var(--purple)">🔍</div><div class="ccard-title">반도체 제품 검색</div></div>
+      <div class="ccard-hd-l"><div class="ccard-icon ci-purple" style="background:var(--purple-t);color:var(--purple)">🔍</div><div class="ccard-title" data-i="search-sec">반도체 제품 검색</div></div>
       <div class="ccard-hd-r"><span class="ccard-sum" id="sum-search">AI 기반 정보 조회</span><button class="cbtn" onclick="event.stopPropagation();toggleCard('cc-search')">+</button></div>
     </div>
     <div class="ccard-body">
@@ -331,21 +436,21 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
 
   <div class="ccard" id="cc-wafer">
     <div class="ccard-hd" onclick="toggleCard('cc-wafer')">
-      <div class="ccard-hd-l"><div class="ccard-icon ci-blue">🏭</div><div class="ccard-title">웨이퍼 설정</div></div>
+      <div class="ccard-hd-l"><div class="ccard-icon ci-blue">🏭</div><div class="ccard-title" data-i="wafer-sec">웨이퍼 설정</div></div>
       <div class="ccard-hd-r"><span class="ccard-sum" id="sum-wafer">—</span><button class="cbtn" onclick="event.stopPropagation();toggleCard('cc-wafer')">−</button></div>
     </div>
     <div class="ccard-body">
       <div class="fg">
         <div class="fr fr3">
-          <div class="field"><div class="fl">제품군</div><select id="productCat" onchange="onSelChange()"></select></div>
-          <div class="field"><div class="fl">웨이퍼 사이즈</div>
+          <div class="field"><div class="fl" data-i="fl-prod">제품군</div><select id="productCat" onchange="onSelChange()"></select></div>
+          <div class="field"><div class="fl" data-i="fl-size">웨이퍼 사이즈</div>
             <select id="waferSize" onchange="onSelChange()">
               <option value="6">6인치 (150mm)</option>
               <option value="8">8인치 (200mm)</option>
               <option value="12" selected>12인치 (300mm)</option>
             </select>
           </div>
-          <div class="field"><div class="fl">공정 노드</div>
+          <div class="field"><div class="fl" data-i="fl-node">공정 노드</div>
             <select id="processNode" onchange="onSelChange()">
               <optgroup label="Legacy"><option value="350">0.35μm</option><option value="180">0.18μm</option></optgroup>
               <optgroup label="Mature"><option value="90">90nm</option><option value="65">65nm</option><option value="55">55nm</option><option value="40">40nm</option><option value="28">28nm</option><option value="22">22nm</option></optgroup>
@@ -356,12 +461,12 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
             <div class="fl">가격 매트릭스 (제품군 × 노드 × 사이즈)</div>
-            <button class="edit-btn" onclick="openModal('modal-wafer')">✏ 가격 편집</button>
+            <button class="edit-btn" data-i="edit-wafer" onclick="openModal('modal-wafer')">✏ 가격 편집</button>
           </div>
           <div class="matrix-wrap" id="priceMatrix"></div>
         </div>
         <div class="field">
-          <div class="fl">적용 웨이퍼 가격 (USD/장) — 직접 수정 가능</div>
+          <div class="fl" data-i="fl-wprice">적용 웨이퍼 가격 (USD/장) — 직접 수정 가능</div>
           <div class="iw"><input type="number" id="waferPrice" value="0" step="100" oninput="calc()"><span class="iu">$</span></div>
         </div>
       </div>
@@ -370,50 +475,50 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
 
   <div class="ccard" id="cc-die">
     <div class="ccard-hd" onclick="toggleCard('cc-die')">
-      <div class="ccard-hd-l"><div class="ccard-icon ci-blue">🔲</div><div class="ccard-title">Die 파라미터</div></div>
+      <div class="ccard-hd-l"><div class="ccard-icon ci-blue">🔲</div><div class="ccard-title" data-i="die-sec">Die 파라미터</div></div>
       <div class="ccard-hd-r"><span class="ccard-sum" id="sum-die">—</span><button class="cbtn" onclick="event.stopPropagation();toggleCard('cc-die')">−</button></div>
     </div>
     <div class="ccard-body">
       <div class="fg">
         <div class="fr fr3" style="align-items:flex-end">
-          <div class="field"><div class="fl">Die 가로 (mm)</div><div class="iw"><input type="number" id="dieW" value="7" step="0.1" min="0.1" oninput="onDieChange()"><span class="iu">mm</span></div></div>
-          <div class="field"><div class="fl">Die 세로 (mm)</div><div class="iw"><input type="number" id="dieH" value="7" step="0.1" min="0.1" oninput="onDieChange()"><span class="iu">mm</span></div></div>
-          <div class="field"><div class="fl">Die 면적 (자동)</div><input type="text" id="dieAreaDisp" value="49.0 mm²" readonly></div>
+          <div class="field"><div class="fl" data-i="fl-dieW">Die 가로 (mm)</div><div class="iw"><input type="number" id="dieW" value="7" step="0.1" min="0.1" oninput="onDieChange()"><span class="iu">mm</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-dieH">Die 세로 (mm)</div><div class="iw"><input type="number" id="dieH" value="7" step="0.1" min="0.1" oninput="onDieChange()"><span class="iu">mm</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-dieArea">Die 면적 (자동)</div><input type="text" id="dieAreaDisp" value="49.0 mm²" readonly></div>
         </div>
         <div class="fr fr2">
-          <div class="field"><div class="fl">Wafer Yield (%)</div><div class="iw"><input type="number" id="waferYield" value="90" step="1" max="100" min="1" oninput="calc()"><span class="iu">%</span></div></div>
-          <div class="field"><div class="fl">Die 원가 (자동계산)</div><input type="text" id="dieCostDisp" value="$0.000" readonly></div>
+          <div class="field"><div class="fl" data-i="fl-yield">Wafer Yield (%)</div><div class="iw"><input type="number" id="waferYield" value="90" step="1" max="100" min="1" oninput="calc()"><span class="iu">%</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-dieCost">Die 원가 (자동계산)</div><input type="text" id="dieCostDisp" value="$0.000" readonly></div>
         </div>
-        <div class="note"><span>ℹ︎</span><span>DPW = π×R²/A − π×D/√(2A) → Wafer Yield → Die 원가 = 웨이퍼가격 ÷ 양품 Die 수</span></div>
+        <div class="note"><span>ℹ︎</span><span data-i="note-dpw">DPW = π×R²/A − π×D/√(2A) → Wafer Yield → Die 원가 = 웨이퍼가격 ÷ 양품 Die 수</span></div>
       </div>
     </div>
   </div>
 
   <div class="ccard" id="cc-osat">
     <div class="ccard-hd" onclick="toggleCard('cc-osat')">
-      <div class="ccard-hd-l"><div class="ccard-icon ci-orange">📦</div><div class="ccard-title">어셈블리 &amp; 테스트 (OSAT)</div></div>
+      <div class="ccard-hd-l"><div class="ccard-icon ci-orange">📦</div><div class="ccard-title" data-i="osat-sec">어셈블리 &amp; 테스트 (OSAT)</div></div>
       <div class="ccard-hd-r"><span class="ccard-sum" id="sum-osat">—</span><button class="cbtn" onclick="event.stopPropagation();toggleCard('cc-osat')">−</button></div>
     </div>
     <div class="ccard-body">
       <div class="fg">
         <div class="fr fr2">
-          <div class="field"><div class="fl">패키지 유형</div><select id="pkgSelect" onchange="onPkgChange()"></select></div>
-          <div class="field"><div class="fl">Pin 수</div><select id="pinSelect" onchange="onPinChange()"></select></div>
+          <div class="field"><div class="fl" data-i="fl-pkg">패키지 유형</div><select id="pkgSelect" onchange="onPkgChange()"></select></div>
+          <div class="field"><div class="fl" data-i="fl-pin">Pin 수</div><select id="pinSelect" onchange="onPinChange()"></select></div>
         </div>
-        <div><button class="edit-btn" onclick="openModal('modal-pkg')">✏ 패키지 편집</button></div>
+        <div><button class="edit-btn" data-i="edit-pkg" onclick="openModal('modal-pkg')">✏ 패키지 편집</button></div>
         <div id="pinBadge" style="display:none"></div>
         <div class="fr fr2">
-          <div class="field"><div class="fl">어셈블리 ($/unit)</div><div class="iw"><input type="number" id="asmCost" value="0.080" step="0.005" min="0" oninput="calc()"><span class="iu">$</span></div></div>
-          <div class="field"><div class="fl">테스트 ($/unit)</div><div class="iw"><input type="number" id="testCost" value="0.050" step="0.005" min="0" oninput="calc()"><span class="iu">$</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-asm">어셈블리 ($/unit)</div><div class="iw"><input type="number" id="asmCost" value="0.080" step="0.005" min="0" oninput="calc()"><span class="iu">$</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-test">테스트 ($/unit)</div><div class="iw"><input type="number" id="testCost" value="0.050" step="0.005" min="0" oninput="calc()"><span class="iu">$</span></div></div>
         </div>
-        <div class="field"><div class="fl">OSAT 합계 (자동)</div><input type="text" id="osatDisp" value="$0.000" readonly></div>
+        <div class="field"><div class="fl" data-i="fl-osat">OSAT 합계 (자동)</div><input type="text" id="osatDisp" value="$0.000" readonly></div>
       </div>
     </div>
   </div>
 
   <div class="ccard" id="cc-price">
     <div class="ccard-hd" onclick="toggleCard('cc-price')">
-      <div class="ccard-hd-l"><div class="ccard-icon ci-green">💰</div><div class="ccard-title">판매가 구조</div></div>
+      <div class="ccard-hd-l"><div class="ccard-icon ci-green">💰</div><div class="ccard-title" data-i="price-sec">판매가 구조</div></div>
       <div class="ccard-hd-r"><span class="ccard-sum" id="sum-price">69/16/15%</span><button class="cbtn" onclick="event.stopPropagation();toggleCard('cc-price')">−</button></div>
     </div>
     <div class="ccard-body">
@@ -424,14 +529,14 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
           <div class="fi fi-g"><div class="fi-pct" id="lbl-op">15%</div><div class="fi-lbl">영업이익</div></div>
         </div>
         <div class="fr fr3">
-          <div class="field"><div class="fl">제조원가 비율</div><div class="iw"><input type="number" id="cogsRatio" value="69" step="1" min="1" max="99" oninput="onRatioChange()"><span class="iu">%</span></div></div>
-          <div class="field"><div class="fl">R&amp;D+판관비</div><div class="iw"><input type="number" id="rndRatio" value="16" step="1" min="0" max="99" oninput="onRatioChange()"><span class="iu">%</span></div></div>
-          <div class="field"><div class="fl">영업이익</div><div class="iw"><input type="number" id="opRatio" value="15" step="1" min="0" max="99" oninput="onRatioChange()"><span class="iu">%</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-cogsR">제조원가 비율</div><div class="iw"><input type="number" id="cogsRatio" value="69" step="1" min="1" max="99" oninput="onRatioChange()"><span class="iu">%</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-rndR">R&amp;D+판관비</div><div class="iw"><input type="number" id="rndRatio" value="16" step="1" min="0" max="99" oninput="onRatioChange()"><span class="iu">%</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-opR">영업이익</div><div class="iw"><input type="number" id="opRatio" value="15" step="1" min="0" max="99" oninput="onRatioChange()"><span class="iu">%</span></div></div>
         </div>
         <div class="note ok" id="ratio-note"><span>✓</span><span>합계 100% — 판매가 = 제조원가 ÷ 0.69</span></div>
         <div class="fr fr2">
-          <div class="field"><div class="fl">환율 (USD→KRW)</div><div class="iw"><input type="number" id="fxRate" value="1380" step="10" oninput="calc()"><span class="iu">₩</span></div></div>
-          <div class="field"><div class="fl">수량 (K단위)</div><div class="iw"><input type="number" id="qty" value="1000" step="100" min="1" oninput="calc()"><span class="iu">K</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-fx">환율 (USD→KRW)</div><div class="iw"><input type="number" id="fxRate" value="1380" step="10" oninput="calc()"><span class="iu">₩</span></div></div>
+          <div class="field"><div class="fl" data-i="fl-qty">수량 (K단위)</div><div class="iw"><input type="number" id="qty" value="1000" step="100" min="1" oninput="calc()"><span class="iu">K</span></div></div>
         </div>
       </div>
     </div>
@@ -445,29 +550,25 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   <!-- Hero (판매가 + 원가구조 바 통합) -->
   <div class="top-result">
     <div class="hero">
-      <!-- 상단: 판매가 + 주요 수치 -->
+      <!-- 상단: 판매가 + 주요 수치 (50:50) -->
       <div class="hero-top">
         <div class="hero-left">
-          <div class="hero-label">추정 판매가 (ASP)</div>
+          <div class="hero-label" data-i="hero-label">추정 판매가 (ASP)</div>
           <div class="hero-val" id="heroVal">$0.000</div>
           <div class="hero-sub" id="heroKrw">₩0</div>
         </div>
         <div class="hero-right">
           <div class="hero-kv">
-            <span class="hero-kv-label">제조원가</span>
+            <span class="hero-kv-label" data-i="hk-cogs">제조원가</span>
             <span class="hero-kv-val" id="hero-cogs">$0.000</span>
           </div>
           <div class="hero-kv">
-            <span class="hero-kv-label">R&amp;D + 판관비</span>
+            <span class="hero-kv-label" data-i="hk-rnd">R&amp;D + 판관비</span>
             <span class="hero-kv-val" id="hero-rnd">$0.000</span>
           </div>
           <div class="hero-kv">
-            <span class="hero-kv-label">영업이익</span>
+            <span class="hero-kv-label" data-i="hk-op">영업이익</span>
             <span class="hero-kv-val" id="hero-op">$0.000</span>
-          </div>
-          <div class="hero-kv" style="border-top:1px solid rgba(255,255,255,0.15);padding-top:5px;margin-top:2px">
-            <span class="hero-kv-label">총 매출 추정</span>
-            <span class="hero-kv-val" id="hero-rev">$0</span>
           </div>
         </div>
       </div>
@@ -476,7 +577,7 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
       <div class="hero-divider"></div>
 
       <!-- 하단: 원가구조 바 -->
-      <div class="hero-struct-title">원가 구조 (판매가 = 100%)</div>
+      <div class="hero-struct-title" data-i="struct-title">원가 구조 (판매가 = 100%)</div>
       <div class="struct">
         <div class="srow">
           <div class="sname" id="sl1">① 제조원가</div>
@@ -502,51 +603,46 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
     <!-- 원가 내역 -->
     <div class="rcard" id="rc-bd">
       <div class="rcard-hd" onclick="toggleCard('rc-bd')">
-        <div class="rcard-hd-l"><div class="dot dot-b"></div><div class="rcard-title">원가 내역</div></div>
+        <div class="rcard-hd-l"><div class="dot dot-b"></div><div class="rcard-title" data-i="bd-title">원가 내역</div></div>
         <button class="cbtn" onclick="event.stopPropagation();toggleCard('rc-bd')">−</button>
       </div>
       <div class="rcard-body" style="padding-top:8px">
         <div class="bdl">
           <div class="brow">
             <div class="bicon" style="background:var(--blue-t)">🔲</div>
-            <div class="binfo"><div class="bname">Die 원가</div><div class="bdesc">DPW + Yield</div></div>
+            <div class="binfo"><div class="bname" data-i="r-die-label">Die 원가</div><div class="bdesc" data-i="r-die-desc">DPW + Yield</div></div>
             <div class="bright"><div class="bval c-b" id="r-die">$0.000</div><div class="bpct" id="rp-die">—%</div></div>
           </div>
           <div class="brow">
             <div class="bicon" style="background:#e8f5ff">📦</div>
-            <div class="binfo"><div class="bname">OSAT</div><div class="bdesc" id="r-osat-desc">—</div></div>
+            <div class="binfo"><div class="bname" data-i="r-osat-label">OSAT</div><div class="bdesc" id="r-osat-desc">—</div></div>
             <div class="bright"><div class="bval c-b" id="r-osat">$0.000</div><div class="bpct" id="rp-osat">—%</div></div>
           </div>
           <div class="brow hl">
             <div class="bicon" style="background:var(--blue-s)">🏭</div>
-            <div class="binfo"><div class="bname bold">제조원가</div><div class="bdesc" id="r-cogs-desc">= 판매가의 69%</div></div>
+            <div class="binfo"><div class="bname bold" data-i="r-cogs-label">제조원가</div><div class="bdesc" id="r-cogs-desc">= 판매가의 69%</div></div>
             <div class="bright"><div class="bval c-b" id="r-cogs" style="font-size:13px">$0.000</div><div class="bpct" id="rp-cogs">—%</div></div>
           </div>
           <div class="brow">
             <div class="bicon" style="background:var(--orange-t)">📊</div>
-            <div class="binfo"><div class="bname">R&amp;D+판관비</div><div class="bdesc" id="r-rnd-desc">판매가의 16%</div></div>
+            <div class="binfo"><div class="bname" data-i="r-rnd-label">R&amp;D+판관비</div><div class="bdesc" id="r-rnd-desc">판매가의 16%</div></div>
             <div class="bright"><div class="bval c-o" id="r-rnd">$0.000</div><div class="bpct" id="rp-rnd">—%</div></div>
           </div>
           <div class="brow">
             <div class="bicon" style="background:var(--green-t)">💹</div>
-            <div class="binfo"><div class="bname">영업이익</div><div class="bdesc" id="r-op-desc">판매가의 15%</div></div>
+            <div class="binfo"><div class="bname" data-i="r-op-label">영업이익</div><div class="bdesc" id="r-op-desc">판매가의 15%</div></div>
             <div class="bright"><div class="bval c-g" id="r-op">$0.000</div><div class="bpct" id="rp-op">—%</div></div>
           </div>
           <hr class="dv">
           <div class="brow">
             <div class="bicon" style="background:var(--purple-t)">✦</div>
-            <div class="binfo"><div class="bname bold">판매가 (ASP)</div></div>
+            <div class="binfo"><div class="bname bold" data-i="r-asp-label">판매가 (ASP)</div></div>
             <div class="bright"><div class="bval c-big" id="r-asp">$0.000</div><div class="bpct">100%</div></div>
           </div>
           <div class="brow">
             <div class="bicon" style="background:var(--s3)">₩</div>
-            <div class="binfo"><div class="bname">판매가 (KRW)</div></div>
+            <div class="binfo"><div class="bname" data-i="r-krw-label">판매가 (KRW)</div></div>
             <div class="bright"><div class="bval" id="r-asp-krw" style="color:var(--l2);font-size:11.5px">₩0</div></div>
-          </div>
-          <div class="brow">
-            <div class="bicon" style="background:#f0ecfb">📈</div>
-            <div class="binfo"><div class="bname">총 매출 추정</div><div class="bdesc" id="r-rev-desc">—</div></div>
-            <div class="bright"><div class="bval c-p" id="r-revenue" style="font-size:11.5px">$0</div></div>
           </div>
         </div>
       </div>
@@ -557,29 +653,29 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
       <!-- 원가 비중 -->
       <div class="rcard" id="rc-prop">
         <div class="rcard-hd" onclick="toggleCard('rc-prop')">
-          <div class="rcard-hd-l"><div class="dot dot-o"></div><div class="rcard-title">원가 구성 비중</div></div>
+          <div class="rcard-hd-l"><div class="dot dot-o"></div><div class="rcard-title" data-i="prop-title">원가 구성 비중</div></div>
           <button class="cbtn" onclick="event.stopPropagation();toggleCard('rc-prop')">−</button>
         </div>
         <div class="rcard-body">
-          <div class="prow"><div class="pmeta"><span class="pname">Die 원가</span><span class="pnums" id="pn-die">0%</span></div><div class="ptrack"><div class="pfill pf-b" id="pf-die" style="width:0%"></div></div></div>
-          <div class="prow"><div class="pmeta"><span class="pname">OSAT</span><span class="pnums" id="pn-osat">0%</span></div><div class="ptrack"><div class="pfill pf-o" id="pf-osat" style="width:0%"></div></div></div>
-          <div class="prow"><div class="pmeta"><span class="pname">R&amp;D+판관비</span><span class="pnums" id="pn-rnd">16%</span></div><div class="ptrack"><div class="pfill pf-g" id="pf-rnd" style="width:16%"></div></div></div>
+          <div class="prow"><div class="pmeta"><span class="pname" data-i="pn-die-label">Die 원가</span><span class="pnums" id="pn-die">0%</span></div><div class="ptrack"><div class="pfill pf-b" id="pf-die" style="width:0%"></div></div></div>
+          <div class="prow"><div class="pmeta"><span class="pname" data-i="pn-osat-label">OSAT</span><span class="pnums" id="pn-osat">0%</span></div><div class="ptrack"><div class="pfill pf-o" id="pf-osat" style="width:0%"></div></div></div>
+          <div class="prow"><div class="pmeta"><span class="pname" data-i="pn-rnd-label">R&amp;D+판관비</span><span class="pnums" id="pn-rnd">16%</span></div><div class="ptrack"><div class="pfill pf-g" id="pf-rnd" style="width:16%"></div></div></div>
         </div>
       </div>
 
       <!-- DPW -->
       <div class="rcard" id="rc-dpw">
         <div class="rcard-hd" onclick="toggleCard('rc-dpw')">
-          <div class="rcard-hd-l"><div class="dot dot-g"></div><div class="rcard-title">DPW 수율 분석</div></div>
+          <div class="rcard-hd-l"><div class="dot dot-g"></div><div class="rcard-title" data-i="dpw-title">DPW 수율 분석</div></div>
           <button class="cbtn" onclick="event.stopPropagation();toggleCard('rc-dpw')">−</button>
         </div>
         <div class="rcard-body" style="padding-top:6px;padding-bottom:6px">
           <div class="dpw-table">
-            <div class="dpw-row"><span class="dpw-l">웨이퍼 지름 / 면적</span><span class="dpw-v" id="yt-diam">—</span></div>
-            <div class="dpw-row"><span class="dpw-l">Die 크기 (W × H)</span><span class="dpw-v" id="yt-die">—</span></div>
-            <div class="dpw-row"><span class="dpw-l">이론 DPW (Gross Die)</span><span class="dpw-v" id="yt-gross">—</span></div>
-            <div class="dpw-row"><span class="dpw-l">양품 Die (Yield 적용)</span><span class="dpw-v accent" id="yt-good">—</span></div>
-            <div class="dpw-row"><span class="dpw-l">Die 원가</span><span class="dpw-v accent" id="yt-cost">—</span></div>
+            <div class="dpw-row"><span class="dpw-l" data-i="yt-diam-l">웨이퍼 지름 / 면적</span><span class="dpw-v" id="yt-diam">—</span></div>
+            <div class="dpw-row"><span class="dpw-l" data-i="yt-die-l">Die 크기 (W × H)</span><span class="dpw-v" id="yt-die">—</span></div>
+            <div class="dpw-row"><span class="dpw-l" data-i="yt-gross-l">이론 DPW (Gross Die)</span><span class="dpw-v" id="yt-gross">—</span></div>
+            <div class="dpw-row"><span class="dpw-l" data-i="yt-good-l">양품 Die (Yield 적용)</span><span class="dpw-v accent" id="yt-good">—</span></div>
+            <div class="dpw-row"><span class="dpw-l" data-i="yt-cost-l">Die 원가</span><span class="dpw-v accent" id="yt-cost">—</span></div>
           </div>
         </div>
       </div>
@@ -590,7 +686,7 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   <div class="r-full">
     <div class="rcard" id="rc-sim">
       <div class="rcard-hd" onclick="toggleCard('rc-sim')">
-        <div class="rcard-hd-l"><div class="dot dot-r"></div><div class="rcard-title">웨이퍼 가격 변동 시뮬레이터</div></div>
+        <div class="rcard-hd-l"><div class="dot dot-r"></div><div class="rcard-title" data-i="sim-title">웨이퍼 가격 변동 시뮬레이터</div></div>
         <button class="cbtn" onclick="event.stopPropagation();toggleCard('rc-sim')">−</button>
       </div>
       <div class="rcard-body" style="padding:0">
@@ -599,7 +695,7 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
         <!-- Slider -->
         <div class="slider-wrap">
           <div class="slider-top">
-            <div class="slider-label">웨이퍼 가격 변동률</div>
+            <div class="slider-label" data-i="sim-slider-label">웨이퍼 가격 변동률</div>
             <div class="slider-badge">
               <div class="slider-val zero" id="simPctLabel">0%</div>
             </div>
@@ -615,27 +711,27 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
           <button class="preset-btn" onclick="setSimPct(-20)">−20%</button>
           <button class="preset-btn" onclick="setSimPct(-10)">−10%</button>
           <button class="preset-btn" onclick="setSimPct(-5)">−5%</button>
-          <button class="preset-btn active-zero" id="preset0" onclick="setSimPct(0)">기준 (0%)</button>
+          <button class="preset-btn" id="preset0" onclick="setSimPct(0)" data-i-base="기준 (0%)" data-i-base-en="Base (0%)">기준 (0%)</button>
           <button class="preset-btn" onclick="setSimPct(5)">+5%</button>
           <button class="preset-btn" onclick="setSimPct(10)">+10%</button>
           <button class="preset-btn" onclick="setSimPct(20)">+20%</button>
           <button class="preset-btn" onclick="setSimPct(30)">+30%</button>
         </div>
 
-        <!-- 3 cards: base / changed / delta -->
+        <!-- 3 summary cards -->
         <div class="sim-grid">
           <div class="sim-card base">
-            <div class="sim-card-label">현재 웨이퍼가</div>
+            <div class="sim-card-label" data-i="sim-wp-base-label">현재 웨이퍼가</div>
             <div class="sim-card-val" id="sim-wp-base">$0</div>
-            <div class="sim-card-sub">기준가</div>
+            <div class="sim-card-sub" data-i="sim-base-sub">기준가</div>
           </div>
           <div class="sim-card" id="sim-card-new">
-            <div class="sim-card-label" id="sim-new-label">변동 후 웨이퍼가</div>
+            <div class="sim-card-label" id="sim-new-label" data-i="sim-wp-new-label">변동 후 웨이퍼가</div>
             <div class="sim-card-val" id="sim-wp-new">$0</div>
             <div class="sim-card-sub" id="sim-new-sub">변동 없음</div>
           </div>
           <div class="sim-card" id="sim-card-asp">
-            <div class="sim-card-label" id="sim-asp-label">변동 후 판매가</div>
+            <div class="sim-card-label" id="sim-asp-label" data-i="sim-asp-label">변동 후 판매가</div>
             <div class="sim-card-val" id="sim-asp-new">$0.000</div>
             <div class="sim-card-delta" id="sim-asp-delta">—</div>
           </div>
@@ -644,31 +740,31 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
         <!-- Detail rows -->
         <div class="sim-detail">
           <div class="sim-drow">
-            <div class="sim-drow-label">웨이퍼 가격</div>
+            <div class="sim-drow-label" data-i="sd-wp-label">웨이퍼 가격</div>
             <div class="sim-drow-base" id="sd-wp-base">—</div>
             <div class="sim-drow-new eq" id="sd-wp-new">—</div>
             <div class="sim-drow-diff" id="sd-wp-diff">—</div>
           </div>
           <div class="sim-drow">
-            <div class="sim-drow-label">Die 원가</div>
+            <div class="sim-drow-label" data-i="sd-die-label">Die 원가</div>
             <div class="sim-drow-base" id="sd-die-base">—</div>
             <div class="sim-drow-new eq" id="sd-die-new">—</div>
             <div class="sim-drow-diff" id="sd-die-diff">—</div>
           </div>
           <div class="sim-drow">
-            <div class="sim-drow-label">제조원가</div>
+            <div class="sim-drow-label" data-i="sd-cogs-label">제조원가</div>
             <div class="sim-drow-base" id="sd-cogs-base">—</div>
             <div class="sim-drow-new eq" id="sd-cogs-new">—</div>
             <div class="sim-drow-diff" id="sd-cogs-diff">—</div>
           </div>
           <div class="sim-drow">
-            <div class="sim-drow-label">판매가 (ASP)</div>
+            <div class="sim-drow-label" data-i="sd-asp-label">판매가 (ASP)</div>
             <div class="sim-drow-base" id="sd-asp-base">—</div>
             <div class="sim-drow-new eq" id="sd-asp-new">—</div>
             <div class="sim-drow-diff" id="sd-asp-diff">—</div>
           </div>
           <div class="sim-drow">
-            <div class="sim-drow-label">판매가 (KRW)</div>
+            <div class="sim-drow-label" data-i="sd-krw-label">판매가 (KRW)</div>
             <div class="sim-drow-base" id="sd-krw-base">—</div>
             <div class="sim-drow-new eq" id="sd-krw-new">—</div>
             <div class="sim-drow-diff" id="sd-krw-diff">—</div>
@@ -1072,15 +1168,17 @@ function onRatioChange(){
   OR=(parseFloat(document.getElementById('opRatio').value)||15)/100;
   var tot=Math.round((CR+RR+OR)*100);
   var note=document.getElementById('ratio-note');
-  if(tot===100){note.className='note ok';note.innerHTML='<span>✓</span><span>합계 100% — 판매가 = 제조원가 ÷ '+CR.toFixed(2)+'</span>';}
-  else{note.className='note warn';note.innerHTML='<span>⚠</span><span>합계 '+tot+'% — 100%가 되어야 합니다.</span>';}
-  document.getElementById('lbl-cogs').textContent=Math.round(CR*100)+'%';
-  document.getElementById('lbl-rnd').textContent=Math.round(RR*100)+'%';
-  document.getElementById('lbl-op').textContent=Math.round(OR*100)+'%';
-  document.getElementById('sl1').textContent='① 제조원가 ('+Math.round(CR*100)+'%)';
-  document.getElementById('sl2').textContent='② R&D+판관비 ('+Math.round(RR*100)+'%)';
-  document.getElementById('sl3').textContent='③ 영업이익 ('+Math.round(OR*100)+'%)';
-  document.getElementById('sum-price').textContent=Math.round(CR*100)+'/'+Math.round(RR*100)+'/'+Math.round(OR*100)+'%';
+  var d=DICT[curLang]||DICT['ko'];
+  var cr=Math.round(CR*100),rr=Math.round(RR*100),orr=Math.round(OR*100);
+  if(tot===100){note.className='note ok';note.innerHTML='<span>✓</span><span>'+(d['note-ratio-ok']||'합계 100%')+' — ASP = COGS ÷ '+CR.toFixed(2)+'</span>';}
+  else{note.className='note warn';note.innerHTML='<span>⚠</span><span>Total '+tot+'% — must be 100%</span>';}
+  document.getElementById('lbl-cogs').textContent=cr+'%';
+  document.getElementById('lbl-rnd').textContent=rr+'%';
+  document.getElementById('lbl-op').textContent=orr+'%';
+  document.getElementById('sl1').textContent=(d['sl1']||'① 제조원가')+' ('+cr+'%)';
+  document.getElementById('sl2').textContent=(d['sl2']||'② R&D+판관비')+' ('+rr+'%)';
+  document.getElementById('sl3').textContent=(d['sl3']||'③ 영업이익')+' ('+orr+'%)';
+  document.getElementById('sum-price').textContent=cr+'/'+rr+'/'+orr+'%';
   calc();
 }
 
@@ -1187,21 +1285,20 @@ function calc(){
   var asm=parseFloat(document.getElementById('asmCost').value)||0;
   var tst=parseFloat(document.getElementById('testCost').value)||0;
   var fx=parseFloat(document.getElementById('fxRate').value)||1380;
-  var qty=parseFloat(document.getElementById('qty').value)||1000;
   var d=dpwCalc();
   var good=Math.max(Math.floor(d.gross*wy),1);
   var die=wp/good,osat=asm+tst,cogs=die+osat;
-  var asp=CR>0?cogs/CR:0,rnd=asp*RR,op=asp*OR,rev=asp*qty*1000;
+  var asp=CR>0?cogs/CR:0,rnd=asp*RR,op=asp*OR;
   var dp=asp>0?die/asp*100:0,op2=asp>0?osat/asp*100:0,cp=asp>0?cogs/asp*100:0,rp=asp>0?rnd/asp*100:0,opp=asp>0?op/asp*100:0;
   function g(id){return document.getElementById(id);}
   function p1(v){return v.toFixed(1)+'%';}
+  var isEn=(curLang==='en');
 
   /* Hero */
   g('heroVal').textContent=fmt(asp);g('heroKrw').textContent=fmtKrw(asp,fx);
   g('hero-cogs').textContent=fmt(cogs);
   g('hero-rnd').textContent=fmt(rnd);
   g('hero-op').textContent=fmt(op);
-  g('hero-rev').textContent='$'+Math.round(rev).toLocaleString('en-US');
 
   /* Struct */
   var cr=Math.round(CR*100),rr=Math.round(RR*100),orr=Math.round(OR*100);
@@ -1212,21 +1309,23 @@ function calc(){
   /* Breakdown */
   g('r-die').textContent=fmt(die);g('rp-die').textContent=p1(dp);
   g('r-osat').textContent=fmt(osat);g('rp-osat').textContent=p1(op2);
-  g('r-cogs').textContent=fmt(cogs);g('rp-cogs').textContent=p1(cp);g('r-cogs-desc').textContent='= 판매가의 '+p1(cp);
-  g('r-rnd').textContent=fmt(rnd);g('rp-rnd').textContent=p1(rp);g('r-rnd-desc').textContent='판매가의 '+p1(rp);
-  g('r-op').textContent=fmt(op);g('rp-op').textContent=p1(opp);g('r-op-desc').textContent='판매가의 '+p1(opp);
+  g('r-cogs').textContent=fmt(cogs);g('rp-cogs').textContent=p1(cp);
+  g('r-cogs-desc').textContent=(isEn?'= '+p1(cp)+' of ASP':'= 판매가의 '+p1(cp));
+  g('r-rnd').textContent=fmt(rnd);g('rp-rnd').textContent=p1(rp);
+  g('r-rnd-desc').textContent=(isEn?p1(rp)+' of ASP':'판매가의 '+p1(rp));
+  g('r-op').textContent=fmt(op);g('rp-op').textContent=p1(opp);
+  g('r-op-desc').textContent=(isEn?p1(opp)+' of ASP':'판매가의 '+p1(opp));
   g('r-asp').textContent=fmt(asp);g('r-asp-krw').textContent=fmtKrw(asp,fx);
-  g('r-revenue').textContent='$'+Math.round(rev).toLocaleString('en-US');g('r-rev-desc').textContent='수량 '+qty.toLocaleString()+'K 기준';
 
   /* Prop bars */
   g('pn-die').textContent=p1(dp)+' · '+fmt(die);g('pn-osat').textContent=p1(op2)+' · '+fmt(osat);g('pn-rnd').textContent=p1(rp)+' · '+fmt(rnd);
   g('pf-die').style.width=Math.min(dp,100)+'%';g('pf-osat').style.width=Math.min(op2,100)+'%';g('pf-rnd').style.width=Math.min(rp,100)+'%';
 
   /* DPW */
-  g('yt-diam').textContent=d.D+'mm 지름 / '+Math.round(Math.PI*(d.D/2)*(d.D/2))+'mm²';
+  g('yt-diam').textContent=d.D+'mm '+(isEn?'diam / ':'지름 / ')+Math.round(Math.PI*(d.D/2)*(d.D/2))+'mm²';
   g('yt-die').textContent=d.W+' × '+d.H+' mm = '+d.A.toFixed(2)+' mm²';
-  g('yt-gross').textContent=d.gross+' ea (이론값)';
-  g('yt-good').textContent=good+' ea (Yield '+Math.round(wy*100)+'% 적용)';
+  g('yt-gross').textContent=d.gross+' ea '+(isEn?'(theory)':'(이론값)');
+  g('yt-good').textContent=good+' ea (Yield '+Math.round(wy*100)+'%'+(isEn?' applied':' 적용')+')';
   g('yt-cost').textContent=fmt(die)+' = $'+wp+' ÷ '+good;
 
   g('dieCostDisp').value=fmt(die);g('osatDisp').value=fmt(osat);
@@ -1363,6 +1462,123 @@ function applySearchVal(type){
   }
 }
 
+/* ──────── DARK / LIGHT MODE ──────── */
+var curLang = 'ko'; /* declare early so onRatioChange can reference DICT */
+function setMode(m){
+  document.body.classList.toggle('dark', m==='dark');
+  document.getElementById('btn-light').classList.toggle('active', m==='light');
+  document.getElementById('btn-dark').classList.toggle('active', m==='dark');
+  try{localStorage.setItem('sc_mode',m);}catch(e){}
+}
+
+/* ──────── i18n DICTIONARY ──────── */
+var DICT = {
+  ko:{
+    'app-title':'반도체 추정원가 계산기',
+    'hero-label':'추정 판매가 (ASP)',
+    'hk-cogs':'제조원가','hk-rnd':'R&D + 판관비','hk-op':'영업이익',
+    'struct-title':'원가 구조 (판매가 = 100%)',
+    'sl1':'① 제조원가','sl2':'② R&D+판관비','sl3':'③ 영업이익',
+    'bd-title':'원가 내역',
+    'r-die-label':'Die 원가','r-die-desc':'DPW + Yield',
+    'r-osat-label':'OSAT','r-cogs-label':'제조원가',
+    'r-rnd-label':'R&D + 판매관리비','r-op-label':'영업이익',
+    'r-asp-label':'판매가 (ASP)','r-krw-label':'판매가 (KRW)',
+    'prop-title':'원가 구성 비중',
+    'pn-die-label':'Die 원가','pn-osat-label':'OSAT','pn-rnd-label':'R&D + 판관비',
+    'dpw-title':'DPW 수율 분석',
+    'yt-diam-l':'웨이퍼 지름 / 면적','yt-die-l':'Die 크기 (W × H)',
+    'yt-gross-l':'이론 DPW (Gross Die)','yt-good-l':'양품 Die (Yield 적용)','yt-cost-l':'Die 원가',
+    'sim-title':'웨이퍼 가격 변동 시뮬레이터',
+    'sim-slider-label':'웨이퍼 가격 변동률',
+    'sim-wp-base-label':'현재 웨이퍼가','sim-wp-new-label':'변동 후 웨이퍼가','sim-asp-label':'변동 후 판매가',
+    'sd-wp-label':'웨이퍼 가격','sd-die-label':'Die 원가','sd-cogs-label':'제조원가',
+    'sd-asp-label':'판매가 (ASP)','sd-krw-label':'판매가 (KRW)',
+    'sens-plus':'+20%','sens-base':'기준','sens-minus':'−20%',
+    'wafer-sec':'웨이퍼 설정','die-sec':'Die 파라미터','osat-sec':'어셈블리 & 테스트 (OSAT)','price-sec':'판매가 구조',
+    'search-sec':'반도체 제품 검색',
+    'fl-prod':'제품군','fl-size':'웨이퍼 사이즈','fl-node':'공정 노드',
+    'fl-wprice':'적용 웨이퍼 가격 (USD/장) — 직접 수정 가능',
+    'fl-dieW':'Die 가로 (mm)','fl-dieH':'Die 세로 (mm)','fl-dieArea':'Die 면적 (자동)',
+    'fl-yield':'Wafer Yield (%)','fl-dieCost':'Die 원가 (자동계산)',
+    'fl-pkg':'패키지 유형','fl-pin':'Pin 수',
+    'fl-asm':'어셈블리 ($/unit)','fl-test':'테스트 ($/unit)','fl-osat':'OSAT 합계 (자동)',
+    'fl-cogsR':'제조원가 비율','fl-rndR':'R&D+판관비','fl-opR':'영업이익',
+    'fl-fx':'환율 (USD→KRW)','fl-qty':'수량 (K단위)',
+    'note-dpw':'DPW = π×R²/A − π×D/√(2A) → Wafer Yield → Die 원가 = 웨이퍼가격 ÷ 양품 Die 수',
+    'note-ratio-ok':'합계 100%',
+    'edit-wafer':'✏ 가격 편집','edit-pkg':'✏ 패키지 편집',
+    'matrix-6':'6인치','matrix-8':'8인치','matrix-12':'12인치',
+    'sim-col-plus':'+20%','sim-col-base':'기준값','sim-col-minus':'−20%',
+  },
+  en:{
+    'app-title':'Semiconductor Cost Estimator',
+    'hero-label':'Estimated Selling Price (ASP)',
+    'hk-cogs':'Mfg. Cost','hk-rnd':'R&D + SG&A','hk-op':'Op. Income',
+    'struct-title':'Cost Structure (ASP = 100%)',
+    'sl1':'① Mfg. Cost','sl2':'② R&D+SG&A','sl3':'③ Op. Income',
+    'bd-title':'Cost Breakdown',
+    'r-die-label':'Die Cost','r-die-desc':'DPW + Yield',
+    'r-osat-label':'OSAT','r-cogs-label':'Mfg. Cost',
+    'r-rnd-label':'R&D + SG&A','r-op-label':'Op. Income',
+    'r-asp-label':'Selling Price (ASP)','r-krw-label':'Selling Price (KRW)',
+    'prop-title':'Cost Proportion',
+    'pn-die-label':'Die Cost','pn-osat-label':'OSAT','pn-rnd-label':'R&D + SG&A',
+    'dpw-title':'DPW Yield Analysis',
+    'yt-diam-l':'Wafer Diam / Area','yt-die-l':'Die Size (W × H)',
+    'yt-gross-l':'Gross DPW (Theory)','yt-good-l':'Good Die (after Yield)','yt-cost-l':'Die Cost',
+    'sim-title':'Wafer Price Change Simulator',
+    'sim-slider-label':'Wafer Price Change',
+    'sim-wp-base-label':'Current Wafer Price','sim-wp-new-label':'New Wafer Price','sim-asp-label':'New Selling Price',
+    'sd-wp-label':'Wafer Price','sd-die-label':'Die Cost','sd-cogs-label':'Mfg. Cost',
+    'sd-asp-label':'Selling Price','sd-krw-label':'Selling Price (KRW)',
+    'sens-plus':'+20%','sens-base':'Base','sens-minus':'−20%',
+    'wafer-sec':'Wafer Settings','die-sec':'Die Parameters','osat-sec':'Assembly & Test (OSAT)','price-sec':'Pricing Structure',
+    'search-sec':'IC Product Search',
+    'fl-prod':'Product Category','fl-size':'Wafer Size','fl-node':'Process Node',
+    'fl-wprice':'Applied Wafer Price (USD) — editable',
+    'fl-dieW':'Die Width (mm)','fl-dieH':'Die Height (mm)','fl-dieArea':'Die Area (auto)',
+    'fl-yield':'Wafer Yield (%)','fl-dieCost':'Die Cost (auto)',
+    'fl-pkg':'Package Type','fl-pin':'Pin Count',
+    'fl-asm':'Assembly ($/unit)','fl-test':'Test ($/unit)','fl-osat':'OSAT Total (auto)',
+    'fl-cogsR':'Mfg. Cost Ratio','fl-rndR':'R&D + SG&A','fl-opR':'Op. Income',
+    'fl-fx':'Exchange Rate (USD→KRW)','fl-qty':'Quantity (K units)',
+    'note-dpw':'DPW = π×R²/A − π×D/√(2A) → Wafer Yield → Die Cost = Wafer Price ÷ Good Dies',
+    'note-ratio-ok':'Total 100%',
+    'edit-wafer':'✏ Edit Prices','edit-pkg':'✏ Edit Packages',
+    'matrix-6':'6-inch','matrix-8':'8-inch','matrix-12':'12-inch',
+    'sim-col-plus':'+20%','sim-col-base':'Base','sim-col-minus':'−20%',
+  }
+};
+
+function setLang(l){
+  curLang = l;
+  document.getElementById('btn-ko').classList.toggle('active', l==='ko');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.documentElement.lang = l==='ko'?'ko':'en';
+  var d = DICT[l];
+  /* Apply to all data-i elements */
+  document.querySelectorAll('[data-i]').forEach(function(el){
+    var k = el.getAttribute('data-i');
+    if(d[k] !== undefined) el.innerHTML = d[k];
+  });
+  /* Update struct labels */
+  ['sl1','sl2','sl3'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el && d[id]) el.textContent=d[id];
+  });
+  /* Update ratio note */
+  onRatioChange();
+  /* Update sim column headers */
+  document.querySelectorAll('.scol-t').forEach(function(el,i){
+    if(i===0 && d['sim-col-plus']) el.textContent=d['sim-col-plus'];
+    else if(i===1 && d['sim-col-base']) el.textContent=d['sim-col-base'];
+    else if(i===2 && d['sim-col-minus']) el.textContent=d['sim-col-minus'];
+  });
+  try{localStorage.setItem('sc_lang',l);}catch(e){}
+}
+
+/* ──────── INIT ──────── */
 /* ──────── INIT ──────── */
 loadData();
 buildProductDD();
@@ -1372,6 +1588,13 @@ onDieChange();
 lookupMatrix();
 updateSliderStyle();
 renderSim();
+/* Restore preferences */
+try{
+  var savedMode=localStorage.getItem('sc_mode');
+  if(savedMode) setMode(savedMode);
+  var savedLang=localStorage.getItem('sc_lang');
+  if(savedLang) setLang(savedLang);
+}catch(e){}
 </script>
 </body>
 </html>
