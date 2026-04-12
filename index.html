@@ -1132,7 +1132,10 @@ function lookupMatrix(){
   var p8=row&&row.p8?row.p8:null;
   var p12=row&&row.p12?row.p12:null;
   function cell(v,sz){var a=(sz===size&&v);return '<div class="mcell'+(a?' on':(!v?' na':''))+'">'+( v?'$'+Number(v).toLocaleString('en-US'):'—')+'</div>';}
-  document.getElementById('priceMatrix').innerHTML='<div class="matrix-hd"><span>6인치</span><span>8인치</span><span>12인치</span></div><div class="matrix-row">'+cell(p6,6)+cell(p8,8)+cell(p12,12)+'</div>';
+  
+  var d=DICT[curLang];
+  document.getElementById('priceMatrix').innerHTML='<div class="matrix-hd"><span>'+d['matrix-6']+'</span><span>'+d['matrix-8']+'</span><span>'+d['matrix-12']+'</span></div><div class="matrix-row">'+cell(p6,6)+cell(p8,8)+cell(p12,12)+'</div>';
+  
   var matched=size===6?p6:size===8?p8:p12;
   if(matched)document.getElementById('waferPrice').value=matched;
   var nodeLabel=document.getElementById('processNode').options[document.getElementById('processNode').selectedIndex].text;
@@ -1575,6 +1578,7 @@ function setLang(l){
     else if(i===1 && d['sim-col-base']) el.textContent=d['sim-col-base'];
     else if(i===2 && d['sim-col-minus']) el.textContent=d['sim-col-minus'];
   });
+  lookupMatrix();
   try{localStorage.setItem('sc_lang',l);}catch(e){}
 }
 
