@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About ChipCalc — 반도체 추정원가 계산기 소개</title>
+<meta name="description" content="ChipCalc는 차량용 반도체의 Die 원가, OSAT, 판매가를 무료로 추정할 수 있는 온라인 도구입니다. 도구 소개와 개발 배경을 안내합니다.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/about.html">
+<!-- GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --blue:#0071e3;--l1:#1c1c1e;--l2:#3c3c43;--l3:#6b6b70;--l4:#aeaeb2;
+  --bg:#f2f2f7;--surface:#fff;--border:rgba(0,0,0,0.09);
+  --blue-t:#f0f6ff;--blue-s:#d7eaff;
+  --green:#30b94a;--green-t:#f0fbf3;--green-s:#d4f0db;
+  --orange:#f25a00;--orange-t:#fff5ef;--orange-s:#fde5d3;
+}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.topbar{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:50px;display:flex;align-items:center;padding:0 32px;gap:12px;position:sticky;top:0;z-index:100}
+.app-icon{width:26px;height:26px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+.topbar-title{font-size:14px;font-weight:600}
+.sep{color:var(--l4);font-size:12px}
+.topbar a{color:var(--blue);text-decoration:none;font-size:13px;font-weight:500}
+.topbar a:hover{text-decoration:underline}
+
+/* Hero */
+.hero{background:linear-gradient(145deg,#0071e3,#0051a8);padding:64px 32px;text-align:center;color:#fff}
+.hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-bottom:12px}
+.hero p{font-size:16px;color:rgba(255,255,255,0.8);max-width:560px;margin:0 auto;line-height:1.65}
+
+.wrap{max-width:820px;margin:0 auto;padding:48px 24px 80px}
+h2{font-size:20px;font-weight:700;color:var(--l1);margin:40px 0 14px;letter-spacing:-0.01em}
+h3{font-size:15px;font-weight:700;color:var(--l1);margin:20px 0 8px}
+p{font-size:13.5px;color:var(--l2);margin-bottom:12px;line-height:1.75}
+ul{margin:8px 0 14px 20px}
+li{font-size:13.5px;color:var(--l2);margin-bottom:6px;line-height:1.6}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Feature grid */
+.feat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:20px 0 32px}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.feat-icon{font-size:24px;margin-bottom:10px}
+.feat-title{font-size:13px;font-weight:700;color:var(--l1);margin-bottom:6px}
+.feat-desc{font-size:12px;color:var(--l3);line-height:1.6}
+
+/* Spec table */
+.spec-table{width:100%;border-collapse:collapse;margin:16px 0 32px;font-size:13px}
+.spec-table th{background:#f2f2f7;padding:10px 14px;text-align:left;font-weight:600;color:var(--l2);border-bottom:2px solid var(--border);font-size:11.5px;letter-spacing:0.03em;text-transform:uppercase}
+.spec-table td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:top}
+.spec-table tr:last-child td{border-bottom:none}
+.spec-table tr:hover td{background:#fafafa}
+.tag{display:inline-block;background:var(--blue-t);color:var(--blue);border:1px solid var(--blue-s);border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;margin:1px}
+
+/* Disclaimer */
+.disclaimer{background:#fff8f0;border:1px solid #fde5d3;border-radius:10px;padding:18px 22px;margin:24px 0}
+.disclaimer p{color:#b34500;font-size:13px;margin:0}
+
+/* Update log */
+.update-log{border-left:3px solid var(--blue);padding-left:18px;margin:12px 0 28px}
+.update-item{margin-bottom:14px}
+.update-ver{font-size:12px;font-weight:700;color:var(--blue);font-family:monospace}
+.update-date{font-size:11px;color:var(--l4);margin-left:8px}
+.update-desc{font-size:13px;color:var(--l2);margin-top:3px}
+
+footer{text-align:center;padding:32px;font-size:12px;color:var(--l4);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="app-icon">IC</div>
+  <span class="topbar-title">ChipCalc</span>
+  <span class="sep">›</span>
+  <a href="index.html">← 계산기로 돌아가기</a>
+  <span style="flex:1"></span>
+  <a href="privacy.html">Privacy</a>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <h1>반도체 추정원가 계산기</h1>
+  <p>차량용 반도체 Die 원가부터 판매가까지, 빠르고 정확한 원가 추정 도구.<br>
+  Free, open-source, browser-based semiconductor cost estimator.</p>
+</div>
+
+<div class="wrap">
+
+  <h2>이 도구를 만든 이유</h2>
+  <p>반도체 원가를 추정하려면 웨이퍼 가격, Die 크기, Yield, 패키지 비용 등 여러 변수를 동시에 고려해야 합니다. 스프레드시트로 하나하나 계산하는 방식은 번거롭고 오류가 발생하기 쉽습니다. ChipCalc는 이 과정을 자동화하여 초기 견적 및 사업성 검토를 빠르게 할 수 있도록 설계되었습니다.</p>
+  <p>특히 차량용(Automotive) 반도체는 AEC-Q100/Q101 등급에 따른 추가 테스트 비용, 특수 패키지 요구사항이 있어 일반 소비자 제품과 원가 구조가 다릅니다. 이 도구는 차량용 반도체에 특화된 데이터셋을 내장하고 있습니다.</p>
+
+  <h2>주요 기능</h2>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-icon">🏭</div>
+      <div class="feat-title">DPW 자동 계산</div>
+      <div class="feat-desc">Die 가로×세로와 웨이퍼 사이즈를 입력하면 DPW 공식(π×R²/A − π×D/√2A)으로 이론 Die 수를 즉시 계산</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <div class="feat-title">웨이퍼 가격 매트릭스</div>
+      <div class="feat-desc">62개 항목의 제품군 × 공정 노드 × 웨이퍼 사이즈 조합으로 참고 가격 자동 적용</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📦</div>
+      <div class="feat-title">AEC-Q100 패키지 37종</div>
+      <div class="feat-desc">SOIC, QFN, LQFP, BGA, FC-BGA, Power Module 등 차량용 패키지 단가 내장, Pin 수별 세분화</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📈</div>
+      <div class="feat-title">가격 변동 시뮬레이터</div>
+      <div class="feat-desc">슬라이더로 웨이퍼 가격을 ±50% 조정 시 원가와 판매가 변화를 실시간 시뮬레이션</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🌐</div>
+      <div class="feat-title">한국어 / English 지원</div>
+      <div class="feat-desc">상단 버튼으로 UI 전체를 한국어/영어로 즉시 전환. localStorage에 설정 저장</div>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🌙</div>
+      <div class="feat-title">다크 / 라이트 모드</div>
+      <div class="feat-desc">Light/Dark 모드 지원. 설정이 브라우저에 저장되어 다음 방문 시 유지</div>
+    </div>
+  </div>
+
+  <h2>내장 데이터 사양</h2>
+  <table class="spec-table">
+    <thead>
+      <tr><th>항목</th><th>내용</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>제품군</strong></td>
+        <td>Auto MCU (Body/Chassis/Powertrain/ADAS), Auto PMIC, Auto DCDC, Auto Gate Driver, Auto Motor Driver, Auto CAN/LIN/FlexRay/Ethernet, Auto Sensor (압력/온도/전류/IMU), Auto ADAS SoC, Auto Radar 77GHz, Auto LiDAR IC, Auto Camera ISP, Auto SBC, Auto HV Driver, Auto NOR Flash, Auto EEPROM, Auto MOSFET, Auto Custom</td>
+      </tr>
+      <tr>
+        <td><strong>공정 노드</strong></td>
+        <td><span class="tag">0.35μm</span><span class="tag">0.18μm</span><span class="tag">90nm</span><span class="tag">65nm</span><span class="tag">55nm</span><span class="tag">40nm</span><span class="tag">28nm</span><span class="tag">22nm</span><span class="tag">16nm</span><span class="tag">10nm</span><span class="tag">7nm</span><span class="tag">5nm</span><span class="tag">3nm</span><span class="tag">2nm</span></td>
+      </tr>
+      <tr>
+        <td><strong>웨이퍼 사이즈</strong></td>
+        <td>6인치 (150mm) · 8인치 (200mm) · 12인치 (300mm)</td>
+      </tr>
+      <tr>
+        <td><strong>패키지 종류</strong></td>
+        <td>SOIC-8/16/28W, SSOP, TSSOP, MSOP, LQFP (32~144핀), QFP, TQFP, QFN (16~64핀), DFN, WSON, SOT-23/223/89, TO-220/247/252/263/268, BGA/PBGA/TBGA/TFBGA (64~400볼), FCBGA, LGA, HSOP, PowerSSO, PSSO, LFCSP, VQFN, eWLCSP, Radar LFBGA, Power Module (IPM), SiP, Bare Die (KGD)</td>
+      </tr>
+      <tr>
+        <td><strong>웨이퍼 가격 항목</strong></td>
+        <td>62개 (제품군 × 노드 조합), 시장 추정치 기반 (2024~2025년 기준)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>원가 구조 모델</h2>
+  <p>본 계산기는 다음 원가 구조 모델을 기본값으로 사용합니다. 판매가 구조 설정 카드에서 각 비율을 자유롭게 변경할 수 있습니다.</p>
+  <ul>
+    <li><strong>제조원가 (COGS) 69%</strong> — Die 원가 + OSAT (어셈블리 + 테스트)</li>
+    <li><strong>R&amp;D + 판매관리비 16%</strong> — 연구개발비 및 판관비 (제조원가의 약 23.2%)</li>
+    <li><strong>영업이익 15%</strong> — 목표 영업이익률</li>
+  </ul>
+  <p>판매가(ASP) = 제조원가 ÷ 0.69</p>
+
+  <h2>업데이트 이력</h2>
+  <div class="update-log">
+    <div class="update-item">
+      <span class="update-ver">v0.9</span><span class="update-date">2025년 4월</span>
+      <div class="update-desc">한국어/영어 전환, 라이트/다크 모드, 차량용 반도체 데이터(62종 웨이퍼 가격, 37종 패키지) 탑재. 웨이퍼 가격 변동 시뮬레이터 추가.</div>
+    </div>
+    <div class="update-item">
+      <span class="update-ver">v0.5</span><span class="update-date">2025년 3월</span>
+      <div class="update-desc">DPW 공식 계산, Pin 수별 OSAT 단가, 판매가 구조 커스터마이징 기능 추가.</div>
+    </div>
+    <div class="update-item">
+      <span class="update-ver">v0.1</span><span class="update-date">2025년 2월</span>
+      <div class="update-desc">초기 버전 공개. 웨이퍼 Die 원가 + OSAT 기반 판매가 추정 기본 기능.</div>
+    </div>
+  </div>
+
+  <h2>면책 조항 / Disclaimer</h2>
+  <div class="disclaimer">
+    <p>
+      ⚠ <strong>본 도구의 모든 계산 결과와 웨이퍼 가격 데이터는 참고용 추정치입니다.</strong><br>
+      실제 Foundry 계약가, OSAT 단가, 수율은 물량·기술 조건·시장 상황에 따라 크게 다를 수 있습니다.
+      본 도구의 결과를 실제 계약, 투자, 사업 결정의 근거로 단독 사용하지 마십시오.
+      정확한 원가 산출을 위해서는 Foundry 및 OSAT 업체와의 직접 협의가 필요합니다.<br><br>
+      All cost estimates and wafer price data provided by this tool are for reference purposes only.
+      Actual prices may vary significantly based on volume, technology requirements, and market conditions.
+    </p>
+  </div>
+
+  <h2>오픈소스 / Open Source</h2>
+  <p>ChipCalc는 순수 HTML/CSS/JavaScript로 작성된 클라이언트 사이드 도구입니다. 서버 없이 브라우저에서 완전히 동작하며, GitHub Pages를 통해 무료로 호스팅됩니다.</p>
+  <p>소스 코드는 GitHub에서 확인할 수 있습니다: <a href="https://github.com/dudwns100/chipcalc" target="_blank" rel="noopener">github.com/dudwns100/chipcalc</a></p>
+  <p>버그 제보, 기능 제안, 데이터 수정 요청은 GitHub Issues를 통해 환영합니다.</p>
+
+  <h2>문의 / Contact</h2>
+  <p>
+    GitHub Issues: <a href="https://github.com/dudwns100/chipcalc/issues" target="_blank" rel="noopener">github.com/dudwns100/chipcalc/issues</a>
+  </p>
+</div>
+
+<footer>
+  <p>© 2025 ChipCalc · <a href="index.html">계산기</a> · <a href="privacy.html">Privacy Policy</a> · <a href="https://github.com/dudwns100/chipcalc" target="_blank" rel="noopener">GitHub</a></p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dudwns100.github.io/chipcalc/sitemap.xml
