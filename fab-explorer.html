@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>차량용 반도체 Fab Explorer — 글로벌 오토모티브 팹 지도 | ChipCalc</title>
+<meta name="description" content="전 세계 차량용 반도체 생산 팹(공장) 탐색기. TSMC, GlobalFoundries, DB하이텍, STMicroelectronics, Infineon, NXP, ON Semi 등 주요 오토모티브 팹을 필터링하고 공정 노드, 생산 능력, AEC 등급을 확인하세요.">
+<meta name="keywords" content="차량용 반도체 팹, 오토모티브 파운드리, 차량용 IC 생산, automotive semiconductor fab, automotive foundry, AEC-Q100 fab, TSMC automotive, GlobalFoundries automotive">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/fab-explorer.html">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --mono:"SF Mono","Menlo","Consolas",monospace;
+  --blue:#0071e3;--blue-t:#eef5ff;--blue-s:#c8deff;
+  --green:#1a7f4f;--green-t:#edfaf3;--green-s:#b6eacf;
+  --orange:#d95f00;--orange-t:#fff4eb;--orange-s:#ffd4a8;
+  --red:#c0392b;--red-t:#fff0ef;--red-s:#f5c0bb;
+  --purple:#6b3fa0;--purple-t:#f5f0ff;--purple-s:#d4b8ff;
+  --l1:#1c1c1e;--l2:#3c3c43;--l3:#6b6b70;--l4:#aeaeb2;
+  --bg:#f0f2f5;--surface:#fff;--border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --sh:0 2px 8px rgba(0,0,0,0.07),0 1px 2px rgba(0,0,0,0.04);
+  --sh2:0 4px 20px rgba(0,0,0,0.09),0 2px 6px rgba(0,0,0,0.05);
+}
+
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+/* ── NAV ── */
+.nav{background:rgba(255,255,255,0.93);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:50px;display:flex;align-items:center;padding:0 24px;gap:14px;position:sticky;top:0;z-index:200}
+.nav-icon{width:26px;height:26px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0;text-decoration:none}
+.nav-brand{font-size:14px;font-weight:700;color:var(--l1);text-decoration:none}
+.nav-sep{color:var(--l4);font-size:11px}
+.nav-links{display:flex;gap:18px;margin-left:auto}
+.nav-links a{font-size:12px;color:var(--l2);text-decoration:none;font-weight:500;white-space:nowrap}
+.nav-links a:hover{color:var(--blue)}
+.nav-badge{background:var(--blue);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:3px;vertical-align:middle}
+
+/* ── PAGE HEADER ── */
+.page-hd{background:linear-gradient(135deg,#0e1826 0%,#1a3060 50%,#0e3a6e 100%);padding:44px 28px 36px;position:relative;overflow:hidden}
+.page-hd::before{content:'';position:absolute;top:-120px;right:-80px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,113,227,0.18) 0%,transparent 70%);pointer-events:none}
+.page-hd::after{content:'';position:absolute;bottom:-100px;left:-60px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(48,185,74,0.10) 0%,transparent 70%);pointer-events:none}
+.page-hd-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.hd-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:rgba(255,255,255,0.8);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:14px}
+.hd-tag-dot{width:6px;height:6px;background:#30b94a;border-radius:50%;animation:blink 1.8s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.page-hd h1{font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.2}
+.page-hd-sub{font-size:14px;color:rgba(255,255,255,0.65);margin-bottom:22px;max-width:620px}
+.hd-stats{display:flex;gap:28px;flex-wrap:wrap}
+.hd-stat{text-align:center}
+.hd-stat-n{font-size:24px;font-weight:800;color:#fff;font-family:var(--mono);line-height:1}
+.hd-stat-l{font-size:10px;color:rgba(255,255,255,0.5);margin-top:3px;letter-spacing:0.04em;text-transform:uppercase}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:260px 1fr;max-width:1400px;margin:0 auto;padding:0;gap:0;min-height:calc(100vh - 135px)}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:16px 14px;overflow-y:auto;position:sticky;top:50px;height:calc(100vh - 50px)}
+.filter-section{margin-bottom:20px}
+.filter-section:last-child{margin-bottom:0}
+.filter-title{font-size:10px;font-weight:700;color:var(--l3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.filter-chips{display:flex;flex-wrap:wrap;gap:5px}
+.fchip{height:24px;padding:0 9px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--l2);font-family:var(--font);font-size:11px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.fchip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-t)}
+.fchip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.fchip-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+/* search */
+.search-wrap{position:relative;margin-bottom:14px}
+.search-wrap input{width:100%;height:34px;padding:0 10px 0 30px;border:1.5px solid var(--border2);border-radius:8px;font-family:var(--font);font-size:12.5px;color:var(--l1);background:#fff;outline:none;transition:border-color 0.15s}
+.search-wrap input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,113,227,0.1)}
+.search-wrap::before{content:'🔍';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none}
+
+/* count bar */
+.count-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--l3);position:sticky;top:50px;z-index:90}
+.count-bar-l{display:flex;align-items:center;gap:8px}
+.count-num{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--l1);margin-right:4px}
+.view-btns{display:flex;gap:0;background:var(--bg);border:1.5px solid var(--border2);border-radius:7px;overflow:hidden}
+.vbtn{width:30px;height:26px;border:none;background:transparent;color:var(--l4);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.vbtn.on{background:var(--surface);color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+
+/* ── MAIN ── */
+.main{padding:16px 18px}
+
+/* CARD GRID */
+.fab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px}
+.fab-grid.list-view{grid-template-columns:1fr}
+
+/* FAB CARD */
+.fab-card{background:var(--surface);border-radius:12px;border:1px solid var(--border);box-shadow:var(--sh);overflow:hidden;transition:box-shadow 0.2s,transform 0.15s;cursor:pointer}
+.fab-card:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+.fab-card.list-view{display:grid;grid-template-columns:auto 1fr auto;align-items:center;border-radius:8px}
+.fab-card-hd{padding:12px 14px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.fab-card.list-view .fab-card-hd{padding:10px 14px;border-bottom:none}
+.fab-logo{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;font-family:var(--mono)}
+.fab-card-info{flex:1;min-width:0}
+.fab-name{font-size:13px;font-weight:700;color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fab-loc{font-size:11px;color:var(--l3);margin-top:1px;display:flex;align-items:center;gap:4px}
+.fab-card-body{padding:10px 14px 13px}
+.fab-card.list-view .fab-card-body{padding:10px 14px}
+
+/* Tags */
+.fab-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.fab-tag{display:inline-flex;align-items:center;height:18px;padding:0 7px;border-radius:4px;font-size:10px;font-weight:600;font-family:var(--mono)}
+.ft-node{background:var(--blue-t);color:var(--blue);border:1px solid var(--blue-s)}
+.ft-aec{background:var(--green-t);color:var(--green);border:1px solid var(--green-s)}
+.ft-wafer{background:#f5f0ff;color:var(--purple);border:1px solid var(--purple-s)}
+.ft-status-prod{background:var(--green-t);color:var(--green);border:1px solid var(--green-s)}
+.ft-status-ramp{background:var(--orange-t);color:var(--orange);border:1px solid var(--orange-s)}
+.ft-status-cons{background:#fff8e6;color:#8b6000;border:1px solid #f5d589}
+.ft-status-anc{background:var(--purple-t);color:var(--purple);border:1px solid var(--purple-s)}
+
+/* Capacity bar */
+.cap-row{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.cap-label{font-size:10px;color:var(--l4);width:52px;flex-shrink:0}
+.cap-track{flex:1;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.cap-fill{height:100%;border-radius:3px;transition:width 0.5s ease}
+.cap-val{font-size:10px;font-family:var(--mono);font-weight:600;color:var(--l2);min-width:40px;text-align:right}
+
+/* Avail badge */
+.avail{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 8px;border-radius:5px;font-size:10px;font-weight:600}
+.av-ok{background:var(--green-t);color:var(--green)}
+.av-tight{background:var(--orange-t);color:var(--orange)}
+.av-full{background:var(--red-t);color:var(--red)}
+.av-soon{background:var(--purple-t);color:var(--purple)}
+.av-na{background:#f0f0f5;color:var(--l3)}
+
+/* Detail panel */
+.detail-panel{position:fixed;top:50px;right:0;width:380px;height:calc(100vh - 50px);background:var(--surface);border-left:1px solid var(--border);box-shadow:-4px 0 24px rgba(0,0,0,0.1);z-index:150;overflow-y:auto;transform:translateX(100%);transition:transform 0.3s cubic-bezier(.25,.46,.45,.94)}
+.detail-panel.open{transform:translateX(0)}
+.dp-hd{padding:16px 18px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.dp-close{width:28px;height:28px;border:none;border-radius:50%;background:#f0f0f5;color:var(--l3);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.dp-close:hover{background:var(--border2)}
+.dp-logo{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;margin-bottom:10px;font-family:var(--mono)}
+.dp-name{font-size:16px;font-weight:700;color:var(--l1);margin-bottom:2px}
+.dp-sub{font-size:12px;color:var(--l3)}
+.dp-body{padding:16px 18px}
+.dp-section{margin-bottom:18px}
+.dp-section-title{font-size:10px;font-weight:700;color:var(--l3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:8px}
+.dp-kv{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}
+.dp-kv:last-child{border-bottom:none}
+.dp-k{font-size:12px;color:var(--l3)}
+.dp-v{font-size:12px;font-weight:600;color:var(--l1);text-align:right;max-width:60%}
+.dp-nodes{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.dp-prods{display:flex;flex-direction:column;gap:5px;margin-top:6px}
+.dp-prod-chip{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--l2);display:flex;align-items:center;gap:6px}
+.dp-prod-chip::before{content:'🚗';font-size:11px}
+.dp-cta{background:linear-gradient(135deg,#0071e3,#0051a8);border-radius:10px;padding:14px 16px;margin-top:4px;color:#fff;text-align:center}
+.dp-cta-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.dp-cta-sub{font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:10px}
+.dp-cta-btn{display:inline-block;background:#fff;color:var(--blue);font-size:12px;font-weight:700;padding:7px 16px;border-radius:20px;text-decoration:none}
+.dp-cta-btn:hover{text-decoration:none}
+
+/* Empty state */
+.empty{text-align:center;padding:60px 20px;color:var(--l4)}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.empty-title{font-size:14px;font-weight:600;color:var(--l3);margin-bottom:4px}
+
+/* Table view */
+.fab-table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);background:var(--surface)}
+table.fab-table{width:100%;border-collapse:collapse;font-size:12px}
+table.fab-table thead th{background:#f5f6f8;padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l3);letter-spacing:0.05em;text-transform:uppercase;border-bottom:1.5px solid var(--border);white-space:nowrap}
+table.fab-table tbody td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--l2)}
+table.fab-table tbody tr:last-child td{border-bottom:none}
+table.fab-table tbody tr:hover td{background:#fafafa;cursor:pointer}
+.td-name{font-weight:600;color:var(--l1)}
+.td-mono{font-family:var(--mono);font-size:11px}
+
+/* Overlay */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:140;display:none}
+.overlay.open{display:block}
+
+/* Segment */
+.seg{display:flex;gap:0;background:#f0f2f5;border:1.5px solid var(--border2);border-radius:8px;overflow:hidden;padding:2px;margin-bottom:14px}
+.seg-btn{flex:1;height:28px;border:none;background:transparent;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--l3);cursor:pointer;border-radius:6px;transition:all 0.15s}
+.seg-btn.on{background:var(--surface);color:var(--l1);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+
+/* Tooltip */
+.tooltip-wrap{position:relative;display:inline-flex}
+.tooltip-wrap:hover .tooltip{opacity:1;transform:translateY(0)}
+.tooltip{position:absolute;bottom:calc(100%+4px);left:50%;transform:translateX(-50%) translateY(4px);background:#1c1c1e;color:#fff;font-size:10.5px;padding:4px 8px;border-radius:5px;white-space:nowrap;pointer-events:none;opacity:0;transition:all 0.15s;z-index:10}
+
+footer{background:var(--surface);border-top:1px solid var(--border);padding:24px;text-align:center;font-size:11.5px;color:var(--l4)}
+footer a{color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav-icon" href="index.html">IC</a>
+  <a class="nav-brand" href="index.html">ChipCalc</a>
+  <span class="nav-sep">›</span>
+  <span style="font-size:13px;font-weight:600;color:var(--l1)">Automotive Fab Explorer</span>
+  <div class="nav-links">
+    <a href="index.html">🧮 계산기</a>
+    <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a href="about.html">About</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="page-hd">
+  <div class="page-hd-inner">
+    <div class="hd-tag"><div class="hd-tag-dot"></div>차량용 반도체 특화</div>
+    <h1>Automotive Fab Explorer</h1>
+    <p class="page-hd-sub">전 세계 차량용 반도체 생산 팹 데이터. 공정 노드, 생산 능력, AEC-Q100 지원 여부, 차량용 제품군을 필터링하세요.</p>
+    <div class="hd-stats">
+      <div class="hd-stat"><div class="hd-stat-n" id="stat-total">0</div><div class="hd-stat-l">전체 팹</div></div>
+      <div class="hd-stat"><div class="hd-stat-n" id="stat-prod">0</div><div class="hd-stat-l">양산 중</div></div>
+      <div class="hd-stat"><div class="hd-stat-n" id="stat-countries">0</div><div class="hd-stat-l">국가</div></div>
+      <div class="hd-stat"><div class="hd-stat-n" id="stat-companies">0</div><div class="hd-stat-l">기업</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div style="display:flex;max-width:1400px;margin:0 auto">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="팹명, 회사, 지역 검색..." oninput="applyFilters()">
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-title">기업 / Company</div>
+    <div class="filter-chips" id="filter-company"></div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-title">국가 / Country</div>
+    <div class="filter-chips" id="filter-country"></div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-title">공정 노드</div>
+    <div class="filter-chips" id="filter-node"></div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-title">웨이퍼 사이즈</div>
+    <div class="filter-chips" id="filter-wafer"></div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-title">차량용 제품군</div>
+    <div class="filter-chips" id="filter-product"></div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-title">상태</div>
+    <div class="filter-chips" id="filter-status"></div>
+  </div>
+
+  <button onclick="clearFilters()" style="width:100%;height:30px;border:1px solid var(--border2);border-radius:7px;background:transparent;color:var(--l3);font-family:var(--font);font-size:11.5px;cursor:pointer;margin-top:6px;transition:all 0.15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--l3)'">✕ 필터 초기화</button>
+</div>
+
+<!-- MAIN -->
+<div style="flex:1;overflow:hidden">
+  <div class="count-bar">
+    <div class="count-bar-l">
+      <span class="count-num" id="countNum">0</span>
+      <span>개 팹 표시 중</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="view-btns">
+        <button class="vbtn on" id="vbtn-grid" onclick="setView('grid')" title="카드 보기">⊞</button>
+        <button class="vbtn" id="vbtn-table" onclick="setView('table')" title="테이블 보기">☰</button>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:14px 18px" id="fabContainer"></div>
+</div>
+
+</div><!-- /flex -->
+
+<!-- DETAIL PANEL -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-hd">
+    <div style="font-size:13px;font-weight:700;color:var(--l1)">팹 상세 정보</div>
+    <button class="dp-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="dp-body" id="detailBody"></div>
+</div>
+
+<!-- CONTENT for SEO -->
+<div style="max-width:900px;margin:0 auto;padding:40px 28px 60px;font-family:var(--font)">
+  <h2 style="font-size:20px;font-weight:700;color:#1c1c1e;margin-bottom:12px">차량용 반도체 팹이란?</h2>
+  <p style="font-size:13.5px;color:#3c3c43;line-height:1.75;margin-bottom:12px">
+    차량용 반도체(Automotive IC)는 일반 소비자용 제품과 달리 AEC-Q100/Q101 등 자동차 신뢰성 규격을 충족해야 하며, -40°C~+150°C의 온도 범위, 최소 10~15년의 공급 보장이 요구됩니다. 이 때문에 모든 팹이 차량용 제품을 생산할 수 있는 것은 아니며, 특화된 팹과 공정이 필요합니다.
+  </p>
+  <p style="font-size:13.5px;color:#3c3c43;line-height:1.75;margin-bottom:12px">
+    이 Fab Explorer는 전 세계에서 차량용 반도체를 생산하거나 생산 예정인 주요 팹을 정리한 것입니다. TSMC, GlobalFoundries, DB하이텍, 인피니언(Infineon), STMicroelectronics, NXP, ON Semiconductor 등 주요 파운드리 및 IDM의 차량용 반도체 생산 능력을 확인할 수 있습니다.
+  </p>
+  <p style="font-size:11.5px;color:#aeaeb2">※ 본 데이터는 공개 자료(IR 발표, 언론 보도, 업계 보고서) 기반 추정치입니다. 실제 데이터와 다를 수 있으며 참고용으로만 사용하십시오.</p>
+</div>
+
+<footer>
+  <p>© 2025 ChipCalc · <a href="index.html">계산기</a> · <a href="guide-semiconductor-cost.html">원가 가이드</a> · <a href="guide-chips-per-wafer.html">DPW 가이드</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a><br>
+  <span style="font-size:11px">모든 데이터는 공개 자료 기반 추정치. 실제 계약 및 투자 결정의 단독 근거로 사용하지 마십시오.</span></p>
+</footer>
+
+<script>
+/* ════════════════════════════════════════
+   FAB DATABASE — 차량용 반도체 특화
+   데이터 출처: 공개 IR, 언론 보도, 업계 보고서
+════════════════════════════════════════ */
+var FABS = [
+  {
+    id:1, company:'TSMC', fab:'Fab 2 / 3 / 5 / 6', city:'신주/타이난', country:'대만',
+    wafer:['12인치'], nodes:['28nm','40nm','65nm'], status:'양산중',
+    capKWSPM:150, aec:true, color:'#0071e3',
+    products:['Auto MCU','CAN/LIN Transceiver','PMIC','ADAS SoC 초급'],
+    specialty:'차량용 28/40nm 주요 파운드리. Tier1 및 반도체 업체 다수 이용.',
+    established:1999, country_flag:'🇹🇼'
+  },
+  {
+    id:2, company:'TSMC', fab:'Fab 8', city:'신주', country:'대만',
+    wafer:['12인치'], nodes:['16nm','12nm'], status:'양산중',
+    capKWSPM:60, aec:true, color:'#0071e3',
+    products:['ADAS SoC','Radar IC','Camera ISP'],
+    specialty:'16nm FinFET 차량용 SoC. ADAS 및 레이더 IC 주요 생산처.',
+    established:2009, country_flag:'🇹🇼'
+  },
+  {
+    id:3, company:'TSMC', fab:'Fab 18 (N4/N3)', city:'타이난', country:'대만',
+    wafer:['12인치'], nodes:['5nm','4nm','3nm'], status:'양산중',
+    capKWSPM:120, aec:true, color:'#0071e3',
+    products:['자율주행 SoC','ADAS 최상급 프로세서'],
+    specialty:'NVIDIA Drive, Qualcomm Snapdragon Ride 등 최상위 자율주행칩 생산.',
+    established:2020, country_flag:'🇹🇼'
+  },
+  {
+    id:4, company:'TSMC', fab:'Fab 21 (Arizona)', city:'피닉스 애리조나', country:'미국',
+    wafer:['12인치'], nodes:['4nm','5nm','3nm'], status:'램핑',
+    capKWSPM:30, aec:true, color:'#0071e3',
+    products:['자율주행 SoC','ADAS 프로세서'],
+    specialty:'CHIPS Act 지원 미국 팹. 2024 양산 개시, 2027 3nm 추가 예정.',
+    established:2024, country_flag:'🇺🇸'
+  },
+  {
+    id:5, company:'TSMC', fab:'JASM (쿠마모토)', city:'쿠마모토', country:'일본',
+    wafer:['12인치'], nodes:['12nm','16nm','22nm','28nm','40nm'], status:'양산중',
+    capKWSPM:55, aec:true, color:'#0071e3',
+    products:['Auto MCU','PMIC','CAN/LIN','Sensor IC'],
+    specialty:'일본 정부 보조금(476B엔) 지원. 소니, 덴소 등 일본 차량용 고객 위주.',
+    established:2024, country_flag:'🇯🇵'
+  },
+  {
+    id:6, company:'GlobalFoundries', fab:'Fab 1 (드레스덴)', city:'드레스덴', country:'독일',
+    wafer:['12인치'], nodes:['22nm','28nm','40nm'], status:'양산중',
+    capKWSPM:50, aec:true, color:'#6366f1',
+    products:['Auto MCU','CAN/FlexRay','Ethernet Switch','PMIC'],
+    specialty:'유럽 최대 차량용 파운드리. Bosch, Continental, Infineon 등 협력.',
+    established:2005, country_flag:'🇩🇪'
+  },
+  {
+    id:7, company:'GlobalFoundries', fab:'Fab 8 (몰타)', city:'몰타 뉴욕', country:'미국',
+    wafer:['12인치'], nodes:['12nm','14nm','22nm'], status:'양산중',
+    capKWSPM:70, aec:true, color:'#6366f1',
+    products:['ADAS SoC 초급','고성능 MCU','Ethernet'],
+    specialty:'CHIPS Act 지원 1.587B USD. 14nm FinFET 차량용 SoC 생산.',
+    established:2012, country_flag:'🇺🇸'
+  },
+  {
+    id:8, company:'GlobalFoundries', fab:'싱가포르 우드랜즈', city:'우드랜즈', country:'싱가포르',
+    wafer:['12인치'], nodes:['22nm','40nm','130nm'], status:'양산중',
+    capKWSPM:60, aec:true, color:'#6366f1',
+    products:['Auto MCU','CAN/LIN','PMIC 성숙 노드'],
+    specialty:'아시아 GF 주요 거점. 성숙 노드 차량용 제품 대량 생산.',
+    established:2010, country_flag:'🇸🇬'
+  },
+  {
+    id:9, company:'DB하이텍', fab:'부천 Fab 1/2', city:'부천', country:'한국',
+    wafer:['8인치'], nodes:['0.18μm','90nm','65nm'], status:'양산중',
+    capKWSPM:null, capNote:'110K WPM (8인치)', aec:true, color:'#e91e8c',
+    products:['Auto PMIC','Gate Driver','CAN Transceiver','DCDC','Motor Driver'],
+    specialty:'한국 대표 차량용 특화 파운드리. 0.18μm BCD 공정 강점. AEC-Q100.',
+    established:1997, country_flag:'🇰🇷'
+  },
+  {
+    id:10, company:'매그나칩', fab:'청주 Fab', city:'청주', country:'한국',
+    wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
+    capKWSPM:null, capNote:'~40K WPM (8인치)', aec:true, color:'#c2185b',
+    products:['OLED Driver IC','파워 MOSFET','자동차용 디스플레이 IC'],
+    specialty:'자동차용 디스플레이 드라이버 및 파워 반도체 특화.',
+    established:1998, country_flag:'🇰🇷'
+  },
+  {
+    id:11, company:'Infineon (IDM)', fab:'드레스덴 Fab', city:'드레스덴', country:'독일',
+    wafer:['12인치','8인치'], nodes:['0.18μm','90nm','40nm','28nm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0d47a1',
+    products:['파워 MOSFET','IGBT','Auto MCU (AURIX)','SBC','HV Driver'],
+    specialty:'세계 최대 차량용 반도체 기업. 드라이브트레인/파워트레인 특화.',
+    established:1999, country_flag:'🇩🇪'
+  },
+  {
+    id:12, company:'Infineon (IDM)', fab:'오스트리아 Fab', city:'빌라흐', country:'오스트리아',
+    wafer:['12인치'], nodes:['12nm','28nm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0d47a1',
+    products:['SiC MOSFET','GaN','EV 인버터 파워 소자'],
+    specialty:'300mm SiC 세계 최초 양산. EV 파워트레인 핵심 소자 생산.',
+    established:2021, country_flag:'🇦🇹'
+  },
+  {
+    id:13, company:'STMicroelectronics (IDM)', fab:'카타니아/아그라테', city:'카타니아/밀라노', country:'이탈리아',
+    wafer:['8인치','12인치'], nodes:['0.18μm','90nm','65nm','40nm','28nm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0091ea',
+    products:['Auto MCU (SPC)','PMIC','게이트 드라이버','SiC MOSFET','센서'],
+    specialty:'유럽 2위 차량용 반도체. STM32 차량용 버전 및 SiC 파워 소자.',
+    established:1980, country_flag:'🇮🇹'
+  },
+  {
+    id:14, company:'STMicroelectronics (IDM)', fab:'투르 Fab (프랑스)', city:'투르', country:'프랑스',
+    wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0091ea',
+    products:['BCD 공정 파워 IC','Auto DCDC','SBC'],
+    specialty:'BCD(Bipolar-CMOS-DMOS) 공정 특화. 자동차용 아날로그/혼성신호 IC.',
+    established:1967, country_flag:'🇫🇷'
+  },
+  {
+    id:15, company:'NXP (IDM)', fab:'함부르크 Fab', city:'함부르크', country:'독일',
+    wafer:['8인치'], nodes:['0.18μm','90nm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#ff6f00',
+    products:['Auto MCU (S32)','CAN/LIN/FlexRay','SBC','레이더 MCU'],
+    specialty:'세계 1위 차량용 MCU 업체. S32K 시리즈 등 주요 바디/섀시 MCU.',
+    established:2006, country_flag:'🇩🇪'
+  },
+  {
+    id:16, company:'NXP (IDM)', fab:'나이메헌 Fab', city:'나이메헌', country:'네덜란드',
+    wafer:['12인치','8인치'], nodes:['28nm','40nm','0.18μm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#ff6f00',
+    products:['고성능 Auto MCU','ADAS 프로세서','V2X 통신 IC'],
+    specialty:'첨단 노드 차량용 MCU 및 V2X 반도체. 28nm 차량용 공정.',
+    established:1953, country_flag:'🇳🇱'
+  },
+  {
+    id:17, company:'ON Semiconductor (IDM)', fab:'이스트 피시킬', city:'이스트 피시킬 뉴욕', country:'미국',
+    wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#1565c0',
+    products:['SiC MOSFET','IGBT','파워 MOSFET','게이트 드라이버'],
+    specialty:'EV용 SiC 파워 반도체 세계 주요 공급사. Onsemi EliteSiC.',
+    established:1999, country_flag:'🇺🇸'
+  },
+  {
+    id:18, company:'ON Semiconductor (IDM)', fab:'체코 Fab', city:'로잔', country:'체코',
+    wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#1565c0',
+    products:['파워 반도체','이미지 센서','CMOS 이미지 센서'],
+    specialty:'자동차용 이미지 센서 및 파워 반도체. 카메라 ISP용 이미지 센서.',
+    established:2000, country_flag:'🇨🇿'
+  },
+  {
+    id:19, company:'Renesas (IDM)', fab:'나카 Fab', city:'이바라키', country:'일본',
+    wafer:['8인치','12인치'], nodes:['0.18μm','90nm','40nm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#2e7d32',
+    products:['Auto MCU (RH850)','SBC','게이트 드라이버','전장 MCU'],
+    specialty:'세계 1위 차량용 MCU 점유율. RH850 파워트레인/바디/섀시 MCU.',
+    established:2003, country_flag:'🇯🇵'
+  },
+  {
+    id:20, company:'Renesas (IDM)', fab:'코가 Fab', city:'이바라키', country:'일본',
+    wafer:['12인치'], nodes:['28nm','40nm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#2e7d32',
+    products:['고성능 Auto MCU','ADAS SoC 초급'],
+    specialty:'Renesas RH850/R-Car 시리즈 첨단 노드 생산. 자율주행 SoC.',
+    established:2012, country_flag:'🇯🇵'
+  },
+  {
+    id:21, company:'Microchip/Microsemi (IDM)', fab:'뱅갈로르 Fab', city:'뱅갈로르', country:'인도',
+    wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#e53935',
+    products:['Auto MCU (PIC)','CAN/LIN Transceiver','파워 관리 IC'],
+    specialty:'차량용 8비트/16비트 MCU 및 통신 IC. PIC 시리즈 차량용 버전.',
+    established:2000, country_flag:'🇮🇳'
+  },
+  {
+    id:22, company:'Tower Semiconductor', fab:'이스라엘 Fab', city:'미그달 하에메크', country:'이스라엘',
+    wafer:['8인치'], nodes:['0.18μm','65nm','130nm'], status:'양산중',
+    capKWSPM:20, aec:true, color:'#5c6bc0',
+    products:['RF IC','이미지 센서','파워 관리 IC','MEMS 센서'],
+    specialty:'특수 아날로그·RF 공정 전문 파운드리. 차량용 레이더 RFIC 특화.',
+    established:2001, country_flag:'🇮🇱'
+  },
+  {
+    id:23, company:'Tower Semiconductor', fab:'텍사스 Fab', city:'샌안토니오 텍사스', country:'미국',
+    wafer:['8인치'], nodes:['65nm','130nm','180nm'], status:'양산중',
+    capKWSPM:15, aec:true, color:'#5c6bc0',
+    products:['RF IC','MEMS','파워 반도체'],
+    specialty:'미국 내 차량용 아날로그/RF 파운드리. 레이더 및 V2X IC 위탁 생산.',
+    established:2007, country_flag:'🇺🇸'
+  },
+  {
+    id:24, company:'UMC', fab:'Fab 12A (신주)', city:'신주', country:'대만',
+    wafer:['12인치'], nodes:['14nm','22nm','28nm'], status:'양산중',
+    capKWSPM:50, aec:true, color:'#00838f',
+    products:['Auto MCU','PMIC','CAN/Ethernet IC'],
+    specialty:'TSMC 대안 파운드리. 28nm 차량용 공정 인증. 비용 경쟁력.',
+    established:2009, country_flag:'🇹🇼'
+  },
+  {
+    id:25, company:'UMC', fab:'싱가포르 Fab 12i', city:'싱가포르', country:'싱가포르',
+    wafer:['12인치'], nodes:['22nm','28nm'], status:'양산중',
+    capKWSPM:35, aec:true, color:'#00838f',
+    products:['Auto MCU','통신 IC'],
+    specialty:'아시아 제2 UMC 거점. 차량용 28nm 공정 위탁.',
+    established:2015, country_flag:'🇸🇬'
+  },
+  {
+    id:26, company:'SMIC', fab:'상하이 SN1/SN2', city:'상하이', country:'중국',
+    wafer:['12인치'], nodes:['28nm','40nm','55nm'], status:'양산중',
+    capKWSPM:80, aec:false, color:'#b71c1c',
+    products:['중국 내 자동차용 MCU','DCDC'],
+    specialty:'중국 최대 파운드리. 중국 내수용 차량 반도체 공급. 수출 규제 영향.',
+    established:2014, country_flag:'🇨🇳'
+  },
+  {
+    id:27, company:'Hua Hong', fab:'우시 Fab', city:'우시 장쑤', country:'중국',
+    wafer:['12인치'], nodes:['40nm','55nm','90nm'], status:'양산중',
+    capKWSPM:50, aec:false, color:'#c62828',
+    products:['중국 내 파워 반도체','MCU'],
+    specialty:'BCD 공정 특화 중국 파운드리. 중국 자동차 시장 내 파워 IC 공급.',
+    established:2019, country_flag:'🇨🇳'
+  },
+  {
+    id:28, company:'TSMC', fab:'ESMC (드레스덴)', city:'드레스덴', country:'독일',
+    wafer:['12인치'], nodes:['12nm','16nm','22nm','28nm'], status:'건설중',
+    capKWSPM:40, aec:true, color:'#0071e3',
+    products:['Auto MCU','PMIC','CAN/Ethernet','센서 IC'],
+    specialty:'EU Chips Act 5B EUR 지원. 2027 양산 목표. 유럽 차량용 공급망 강화.',
+    established:2027, country_flag:'🇩🇪'
+  },
+  {
+    id:29, company:'Wolfspeed (IDM)', fab:'더럼 Fab / 모호크밸리', city:'노스캐롤라이나/뉴욕', country:'미국',
+    wafer:['8인치'], nodes:['SiC 전용'], status:'양산중',
+    capKWSPM:null, capNote:'SiC 200mm', aec:true, color:'#f57c00',
+    products:['SiC MOSFET','SiC 다이오드','EV 인버터 소자'],
+    specialty:'세계 최대 SiC 전문 제조사. 200mm SiC 웨이퍼 세계 최초 양산.',
+    established:2022, country_flag:'🇺🇸'
+  },
+  {
+    id:30, company:'Rohm (IDM)', fab:'후쿠오카 Fab / SiCrytal', city:'후쿠오카/독일', country:'일본',
+    wafer:['6인치','8인치'], nodes:['SiC 전용','0.18μm'], status:'양산중',
+    capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#4a148c',
+    products:['SiC MOSFET','게이트 드라이버','파워 모듈','EV용 소자'],
+    specialty:'일본 SiC 선두 기업. SiCrytal(독일) 인수로 SiC 웨이퍼 수직 통합.',
+    established:1958, country_flag:'🇯🇵'
+  }
+];
+
+/* ── FILTER STATE ── */
+var activeFilters = {company:[], country:[], node:[], wafer:[], product:[], status:[]};
+var currentView = 'grid';
+var selectedFab = null;
+
+/* ── INIT ── */
+(function init(){
+  buildFilters();
+  updateStats();
+  renderFabs(FABS);
+})();
+
+function buildFilters(){
+  var companies=[...new Set(FABS.map(f=>f.company))].sort();
+  var countries=[...new Set(FABS.map(f=>f.country))].sort();
+  var allNodes=[...new Set(FABS.flatMap(f=>f.nodes))];
+  var nodeOrder=['SiC 전용','0.35μm','0.18μm','130nm','90nm','65nm','55nm','40nm','28nm','22nm','16nm','14nm','12nm','5nm','4nm','3nm'];
+  var nodes=nodeOrder.filter(n=>allNodes.includes(n));
+  var wafers=[...new Set(FABS.flatMap(f=>f.wafer))].sort();
+  var allProds=[...new Set(FABS.flatMap(f=>f.products))].sort();
+  var statuses=[...new Set(FABS.map(f=>f.status))];
+
+  renderFilterChips('filter-company', companies, 'company');
+  renderFilterChips('filter-country', countries, 'country');
+  renderFilterChips('filter-node', nodes, 'node');
+  renderFilterChips('filter-wafer', wafers, 'wafer');
+  renderFilterChips('filter-product', allProds, 'product');
+  renderFilterChips('filter-status', statuses, 'status');
+}
+
+function renderFilterChips(containerId, items, filterKey){
+  var el = document.getElementById(containerId);
+  el.innerHTML = items.map(function(item){
+    return '<button class="fchip" onclick="toggleFilter(\''+filterKey+'\',this)" data-val="'+esc(item)+'">'+esc(item)+'</button>';
+  }).join('');
+}
+
+function toggleFilter(key, btn){
+  var val = btn.getAttribute('data-val');
+  var idx = activeFilters[key].indexOf(val);
+  if(idx>=0){ activeFilters[key].splice(idx,1); btn.classList.remove('on'); }
+  else { activeFilters[key].push(val); btn.classList.add('on'); }
+  applyFilters();
+}
+
+function clearFilters(){
+  Object.keys(activeFilters).forEach(k=>activeFilters[k]=[]);
+  document.querySelectorAll('.fchip.on').forEach(b=>b.classList.remove('on'));
+  document.getElementById('searchInput').value='';
+  applyFilters();
+}
+
+function applyFilters(){
+  var q = document.getElementById('searchInput').value.trim().toLowerCase();
+  var filtered = FABS.filter(function(f){
+    if(activeFilters.company.length && !activeFilters.company.includes(f.company)) return false;
+    if(activeFilters.country.length && !activeFilters.country.includes(f.country)) return false;
+    if(activeFilters.node.length && !f.nodes.some(n=>activeFilters.node.includes(n))) return false;
+    if(activeFilters.wafer.length && !f.wafer.some(w=>activeFilters.wafer.includes(w))) return false;
+    if(activeFilters.product.length && !f.products.some(p=>activeFilters.product.includes(p))) return false;
+    if(activeFilters.status.length && !activeFilters.status.includes(f.status)) return false;
+    if(q && !( f.company.toLowerCase().includes(q)||f.fab.toLowerCase().includes(q)||f.city.toLowerCase().includes(q)||f.country.toLowerCase().includes(q) )) return false;
+    return true;
+  });
+  document.getElementById('countNum').textContent = filtered.length;
+  renderFabs(filtered);
+}
+
+function updateStats(){
+  document.getElementById('stat-total').textContent = FABS.length;
+  document.getElementById('stat-prod').textContent = FABS.filter(f=>f.status==='양산중').length;
+  document.getElementById('stat-countries').textContent = new Set(FABS.map(f=>f.country)).size;
+  document.getElementById('stat-companies').textContent = new Set(FABS.map(f=>f.company)).size;
+  document.getElementById('countNum').textContent = FABS.length;
+}
+
+/* ── RENDER ── */
+function renderFabs(fabs){
+  var container = document.getElementById('fabContainer');
+  if(!fabs.length){
+    container.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">검색 결과가 없습니다</div><div style="font-size:12px">필터를 초기화하거나 다른 검색어를 사용해보세요</div></div>';
+    return;
+  }
+  if(currentView==='table'){
+    container.innerHTML = renderTableView(fabs);
+  } else {
+    container.innerHTML = '<div class="fab-grid">'+fabs.map(renderCard).join('')+'</div>';
+  }
+}
+
+function renderCard(f){
+  var statusClass = f.status==='양산중'?'ft-status-prod':f.status==='램핑'?'ft-status-ramp':f.status==='건설중'?'ft-status-cons':'ft-status-anc';
+  var nodeHtml = f.nodes.slice(0,3).map(n=>'<span class="fab-tag ft-node">'+n+'</span>').join('');
+  if(f.nodes.length>3) nodeHtml += '<span class="fab-tag ft-node">+'+( f.nodes.length-3)+'</span>';
+  var waferHtml = f.wafer.map(w=>'<span class="fab-tag ft-wafer">'+w+'</span>').join('');
+  var capHtml = f.capKWSPM?
+    '<div class="cap-row"><div class="cap-label">생산 능력</div><div class="cap-track"><div class="cap-fill" style="width:'+Math.min(f.capKWSPM/200*100,100)+'%;background:'+f.color+'"></div></div><div class="cap-val">'+f.capKWSPM+'k</div></div>':'<div style="font-size:11px;color:var(--l4)">IDM/상세 비공개</div>';
+
+  return '<div class="fab-card" onclick="openDetail('+f.id+')">'+
+    '<div class="fab-card-hd">'+
+      '<div class="fab-logo" style="background:'+f.color+'">'+f.company.charAt(0)+'</div>'+
+      '<div class="fab-card-info">'+
+        '<div class="fab-name">'+esc(f.company)+' — '+esc(f.fab)+'</div>'+
+        '<div class="fab-loc">'+f.country_flag+' '+esc(f.city)+', '+esc(f.country)+'</div>'+
+      '</div>'+
+      '<div><span class="fab-tag '+statusClass+'">'+f.status+'</span></div>'+
+    '</div>'+
+    '<div class="fab-card-body">'+
+      '<div class="fab-tags">'+nodeHtml+waferHtml+(f.aec?'<span class="fab-tag ft-aec">AEC-Q100</span>':'')+'</div>'+
+      capHtml+
+    '</div>'+
+  '</div>';
+}
+
+function renderTableView(fabs){
+  var rows = fabs.map(f=>
+    '<tr onclick="openDetail('+f.id+')">'+
+    '<td class="td-name">'+f.country_flag+' '+esc(f.company)+'</td>'+
+    '<td style="font-size:12px;color:var(--l2)">'+esc(f.fab)+'</td>'+
+    '<td style="font-size:11px;color:var(--l3)">'+esc(f.city)+'</td>'+
+    '<td><span class="fab-tag '+(f.status==='양산중'?'ft-status-prod':f.status==='램핑'?'ft-status-ramp':'ft-status-cons')+'">'+f.status+'</span></td>'+
+    '<td><div style="display:flex;flex-wrap:wrap;gap:3px">'+f.nodes.slice(0,2).map(n=>'<span class="fab-tag ft-node">'+n+'</span>').join('')+(f.nodes.length>2?'<span class="fab-tag ft-node">+</span>':'')+'</div></td>'+
+    '<td class="td-mono" style="font-size:11px">'+f.wafer.join(', ')+'</td>'+
+    '<td style="text-align:center">'+(f.aec?'<span style="color:var(--green);font-size:14px">✓</span>':'<span style="color:var(--l4)">—</span>')+'</td>'+
+    '</tr>'
+  ).join('');
+  return '<div class="fab-table-wrap"><table class="fab-table">'+
+    '<thead><tr><th>기업</th><th>팹</th><th>위치</th><th>상태</th><th>공정 노드</th><th>웨이퍼</th><th>AEC</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table></div>';
+}
+
+function setView(v){
+  currentView = v;
+  document.getElementById('vbtn-grid').classList.toggle('on', v==='grid');
+  document.getElementById('vbtn-table').classList.toggle('on', v==='table');
+  applyFilters();
+}
+
+/* ── DETAIL ── */
+function openDetail(id){
+  var f = FABS.find(x=>x.id===id);
+  if(!f) return;
+  selectedFab = f;
+  var statusClass = f.status==='양산중'?'ft-status-prod':f.status==='램핑'?'ft-status-ramp':f.status==='건설중'?'ft-status-cons':'ft-status-anc';
+  var nodeHtml = f.nodes.map(n=>'<span class="fab-tag ft-node">'+n+'</span>').join('');
+  var prodHtml = f.products.map(p=>'<div class="dp-prod-chip">'+esc(p)+'</div>').join('');
+  var capStr = f.capKWSPM ? f.capKWSPM+'k WSPM (12인치 환산)' : (f.capNote||'IDM 내제 / 비공개');
+
+  document.getElementById('detailBody').innerHTML =
+    '<div class="dp-logo" style="background:'+f.color+'">'+f.company.charAt(0)+'</div>'+
+    '<div class="dp-name">'+esc(f.company)+'</div>'+
+    '<div class="dp-sub">'+f.country_flag+' '+esc(f.fab)+' · '+esc(f.city)+'</div>'+
+    '<br>'+
+    '<div class="dp-section">'+
+      '<div class="dp-section-title">기본 정보</div>'+
+      '<div class="dp-kv"><span class="dp-k">상태</span><span class="dp-v"><span class="fab-tag '+statusClass+'">'+f.status+'</span></span></div>'+
+      '<div class="dp-kv"><span class="dp-k">국가</span><span class="dp-v">'+f.country_flag+' '+esc(f.country)+'</span></div>'+
+      '<div class="dp-kv"><span class="dp-k">위치</span><span class="dp-v">'+esc(f.city)+'</span></div>'+
+      '<div class="dp-kv"><span class="dp-k">웨이퍼 사이즈</span><span class="dp-v">'+f.wafer.join(', ')+'</span></div>'+
+      '<div class="dp-kv"><span class="dp-k">생산 능력</span><span class="dp-v">'+capStr+'</span></div>'+
+      '<div class="dp-kv"><span class="dp-k">AEC-Q100</span><span class="dp-v">'+(f.aec?'✅ 지원':'❌ 미지원')+'</span></div>'+
+      (f.established?'<div class="dp-kv"><span class="dp-k">가동 시작</span><span class="dp-v">'+f.established+'년</span></div>':'')+
+    '</div>'+
+    '<div class="dp-section">'+
+      '<div class="dp-section-title">지원 공정 노드</div>'+
+      '<div class="dp-nodes">'+nodeHtml+'</div>'+
+    '</div>'+
+    '<div class="dp-section">'+
+      '<div class="dp-section-title">차량용 주요 제품</div>'+
+      '<div class="dp-prods">'+prodHtml+'</div>'+
+    '</div>'+
+    '<div class="dp-section">'+
+      '<div class="dp-section-title">팹 특징</div>'+
+      '<div style="font-size:12.5px;color:var(--l2);line-height:1.65">'+esc(f.specialty)+'</div>'+
+    '</div>'+
+    '<div class="dp-cta">'+
+      '<div class="dp-cta-title">이 팹의 공정으로 원가 계산</div>'+
+      '<div class="dp-cta-sub">ChipCalc에서 '+esc(f.company)+' 공정 노드를 선택해 Die 원가와 판매가를 추정하세요</div>'+
+      '<a href="index.html" class="dp-cta-btn">🧮 계산기 열기</a>'+
+    '</div>';
+
+  document.getElementById('detailPanel').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeDetail(){
+  document.getElementById('detailPanel').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+  selectedFab = null;
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
