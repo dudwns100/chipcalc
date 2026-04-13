@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Fab Explorer — 반도체 팹 지도 | ChipCalc</title>
+<meta name="description" content="전 세계 반도체 팹(전공정/후공정) 인터랙티브 지도. TSMC, Samsung, Infineon, STMicro 등 70개 이상의 팹을 공정 노드, 상태, 국가별로 탐색하세요.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/fab-explorer.html">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+  --mono:"SF Mono","Menlo","Monaco","Consolas",monospace;
+  --bg:#f2f2f7;--surface:#fff;--s2:#f9f9fb;--s3:#f2f2f7;
+  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.15);
+  --l1:#1c1c1e;--l2:#3c3c43;--l3:#6b6b70;--l4:#aeaeb2;
+  --blue:#0071e3;--blue-s:#d7eaff;--blue-t:#f0f6ff;
+  --green:#30b94a;--green-s:#d4f0db;--green-t:#f0fbf3;
+  --orange:#f25a00;--orange-t:#fff5ef;--orange-s:#fde5d3;
+  --yellow:#c8960c;--yellow-t:#fffbeb;--yellow-s:#fde68a;
+  --red:#e4362a;--red-t:#fff1f0;
+  --purple:#6e44cc;--purple-t:#f3f0ff;--purple-s:#d4c8f5;
+  --r:8px;--r2:12px;
+  --sh:0 2px 8px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.05);
+  --sh2:0 4px 16px rgba(0,0,0,0.10),0 2px 6px rgba(0,0,0,0.06);
+}
+
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:12px;line-height:1.45;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
+
+/* ── TOPBAR ── */
+.topbar{background:rgba(255,255,255,0.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:44px;display:flex;align-items:center;padding:0 14px;gap:0;flex-shrink:0;z-index:400}
+.app-icon{width:26px;height:26px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0;text-decoration:none}
+.app-brand{font-size:14px;font-weight:700;color:var(--l1);text-decoration:none;margin:0 6px 0 8px}
+.topbar-sep{color:var(--l4);font-size:11px;margin-right:6px}
+.page-title{font-size:13px;font-weight:600;color:var(--l1)}
+
+/* view tabs */
+.view-tabs{display:flex;align-items:center;gap:2px;margin-left:20px;background:var(--s3);border:1px solid var(--border2);border-radius:9px;padding:2px}
+.vtab{height:26px;padding:0 11px;border:none;border-radius:7px;font-family:var(--font);font-size:11px;font-weight:500;color:var(--l3);background:transparent;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.vtab:hover{color:var(--l2)}
+.vtab.active{background:var(--surface);color:var(--l1);box-shadow:0 1px 4px rgba(0,0,0,0.10)}
+
+/* right nav */
+.topbar-nav{display:flex;align-items:center;gap:2px;margin-left:auto}
+.nav-link{display:flex;align-items:center;gap:4px;height:28px;padding:0 9px;border-radius:6px;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--l2);text-decoration:none;transition:all 0.15s;white-space:nowrap}
+.nav-link:hover{background:var(--blue-t);color:var(--blue)}
+.ver{font-family:var(--mono);font-size:10px;color:var(--l3);border:1px solid var(--border);border-radius:20px;padding:2px 8px;margin-left:6px}
+
+/* ── STATS BAR ── */
+.stats-bar{background:var(--surface);border-bottom:1px solid var(--border);height:34px;display:flex;align-items:center;padding:0 14px;gap:0;flex-shrink:0;overflow-x:auto}
+.stats-bar::-webkit-scrollbar{display:none}
+.si{display:flex;align-items:center;gap:5px;padding:0 13px;border-right:1px solid var(--border);white-space:nowrap;color:var(--l3);font-size:11px;height:100%}
+.si:first-child{padding-left:0}
+.si:last-child{border-right:none}
+.si-num{font-family:var(--mono);font-weight:700;color:var(--l1);font-size:15px}
+.si-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+/* ── BODY ── */
+.body-wrap{display:flex;flex:1;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:230px;min-width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.sb-inner{flex:1;overflow-y:auto;padding:11px 10px 16px}
+.sb-inner::-webkit-scrollbar{width:3px}
+.sb-inner::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.10);border-radius:2px}
+
+/* search */
+.sb-search{position:relative;margin-bottom:11px}
+.sb-search input{width:100%;height:28px;padding:0 8px 0 26px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--font);font-size:11.5px;color:var(--l1);background:#fff;outline:none;transition:border-color 0.15s;-webkit-appearance:none;appearance:none}
+.sb-search input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,113,227,0.1)}
+.sb-search::before{content:'🔍';position:absolute;left:7px;top:50%;transform:translateY(-50%);font-size:10px;pointer-events:none}
+
+/* filter groups */
+.fg{margin-bottom:12px}
+.fg:last-of-type{margin-bottom:0}
+.fg-title{font-size:9px;font-weight:700;color:var(--l4);letter-spacing:0.09em;text-transform:uppercase;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{height:20px;padding:0 7px;border:1.5px solid var(--border2);border-radius:20px;background:var(--surface);color:var(--l2);font-family:var(--font);font-size:10.5px;font-weight:500;cursor:pointer;transition:all 0.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;user-select:none}
+.chip:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-t)}
+.chip.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 1px 3px rgba(0,113,227,0.22)}
+
+/* legend */
+.legend{border-top:1px solid var(--border);padding-top:10px;margin-top:4px}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--l2);margin-bottom:5px}
+.leg-circle{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:2px solid rgba(0,0,0,0.08)}
+.leg-diamond{width:9px;height:9px;flex-shrink:0;transform:rotate(45deg);border:2px solid rgba(0,0,0,0.08)}
+
+.reset-btn{width:100%;height:26px;border:1px solid var(--border2);border-radius:var(--r);background:transparent;color:var(--l3);font-family:var(--font);font-size:10.5px;cursor:pointer;transition:all 0.15s;margin-top:10px}
+.reset-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-t)}
+
+/* ── MAP ── */
+.map-wrap{flex:1;position:relative;overflow:hidden}
+#map{width:100%;height:100%}
+
+/* Leaflet overrides — match light theme */
+.leaflet-container{background:#e8ecf0 !important;font-family:var(--font) !important}
+.leaflet-control-zoom a{background:var(--surface) !important;color:var(--l1) !important;border-color:var(--border2) !important;font-size:15px !important;font-weight:600 !important;line-height:26px !important}
+.leaflet-control-zoom a:hover{background:var(--blue-t) !important;color:var(--blue) !important}
+.leaflet-control-attribution{font-size:9px !important;opacity:0.5;background:rgba(255,255,255,0.7) !important}
+
+/* Popup */
+.leaflet-popup-content-wrapper{background:var(--surface) !important;color:var(--l1) !important;border-radius:var(--r2) !important;border:1px solid var(--border2) !important;box-shadow:var(--sh2) !important;padding:0 !important}
+.leaflet-popup-content{margin:0 !important;padding:0 !important;min-width:0 !important}
+.leaflet-popup-tip{background:var(--surface) !important}
+.leaflet-popup-close-button{color:var(--l3) !important;font-size:16px !important;right:8px !important;top:8px !important}
+
+/* Popup content */
+.fp{padding:13px 15px 14px}
+.fp-co{font-size:9.5px;font-weight:700;color:var(--blue);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px}
+.fp-name{font-size:13px;font-weight:700;color:var(--l1);margin-bottom:8px;line-height:1.3;max-width:240px}
+.fp-row{display:flex;font-size:11.5px;color:var(--l3);margin-bottom:3px;gap:4px}
+.fp-row b{color:var(--l1);font-weight:500}
+.fp-badge{display:inline-flex;align-items:center;height:18px;padding:0 8px;border-radius:4px;font-size:10px;font-weight:600;margin-top:8px;gap:4px}
+.fpb-op{background:var(--green-t);color:var(--green);border:1px solid var(--green-s)}
+.fpb-con{background:var(--yellow-t);color:var(--yellow);border:1px solid var(--yellow-s)}
+.fpb-plan{background:var(--blue-t);color:var(--blue);border:1px solid var(--blue-s)}
+
+/* Info overlay */
+.info-overlay{position:absolute;top:10px;right:10px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--r2);padding:12px 14px;z-index:500;min-width:170px;box-shadow:var(--sh2)}
+.io-title{font-size:9.5px;font-weight:700;color:var(--l3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:9px}
+.io-row{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;margin-bottom:4px}
+.io-label{color:var(--l3);display:flex;align-items:center;gap:4px}
+.io-val{font-family:var(--mono);font-weight:700;color:var(--l1)}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="app-icon" href="index.html">IC</a>
+  <a class="app-brand" href="index.html">ChipCalc</a>
+  <span class="topbar-sep">›</span>
+  <span class="page-title">Fab Explorer</span>
+
+  <div class="view-tabs">
+    <button class="vtab active" onclick="setView('all',this)">All Sites</button>
+    <button class="vtab" onclick="setView('wafer',this)">Wafer Fabs</button>
+    <button class="vtab" onclick="setView('packaging',this)">OSAT / Backend</button>
+  </div>
+
+  <div class="topbar-nav">
+    <a class="nav-link" href="index.html">🧮 계산기</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <span class="ver">v0.9</span>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar" id="statsBar"></div>
+
+<!-- BODY -->
+<div class="body-wrap">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-inner">
+      <div class="sb-search">
+        <input type="text" id="searchInput" placeholder="팹명, 회사, 도시..." oninput="updateAll()">
+      </div>
+
+      <div class="fg">
+        <div class="fg-title">Company</div>
+        <div class="chips" id="companyChips"></div>
+      </div>
+      <div class="fg">
+        <div class="fg-title">Country</div>
+        <div class="chips" id="countryChips"></div>
+      </div>
+      <div class="fg">
+        <div class="fg-title">Tech Node</div>
+        <div class="chips" id="nodeChips"></div>
+      </div>
+      <div class="fg">
+        <div class="fg-title">Type</div>
+        <div class="chips" id="typeChips"></div>
+      </div>
+
+      <div class="fg legend">
+        <div class="fg-title">Legend</div>
+        <div class="leg-item"><div class="leg-circle" style="background:#d7eaff;border-color:#0071e3"></div>Frontend Fab (Wafer)</div>
+        <div class="leg-item"><div class="leg-diamond" style="background:#d4c8f5;border-color:#6e44cc"></div>Backend / OSAT</div>
+        <div style="height:4px"></div>
+        <div class="leg-item"><div class="leg-circle" style="background:var(--green);border-color:var(--green-s)"></div>Operating</div>
+        <div class="leg-item"><div class="leg-circle" style="background:var(--yellow);border-color:var(--yellow-s)"></div>Under Construction</div>
+        <div class="leg-item"><div class="leg-circle" style="background:var(--blue);border-color:var(--blue-s)"></div>Planned</div>
+      </div>
+
+      <button class="reset-btn" onclick="resetFilters()">✕ 필터 초기화</button>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div class="map-wrap">
+    <div id="map"></div>
+    <div class="info-overlay" id="infoOverlay">
+      <div class="io-title">국가별 사이트</div>
+      <div id="infoPanelContent"></div>
+    </div>
+  </div>
+
+</div><!-- /body-wrap -->
+
+<script>
+const fabData = [
+  // ── TSMC ──
+  {name:"TSMC Fab 12A/B",company:"TSMC",country:"Taiwan",city:"Hsinchu",lat:24.7868,lng:120.9965,type:"fab",node:"7nm",status:"operating",wafer:300},
+  {name:"TSMC Fab 14 (P1-P8)",company:"TSMC",country:"Taiwan",city:"Tainan",lat:23.1085,lng:120.2691,type:"fab",node:"5nm",status:"operating",wafer:300},
+  {name:"TSMC Fab 15",company:"TSMC",country:"Taiwan",city:"Taichung",lat:24.2548,lng:120.7220,type:"fab",node:"7nm",status:"operating",wafer:300},
+  {name:"TSMC Fab 18 (3nm/N3)",company:"TSMC",country:"Taiwan",city:"Tainan",lat:23.1130,lng:120.2580,type:"fab",node:"3nm",status:"operating",wafer:300},
+  {name:"TSMC Fab 20 (2nm)",company:"TSMC",country:"Taiwan",city:"Hsinchu",lat:24.7900,lng:121.0100,type:"fab",node:"2nm",status:"operating",wafer:300},
+  {name:"TSMC Fab 22 (2nm/A16)",company:"TSMC",country:"Taiwan",city:"Kaohsiung",lat:22.6200,lng:120.3000,type:"fab",node:"2nm",status:"operating",wafer:300},
+  {name:"TSMC Fab 2/3/5/6",company:"TSMC",country:"Taiwan",city:"Hsinchu/Tainan",lat:24.7700,lng:120.9800,type:"fab",node:"28nm",status:"operating",wafer:300},
+  {name:"TSMC Fab 8 (16nm)",company:"TSMC",country:"Taiwan",city:"Hsinchu",lat:24.7950,lng:120.9700,type:"fab",node:"16nm",status:"operating",wafer:300},
+  {name:"TSMC Nanjing Fab",company:"TSMC",country:"China",city:"Nanjing",lat:32.0585,lng:118.7962,type:"fab",node:"28nm",status:"operating",wafer:300},
+  {name:"TSMC Arizona Fab 21 P1",company:"TSMC",country:"USA",city:"Phoenix, AZ",lat:33.6615,lng:-112.0570,type:"fab",node:"4nm",status:"operating",wafer:300},
+  {name:"TSMC Arizona Fab 21 P2",company:"TSMC",country:"USA",city:"Phoenix, AZ",lat:33.6630,lng:-112.0550,type:"fab",node:"3nm",status:"construction",wafer:300},
+  {name:"TSMC Arizona Fab 21 P3",company:"TSMC",country:"USA",city:"Phoenix, AZ",lat:33.6645,lng:-112.0530,type:"fab",node:"2nm",status:"planned",wafer:300},
+  {name:"JASM P1 (Kumamoto)",company:"TSMC",country:"Japan",city:"Kumamoto",lat:32.8328,lng:130.7247,type:"fab",node:"22nm",status:"operating",wafer:300},
+  {name:"JASM P2 (Kumamoto)",company:"TSMC",country:"Japan",city:"Kumamoto",lat:32.8350,lng:130.7260,type:"fab",node:"6nm",status:"construction",wafer:300},
+  {name:"TSMC ESMC Dresden",company:"TSMC",country:"Germany",city:"Dresden",lat:51.0504,lng:13.7373,type:"fab",node:"28nm",status:"construction",wafer:300},
+  // ── Samsung ──
+  {name:"Samsung Pyeongtaek P3/P4",company:"Samsung",country:"South Korea",city:"Pyeongtaek",lat:36.9914,lng:127.1135,type:"fab",node:"3nm",status:"operating",wafer:300},
+  {name:"Samsung Hwaseong S-Line",company:"Samsung",country:"South Korea",city:"Hwaseong",lat:37.2007,lng:126.9814,type:"fab",node:"5nm",status:"operating",wafer:300},
+  {name:"Samsung Austin Fab",company:"Samsung",country:"USA",city:"Austin, TX",lat:30.3960,lng:-97.7200,type:"fab",node:"14nm",status:"operating",wafer:300},
+  {name:"Samsung Taylor Fab",company:"Samsung",country:"USA",city:"Taylor, TX",lat:30.5724,lng:-97.4097,type:"fab",node:"2nm",status:"construction",wafer:300},
+  // ── Intel ──
+  {name:"Intel Fab 34/36 (Leixlip)",company:"Intel",country:"Ireland",city:"Leixlip",lat:53.3638,lng:-6.4883,type:"fab",node:"Intel 4",status:"operating",wafer:300},
+  {name:"Intel Fab 42/52 (Chandler)",company:"Intel",country:"USA",city:"Chandler, AZ",lat:33.3062,lng:-111.8413,type:"fab",node:"Intel 18A",status:"operating",wafer:300},
+  {name:"Intel Fab 28 (Kiryat Gat)",company:"Intel",country:"Israel",city:"Kiryat Gat",lat:31.6100,lng:34.7700,type:"fab",node:"Intel 7",status:"operating",wafer:300},
+  {name:"Intel Ohio One",company:"Intel",country:"USA",city:"New Albany, OH",lat:40.0814,lng:-82.7982,type:"fab",node:"Intel 18A",status:"construction",wafer:300},
+  // ── GlobalFoundries ──
+  {name:"GF Fab 1 (Dresden)",company:"GlobalFoundries",country:"Germany",city:"Dresden",lat:51.0504,lng:13.7420,type:"fab",node:"22nm",status:"operating",wafer:300},
+  {name:"GF Fab 8 (Malta NY)",company:"GlobalFoundries",country:"USA",city:"Malta, NY",lat:43.0120,lng:-73.7726,type:"fab",node:"14nm",status:"operating",wafer:300},
+  {name:"GF Singapore (Woodlands)",company:"GlobalFoundries",country:"Singapore",city:"Woodlands",lat:1.4300,lng:103.7900,type:"fab",node:"22nm",status:"operating",wafer:300},
+  // ── STMicro ──
+  {name:"STMicro Crolles",company:"STMicro",country:"France",city:"Crolles",lat:45.2788,lng:5.9350,type:"fab",node:"28nm FD-SOI",status:"operating",wafer:300},
+  {name:"STMicro Agrate",company:"STMicro",country:"Italy",city:"Agrate Brianza",lat:45.5764,lng:9.3459,type:"fab",node:"40nm",status:"operating",wafer:300},
+  {name:"STMicro Catania (SiC)",company:"STMicro",country:"Italy",city:"Catania",lat:37.5045,lng:15.0870,type:"fab",node:"SiC Power",status:"operating",wafer:200},
+  {name:"STMicro Tours (BCD)",company:"STMicro",country:"France",city:"Tours",lat:47.3941,lng:0.6848,type:"fab",node:"0.18μm BCD",status:"operating",wafer:200},
+  // ── Infineon ──
+  {name:"Infineon Dresden",company:"Infineon",country:"Germany",city:"Dresden",lat:51.0470,lng:13.7500,type:"fab",node:"28nm",status:"operating",wafer:300},
+  {name:"Infineon Villach (SiC)",company:"Infineon",country:"Austria",city:"Villach",lat:46.6167,lng:13.8500,type:"fab",node:"SiC Power",status:"operating",wafer:300},
+  {name:"Infineon Kulim",company:"Infineon",country:"Malaysia",city:"Kulim",lat:5.3645,lng:100.5583,type:"fab",node:"SiC/GaN",status:"operating",wafer:300},
+  {name:"Infineon Regensburg",company:"Infineon",country:"Germany",city:"Regensburg",lat:49.0134,lng:12.1016,type:"fab",node:"0.18μm",status:"operating",wafer:200},
+  // ── Texas Instruments ──
+  {name:"TI RFAB1/2 Richardson",company:"Texas Instruments",country:"USA",city:"Richardson, TX",lat:32.9487,lng:-96.7297,type:"fab",node:"65nm",status:"operating",wafer:300},
+  {name:"TI Sherman Fab",company:"Texas Instruments",country:"USA",city:"Sherman, TX",lat:33.6357,lng:-96.6089,type:"fab",node:"65nm",status:"construction",wafer:300},
+  {name:"TI Lehi Fab",company:"Texas Instruments",country:"USA",city:"Lehi, UT",lat:40.3916,lng:-111.8508,type:"fab",node:"65nm",status:"operating",wafer:300},
+  // ── NXP ──
+  {name:"NXP Hamburg",company:"NXP",country:"Germany",city:"Hamburg",lat:53.5511,lng:10.0070,type:"fab",node:"0.18μm",status:"operating",wafer:200},
+  {name:"NXP Nijmegen",company:"NXP",country:"Netherlands",city:"Nijmegen",lat:51.8126,lng:5.8372,type:"fab",node:"28nm",status:"operating",wafer:300},
+  // ── Renesas ──
+  {name:"Renesas Naka Fab",company:"Renesas",country:"Japan",city:"Ibaraki",lat:36.4500,lng:140.4750,type:"fab",node:"90nm",status:"operating",wafer:200},
+  {name:"Renesas Koga Fab",company:"Renesas",country:"Japan",city:"Ibaraki",lat:36.1800,lng:139.9200,type:"fab",node:"40nm",status:"operating",wafer:300},
+  // ── DB HiTek ──
+  {name:"DB HiTek Bucheon",company:"DB HiTek",country:"South Korea",city:"Bucheon",lat:37.5034,lng:126.7660,type:"fab",node:"0.18μm",status:"operating",wafer:200},
+  // ── Magnachip ──
+  {name:"Magnachip Cheongju",company:"Magnachip",country:"South Korea",city:"Cheongju",lat:36.6424,lng:127.4890,type:"fab",node:"0.18μm",status:"operating",wafer:200},
+  // ── Tower ──
+  {name:"Tower Migdal HaEmek",company:"Tower Semi",country:"Israel",city:"Migdal HaEmek",lat:32.6736,lng:35.2403,type:"fab",node:"65nm",status:"operating",wafer:200},
+  {name:"Tower San Antonio",company:"Tower Semi",country:"USA",city:"San Antonio, TX",lat:29.5240,lng:-98.4590,type:"fab",node:"65nm",status:"operating",wafer:200},
+  // ── UMC ──
+  {name:"UMC Fab 12A (Hsinchu)",company:"UMC",country:"Taiwan",city:"Hsinchu",lat:24.7740,lng:120.9830,type:"fab",node:"14nm",status:"operating",wafer:300},
+  {name:"UMC Tainan Fab 12i",company:"UMC",country:"Taiwan",city:"Tainan",lat:23.1060,lng:120.2550,type:"fab",node:"22nm",status:"operating",wafer:300},
+  {name:"UMC Singapore",company:"UMC",country:"Singapore",city:"Singapore",lat:1.3500,lng:103.7500,type:"fab",node:"22nm",status:"operating",wafer:300},
+  // ── SMIC ──
+  {name:"SMIC SN1/SN2 Shanghai",company:"SMIC",country:"China",city:"Shanghai",lat:31.2800,lng:121.5600,type:"fab",node:"14nm",status:"operating",wafer:300},
+  {name:"SMIC Beijing",company:"SMIC",country:"China",city:"Beijing",lat:39.9042,lng:116.4074,type:"fab",node:"28nm",status:"operating",wafer:300},
+  {name:"SMIC Shenzhen",company:"SMIC",country:"China",city:"Shenzhen",lat:22.5431,lng:114.0579,type:"fab",node:"28nm",status:"operating",wafer:300},
+  {name:"SMIC Lingang (New)",company:"SMIC",country:"China",city:"Shanghai Lingang",lat:30.9100,lng:121.9000,type:"fab",node:"14nm",status:"construction",wafer:300},
+  // ── Hua Hong ──
+  {name:"Hua Hong Shanghai",company:"Hua Hong",country:"China",city:"Shanghai",lat:31.2600,lng:121.5400,type:"fab",node:"55nm",status:"operating",wafer:300},
+  {name:"Hua Hong Wuxi",company:"Hua Hong",country:"China",city:"Wuxi",lat:31.5500,lng:120.3100,type:"fab",node:"40nm",status:"operating",wafer:300},
+  // ── Others ──
+  {name:"Nexchip Hefei",company:"Nexchip",country:"China",city:"Hefei",lat:31.8206,lng:117.2272,type:"fab",node:"28nm",status:"operating",wafer:300},
+  {name:"PSMC Hsinchu",company:"PSMC",country:"Taiwan",city:"Hsinchu",lat:24.7600,lng:120.9900,type:"fab",node:"28nm",status:"operating",wafer:300},
+  {name:"VIS Hsinchu",company:"VIS",country:"Taiwan",city:"Hsinchu",lat:24.7750,lng:121.0100,type:"fab",node:"90nm",status:"operating",wafer:200},
+  {name:"Rapidus IIM-1 (Chitose)",company:"Rapidus",country:"Japan",city:"Chitose",lat:42.8194,lng:141.6513,type:"fab",node:"2nm",status:"construction",wafer:300},
+  {name:"Wolfspeed Mohawk Valley",company:"Wolfspeed",country:"USA",city:"Marcy, NY",lat:43.1680,lng:-75.2650,type:"fab",node:"SiC 200mm",status:"operating",wafer:200},
+  {name:"Rohm Fukuoka (SiC)",company:"Rohm",country:"Japan",city:"Fukuoka",lat:33.5904,lng:130.4017,type:"fab",node:"SiC",status:"operating",wafer:150},
+  // ── OSAT / Backend ──
+  {name:"ASE Kaohsiung",company:"ASE",country:"Taiwan",city:"Kaohsiung",lat:22.6273,lng:120.3014,type:"osat",node:"Advanced Pkg",status:"operating"},
+  {name:"ASE Chungli",company:"ASE",country:"Taiwan",city:"Chungli",lat:24.9578,lng:121.2168,type:"osat",node:"ATP",status:"operating"},
+  {name:"ASE Shanghai",company:"ASE",country:"China",city:"Shanghai",lat:31.2304,lng:121.4737,type:"osat",node:"ATP",status:"operating"},
+  {name:"ASE Penang",company:"ASE",country:"Malaysia",city:"Penang",lat:5.2950,lng:100.4580,type:"osat",node:"ATP",status:"operating"},
+  {name:"ASE Korea (Paju)",company:"ASE",country:"South Korea",city:"Paju",lat:37.7590,lng:126.7797,type:"osat",node:"ATP",status:"operating"},
+  {name:"Amkor Incheon K1-K5",company:"Amkor",country:"South Korea",city:"Incheon",lat:37.4563,lng:126.7052,type:"osat",node:"Advanced Pkg",status:"operating"},
+  {name:"Amkor Arizona (Peoria)",company:"Amkor",country:"USA",city:"Peoria, AZ",lat:33.7876,lng:-112.2374,type:"osat",node:"Advanced Pkg",status:"construction"},
+  {name:"Amkor Vietnam (Bac Ninh)",company:"Amkor",country:"Vietnam",city:"Bac Ninh",lat:21.1861,lng:106.0763,type:"osat",node:"Advanced Pkg",status:"construction"},
+  {name:"Amkor NANIUM (Porto)",company:"Amkor",country:"Portugal",city:"Porto",lat:41.1497,lng:-8.6109,type:"osat",node:"WLCSP/FOWLP",status:"operating"},
+  {name:"JCET Jiangyin HQ",company:"JCET",country:"China",city:"Jiangyin",lat:31.9200,lng:120.2653,type:"osat",node:"Advanced Pkg",status:"operating"},
+  {name:"JCET Singapore",company:"JCET",country:"Singapore",city:"Singapore",lat:1.3100,lng:103.7400,type:"osat",node:"ATP",status:"operating"},
+  {name:"SPIL Taichung",company:"SPIL",country:"Taiwan",city:"Taichung",lat:24.1476,lng:120.6736,type:"osat",node:"Advanced Pkg",status:"operating"},
+  {name:"TSMC AP3/AP5/AP6 (CoWoS)",company:"TSMC",country:"Taiwan",city:"Longtan/Taichung",lat:24.8636,lng:121.2100,type:"osat",node:"CoWoS/InFO",status:"operating"},
+  {name:"Samsung Cheonan (I-Cube)",company:"Samsung",country:"South Korea",city:"Cheonan",lat:36.8151,lng:127.1139,type:"osat",node:"I-Cube/X-Cube",status:"operating"},
+  {name:"Intel Penang PGAT",company:"Intel",country:"Malaysia",city:"Penang",lat:5.3500,lng:100.4000,type:"osat",node:"Foveros/EMIB",status:"construction"},
+  {name:"Intel Vietnam ATP",company:"Intel",country:"Vietnam",city:"Ho Chi Minh City",lat:10.8551,lng:106.6866,type:"osat",node:"ATP",status:"operating"},
+];
+
+// ── STATE ──
+let filters={company:new Set(),country:new Set(),node:new Set(),type:new Set()};
+let map,markers=[];
+
+// ── INIT ──
+document.addEventListener('DOMContentLoaded',()=>{
+  initMap();
+  buildFilters();
+  updateAll();
+});
+
+function initMap(){
+  map=L.map('map',{center:[28,108],zoom:3,minZoom:2,maxZoom:14,zoomControl:true,worldCopyJump:true});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap © CARTO'
+  }).addTo(map);
+}
+
+function buildFilters(){
+  const cos=[...new Set(fabData.map(f=>f.company))].sort();
+  const ctrs=[...new Set(fabData.map(f=>f.country))].sort();
+  const nds=[...new Set(fabData.map(f=>f.node))].sort((a,b)=>{
+    const nm=s=>{const m=s.match(/(\d+(?:\.\d+)?)\s*(nm|μm)/i);return m?parseFloat(m[1])*(m[2]==='μm'?1000:1):9999;};
+    return nm(a)-nm(b);
+  });
+  renderChips('companyChips',cos,'company');
+  renderChips('countryChips',ctrs,'country');
+  renderChips('nodeChips',nds,'node');
+  document.getElementById('typeChips').innerHTML=
+    `<div class="chip" data-key="type" data-value="fab" onclick="toggleFilter(this,'type','fab')">🏭 Frontend Fab</div>
+     <div class="chip" data-key="type" data-value="osat" onclick="toggleFilter(this,'type','osat')">📦 OSAT / Backend</div>`;
+}
+
+function renderChips(id,items,key){
+  document.getElementById(id).innerHTML=items.map(v=>
+    `<div class="chip" data-key="${key}" data-value="${esc(v)}" onclick="toggleFilter(this,'${key}','${esc(v)}')">${esc(v)}</div>`
+  ).join('');
+}
+
+function toggleFilter(el,key,val){
+  if(filters[key].has(val)){filters[key].delete(val);el.classList.remove('active');}
+  else{filters[key].add(val);el.classList.add('active');}
+  updateAll();
+}
+
+function setView(v,btn){
+  document.querySelectorAll('.vtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  filters.type.clear();
+  document.querySelectorAll('[data-key="type"]').forEach(c=>c.classList.remove('active'));
+  if(v==='wafer'){filters.type.add('fab');document.querySelector('[data-value="fab"]')?.classList.add('active');}
+  else if(v==='packaging'){filters.type.add('osat');document.querySelector('[data-value="osat"]')?.classList.add('active');}
+  updateAll();
+}
+
+function resetFilters(){
+  Object.keys(filters).forEach(k=>filters[k].clear());
+  document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
+  document.getElementById('searchInput').value='';
+  updateAll();
+}
+
+function getFiltered(){
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();
+  return fabData.filter(f=>{
+    if(filters.company.size&&!filters.company.has(f.company))return false;
+    if(filters.country.size&&!filters.country.has(f.country))return false;
+    if(filters.node.size&&!filters.node.has(f.node))return false;
+    if(filters.type.size&&!filters.type.has(f.type))return false;
+    if(q&&![f.name,f.company,f.city,f.country,f.node].some(s=>s.toLowerCase().includes(q)))return false;
+    return true;
+  });
+}
+
+function updateAll(){
+  const d=getFiltered();
+  updateStats(d);
+  updateMap(d);
+  updateInfoPanel(d);
+}
+
+function updateStats(d){
+  const fbs=d.filter(x=>x.type==='fab').length;
+  const os=d.filter(x=>x.type==='osat').length;
+  const op=d.filter(x=>x.status==='operating').length;
+  const con=d.filter(x=>x.status==='construction').length;
+  const plan=d.filter(x=>x.status==='planned'||x.status==='ramping').length;
+  const ctrs=new Set(d.map(x=>x.country)).size;
+  const cos=new Set(d.map(x=>x.company)).size;
+  document.getElementById('statsBar').innerHTML=
+    `<div class="si"><span class="si-num">${d.length}</span> / ${fabData.length} 사이트</div>
+     <div class="si"><span class="si-num">${fbs}</span> Frontend Fabs</div>
+     <div class="si"><span class="si-num">${os}</span> OSAT</div>
+     <div class="si"><span class="si-num">${ctrs}</span> 국가</div>
+     <div class="si"><span class="si-num">${cos}</span> 기업</div>
+     <div class="si"><span class="si-dot" style="background:var(--green)"></span><span class="si-num">${op}</span> 운영 중</div>
+     <div class="si"><span class="si-dot" style="background:var(--yellow)"></span><span class="si-num">${con}</span> 건설 중</div>
+     <div class="si"><span class="si-dot" style="background:var(--blue)"></span><span class="si-num">${plan}</span> 예정</div>`;
+}
+
+function mkColor(status){return status==='operating'?'#30b94a':status==='construction'?'#c8960c':'#0071e3';}
+
+function mkIcon(fab){
+  const c=mkColor(fab.status);
+  const border=fab.type==='fab'?'#0071e3':'#6e44cc';
+  const sz=fab.type==='fab'?14:12;
+  const shape=fab.type==='fab'?'border-radius:50%;':'transform:rotate(45deg);border-radius:2px;';
+  return L.divIcon({
+    className:'',
+    html:`<div style="width:${sz}px;height:${sz}px;background:${c};border:2px solid ${border};${shape}box-shadow:0 1px 5px rgba(0,0,0,0.18),0 0 6px ${c}55;"></div>`,
+    iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
+  });
+}
+
+function updateMap(data){
+  markers.forEach(m=>map.removeLayer(m));
+  markers=[];
+  data.forEach(fab=>{
+    const m=L.marker([fab.lat,fab.lng],{icon:mkIcon(fab)}).addTo(map);
+    const sCls=fab.status==='operating'?'fpb-op':fab.status==='construction'?'fpb-con':'fpb-plan';
+    const sLbl=fab.status==='operating'?'✓ Operating':fab.status==='construction'?'🔨 Under Construction':fab.status==='ramping'?'📈 Ramping':'📋 Planned';
+    const tLbl=fab.type==='fab'?'Frontend Fab':'OSAT / Backend';
+    m.bindPopup(`<div class="fp">
+      <div class="fp-co">${esc(fab.company)}</div>
+      <div class="fp-name">${esc(fab.name)}</div>
+      <div class="fp-row">위치: <b>${esc(fab.city)}, ${esc(fab.country)}</b></div>
+      <div class="fp-row">유형: <b>${tLbl}</b></div>
+      <div class="fp-row">노드: <b>${esc(fab.node)}</b></div>
+      ${fab.wafer?`<div class="fp-row">웨이퍼: <b>${fab.wafer}mm</b></div>`:''}
+      <div class="fp-badge ${sCls}">${sLbl}</div>
+    </div>`,{maxWidth:280});
+    m.on('mouseover',function(){const e=this.getElement()?.querySelector('div');if(e)e.style.transform=fab.type==='osat'?'rotate(45deg) scale(1.5)':'scale(1.5)';});
+    m.on('mouseout',function(){const e=this.getElement()?.querySelector('div');if(e)e.style.transform=fab.type==='osat'?'rotate(45deg)':'';});
+    markers.push(m);
+  });
+}
+
+function updateInfoPanel(data){
+  const flags={'Taiwan':'🇹🇼','USA':'🇺🇸','China':'🇨🇳','South Korea':'🇰🇷','Japan':'🇯🇵',
+    'Germany':'🇩🇪','Singapore':'🇸🇬','Malaysia':'🇲🇾','Ireland':'🇮🇪','Israel':'🇮🇱',
+    'Italy':'🇮🇹','France':'🇫🇷','Austria':'🇦🇹','Netherlands':'🇳🇱',
+    'Philippines':'🇵🇭','Vietnam':'🇻🇳','Thailand':'🇹🇭','Portugal':'🇵🇹'};
+  const by={};
+  data.forEach(f=>{by[f.country]=(by[f.country]||0)+1;});
+  const sorted=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,9);
+  document.getElementById('infoPanelContent').innerHTML=sorted.map(([c,n])=>
+    `<div class="io-row"><span class="io-label">${flags[c]||'🏳️'} ${esc(c)}</span><span class="io-val">${n}</span></div>`
+  ).join('');
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+</body>
+</html>
