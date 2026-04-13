@@ -10,6 +10,7 @@
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/fab-explorer.html">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -52,6 +53,27 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
 .hd-stat{text-align:center}
 .hd-stat-n{font-size:24px;font-weight:800;color:#fff;font-family:var(--mono);line-height:1}
 .hd-stat-l{font-size:10px;color:rgba(255,255,255,0.5);margin-top:3px;letter-spacing:0.04em;text-transform:uppercase}
+
+#fabMap { height: 600px; }
+.fab-map-container { display: none; }
+.fab-map-container.on { display: block; }
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+.leaflet-popup-content {
+  margin: 10px;
+  font-family: var(--font);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.popup-fab-name {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+.popup-fab-details {
+  color: var(--l2);
+}
 
 /* ── LAYOUT ── */
 .layout{display:grid;grid-template-columns:260px 1fr;max-width:1400px;margin:0 auto;padding:0;gap:0;min-height:calc(100vh - 135px)}
@@ -270,8 +292,13 @@ footer a{color:var(--blue);text-decoration:none}
       <div class="view-btns">
         <button class="vbtn on" id="vbtn-grid" onclick="setView('grid')" title="카드 보기">⊞</button>
         <button class="vbtn" id="vbtn-table" onclick="setView('table')" title="테이블 보기">☰</button>
+        <button class="vbtn" id="vbtn-map" onclick="setView('map')" title="지도 보기">🗺️</button>
       </div>
     </div>
+  </div>
+
+  <div class="fab-map-container" id="fabMapContainer">
+    <div id="fabMap"></div>
   </div>
 
   <div style="padding:14px 18px" id="fabContainer"></div>
@@ -306,6 +333,7 @@ footer a{color:var(--blue);text-decoration:none}
   <span style="font-size:11px">모든 데이터는 공개 자료 기반 추정치. 실제 계약 및 투자 결정의 단독 근거로 사용하지 마십시오.</span></p>
 </footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 /* ════════════════════════════════════════
    FAB DATABASE — 차량용 반도체 특화
@@ -313,7 +341,7 @@ footer a{color:var(--blue);text-decoration:none}
 ════════════════════════════════════════ */
 var FABS = [
   {
-    id:1, company:'TSMC', fab:'Fab 2 / 3 / 5 / 6', city:'신주/타이난', country:'대만',
+    id:1, company:'TSMC', fab:'Fab 2 / 3 / 5 / 6', city:'신주/타이난', country:'대만', lat: 24.78, lon: 120.98,
     wafer:['12인치'], nodes:['28nm','40nm','65nm'], status:'양산중',
     capKWSPM:150, aec:true, color:'#0071e3',
     products:['Auto MCU','CAN/LIN Transceiver','PMIC','ADAS SoC 초급'],
@@ -321,7 +349,7 @@ var FABS = [
     established:1999, country_flag:'🇹🇼'
   },
   {
-    id:2, company:'TSMC', fab:'Fab 8', city:'신주', country:'대만',
+    id:2, company:'TSMC', fab:'Fab 8', city:'신주', country:'대만', lat: 24.80, lon: 121.00,
     wafer:['12인치'], nodes:['16nm','12nm'], status:'양산중',
     capKWSPM:60, aec:true, color:'#0071e3',
     products:['ADAS SoC','Radar IC','Camera ISP'],
@@ -329,7 +357,7 @@ var FABS = [
     established:2009, country_flag:'🇹🇼'
   },
   {
-    id:3, company:'TSMC', fab:'Fab 18 (N4/N3)', city:'타이난', country:'대만',
+    id:3, company:'TSMC', fab:'Fab 18 (N4/N3)', city:'타이난', country:'대만', lat: 23.00, lon: 120.21,
     wafer:['12인치'], nodes:['5nm','4nm','3nm'], status:'양산중',
     capKWSPM:120, aec:true, color:'#0071e3',
     products:['자율주행 SoC','ADAS 최상급 프로세서'],
@@ -337,7 +365,7 @@ var FABS = [
     established:2020, country_flag:'🇹🇼'
   },
   {
-    id:4, company:'TSMC', fab:'Fab 21 (Arizona)', city:'피닉스 애리조나', country:'미국',
+    id:4, company:'TSMC', fab:'Fab 21 (Arizona)', city:'피닉스 애리조나', country:'미국', lat: 33.44, lon: -112.07,
     wafer:['12인치'], nodes:['4nm','5nm','3nm'], status:'램핑',
     capKWSPM:30, aec:true, color:'#0071e3',
     products:['자율주행 SoC','ADAS 프로세서'],
@@ -345,7 +373,7 @@ var FABS = [
     established:2024, country_flag:'🇺🇸'
   },
   {
-    id:5, company:'TSMC', fab:'JASM (쿠마모토)', city:'쿠마모토', country:'일본',
+    id:5, company:'TSMC', fab:'JASM (쿠마모토)', city:'쿠마모토', country:'일본', lat: 32.78, lon: 130.70,
     wafer:['12인치'], nodes:['12nm','16nm','22nm','28nm','40nm'], status:'양산중',
     capKWSPM:55, aec:true, color:'#0071e3',
     products:['Auto MCU','PMIC','CAN/LIN','Sensor IC'],
@@ -353,7 +381,7 @@ var FABS = [
     established:2024, country_flag:'🇯🇵'
   },
   {
-    id:6, company:'GlobalFoundries', fab:'Fab 1 (드레스덴)', city:'드레스덴', country:'독일',
+    id:6, company:'GlobalFoundries', fab:'Fab 1 (드레스덴)', city:'드레스덴', country:'독일', lat: 51.05, lon: 13.73,
     wafer:['12인치'], nodes:['22nm','28nm','40nm'], status:'양산중',
     capKWSPM:50, aec:true, color:'#6366f1',
     products:['Auto MCU','CAN/FlexRay','Ethernet Switch','PMIC'],
@@ -361,7 +389,7 @@ var FABS = [
     established:2005, country_flag:'🇩🇪'
   },
   {
-    id:7, company:'GlobalFoundries', fab:'Fab 8 (몰타)', city:'몰타 뉴욕', country:'미국',
+    id:7, company:'GlobalFoundries', fab:'Fab 8 (몰타)', city:'몰타 뉴욕', country:'미국', lat: 42.92, lon: -73.78,
     wafer:['12인치'], nodes:['12nm','14nm','22nm'], status:'양산중',
     capKWSPM:70, aec:true, color:'#6366f1',
     products:['ADAS SoC 초급','고성능 MCU','Ethernet'],
@@ -369,7 +397,7 @@ var FABS = [
     established:2012, country_flag:'🇺🇸'
   },
   {
-    id:8, company:'GlobalFoundries', fab:'싱가포르 우드랜즈', city:'우드랜즈', country:'싱가포르',
+    id:8, company:'GlobalFoundries', fab:'싱가포르 우드랜즈', city:'우드랜즈', country:'싱가포르', lat: 1.43, lon: 103.78,
     wafer:['12인치'], nodes:['22nm','40nm','130nm'], status:'양산중',
     capKWSPM:60, aec:true, color:'#6366f1',
     products:['Auto MCU','CAN/LIN','PMIC 성숙 노드'],
@@ -377,7 +405,7 @@ var FABS = [
     established:2010, country_flag:'🇸🇬'
   },
   {
-    id:9, company:'DB하이텍', fab:'부천 Fab 1/2', city:'부천', country:'한국',
+    id:9, company:'DB하이텍', fab:'부천 Fab 1/2', city:'부천', country:'한국', lat: 37.50, lon: 126.78,
     wafer:['8인치'], nodes:['0.18μm','90nm','65nm'], status:'양산중',
     capKWSPM:null, capNote:'110K WPM (8인치)', aec:true, color:'#e91e8c',
     products:['Auto PMIC','Gate Driver','CAN Transceiver','DCDC','Motor Driver'],
@@ -385,7 +413,7 @@ var FABS = [
     established:1997, country_flag:'🇰🇷'
   },
   {
-    id:10, company:'매그나칩', fab:'청주 Fab', city:'청주', country:'한국',
+    id:10, company:'매그나칩', fab:'청주 Fab', city:'청주', country:'한국', lat: 36.63, lon: 127.48,
     wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
     capKWSPM:null, capNote:'~40K WPM (8인치)', aec:true, color:'#c2185b',
     products:['OLED Driver IC','파워 MOSFET','자동차용 디스플레이 IC'],
@@ -393,7 +421,7 @@ var FABS = [
     established:1998, country_flag:'🇰🇷'
   },
   {
-    id:11, company:'Infineon (IDM)', fab:'드레스덴 Fab', city:'드레스덴', country:'독일',
+    id:11, company:'Infineon (IDM)', fab:'드레스덴 Fab', city:'드레스덴', country:'독일', lat: 51.05, lon: 13.74,
     wafer:['12인치','8인치'], nodes:['0.18μm','90nm','40nm','28nm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0d47a1',
     products:['파워 MOSFET','IGBT','Auto MCU (AURIX)','SBC','HV Driver'],
@@ -401,7 +429,7 @@ var FABS = [
     established:1999, country_flag:'🇩🇪'
   },
   {
-    id:12, company:'Infineon (IDM)', fab:'오스트리아 Fab', city:'빌라흐', country:'오스트리아',
+    id:12, company:'Infineon (IDM)', fab:'오스트리아 Fab', city:'빌라흐', country:'오스트리아', lat: 46.61, lon: 13.85,
     wafer:['12인치'], nodes:['12nm','28nm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0d47a1',
     products:['SiC MOSFET','GaN','EV 인버터 파워 소자'],
@@ -409,7 +437,7 @@ var FABS = [
     established:2021, country_flag:'🇦🇹'
   },
   {
-    id:13, company:'STMicroelectronics (IDM)', fab:'카타니아/아그라테', city:'카타니아/밀라노', country:'이탈리아',
+    id:13, company:'STMicroelectronics (IDM)', fab:'카타니아/아그라테', city:'카타니아/밀라노', country:'이탈리아', lat: 37.50, lon: 15.08,
     wafer:['8인치','12인치'], nodes:['0.18μm','90nm','65nm','40nm','28nm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0091ea',
     products:['Auto MCU (SPC)','PMIC','게이트 드라이버','SiC MOSFET','센서'],
@@ -417,7 +445,7 @@ var FABS = [
     established:1980, country_flag:'🇮🇹'
   },
   {
-    id:14, company:'STMicroelectronics (IDM)', fab:'투르 Fab (프랑스)', city:'투르', country:'프랑스',
+    id:14, company:'STMicroelectronics (IDM)', fab:'투르 Fab (프랑스)', city:'투르', country:'프랑스', lat: 47.38, lon: 0.68,
     wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#0091ea',
     products:['BCD 공정 파워 IC','Auto DCDC','SBC'],
@@ -425,7 +453,7 @@ var FABS = [
     established:1967, country_flag:'🇫🇷'
   },
   {
-    id:15, company:'NXP (IDM)', fab:'함부르크 Fab', city:'함부르크', country:'독일',
+    id:15, company:'NXP (IDM)', fab:'함부르크 Fab', city:'함부르크', country:'독일', lat: 53.55, lon: 9.99,
     wafer:['8인치'], nodes:['0.18μm','90nm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#ff6f00',
     products:['Auto MCU (S32)','CAN/LIN/FlexRay','SBC','레이더 MCU'],
@@ -433,7 +461,7 @@ var FABS = [
     established:2006, country_flag:'🇩🇪'
   },
   {
-    id:16, company:'NXP (IDM)', fab:'나이메헌 Fab', city:'나이메헌', country:'네덜란드',
+    id:16, company:'NXP (IDM)', fab:'나이메헌 Fab', city:'나이메헌', country:'네덜란드', lat: 51.84, lon: 5.86,
     wafer:['12인치','8인치'], nodes:['28nm','40nm','0.18μm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#ff6f00',
     products:['고성능 Auto MCU','ADAS 프로세서','V2X 통신 IC'],
@@ -441,7 +469,7 @@ var FABS = [
     established:1953, country_flag:'🇳🇱'
   },
   {
-    id:17, company:'ON Semiconductor (IDM)', fab:'이스트 피시킬', city:'이스트 피시킬 뉴욕', country:'미국',
+    id:17, company:'ON Semiconductor (IDM)', fab:'이스트 피시킬', city:'이스트 피시킬 뉴욕', country:'미국', lat: 41.53, lon: -73.81,
     wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#1565c0',
     products:['SiC MOSFET','IGBT','파워 MOSFET','게이트 드라이버'],
@@ -449,7 +477,7 @@ var FABS = [
     established:1999, country_flag:'🇺🇸'
   },
   {
-    id:18, company:'ON Semiconductor (IDM)', fab:'체코 Fab', city:'로잔', country:'체코',
+    id:18, company:'ON Semiconductor (IDM)', fab:'체코 Fab', city:'로잔', country:'체코', lat: 49.82, lon: 18.25,
     wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#1565c0',
     products:['파워 반도체','이미지 센서','CMOS 이미지 센서'],
@@ -457,7 +485,7 @@ var FABS = [
     established:2000, country_flag:'🇨🇿'
   },
   {
-    id:19, company:'Renesas (IDM)', fab:'나카 Fab', city:'이바라키', country:'일본',
+    id:19, company:'Renesas (IDM)', fab:'나카 Fab', city:'이바라키', country:'일본', lat: 36.36, lon: 140.47,
     wafer:['8인치','12인치'], nodes:['0.18μm','90nm','40nm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#2e7d32',
     products:['Auto MCU (RH850)','SBC','게이트 드라이버','전장 MCU'],
@@ -465,7 +493,7 @@ var FABS = [
     established:2003, country_flag:'🇯🇵'
   },
   {
-    id:20, company:'Renesas (IDM)', fab:'코가 Fab', city:'이바라키', country:'일본',
+    id:20, company:'Renesas (IDM)', fab:'코가 Fab', city:'이바라키', country:'일본', lat: 36.18, lon: 139.75,
     wafer:['12인치'], nodes:['28nm','40nm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#2e7d32',
     products:['고성능 Auto MCU','ADAS SoC 초급'],
@@ -473,7 +501,7 @@ var FABS = [
     established:2012, country_flag:'🇯🇵'
   },
   {
-    id:21, company:'Microchip/Microsemi (IDM)', fab:'뱅갈로르 Fab', city:'뱅갈로르', country:'인도',
+    id:21, company:'Microchip/Microsemi (IDM)', fab:'뱅갈로르 Fab', city:'뱅갈로르', country:'인도', lat: 12.97, lon: 77.59,
     wafer:['8인치'], nodes:['0.18μm','0.35μm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#e53935',
     products:['Auto MCU (PIC)','CAN/LIN Transceiver','파워 관리 IC'],
@@ -481,7 +509,7 @@ var FABS = [
     established:2000, country_flag:'🇮🇳'
   },
   {
-    id:22, company:'Tower Semiconductor', fab:'이스라엘 Fab', city:'미그달 하에메크', country:'이스라엘',
+    id:22, company:'Tower Semiconductor', fab:'이스라엘 Fab', city:'미그달 하에메크', country:'이스라엘', lat: 32.67, lon: 35.24,
     wafer:['8인치'], nodes:['0.18μm','65nm','130nm'], status:'양산중',
     capKWSPM:20, aec:true, color:'#5c6bc0',
     products:['RF IC','이미지 센서','파워 관리 IC','MEMS 센서'],
@@ -489,7 +517,7 @@ var FABS = [
     established:2001, country_flag:'🇮🇱'
   },
   {
-    id:23, company:'Tower Semiconductor', fab:'텍사스 Fab', city:'샌안토니오 텍사스', country:'미국',
+    id:23, company:'Tower Semiconductor', fab:'텍사스 Fab', city:'샌안토니오 텍사스', country:'미국', lat: 29.42, lon: -98.49,
     wafer:['8인치'], nodes:['65nm','130nm','180nm'], status:'양산중',
     capKWSPM:15, aec:true, color:'#5c6bc0',
     products:['RF IC','MEMS','파워 반도체'],
@@ -497,7 +525,7 @@ var FABS = [
     established:2007, country_flag:'🇺🇸'
   },
   {
-    id:24, company:'UMC', fab:'Fab 12A (신주)', city:'신주', country:'대만',
+    id:24, company:'UMC', fab:'Fab 12A (신주)', city:'신주', country:'대만', lat: 24.79, lon: 120.99,
     wafer:['12인치'], nodes:['14nm','22nm','28nm'], status:'양산중',
     capKWSPM:50, aec:true, color:'#00838f',
     products:['Auto MCU','PMIC','CAN/Ethernet IC'],
@@ -505,7 +533,7 @@ var FABS = [
     established:2009, country_flag:'🇹🇼'
   },
   {
-    id:25, company:'UMC', fab:'싱가포르 Fab 12i', city:'싱가포르', country:'싱가포르',
+    id:25, company:'UMC', fab:'싱가포르 Fab 12i', city:'싱가포르', country:'싱가포르', lat: 1.35, lon: 103.81,
     wafer:['12인치'], nodes:['22nm','28nm'], status:'양산중',
     capKWSPM:35, aec:true, color:'#00838f',
     products:['Auto MCU','통신 IC'],
@@ -513,7 +541,7 @@ var FABS = [
     established:2015, country_flag:'🇸🇬'
   },
   {
-    id:26, company:'SMIC', fab:'상하이 SN1/SN2', city:'상하이', country:'중국',
+    id:26, company:'SMIC', fab:'상하이 SN1/SN2', city:'상하이', country:'중국', lat: 31.23, lon: 121.47,
     wafer:['12인치'], nodes:['28nm','40nm','55nm'], status:'양산중',
     capKWSPM:80, aec:false, color:'#b71c1c',
     products:['중국 내 자동차용 MCU','DCDC'],
@@ -521,7 +549,7 @@ var FABS = [
     established:2014, country_flag:'🇨🇳'
   },
   {
-    id:27, company:'Hua Hong', fab:'우시 Fab', city:'우시 장쑤', country:'중국',
+    id:27, company:'Hua Hong', fab:'우시 Fab', city:'우시 장쑤', country:'중국', lat: 31.56, lon: 120.31,
     wafer:['12인치'], nodes:['40nm','55nm','90nm'], status:'양산중',
     capKWSPM:50, aec:false, color:'#c62828',
     products:['중국 내 파워 반도체','MCU'],
@@ -529,7 +557,7 @@ var FABS = [
     established:2019, country_flag:'🇨🇳'
   },
   {
-    id:28, company:'TSMC', fab:'ESMC (드레스덴)', city:'드레스덴', country:'독일',
+    id:28, company:'TSMC', fab:'ESMC (드레스덴)', city:'드레스덴', country:'독일', lat: 51.06, lon: 13.75,
     wafer:['12인치'], nodes:['12nm','16nm','22nm','28nm'], status:'건설중',
     capKWSPM:40, aec:true, color:'#0071e3',
     products:['Auto MCU','PMIC','CAN/Ethernet','센서 IC'],
@@ -537,7 +565,7 @@ var FABS = [
     established:2027, country_flag:'🇩🇪'
   },
   {
-    id:29, company:'Wolfspeed (IDM)', fab:'더럼 Fab / 모호크밸리', city:'노스캐롤라이나/뉴욕', country:'미국',
+    id:29, company:'Wolfspeed (IDM)', fab:'더럼 Fab / 모호크밸리', city:'노스캐롤라이나/뉴욕', country:'미국', lat: 35.99, lon: -78.90,
     wafer:['8인치'], nodes:['SiC 전용'], status:'양산중',
     capKWSPM:null, capNote:'SiC 200mm', aec:true, color:'#f57c00',
     products:['SiC MOSFET','SiC 다이오드','EV 인버터 소자'],
@@ -545,7 +573,7 @@ var FABS = [
     established:2022, country_flag:'🇺🇸'
   },
   {
-    id:30, company:'Rohm (IDM)', fab:'후쿠오카 Fab / SiCrytal', city:'후쿠오카/독일', country:'일본',
+    id:30, company:'Rohm (IDM)', fab:'후쿠오카 Fab / SiCrytal', city:'후쿠오카/독일', country:'일본', lat: 33.59, lon: 130.40,
     wafer:['6인치','8인치'], nodes:['SiC 전용','0.18μm'], status:'양산중',
     capKWSPM:null, capNote:'IDM 내제', aec:true, color:'#4a148c',
     products:['SiC MOSFET','게이트 드라이버','파워 모듈','EV용 소자'],
@@ -558,11 +586,14 @@ var FABS = [
 var activeFilters = {company:[], country:[], node:[], wafer:[], product:[], status:[]};
 var currentView = 'grid';
 var selectedFab = null;
+var map = null;
+var markers = [];
 
 /* ── INIT ── */
 (function init(){
   buildFilters();
   updateStats();
+  initMap();
   renderFabs(FABS);
 })();
 
@@ -620,6 +651,7 @@ function applyFilters(){
   });
   document.getElementById('countNum').textContent = filtered.length;
   renderFabs(filtered);
+  updateMap(filtered);
 }
 
 function updateStats(){
@@ -633,13 +665,21 @@ function updateStats(){
 /* ── RENDER ── */
 function renderFabs(fabs){
   var container = document.getElementById('fabContainer');
+  if (currentView === 'map') {
+    container.style.display = 'none';
+    document.getElementById('fabMapContainer').classList.add('on');
+  } else {
+    container.style.display = '';
+    document.getElementById('fabMapContainer').classList.remove('on');
+  }
+
   if(!fabs.length){
     container.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">검색 결과가 없습니다</div><div style="font-size:12px">필터를 초기화하거나 다른 검색어를 사용해보세요</div></div>';
     return;
   }
   if(currentView==='table'){
     container.innerHTML = renderTableView(fabs);
-  } else {
+  } else if (currentView === 'grid') {
     container.innerHTML = '<div class="fab-grid">'+fabs.map(renderCard).join('')+'</div>';
   }
 }
@@ -689,7 +729,36 @@ function setView(v){
   currentView = v;
   document.getElementById('vbtn-grid').classList.toggle('on', v==='grid');
   document.getElementById('vbtn-table').classList.toggle('on', v==='table');
+  document.getElementById('vbtn-map').classList.toggle('on', v==='map');
   applyFilters();
+  if (v === 'map') {
+    setTimeout(() => { map.invalidateSize() }, 100);
+  }
+}
+
+/* ── MAP ── */
+function initMap() {
+  map = L.map('fabMap').setView([20, 0], 2);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  }).addTo(map);
+}
+
+function updateMap(fabs) {
+  markers.forEach(marker => marker.remove());
+  markers = [];
+
+  fabs.forEach(f => {
+    if (f.lat && f.lon) {
+      var marker = L.marker([f.lat, f.lon]).addTo(map)
+        .bindPopup(
+          `<div class="popup-fab-name">${f.company} - ${f.fab}</div>` +
+          `<div class="popup-fab-details">${f.city}, ${f.country}</div>` +
+          `<div class="popup-fab-details"><b>Nodes:</b> ${f.nodes.join(', ')}</div>`
+        );
+      markers.push(marker);
+    }
+  });
 }
 
 /* ── DETAIL ── */
