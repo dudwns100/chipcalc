@@ -154,6 +154,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:12px
 .io-label{color:var(--l3);display:flex;align-items:center;gap:4px}
 .io-val{font-family:var(--mono);font-weight:700;color:var(--l1)}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -505,5 +506,6 @@ function updateInfoPanel(data){
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
 <script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
 </body>
 </html>
