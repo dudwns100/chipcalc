@@ -120,18 +120,47 @@ footer a{color:var(--blue);text-decoration:none}
 <body>
 
 <!-- NAV -->
-<nav class="nav">
-  <a class="nav-icon" href="index.html" style="text-decoration:none">IC</a>
-  <a class="nav-brand" href="index.html">ChipCalc</a>
-  <span class="nav-sep">›</span>
-  <span style="font-size:13px;color:var(--l3)">반도체 원가 가이드</span>
-  <div class="nav-links">
-    <a href="index.html">🧮 계산기</a>
-    <a href="fab-explorer.html">🏭 Fab Explorer</a>
-    <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
-    <a href="about.html">About</a>
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html" style="text-decoration:none">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub" id="gnb-subtitle">· 반도체 원가 & 시장 인텔리전스</span>
+    </div>
   </div>
-</nav>
+
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" id="nav-fab" href="fab-explorer.html">🏭 Fab</a>
+    <a class="nav-link" id="nav-guide" href="guide-semiconductor-cost.html">💰 가이드</a>
+    <a class="nav-link" id="nav-dpw" href="guide-chips-per-wafer.html">📐 DPW</a>
+  </nav>
+
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
+      <div class="auth-tip">
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+  </div>
+</div>
 
 <!-- TOC -->
 <div class="toc-bar">
@@ -427,5 +456,6 @@ footer a{color:var(--blue);text-decoration:none}
   <span style="font-size:11px">모든 가격 데이터는 공개 자료 기반 추정치이며 실제 계약가와 다를 수 있습니다.</span></p>
 </footer>
 
+<script src="shared-styles.js"></script>
 </body>
 </html>

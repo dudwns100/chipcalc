@@ -72,6 +72,17 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
 .nav-link:hover{background:var(--s3);color:var(--l1)}
 .nav-link.active{background:var(--blue-t);color:var(--blue);font-weight:600}
 .topbar-r{display:flex;align-items:center;gap:8px}
+.auth-tip-wrap{position:relative;display:inline-block}
+.auth-btn{height:28px;padding:0 11px;border:none;border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--l2);transition:all 0.15s;white-space:nowrap}
+.auth-btn:hover{background:var(--blue-t);color:var(--blue)}
+.save-btn{height:28px;padding:0 11px;border:none;border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;background:var(--green-t);color:var(--green);transition:all 0.15s;white-space:nowrap}
+.save-btn:hover{background:var(--green-s)}
+.auth-tip{position:absolute;top:100%;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-top:4px;width:240px;box-shadow:var(--sh2);display:none;z-index:1000;font-size:10px;line-height:1.5}
+.auth-tip-wrap:hover .auth-tip{display:block}
+.auth-tip-title{font-weight:700;color:var(--l1);margin-bottom:6px;font-size:10.5px}
+.auth-tip-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;color:var(--l3)}
+.auth-tip-row:last-child{margin-bottom:0}
+.ati{font-size:9px;color:var(--green);flex-shrink:0;margin-top:1px}
 .mode-toggle{display:flex;align-items:center;gap:0;background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px}
 .mode-btn{height:22px;padding:0 9px;border:none;border-radius:18px;font-family:var(--font);font-size:10px;font-weight:500;cursor:pointer;background:transparent;color:var(--l3);transition:all 0.15s;white-space:nowrap}
 .mode-btn.active{background:var(--surface);color:var(--l1);box-shadow:0 1px 3px rgba(0,0,0,0.12)}
@@ -265,6 +276,23 @@ footer a:hover{text-decoration:underline}
   </nav>
   
   <div class="topbar-r">
+    <!-- 저장 기록 보기 (계산기 페이지에서만 사용) -->
+    <button class="auth-btn" id="histBtn" onclick="openHistory()" style="display:none">📋 기록</button>
+    <!-- 현재 계산 저장 (계산기 페이지에서만 사용) -->
+    <button class="save-btn" id="saveBtn" onclick="openSaveModal()" style="display:none">💾 저장</button>
+    <!-- 로그인/로그아웃 -->
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
+      <div class="auth-tip">
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+      </div>
+    </div>
+
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
       <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>

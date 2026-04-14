@@ -79,14 +79,45 @@ footer{text-align:center;padding:32px;font-size:12px;color:var(--l4);border-top:
 <body>
 
 <div class="topbar">
-  <div class="app-icon">IC</div>
-  <span class="topbar-title">ChipCalc</span>
-  <span class="sep">›</span>
-  <a href="index.html">🏠 홈</a>
-  <span class="sep">›</span>
-  <a href="calculator.html">🧮 원가 계산기</a>
-  <span style="flex:1"></span>
-  <a href="privacy.html">Privacy</a>
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html" style="text-decoration:none">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub" id="gnb-subtitle">· 반도체 원가 & 시장 인텔리전스</span>
+    </div>
+  </div>
+
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" id="nav-fab" href="fab-explorer.html">🏭 Fab</a>
+    <a class="nav-link" id="nav-guide" href="guide-semiconductor-cost.html">💰 가이드</a>
+    <a class="nav-link" id="nav-dpw" href="guide-chips-per-wafer.html">📐 DPW</a>
+  </nav>
+
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
+      <div class="auth-tip">
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+      </div>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+  </div>
 </div>
 
 <!-- Hero -->
@@ -217,5 +248,6 @@ footer{text-align:center;padding:32px;font-size:12px;color:var(--l4);border-top:
   <p>© 2025 ChipCalc · <a href="calculator.html">계산기</a> · <a href="privacy.html">Privacy Policy</a> · <a href="https://github.com/dudwns100/chipcalc" target="_blank" rel="noopener">GitHub</a></p>
 </footer>
 
+<script src="shared-styles.js"></script>
 </body>
 </html>
