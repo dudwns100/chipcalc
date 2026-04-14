@@ -100,44 +100,30 @@ body.dark .sim-card.dn{background:rgba(48,185,74,0.18)}
 body.dark .sel-badge{background:rgba(0,113,227,0.18)}
 body.dark .ptrack{background:var(--s2)}
 
-/* ── TOPBAR CONTROLS ── */
-.topbar-r{display:flex;align-items:center;gap:6px}
 
-.mode-toggle{
-  display:flex;align-items:center;gap:0;
-  background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px;
-}
-.mode-btn{
-  height:22px;padding:0 9px;border:none;border-radius:18px;
-  font-family:var(--font);font-size:10px;font-weight:500;
-  cursor:pointer;background:transparent;color:var(--l3);
-  transition:all 0.15s;white-space:nowrap;
-}
-.mode-btn.active{background:var(--surface);color:var(--l1);box-shadow:0 1px 3px rgba(0,0,0,0.12)}
-
-.lang-toggle{
-  display:flex;align-items:center;gap:0;
-  background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px;
-}
-.lang-btn{
-  height:22px;padding:0 10px;border:none;border-radius:18px;
-  font-family:var(--font);font-size:10px;font-weight:600;
-  cursor:pointer;background:transparent;color:var(--l3);
-  transition:all 0.15s;letter-spacing:0.03em;
-}
-.lang-btn.active{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(0,113,227,0.3)}
-body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:12px;line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100vh}
-
-/* ── TOPBAR ── */
-.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
-.topbar-l{display:flex;align-items:center;gap:9px}
-.app-icon{width:26px;height:26px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;box-shadow:0 2px 6px rgba(0,113,227,0.35);flex-shrink:0}
-.app-title{font-size:14px;font-weight:600;letter-spacing:-0.01em}
+/* ── TOPBAR (통일된 레이아웃) ── */
+.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+.topbar-l{display:flex;align-items:center;gap:10px}
+.app-icon{width:28px;height:28px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,113,227,0.35);flex-shrink:0;text-decoration:none}
+.app-name{font-size:15px;font-weight:700;letter-spacing:-0.02em;color:var(--l1);text-decoration:none}
 .app-sub{font-size:10px;color:var(--l3);margin-left:3px}
+.nav-center{display:flex;align-items:center;gap:2px;flex:1;justify-content:center}
+.nav-link{height:30px;padding:0 11px;border-radius:6px;font-size:12px;font-weight:500;color:var(--l2);text-decoration:none;display:flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap}
+.nav-link:hover{background:var(--s3);color:var(--l1)}
+.nav-link.active{background:var(--blue-t);color:var(--blue);font-weight:600}
+.topbar-r{display:flex;align-items:center;gap:8px}
+.mode-toggle{display:flex;align-items:center;gap:0;background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px}
+.mode-btn{height:22px;padding:0 9px;border:none;border-radius:18px;font-family:var(--font);font-size:10px;font-weight:500;cursor:pointer;background:transparent;color:var(--l3);transition:all 0.15s;white-space:nowrap}
+.mode-btn.active{background:var(--surface);color:var(--l1);box-shadow:0 1px 3px rgba(0,0,0,0.12)}
+.lang-toggle{display:flex;align-items:center;gap:0;background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px}
+.lang-btn{height:22px;padding:0 10px;border:none;border-radius:18px;font-family:var(--font);font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--l3);transition:all 0.15s;letter-spacing:0.03em}
+.lang-btn.active{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(0,113,227,0.3)}
 .ver{font-family:var(--mono);font-size:10px;color:var(--l3);border:1px solid var(--border);border-radius:20px;padding:2px 8px}
 
+
+
 /* ── LAYOUT ── */
-.layout{display:grid;grid-template-columns:440px 1fr 190px;height:calc(100vh - 44px);overflow:hidden}
+.layout{display:grid;grid-template-columns:440px 1fr 190px;height:calc(100vh - 48px);overflow:hidden}
 .lpanel{background:var(--surface);border-right:1px solid var(--border);padding:12px 14px;overflow-y:auto;height:100%}
 .rpanel{background:var(--bg);padding:12px 14px;overflow-y:auto;height:100%}
 
@@ -487,44 +473,27 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   <div class="topbar-l">
     <a href="index.html" class="app-icon" style="text-decoration:none">IC</a>
     <div>
-      <span class="app-title" data-i="app-title">반도체 추정원가 계산기</span>
-      <span class="app-sub">· Chip Cost Estimator</span>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· 원가 계산기</span>
     </div>
   </div>
 
-  <!-- 중앙 네비게이션 -->
-  <div style="display:flex;align-items:center;gap:2px;margin:0 16px">
-    <a href="index.html" style="display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:7px;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--l2);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='var(--blue-t)';this.style.color='var(--blue)'" onmouseout="this.style.background='transparent';this.style.color='var(--l2)'">🏠 <span>홈</span></a>
-    <a href="fab-explorer.html" style="display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:7px;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--l2);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='var(--blue-t)';this.style.color='var(--blue)'" onmouseout="this.style.background='transparent';this.style.color='var(--l2)'">🏭 <span>Fab Explorer</span></a>
-    <a href="guide-semiconductor-cost.html" style="display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:7px;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--l2);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='var(--blue-t)';this.style.color='var(--blue)'" onmouseout="this.style.background='transparent';this.style.color='var(--l2)'">💰 <span>원가 가이드</span></a>
-    <a href="guide-chips-per-wafer.html" style="display:flex;align-items:center;gap:5px;height:30px;padding:0 11px;border-radius:7px;font-family:var(--font);font-size:11.5px;font-weight:500;color:var(--l2);text-decoration:none;transition:all 0.15s" onmouseover="this.style.background='var(--blue-t)';this.style.color='var(--blue)'" onmouseout="this.style.background='transparent';this.style.color='var(--l2)'">📐 <span>DPW 가이드</span></a>
-  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link active" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW</a>
+  </nav>
 
   <div class="topbar-r">
-    <!-- 저장 기록 보기 -->
-    <button class="auth-btn" id="histBtn" onclick="openHistory()" style="display:none">📋 저장 기록</button>
-    <!-- 현재 계산 저장 -->
-    <button class="save-btn" id="saveBtn" onclick="openSaveModal()" style="display:none">💾 저장</button>
-    <!-- 로그인/로그아웃 -->
-    <div class="auth-tip-wrap">
-      <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
-      <div class="auth-tip">
-        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
-      </div>
-    </div>
-
     <div class="mode-toggle">
-      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀ Light</button>
-      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾ Dark</button>
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
     </div>
     <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">한국어</button>
-      <button class="lang-btn" id="btn-en" onclick="setLang('en')">English</button>
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
     </div>
     <span class="ver">v0.9</span>
   </div>
@@ -2499,5 +2468,6 @@ document.addEventListener('DOMContentLoaded',function(){
   setInterval(loadMarketData,5*60*1000);
 });
 </script>
+<script src="shared-styles.js"></script>
 </body>
 </html>
