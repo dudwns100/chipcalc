@@ -1,87 +1,73 @@
-/* ═══════════════════════════════════════════════════════════════════════════
-   SHARED SUPABASE AUTHENTICATION & STATE MANAGEMENT
-   모든 페이지에서 공통으로 사용하는 로그인, 로그아웃, 사용자 상태 관리
-═══════════════════════════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════
+   ChipCalc — shared-auth-supabase.js
+   Supabase 인증 & 전역 로그인 상태 관리
+   모든 페이지에서 공통 사용
 
-// ── Supabase 초기화 ──
-const SUPA_URL = 'https://azouxvpthllgczbihppi.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6b3V4dnB0aGxsZ2N6YmlocHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzIzMTcsImV4cCI6MjA5MTY0ODMxN30.NCxy8WXBIyJ0INZkAzlsZMLZurfhCrIF4n_V1aUZQO0';
+   ⚠ shared-auth.js(더미 파일)와 함께 로드하면 충돌합니다.
+     shared-auth.js는 삭제하거나 로드하지 마세요.
+═══════════════════════════════════════════════════════════ */
 
-// Supabase 라이브러리가 로드될 때까지 대기
-let supabaseReady = false;
-let supa = null;
+var SUPA_URL = 'https://azouxvpthllgczbihppi.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6b3V4dnB0aGxsZ2N6YmlocHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzIzMTcsImV4cCI6MjA5MTY0ODMxN30.NCxy8WXBIyJ0INZkAzlsZMLZurfhCrIF4n_V1aUZQO0';
 
-function initSupabase() {
-  if (typeof supabase !== 'undefined') {
+var supa = null;
+var currentUser = null;
+
+/* ── Supabase 초기화 (SDK 로드 대기) ── */
+function _initSupabase() {
+  if (typeof supabase !== 'undefined' && supabase.createClient) {
     supa = supabase.createClient(SUPA_URL, SUPA_KEY);
-    supabaseReady = true;
-    setupAuthListener();
+    _setupAuthListener();
   } else {
-    setTimeout(initSupabase, 100);
+    setTimeout(_initSupabase, 80);
   }
 }
 
-// ── 전역 사용자 상태 ──
-let currentUser = null;
-
-// ── 인증 상태 리스너 설정 ──
-function setupAuthListener() {
-  if (!supa) return;
-  
+/* ── 인증 상태 리스너 ── */
+function _setupAuthListener() {
   supa.auth.onAuthStateChange(function(event, session) {
     currentUser = session ? session.user : null;
-    updateAuthUIGlobal();
-    
-    // 페이지별 커스텀 콜백 실행
-    if (window.onAuthStateChanged) {
+    _updateAuthUI();
+    /* 페이지별 커스텀 콜백 — calculator.html 등에서 정의 가능 */
+    if (typeof window.onAuthStateChanged === 'function') {
       window.onAuthStateChanged(event, session);
     }
   });
 }
 
-// ── 전역 GNB 인증 UI 업데이트 ──
-function updateAuthUIGlobal() {
-  const authBtn = document.getElementById('authBtn');
-  const saveBtn = document.getElementById('saveBtn');
-  const histBtn = document.getElementById('histBtn');
-  
+/* ── 공통 Auth UI 업데이트 ── */
+function _updateAuthUI() {
+  var authBtn = document.getElementById('authBtn');
+  var saveBtn = document.getElementById('saveBtn');
+  var histBtn = document.getElementById('histBtn');
+
   if (!authBtn) return;
-  
+
   if (currentUser) {
-    // 로그인 상태
-    const name = (currentUser.user_metadata && currentUser.user_metadata.name)
-      ? currentUser.user_metadata.name.split(' ')[0]
-      : '사용자';
-    
-    authBtn.textContent = '👤 ' + name + ' · 로그아웃';
+    var meta = currentUser.user_metadata || {};
+    var name = meta.full_name || meta.name || '사용자';
+    var firstName = name.split(' ')[0];
+    authBtn.textContent = '👤 ' + firstName + ' · 로그아웃';
     authBtn.classList.add('logged');
-    
-    // 저장/기록 버튼 표시 (계산기 페이지에만)
     if (saveBtn) saveBtn.style.display = 'flex';
     if (histBtn) histBtn.style.display = 'flex';
   } else {
-    // 로그아웃 상태
     authBtn.textContent = '🔐 Google 로그인';
     authBtn.classList.remove('logged');
-    
-    // 저장/기록 버튼 숨김
     if (saveBtn) saveBtn.style.display = 'none';
     if (histBtn) histBtn.style.display = 'none';
   }
 }
 
-// ── 로그인/로그아웃 핸들러 ──
+/* ── 로그인 / 로그아웃 ── */
 async function handleAuth() {
   if (!supa) {
-    alert('Supabase가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
+    alert('인증 모듈이 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.');
     return;
   }
-  
   if (currentUser) {
-    // 로그아웃
     await supa.auth.signOut();
   } else {
-    // Google 로그인
     await supa.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: 'https://dudwns100.github.io/chipcalc/' }
@@ -89,9 +75,46 @@ async function handleAuth() {
   }
 }
 
-// ── 초기화 시작 ──
+/* ── 토스트 메시지 (공통) ── */
+function showToast(msg, duration) {
+  var t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = [
+    'position:fixed',
+    'bottom:24px',
+    'left:50%',
+    'transform:translateX(-50%)',
+    'background:#1c1c1e',
+    'color:#fff',
+    'padding:10px 20px',
+    'border-radius:20px',
+    'font-size:13px',
+    'font-weight:500',
+    'z-index:9999',
+    'box-shadow:0 4px 16px rgba(0,0,0,0.2)',
+    'font-family:var(--font)',
+    'pointer-events:none'
+  ].join(';');
+  document.body.appendChild(t);
+  setTimeout(function() {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity 0.3s';
+    setTimeout(function() { t.remove(); }, 300);
+  }, duration || 2500);
+}
+
+/* ── esc2 헬퍼 (XSS 방지) ── */
+function esc2(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ── 초기화 시작 ── */
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSupabase);
+  document.addEventListener('DOMContentLoaded', _initSupabase);
 } else {
-  initSupabase();
+  _initSupabase();
 }

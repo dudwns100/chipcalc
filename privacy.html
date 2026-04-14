@@ -7,28 +7,12 @@
 <meta name="description" content="ChipCalc 반도체 추정원가 계산기의 개인정보처리방침 및 쿠키 정책입니다.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/privacy.html">
-<!-- Google Analytics GA4 -->
+<link rel="stylesheet" href="shared.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-  --blue:#0071e3;--l1:#1c1c1e;--l2:#3c3c43;--l3:#6b6b70;--l4:#aeaeb2;
-  --bg:#f2f2f7;--surface:#fff;--border:rgba(0,0,0,0.09);
-}
-body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
-.topbar{background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);height:50px;display:flex;align-items:center;padding:0 32px;gap:12px;position:sticky;top:0;z-index:100}
-.app-icon{width:26px;height:26px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
-.topbar a{color:var(--blue);text-decoration:none;font-size:13px;font-weight:500}
-.topbar a:hover{text-decoration:underline}
-.topbar-title{font-size:14px;font-weight:600}
-.sep{color:var(--l4);font-size:12px}
+:root{--topbar-bg:rgba(255,255,255,0.92)}
+body{font-size:14px;line-height:1.7}
 .wrap{max-width:780px;margin:0 auto;padding:48px 24px 80px}
 h1{font-size:26px;font-weight:700;letter-spacing:-0.02em;margin-bottom:6px}
 .subtitle{font-size:13px;color:var(--l3);margin-bottom:40px}
@@ -36,10 +20,10 @@ h2{font-size:17px;font-weight:700;color:var(--l1);margin:32px 0 10px;padding-bot
 p{font-size:13.5px;color:var(--l2);margin-bottom:12px}
 ul{margin:8px 0 14px 20px}
 li{font-size:13.5px;color:var(--l2);margin-bottom:6px}
-.highlight-box{background:#f0f6ff;border:1px solid #d7eaff;border-radius:10px;padding:16px 20px;margin:16px 0}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.highlight-box{background:var(--blue-t);border:1px solid var(--blue-s);border-radius:10px;padding:16px 20px;margin:16px 0}
 .highlight-box p{margin:0;color:#0051a8;font-size:13px}
-footer{text-align:center;padding:32px;font-size:12px;color:var(--l4)}
-footer a{color:var(--blue);text-decoration:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -47,34 +31,32 @@ footer a{color:var(--blue);text-decoration:none}
 
 <div class="topbar">
   <div class="topbar-l">
-    <a class="app-icon" href="index.html" style="text-decoration:none">IC</a>
+    <a class="app-icon" href="index.html">IC</a>
     <div>
       <a class="app-name" href="index.html">ChipCalc</a>
-      <span class="app-sub" id="gnb-subtitle">· 반도체 원가 & 시장 인텔리전스</span>
+      <span class="app-sub">· 반도체 원가 &amp; 시장 인텔리전스</span>
     </div>
   </div>
-
   <nav class="nav-center">
     <a class="nav-link" href="index.html">🏠 홈</a>
     <a class="nav-link" href="calculator.html">🧮 계산기</a>
-    <a class="nav-link" id="nav-fab" href="fab-explorer.html">🏭 Fab</a>
-    <a class="nav-link" id="nav-guide" href="guide-semiconductor-cost.html">💰 가이드</a>
-    <a class="nav-link" id="nav-dpw" href="guide-chips-per-wafer.html">📐 DPW</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW</a>
+    <a class="nav-link" href="about.html">ℹ About</a>
   </nav>
-
   <div class="topbar-r">
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
       <div class="auth-tip">
         <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼 누른 계산 결과만 저장됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS)</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
       </div>
     </div>
-
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
       <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
@@ -89,63 +71,53 @@ footer a{color:var(--blue);text-decoration:none}
 
 <div class="wrap">
   <h1>개인정보처리방침</h1>
-  <p class="subtitle">Privacy Policy · 최종 수정일: 2025년 4월 · Last updated: April 2025</p>
+  <p class="subtitle">Privacy Policy · 최종 수정일: 2026년 4월</p>
 
   <div class="highlight-box">
-    <p>본 방침은 한국어와 영어로 작성되었습니다. 법적 효력은 한국어 버전을 기준으로 합니다.<br>
-    This policy is written in both Korean and English. The Korean version shall prevail in case of any discrepancy.</p>
+    <p>본 방침은 한국어와 영어로 작성되었습니다. 법적 효력은 한국어 버전을 기준으로 합니다.</p>
   </div>
 
-  <h2>1. 수집하는 정보 / Information We Collect</h2>
-  <p>ChipCalc(https://dudwns100.github.io/chipcalc/)는 다음과 같은 정보를 수집합니다:</p>
+  <h2>1. 수집하는 정보</h2>
   <ul>
-    <li><strong>자동 수집 정보 (Google Analytics):</strong> 페이지 조회수, 방문 시간, 유입 경로, 브라우저 유형, 운영체제, 대략적인 지역(국가/도시 수준). 개인을 특정할 수 있는 정보는 수집하지 않습니다.</li>
-    <li><strong>localStorage 데이터:</strong> 사용자가 설정한 패키지 단가, 웨이퍼 가격, 언어 설정, 다크모드 설정이 브라우저 로컬에 저장됩니다. 이 데이터는 서버로 전송되지 않습니다.</li>
-    <li><strong>수집하지 않는 정보:</strong> 이름, 이메일, 전화번호, 주소, 결제 정보 등 개인식별정보는 수집하지 않습니다.</li>
-  </ul>
-  <p>We collect the following information: page views, session data, and browser/OS type via Google Analytics (anonymized). User-configured data (package prices, wafer prices, preferences) is stored locally in your browser's localStorage and never transmitted to any server.</p>
-
-  <h2>2. 쿠키 및 추적 기술 / Cookies and Tracking</h2>
-  <p>본 서비스는 Google Analytics를 사용하며, 이를 위해 쿠키(Cookie)가 사용됩니다. Google Analytics는 방문자 통계 분석을 위한 도구로, 개인을 식별하지 않는 익명화된 데이터만 수집합니다.</p>
-  <ul>
-    <li><strong>Google Analytics 쿠키:</strong> _ga, _gid, _gat — 방문자 구분 및 세션 추적에 사용. 최대 2년 보관.</li>
-    <li><strong>Google AdSense 쿠키:</strong> 광고 관련성 향상을 위해 사용될 수 있습니다. Google의 광고 정책에 따릅니다.</li>
-  </ul>
-  <p>브라우저 설정에서 쿠키를 거부하거나 삭제할 수 있습니다. 쿠키를 비활성화하면 일부 기능이 제한될 수 있습니다.</p>
-  <p>We use Google Analytics cookies (_ga, _gid, _gat) for anonymous visitor analytics. You can opt out by adjusting your browser cookie settings or using the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a>.</p>
-
-  <h2>3. 광고 / Advertising (Google AdSense)</h2>
-  <p>본 사이트는 Google AdSense를 통한 광고를 표시할 수 있습니다. Google AdSense는 사용자의 관심사에 맞는 광고를 제공하기 위해 쿠키를 사용할 수 있습니다.</p>
-  <ul>
-    <li>Google의 광고 파트너는 본 사이트 방문자에게 관심 기반 광고를 제공할 수 있습니다.</li>
-    <li>광고 개인화를 원하지 않는 경우 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google 광고 설정</a>에서 조정할 수 있습니다.</li>
-    <li>Google의 개인정보 처리 방침: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">https://policies.google.com/privacy</a></li>
+    <li><strong>Google 로그인 시:</strong> 이름, 이메일 주소 (로그인 식별 목적). 비밀번호는 Google이 관리하며 ChipCalc에 전달되지 않습니다.</li>
+    <li><strong>계산 저장 시:</strong> 사용자가 💾 저장 버튼을 직접 누른 계산 결과만 Supabase(클라우드 DB)에 저장됩니다.</li>
+    <li><strong>Google Analytics:</strong> 페이지 조회수, 방문 시간, 브라우저 유형 (익명화). 개인을 특정하지 않습니다.</li>
+    <li><strong>localStorage:</strong> 패키지 단가, 언어 설정, 다크모드 설정. 서버로 전송되지 않습니다.</li>
   </ul>
 
-  <h2>4. 제3자 서비스 / Third-Party Services</h2>
+  <h2>2. 데이터 보호</h2>
   <ul>
-    <li><strong>Google Analytics</strong> — 방문자 통계 (Google LLC, 미국). <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google 개인정보처리방침</a></li>
-    <li><strong>GitHub Pages</strong> — 웹 호스팅 서비스 (GitHub Inc., 미국). 서버 접근 로그가 수집될 수 있습니다.</li>
-    <li><strong>Anthropic Claude API</strong> — 반도체 제품 검색 기능에 사용. 검색어는 Anthropic의 서버로 전송됩니다. <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Anthropic 개인정보처리방침</a></li>
+    <li>저장된 계산 기록은 RLS(Row Level Security)로 보호되어 <strong>본인만 조회·삭제 가능</strong>합니다.</li>
+    <li>서비스는 HTTPS를 통해 암호화된 연결로 제공됩니다.</li>
+    <li>행동 추적, 광고 타겟팅, 제3자 데이터 판매 없음.</li>
   </ul>
 
-  <h2>5. 데이터 보안 / Data Security</h2>
-  <p>본 서비스는 HTTPS를 통해 암호화된 연결로 제공됩니다. 사용자 설정 데이터는 브라우저 로컬에만 저장되며, 어떠한 외부 서버에도 전송되거나 저장되지 않습니다.</p>
-  <p>This service is served over HTTPS. User configuration data is stored only in your browser's localStorage and is never transmitted to external servers.</p>
+  <h2>3. 쿠키 및 추적 기술</h2>
+  <p>Google Analytics 쿠키(_ga, _gid, _gat)가 익명 방문자 통계에 사용됩니다. 브라우저 설정에서 쿠키를 비활성화하거나 <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics 옵트아웃 도구</a>를 사용할 수 있습니다.</p>
 
-  <h2>6. 미성년자 보호 / Children's Privacy</h2>
-  <p>본 서비스는 13세 미만 아동을 대상으로 하지 않으며, 고의로 13세 미만 아동의 개인정보를 수집하지 않습니다. 만약 13세 미만 아동의 정보가 수집된 것을 발견하면 즉시 삭제 조치를 취합니다.</p>
+  <h2>4. 제3자 서비스</h2>
+  <ul>
+    <li><strong>Google Analytics</strong> — 방문자 통계 (Google LLC, 미국)</li>
+    <li><strong>Supabase</strong> — 로그인·데이터 저장 (Supabase Inc., 미국) · <a href="https://supabase.com/privacy" target="_blank" rel="noopener">개인정보방침</a></li>
+    <li><strong>GitHub Pages</strong> — 웹 호스팅 (GitHub Inc., 미국)</li>
+    <li><strong>Anthropic Claude API</strong> — 반도체 제품 검색 기능. 검색어가 Anthropic 서버로 전송됩니다.</li>
+  </ul>
 
-  <h2>7. 방침 변경 / Changes to This Policy</h2>
-  <p>본 개인정보처리방침은 변경될 수 있으며, 변경 시 본 페이지에 최신 버전을 게시합니다. 중요한 변경이 있을 경우 별도로 안내할 예정입니다.</p>
+  <h2>5. 방침 변경</h2>
+  <p>본 방침은 변경될 수 있으며, 변경 시 이 페이지에 최신 버전을 게시합니다.</p>
 
-  <h2>8. 문의 / Contact</h2>
-  <p>개인정보처리방침에 관한 문의 사항은 GitHub Issues를 통해 연락주시기 바랍니다:<br>
-  <a href="https://github.com/dudwns100/chipcalc/issues" target="_blank" rel="noopener">https://github.com/dudwns100/chipcalc/issues</a></p>
+  <h2>6. 문의</h2>
+  <p><a href="https://github.com/dudwns100/chipcalc/issues" target="_blank" rel="noopener">github.com/dudwns100/chipcalc/issues</a></p>
 </div>
 
 <footer>
-  <p>© 2025 ChipCalc · <a href="calculator.html">계산기</a> · <a href="about.html">About</a> · Privacy Policy</p>
+  <div class="footer-links">
+    <a href="index.html">홈</a>
+    <a href="calculator.html">계산기</a>
+    <a href="about.html">About</a>
+    <a href="https://github.com/dudwns100/chipcalc" target="_blank" rel="noopener">GitHub</a>
+  </div>
+  <div>© 2026 ChipCalc</div>
 </footer>
 
 <script src="shared-styles.js"></script>

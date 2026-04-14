@@ -1,0 +1,337 @@
+/* ═══════════════════════════════════════════════════════════
+   ChipCalc — shared.css
+   모든 페이지 공통 스타일
+   수정 시 이 파일 하나만 바꾸면 전체 페이지에 반영됩니다.
+═══════════════════════════════════════════════════════════ */
+
+/* ── CSS 변수 (라이트 모드 기본값) ── */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+          "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+
+  --bg: #f2f2f7;
+  --surface: #fff;
+  --s2: #f9f9fb;
+  --s3: #f2f2f7;
+  --border: rgba(0,0,0,0.09);
+  --border2: rgba(0,0,0,0.15);
+
+  --l1: #1c1c1e;
+  --l2: #3c3c43;
+  --l3: #6b6b70;
+  --l4: #aeaeb2;
+
+  --blue: #0071e3;
+  --blue-s: #d7eaff;
+  --blue-t: #f0f6ff;
+
+  --green: #30b94a;
+  --green-s: #d4f0db;
+  --green-t: #f0fbf3;
+
+  --orange: #f25a00;
+  --orange-s: #fde5d3;
+  --orange-t: #fff5ef;
+
+  --red: #e4362a;
+  --red-s: #fac5c1;
+  --red-t: #fff1f0;
+
+  --purple: #6e44cc;
+  --purple-s: #d4c8f5;
+  --purple-t: #f3f0ff;
+
+  --yellow: #c8960c;
+  --yellow-s: #fde68a;
+  --yellow-t: #fffbeb;
+
+  --r: 8px;
+  --r2: 12px;
+  --r3: 16px;
+
+  --sh: 0 2px 8px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
+  --sh2: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+
+  --topbar-bg: rgba(255,255,255,0.92);
+  --topbar-h: 48px;
+}
+
+/* ── 다크 모드 ── */
+body.dark {
+  --bg: #1c1c1e;
+  --surface: #2c2c2e;
+  --s2: #3a3a3c;
+  --s3: #2c2c2e;
+  --border: rgba(255,255,255,0.10);
+  --border2: rgba(255,255,255,0.18);
+  --l1: #f2f2f7;
+  --l2: #ebebf5;
+  --l3: #aeaeb2;
+  --l4: #636366;
+  --blue-t: rgba(0,113,227,0.18);
+  --blue-s: rgba(0,113,227,0.35);
+  --green-t: rgba(48,185,74,0.15);
+  --green-s: rgba(48,185,74,0.35);
+  --orange-t: rgba(242,90,0,0.15);
+  --orange-s: rgba(242,90,0,0.35);
+  --red-t: rgba(228,54,42,0.15);
+  --red-s: rgba(228,54,42,0.35);
+  --purple-t: rgba(110,68,204,0.18);
+  --purple-s: rgba(110,68,204,0.35);
+  --sh: 0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.18);
+  --sh2: 0 4px 16px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.20);
+  --topbar-bg: rgba(28,28,30,0.92);
+}
+
+/* ── 리셋 ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── 기본 body ── */
+body {
+  background: var(--bg);
+  color: var(--l1);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════════
+   TOPBAR — 모든 페이지 공통
+══════════════════════════════════════ */
+.topbar {
+  background: var(--topbar-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.topbar-l {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.app-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(145deg, #0071e3, #0051a8);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,113,227,0.35);
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.app-name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--l1);
+  text-decoration: none;
+}
+
+.app-sub {
+  font-size: 10px;
+  color: var(--l3);
+  margin-left: 3px;
+}
+
+/* ── 중앙 네비게이션 ── */
+.nav-center {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-link {
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--l2);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.nav-link:hover { background: var(--s3); color: var(--l1); }
+.nav-link.active { background: var(--blue-t); color: var(--blue); font-weight: 600; }
+
+/* ── 우측 영역 ── */
+.topbar-r {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── 버전 배지 ── */
+.ver {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--l3);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 8px;
+}
+
+/* ══════════════════════════════════════
+   AUTH 버튼 & 툴팁
+══════════════════════════════════════ */
+.auth-tip-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.auth-btn {
+  height: 28px;
+  padding: 0 11px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--l2);
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.auth-btn:hover { background: var(--blue-t); color: var(--blue); }
+.auth-btn.logged { background: var(--green-t); color: var(--green); }
+
+.save-btn {
+  height: 28px;
+  padding: 0 11px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--green-t);
+  color: var(--green);
+  transition: all 0.15s;
+  white-space: nowrap;
+  display: none;
+}
+.save-btn:hover { background: var(--green-s); }
+
+/* 툴팁 */
+.auth-tip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #1c1c1e;
+  color: #fff;
+  border-radius: var(--r2);
+  padding: 13px 15px;
+  width: 240px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.18s, transform 0.18s;
+  z-index: 1000;
+  font-size: 11px;
+  line-height: 1.55;
+}
+.auth-tip::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 18px;
+  width: 10px;
+  height: 10px;
+  background: #1c1c1e;
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+.auth-tip-wrap:hover .auth-tip { opacity: 1; transform: translateY(0); }
+.auth-tip-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.auth-tip-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 5px;
+  color: rgba(255,255,255,0.75);
+}
+.auth-tip-row:last-child { margin-bottom: 0; }
+.ati { flex-shrink: 0; font-size: 10px; color: var(--green); }
+
+/* ══════════════════════════════════════
+   모드 / 언어 토글
+══════════════════════════════════════ */
+.mode-toggle, .lang-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--s3);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 2px;
+}
+.mode-btn, .lang-btn {
+  height: 22px;
+  padding: 0 9px;
+  border: none;
+  border-radius: 18px;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--l3);
+  transition: all 0.15s;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+.mode-btn.active { background: var(--surface); color: var(--l1); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+.lang-btn.active { background: var(--blue); color: #fff; box-shadow: 0 1px 3px rgba(0,113,227,0.3); }
+
+/* ══════════════════════════════════════
+   FOOTER 공통
+══════════════════════════════════════ */
+footer {
+  text-align: center;
+  padding: 28px 20px;
+  font-size: 11.5px;
+  color: var(--l4);
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+footer a { color: var(--blue); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+.footer-links {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}

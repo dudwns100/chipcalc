@@ -8,40 +8,11 @@
 <meta name="keywords" content="DPW 계산, Dies Per Wafer, 웨이퍼당 Die 수, 칩 수 계산, Wafer Yield, 엣지 Die 손실, semiconductor yield, chip per wafer calculator">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/guide-chips-per-wafer.html">
+<link rel="stylesheet" href="shared.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
 <style>
 /* ═══ 글꼴 강제 적용 (모든 요소) ═══ */
-* { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important; }
-body, html, input, button, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6, table, td, th, tr, label, a, label, input::placeholder { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important; }
-
-/* ── TOPBAR (통일된 레이아웃) ── */
-.topbar{background:var(--topbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
-.topbar-l{display:flex;align-items:center;gap:10px}
-.app-icon{width:28px;height:28px;background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,113,227,0.35);flex-shrink:0;text-decoration:none}
-.app-name{font-size:15px;font-weight:700;letter-spacing:-0.02em;color:var(--l1);text-decoration:none}
-.app-sub{font-size:10px;color:var(--l3);margin-left:3px}
-.nav-center{display:flex;align-items:center;gap:2px;flex:1;justify-content:center}
-.nav-link{height:30px;padding:0 11px;border-radius:6px;font-size:12px;font-weight:500;color:var(--l2);text-decoration:none;display:flex;align-items:center;gap:4px;transition:all 0.15s;white-space:nowrap}
-.nav-link:hover{background:var(--s3);color:var(--l1)}
-.nav-link.active{background:var(--blue-t);color:var(--blue);font-weight:600}
-.topbar-r{display:flex;align-items:center;gap:8px}
-.auth-tip-wrap{position:relative;display:inline-block}
-.auth-btn{height:28px;padding:0 11px;border:none;border-radius:6px;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;background:transparent;color:var(--l2);transition:all 0.15s;white-space:nowrap}
-.auth-btn:hover{background:var(--blue-t);color:var(--blue)}
-.auth-tip{position:absolute;top:100%;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-top:4px;width:240px;box-shadow:var(--sh2);display:none;z-index:1000;font-size:10px;line-height:1.5}
-.auth-tip-wrap:hover .auth-tip{display:block}
-.auth-tip-title{font-weight:700;color:var(--l1);margin-bottom:6px;font-size:10.5px}
-.auth-tip-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px;color:var(--l3)}
-.auth-tip-row:last-child{margin-bottom:0}
-.ati{font-size:9px;color:var(--green);flex-shrink:0;margin-top:1px}
-.mode-toggle{display:flex;align-items:center;gap:0;background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px}
-.mode-btn{height:22px;padding:0 9px;border:none;border-radius:18px;font-family:var(--font);font-size:10px;font-weight:500;cursor:pointer;background:transparent;color:var(--l3);transition:all 0.15s;white-space:nowrap}
-.mode-btn.active{background:var(--surface);color:var(--l1);box-shadow:0 1px 3px rgba(0,0,0,0.12)}
-.lang-toggle{display:flex;align-items:center;gap:0;background:var(--s3);border:1px solid var(--border2);border-radius:20px;padding:2px}
-.lang-btn{height:22px;padding:0 10px;border:none;border-radius:18px;font-family:var(--font);font-size:10px;font-weight:600;cursor:pointer;background:transparent;color:var(--l3);transition:all 0.15s;letter-spacing:0.03em}
-.lang-btn.active{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(0,113,227,0.3)}
-.ver{font-family:var(--mono);font-size:10px;color:var(--l3);border:1px solid var(--border);border-radius:20px;padding:2px 8px}
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
