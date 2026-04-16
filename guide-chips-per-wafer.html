@@ -4,127 +4,198 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>웨이퍼당 칩 수(DPW) 계산 완전 가이드 | Chips Per Wafer — ChipCalc</title>
-<meta name="description" content="DPW(Dies Per Wafer) 공식의 모든 것. 웨이퍼당 칩 수를 계산하는 방법, 엣지 Die 손실, Wafer Yield 적용 방법을 실전 예제와 함께 설명합니다.">
+<meta name="description" content="DPW(Dies Per Wafer) 공식의 모든 것. 웨이퍼당 칩 수를 계산하는 방법, 엣지 Die 손실, Wafer Yield 적용 방법을 인터랙티브 시각화와 함께 설명합니다.">
 <meta name="keywords" content="DPW 계산, Dies Per Wafer, 웨이퍼당 Die 수, 칩 수 계산, Wafer Yield, 엣지 Die 손실, semiconductor yield, chip per wafer calculator">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/guide-chips-per-wafer.html">
+
+<!-- shared.css: 폰트, CSS변수, topbar, nav, auth, 다크모드 전부 포함 -->
 <link rel="stylesheet" href="shared.css">
+
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-/* ═══ 글꼴 강제 적용 (모든 요소) ═══ */
+/* ── 이 페이지 전용 스타일만 ── */
 
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-  --mono:"SF Mono","Menlo","Consolas",monospace;
-  --blue:#0071e3;--blue-t:#f0f6ff;--blue-s:#d7eaff;
-  --green:#1a7f4f;--green-t:#f0fbf3;--green-s:#d4f0db;
-  --orange:#f25a00;--orange-t:#fff5ef;
-  --l1:#1c1c1e;--l2:#3c3c43;--l3:#6b6b70;--l4:#aeaeb2;
-  --bg:#f2f2f7;--surface:#fff;--border:rgba(0,0,0,0.09);
-
-  --topbar-bg:rgba(255,255,255,0.92);}
-body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased}
-
-.hero{background:linear-gradient(135deg,#1a7f4f 0%,#30b94a 100%);padding:60px 32px 52px;color:#fff}
-.hero-inner{max-width:820px;margin:0 auto}
+/* HERO */
+.hero{background:linear-gradient(135deg,#1a7f4f 0%,#30b94a 100%);padding:60px 32px 52px;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none}
+.hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
 .hero-tag{display:inline-block;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.35);border-radius:20px;padding:4px 14px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:16px}
 .hero h1{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin-bottom:12px;line-height:1.2}
 .hero-sub{font-size:16px;color:rgba(255,255,255,0.82);max-width:560px;line-height:1.65;margin-bottom:20px}
-.hero-meta{display:flex;gap:24px;font-size:12px;color:rgba(255,255,255,0.65)}
+.hero-meta{display:flex;gap:24px;font-size:12px;color:rgba(255,255,255,0.65);flex-wrap:wrap}
+
+/* TOC */
+.toc-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:var(--topbar-h);z-index:90;overflow-x:auto}
+.toc-inner{max-width:900px;margin:0 auto;display:flex}
+.toc-link{display:block;padding:11px 14px;font-size:11.5px;font-weight:500;color:var(--l3);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.15s}
+.toc-link:hover{color:#1a7f4f;border-bottom-color:#1a7f4f}
+.toc-link.active{color:#1a7f4f;border-bottom-color:#1a7f4f}
+
+/* 페이지 레이아웃 */
 .page-wrap{max-width:900px;margin:0 auto;padding:0 24px}
 .content{padding:48px 0 80px}
-.section{margin-bottom:56px}
+.section{margin-bottom:60px;scroll-margin-top:100px}
 .section h2{font-size:22px;font-weight:800;color:var(--l1);margin-bottom:8px;letter-spacing:-0.02em}
 .section-lead{font-size:14.5px;color:var(--l3);margin-bottom:28px;line-height:1.65}
 p{font-size:13.5px;color:var(--l2);margin-bottom:14px;line-height:1.78}
 h3{font-size:17px;font-weight:700;color:var(--l1);margin:28px 0 10px}
-h4{font-size:14px;font-weight:700;color:var(--l1);margin:16px 0 8px}
 ul,ol{margin:8px 0 16px 22px}
 li{font-size:13.5px;color:var(--l2);margin-bottom:7px;line-height:1.65}
 strong{color:var(--l1)}
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
+
+/* 공식 블록 */
 .formula{background:#1c1c1e;color:#f0f6ff;border-radius:12px;padding:20px 24px;margin:20px 0;font-family:var(--mono);font-size:14px;line-height:1.9}
 .formula .label{color:#6b8aad;font-size:11.5px}
 .formula .val{color:#0a84ff}
 .formula .result{color:#30b94a;font-weight:700}
 .formula .comment{color:#636366;font-size:12px}
-/* INTERACTIVE CALC */
-.calc-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 32px;margin:28px 0;box-shadow:0 4px 16px rgba(0,0,0,0.07)}
-.calc-box h3{font-size:16px;font-weight:700;margin-bottom:20px;color:var(--l1)}
-.calc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
-.calc-field{display:flex;flex-direction:column;gap:5px}
-.calc-field label{font-size:11px;font-weight:600;color:var(--l3);letter-spacing:0.04em;text-transform:uppercase}
-.calc-field input,.calc-field select{height:38px;padding:0 12px;border:1.5px solid rgba(0,0,0,0.15);border-radius:8px;font-family:var(--font);font-size:14px;color:var(--l1);background:#fff;outline:none;transition:border-color 0.15s;-webkit-appearance:none;appearance:none}
-.calc-field select{background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23aeaeb2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
-.calc-field input:focus,.calc-field select:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(26,127,79,0.12)}
-.calc-result{background:linear-gradient(135deg,#1a7f4f,#30b94a);border-radius:12px;padding:20px 24px;color:#fff;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
-.cr-item{}
-.cr-label{font-size:10px;font-weight:600;color:rgba(255,255,255,0.65);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px}
-.cr-value{font-size:22px;font-weight:800;font-family:var(--mono);color:#fff}
-.cr-sub{font-size:10.5px;color:rgba(255,255,255,0.6);margin-top:2px}
-/* DATA TABLE */
-.dtbl{overflow-x:auto;margin:20px 0 28px;border-radius:12px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.05)}
-table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface)}
-thead th{background:#f2f2f7;padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l3);letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap}
-tbody td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:middle}
-tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:#fafafa}
-.num{font-family:var(--mono);font-weight:600;color:var(--l1)}
-.tag-n{display:inline-block;background:var(--blue-t);color:var(--blue);border:1px solid var(--blue-s);border-radius:4px;padding:1px 7px;font-size:11px;font-weight:700;font-family:var(--mono)}
-.hi{color:#c0392b;font-weight:700}.lo{color:var(--green);font-weight:700}.mid{color:#c05c00;font-weight:700}
+
+/* 콜아웃 */
 .callout{border-radius:12px;padding:18px 22px;margin:20px 0 28px}
 .callout-k{background:var(--blue-t);border:1px solid var(--blue-s)}
-.callout-k p{color:#004fa3;margin:0;font-size:13px}
+.callout-k p,.callout-k h4{color:#004fa3;margin:0;font-size:13px}
 .callout-g{background:var(--green-t);border:1px solid var(--green-s)}
-.callout-g p{color:#0f5c36;margin:0;font-size:13px}
+.callout-g p,.callout-g h4{color:#0f5c36;margin:0;font-size:13px}
+.callout-o{background:var(--orange-t);border:1px solid var(--orange-s)}
+.callout-o p,.callout-o h4{color:#8b3800;margin:0;font-size:13px}
 .callout h4{font-size:13px;font-weight:700;margin:0 0 6px}
+
+/* 데이터 테이블 */
+.dtbl{overflow-x:auto;margin:20px 0 28px;border-radius:12px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface)}
+thead th{background:var(--s3);padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l3);letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--s2)}
+.num{font-family:var(--mono);font-weight:600;color:var(--l1)}
+.hi{color:#c0392b;font-weight:700}
+.lo{color:var(--green);font-weight:700}
+.mid{color:#c05c00;font-weight:700}
+
+/* ── 계산기 + 웨이퍼 다이어그램 ── */
+.calc-wafer-wrap{display:grid;grid-template-columns:1fr 300px;gap:18px;margin:24px 0;align-items:start}
+@media(max-width:720px){.calc-wafer-wrap{grid-template-columns:1fr}}
+.calc-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:var(--sh2)}
+.calc-panel-title{font-size:14px;font-weight:700;margin-bottom:16px;color:var(--l1)}
+.cpgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.cpf{display:flex;flex-direction:column;gap:4px}
+.cpf label{font-size:10px;font-weight:600;color:var(--l3);letter-spacing:0.04em;text-transform:uppercase}
+.cpf input,.cpf select{height:34px;padding:0 10px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--font);font-size:13px;color:var(--l1);background:var(--surface);outline:none;transition:border-color 0.15s;-webkit-appearance:none;appearance:none}
+.cpf select{background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23aeaeb2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
+.cpf input:focus,.cpf select:focus{border-color:#1a7f4f;box-shadow:0 0 0 3px rgba(26,127,79,0.12)}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.res-item{border-radius:10px;padding:11px 13px;text-align:center;color:#fff}
+.ri-green{background:linear-gradient(135deg,#1a7f4f,#30b94a)}
+.ri-blue{background:linear-gradient(135deg,#0051a8,#0071e3)}
+.ri-lbl{font-size:9.5px;color:rgba(255,255,255,0.65);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:3px}
+.ri-val{font-size:20px;font-weight:800;font-family:var(--mono);line-height:1}
+.ri-sub{font-size:9px;color:rgba(255,255,255,0.5);margin-top:2px}
+.info-strip{margin-top:10px;padding:9px 11px;background:var(--s3);border-radius:8px;font-size:11px;color:var(--l3);line-height:1.75;font-family:var(--mono)}
+
+/* 웨이퍼 패널 */
+.wafer-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--sh2)}
+.wafer-panel-hd{font-size:12px;font-weight:700;color:var(--l1);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.wafer-canvas-wrap{display:flex;justify-content:center}
+.wleg-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px}
+.wleg{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--l2)}
+.wleg-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* ── 공식 시각화 ── */
+.fv-wrap{display:grid;grid-template-columns:1fr 44px 1fr;gap:0;margin:24px 0;align-items:center}
+@media(max-width:580px){.fv-wrap{grid-template-columns:1fr}.fv-op{display:none}}
+.fv-card{border-radius:14px;padding:18px;text-align:center;border:2px solid}
+.fv-t1{border-color:var(--blue);background:var(--blue-t)}
+.fv-t2{border-color:var(--red);background:var(--red-t)}
+.fv-lbl{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px}
+.fv-lbl-1{color:var(--blue)}.fv-lbl-2{color:var(--red)}
+.fv-eq{font-family:var(--mono);font-size:17px;font-weight:700;margin-bottom:6px}
+.fv-eq-1{color:var(--blue)}.fv-eq-2{color:var(--red)}
+.fv-desc{font-size:11.5px;color:var(--l3);line-height:1.5}
+.fv-op{font-size:28px;font-weight:700;color:var(--l4);text-align:center}
+.fv-result-box{text-align:center;margin:0 0 24px}
+.fv-result-inner{display:inline-block;background:rgba(26,127,79,0.08);border:2px solid #1a7f4f;border-radius:14px;padding:16px 32px}
+
+/* ── Yield 비교 ── */
+.yield-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 22px;margin:20px 0;box-shadow:var(--sh)}
+.yield-box-title{font-size:13px;font-weight:700;color:var(--l1);margin-bottom:14px}
+.yield-wafers{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.yw-item{text-align:center}
+.yw-lbl{font-size:11px;font-weight:600;color:var(--l3);margin-bottom:5px}
+.yw-val{font-family:var(--mono);font-size:12px;font-weight:700;margin-top:5px}
+.yield-legend{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;font-size:11.5px;color:var(--l2)}
+
+/* ── Yield 막대 그래프 ── */
+.bar-chart{margin:18px 0}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.bar-lbl{font-size:11.5px;color:var(--l2);width:42px;flex-shrink:0;text-align:right;font-family:var(--mono)}
+.bar-track{flex:1;height:24px;background:var(--s3);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:9px;font-size:10.5px;font-weight:700;color:#fff;font-family:var(--mono);white-space:nowrap}
+.bar-val{font-size:11px;font-family:var(--mono);font-weight:600;width:44px;text-align:right;flex-shrink:0}
+
+/* ── 웨이퍼 사이즈 비교 ── */
+.wsize-row{display:flex;gap:24px;align-items:flex-end;justify-content:center;margin:26px 0;flex-wrap:wrap}
+.wsize-item{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
+.wsize-lbl{font-size:12px;font-weight:700;color:var(--l2)}
+.wsize-cnt{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--l1)}
+.wsize-sub{font-size:10.5px;color:var(--l4)}
+
+/* ── 예제 카드 ── */
+.ex-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:22px 0}
+@media(max-width:640px){.ex-grid{grid-template-columns:1fr}}
+.ex-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--sh)}
+.ex-hd{padding:14px 16px;color:#fff}
+.ex-htag{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7;margin-bottom:4px}
+.ex-htitle{font-size:14px;font-weight:700}
+.ex-hsub{font-size:11px;opacity:0.65;margin-top:2px}
+.ex-body{padding:13px 15px;font-size:12.5px;line-height:1.85;color:var(--l2)}
+.ex-result{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-weight:600}
+
+/* CTA */
 .cta-box{background:linear-gradient(135deg,#1a7f4f,#30b94a);border-radius:16px;padding:36px 40px;text-align:center;margin:48px 0 0;color:#fff}
 .cta-box h3{font-size:22px;font-weight:800;margin-bottom:10px;letter-spacing:-0.02em}
 .cta-box p{font-size:14px;color:rgba(255,255,255,0.82);margin-bottom:22px}
-.cta-btn{display:inline-block;background:#fff;color:var(--green);font-weight:700;font-size:14px;padding:12px 28px;border-radius:30px;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.cta-btn{display:inline-block;background:#fff;color:#1a7f4f;font-weight:700;font-size:14px;padding:12px 28px;border-radius:30px;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
 .cta-btn:hover{text-decoration:none}
-.cta-links{margin-top:16px;display:flex;gap:20px;justify-content:center}
+.cta-links{margin-top:16px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
 .cta-links a{color:rgba(255,255,255,0.75);font-size:12.5px;text-decoration:none}
-footer{background:var(--surface);border-top:1px solid var(--border);padding:32px;text-align:center;font-size:12px;color:var(--l4)}
-footer a{color:var(--blue);text-decoration:none}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
+<!-- TOPBAR — shared.css에서 스타일 제공 -->
 <div class="topbar">
   <div class="topbar-l">
-    <a class="app-icon" href="index.html" style="text-decoration:none">IC</a>
+    <a class="app-icon" href="index.html">IC</a>
     <div>
       <a class="app-name" href="index.html">ChipCalc</a>
-      <span class="app-sub" id="gnb-subtitle">· 반도체 원가 & 시장 인텔리전스</span>
+      <span class="app-sub">· 반도체 원가 &amp; 시장 인텔리전스</span>
     </div>
   </div>
-
   <nav class="nav-center">
     <a class="nav-link" href="index.html">🏠 홈</a>
     <a class="nav-link" href="calculator.html">🧮 계산기</a>
-    <a class="nav-link" id="nav-fab" href="fab-explorer.html">🏭 Fab</a>
-    <a class="nav-link" id="nav-guide" href="guide-semiconductor-cost.html">💰 가이드</a>
-    <a class="nav-link" id="nav-dpw" href="guide-chips-per-wafer.html">📐 DPW</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link active" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
   </nav>
-
   <div class="topbar-r">
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
       <div class="auth-tip">
         <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS)</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
       </div>
     </div>
-
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
       <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
@@ -137,108 +208,225 @@ footer a{color:var(--blue);text-decoration:none}
   </div>
 </div>
 
+<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
     <div class="hero-tag">Resource Guide</div>
     <h1>웨이퍼당 칩 수(DPW)<br>계산 완전 가이드</h1>
-    <p class="hero-sub">DPW 공식의 원리부터 엣지 손실, Wafer Yield, 실전 계산 예제까지. 반도체 원가의 핵심을 이해합니다.</p>
+    <p class="hero-sub">DPW 공식의 원리부터 엣지 손실, Yield까지 — 인터랙티브 다이어그램으로 한눈에 이해합니다.</p>
     <div class="hero-meta">
       <span>📅 2025년 기준</span>
-      <span>⏱ 읽기 약 6분</span>
-      <span>🧮 인터랙티브 계산기 포함</span>
+      <span>⏱ 읽기 약 7분</span>
+      <span>🎨 인터랙티브 시각화 포함</span>
     </div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-bar">
+  <div class="toc-inner">
+    <a class="toc-link" href="#sec-calc">🧮 계산기 + 웨이퍼 다이어그램</a>
+    <a class="toc-link" href="#sec-formula">공식 원리</a>
+    <a class="toc-link" href="#sec-yield">Yield 시각화</a>
+    <a class="toc-link" href="#sec-wafersize">웨이퍼 사이즈 비교</a>
+    <a class="toc-link" href="#sec-examples">실전 예제</a>
   </div>
 </div>
 
 <div class="page-wrap">
 <div class="content">
 
-<!-- 인터랙티브 계산기 먼저 -->
-<div class="section">
-  <h2>DPW 인터랙티브 계산기</h2>
-  <p class="section-lead">파라미터를 입력하면 DPW와 양품 Die 수를 즉시 계산합니다.</p>
+<!-- ═══ 1. 계산기 + 웨이퍼 다이어그램 ═══ -->
+<div class="section" id="sec-calc">
+  <h2>DPW 계산기</h2>
+  <p class="section-lead">파라미터를 바꾸면 오른쪽 웨이퍼 다이어그램이 실시간으로 업데이트됩니다. 🟢 초록=양품, 🟠 주황=엣지 손실, ⬜ 회색=Yield 불량.</p>
 
-  <div class="calc-box">
-    <h3>📐 웨이퍼당 Die 수 계산</h3>
-    <div class="calc-grid">
-      <div class="calc-field">
-        <label>웨이퍼 사이즈</label>
-        <select id="g-wsize" onchange="gCalc()">
-          <option value="150">6인치 (150mm)</option>
-          <option value="200">8인치 (200mm)</option>
-          <option value="300" selected>12인치 (300mm)</option>
-        </select>
+  <div class="calc-wafer-wrap">
+    <div class="calc-panel">
+      <div class="calc-panel-title">📐 파라미터 입력</div>
+      <div class="cpgrid">
+        <div class="cpf">
+          <label>웨이퍼 사이즈</label>
+          <select id="g-wsize" onchange="gCalc()">
+            <option value="150">6인치 (150mm)</option>
+            <option value="200">8인치 (200mm)</option>
+            <option value="300" selected>12인치 (300mm)</option>
+          </select>
+        </div>
+        <div class="cpf">
+          <label>Wafer Yield (%)</label>
+          <input type="number" id="g-yield" value="90" step="1" min="1" max="100" oninput="gCalc()">
+        </div>
+        <div class="cpf">
+          <label>Die 가로 (mm)</label>
+          <input type="number" id="g-dw" value="7" step="0.5" min="0.5" oninput="gCalc()">
+        </div>
+        <div class="cpf">
+          <label>Die 세로 (mm)</label>
+          <input type="number" id="g-dh" value="7" step="0.5" min="0.5" oninput="gCalc()">
+        </div>
+        <div class="cpf">
+          <label>웨이퍼 가격 (USD)</label>
+          <input type="number" id="g-wprice" value="1500" step="100" min="0" oninput="gCalc()">
+        </div>
+        <div class="cpf">
+          <label>OSAT 비용 (USD/unit)</label>
+          <input type="number" id="g-osat" value="0.16" step="0.01" min="0" oninput="gCalc()">
+        </div>
       </div>
-      <div class="calc-field">
-        <label>Die 가로 (mm)</label>
-        <input type="number" id="g-dw" value="7" step="0.5" min="0.5" oninput="gCalc()">
+      <div class="res-grid">
+        <div class="res-item ri-green"><div class="ri-lbl">이론 DPW</div><div class="ri-val" id="g-dpw">—</div><div class="ri-sub">Gross Die</div></div>
+        <div class="res-item ri-green"><div class="ri-lbl">양품 Die</div><div class="ri-val" id="g-good">—</div><div class="ri-sub">Yield 적용</div></div>
+        <div class="res-item ri-blue"><div class="ri-lbl">Die 원가</div><div class="ri-val" id="g-diecost">—</div><div class="ri-sub">USD/unit</div></div>
+        <div class="res-item ri-blue"><div class="ri-lbl">추정 ASP</div><div class="ri-val" id="g-asp">—</div><div class="ri-sub">÷ 0.69</div></div>
       </div>
-      <div class="calc-field">
-        <label>Die 세로 (mm)</label>
-        <input type="number" id="g-dh" value="7" step="0.5" min="0.5" oninput="gCalc()">
-      </div>
-      <div class="calc-field">
-        <label>Wafer Yield (%)</label>
-        <input type="number" id="g-yield" value="90" step="1" min="1" max="100" oninput="gCalc()">
-      </div>
-      <div class="calc-field">
-        <label>웨이퍼 가격 (USD)</label>
-        <input type="number" id="g-wprice" value="1500" step="100" min="0" oninput="gCalc()">
-      </div>
-      <div class="calc-field">
-        <label>OSAT 비용 (USD/unit)</label>
-        <input type="number" id="g-osat" value="0.16" step="0.01" min="0" oninput="gCalc()">
+      <div class="info-strip">
+        전체면적 = π×R² = <span id="info-area" style="color:var(--l1);font-weight:600">—</span> mm²<br>
+        이론 DPW = <span id="info-t1" style="color:var(--blue);font-weight:600">—</span>(면적항) − <span id="info-t2" style="color:var(--red);font-weight:600">—</span>(엣지손실항)<br>
+        엣지 손실 비율 = <span id="info-ep" style="color:var(--red);font-weight:600">—</span>%
       </div>
     </div>
-    <div class="calc-result" id="g-result">
-      <div class="cr-item"><div class="cr-label">이론 DPW</div><div class="cr-value" id="g-dpw">—</div><div class="cr-sub">Gross Die</div></div>
-      <div class="cr-item"><div class="cr-label">양품 Die</div><div class="cr-value" id="g-good">—</div><div class="cr-sub">Yield 적용</div></div>
-      <div class="cr-item"><div class="cr-label">Die 원가</div><div class="cr-value" id="g-diecost">—</div><div class="cr-sub">USD/unit</div></div>
-      <div class="cr-item"><div class="cr-label">추정 ASP</div><div class="cr-value" id="g-asp">—</div><div class="cr-sub">÷0.69</div></div>
+
+    <div class="wafer-panel">
+      <div class="wafer-panel-hd">
+        <span>웨이퍼 다이어그램</span>
+        <span style="font-size:10px;color:var(--l4)" id="wafer-lbl">—</span>
+      </div>
+      <div class="wafer-canvas-wrap">
+        <canvas id="waferCanvas" width="260" height="260" style="max-width:100%;height:auto"></canvas>
+      </div>
+      <div class="wleg-row">
+        <div class="wleg"><div class="wleg-dot" style="background:#34c759;border:1px solid #28a745"></div>양품 Die</div>
+        <div class="wleg"><div class="wleg-dot" style="background:#ff9500;border:1px solid #cc7700"></div>엣지 손실</div>
+        <div class="wleg"><div class="wleg-dot" style="background:#c8c8cc;border:1px solid #999"></div>Yield 불량</div>
+        <div class="wleg"><div class="wleg-dot" style="background:#dce8f0;border:1px solid #8baabf"></div>웨이퍼</div>
+      </div>
     </div>
   </div>
-</div>
-
-<!-- DPW 공식 -->
-<div class="section">
-  <h2>DPW 공식 — 원리 이해</h2>
-  <p class="section-lead">DPW(Dies Per Wafer)는 웨이퍼 한 장에서 이론적으로 얻을 수 있는 최대 Die 수입니다. 공식은 두 항으로 구성됩니다.</p>
-
-  <div class="formula">
-    <div class="label">// DPW 기본 공식</div>
-    <div>DPW = <span class="val">π × R²</span> / A  −  <span class="val">π × D</span> / √(2A)</div>
-    <br>
-    <div class="comment">// 변수 설명</div>
-    <div>R = 웨이퍼 반지름 (mm)  →  6인치=75, 8인치=100, 12인치=150</div>
-    <div>D = 웨이퍼 지름 (mm)   →  6인치=150, 8인치=200, 12인치=300</div>
-    <div>A = Die 면적 (mm²)     →  Die 가로 × Die 세로</div>
-    <br>
-    <div class="comment">// 첫 번째 항: 웨이퍼 전체 면적 / Die 면적 (이상적 최대값)</div>
-    <div class="comment">// 두 번째 항: 원형 엣지로 인한 손실 Die 보정</div>
-  </div>
-
-  <h3>두 항의 의미</h3>
-  <p><strong>첫 번째 항 (π×R²/A)</strong> — 웨이퍼 전체 면적을 Die 면적으로 단순히 나눈 값입니다. 웨이퍼가 사각형이라면 이것이 최대 Die 수가 되겠지만, 실제 웨이퍼는 원형이므로 엣지 부분에서 손실이 발생합니다.</p>
-  <p><strong>두 번째 항 (π×D/√2A)</strong> — 원형 엣지에서 잘리는 불완전한 Die의 수를 추정하여 빼줍니다. Die가 클수록 이 엣지 손실의 영향이 커집니다.</p>
 
   <div class="callout callout-k">
-    <h4>📌 엣지 손실이 중요한 이유</h4>
-    <p>Die가 클수록 웨이퍼 가장자리의 잘린 Die 비율이 높아집니다. 100mm² Die라면 엣지 손실이 전체의 3~5% 수준이지만, 500mm² 이상의 대형 Die라면 10~20%에 달할 수 있습니다. 이것이 대형 칩의 Die 원가가 단순 면적 계산보다 훨씬 비싼 이유입니다.</p>
+    <h4>💡 다이어그램 읽는 법</h4>
+    <p>Die 크기를 키워보세요. 주황색(엣지 손실) Die가 급격히 늘어나면서 엣지 손실 비율이 올라가는 걸 바로 확인할 수 있습니다. 이것이 대형 칩의 원가가 단순 면적 비례보다 훨씬 비싼 이유입니다.</p>
   </div>
 </div>
 
-<!-- Yield -->
-<div class="section">
-  <h2>Wafer Yield — 이론에서 실제로</h2>
-  <p class="section-lead">DPW는 이론적 최대값입니다. 실제 공정에서는 결함(Defect), 오염, 공정 편차 등으로 인해 일부 Die가 불량이 됩니다. 이 비율이 Wafer Yield입니다.</p>
+<!-- ═══ 2. 공식 원리 ═══ -->
+<div class="section" id="sec-formula">
+  <h2>DPW 공식 — 두 항의 의미</h2>
+  <p class="section-lead">DPW 공식은 딱 두 항으로 구성됩니다. 각 항이 무엇을 뜻하는지 그림으로 이해합니다.</p>
+
+  <div class="fv-wrap">
+    <div class="fv-card fv-t1">
+      <div class="fv-lbl fv-lbl-1">① 이상적 최대값</div>
+      <div class="fv-eq fv-eq-1">π × R² / A</div>
+      <div class="fv-desc">웨이퍼 전체 면적(πR²)을 Die 면적(A)으로 나눈 값. 웨이퍼가 <strong>사각형</strong>이라면 이게 최대값이지만, 실제는 원형이라 가장자리에서 잘려나갑니다.</div>
+      <svg viewBox="0 0 110 110" width="90" style="margin-top:12px;display:block;margin-left:auto;margin-right:auto">
+        <rect x="4" y="4" width="102" height="102" fill="#dbeafe" stroke="#0071e3" stroke-width="1.5" rx="3"/>
+        <circle cx="55" cy="55" r="47" fill="none" stroke="#0071e3" stroke-width="1.5" stroke-dasharray="5,3"/>
+        <g fill="#93c5fd" stroke="#0051a8" stroke-width="0.4" opacity="0.8">
+          <rect x="6" y="6" width="12" height="12"/><rect x="20" y="6" width="12" height="12"/><rect x="34" y="6" width="12" height="12"/><rect x="48" y="6" width="12" height="12"/><rect x="62" y="6" width="12" height="12"/><rect x="76" y="6" width="12" height="12"/><rect x="90" y="6" width="12" height="12"/>
+          <rect x="6" y="20" width="12" height="12"/><rect x="20" y="20" width="12" height="12"/><rect x="34" y="20" width="12" height="12"/><rect x="48" y="20" width="12" height="12"/><rect x="62" y="20" width="12" height="12"/><rect x="76" y="20" width="12" height="12"/><rect x="90" y="20" width="12" height="12"/>
+          <rect x="6" y="34" width="12" height="12"/><rect x="20" y="34" width="12" height="12"/><rect x="34" y="34" width="12" height="12"/><rect x="48" y="34" width="12" height="12"/><rect x="62" y="34" width="12" height="12"/><rect x="76" y="34" width="12" height="12"/><rect x="90" y="34" width="12" height="12"/>
+          <rect x="6" y="48" width="12" height="12"/><rect x="20" y="48" width="12" height="12"/><rect x="34" y="48" width="12" height="12"/><rect x="48" y="48" width="12" height="12"/><rect x="62" y="48" width="12" height="12"/><rect x="76" y="48" width="12" height="12"/><rect x="90" y="48" width="12" height="12"/>
+          <rect x="6" y="62" width="12" height="12"/><rect x="20" y="62" width="12" height="12"/><rect x="34" y="62" width="12" height="12"/><rect x="48" y="62" width="12" height="12"/><rect x="62" y="62" width="12" height="12"/><rect x="76" y="62" width="12" height="12"/><rect x="90" y="62" width="12" height="12"/>
+          <rect x="6" y="76" width="12" height="12"/><rect x="20" y="76" width="12" height="12"/><rect x="34" y="76" width="12" height="12"/><rect x="48" y="76" width="12" height="12"/><rect x="62" y="76" width="12" height="12"/><rect x="76" y="76" width="12" height="12"/><rect x="90" y="76" width="12" height="12"/>
+          <rect x="6" y="90" width="12" height="12"/><rect x="20" y="90" width="12" height="12"/><rect x="34" y="90" width="12" height="12"/><rect x="48" y="90" width="12" height="12"/><rect x="62" y="90" width="12" height="12"/><rect x="76" y="90" width="12" height="12"/><rect x="90" y="90" width="12" height="12"/>
+        </g>
+        <text x="55" y="108" text-anchor="middle" font-size="7.5" fill="#0051a8" font-weight="600">사각형 가정 시 최대값</text>
+      </svg>
+    </div>
+    <div class="fv-op">−</div>
+    <div class="fv-card fv-t2">
+      <div class="fv-lbl fv-lbl-2">② 엣지 손실 보정</div>
+      <div class="fv-eq fv-eq-2">π × D / √(2A)</div>
+      <div class="fv-desc">원형 가장자리에서 잘려나가는 불완전한 Die 수 추정값. <strong>Die가 클수록</strong> 이 값이 커져 손실 비율이 급증합니다.</div>
+      <svg viewBox="0 0 110 110" width="90" style="margin-top:12px;display:block;margin-left:auto;margin-right:auto">
+        <defs><clipPath id="cc2"><circle cx="55" cy="55" r="47"/></clipPath></defs>
+        <circle cx="55" cy="55" r="47" fill="#f5f5f5" stroke="#ddd" stroke-width="1.5"/>
+        <g clip-path="url(#cc2)">
+          <g fill="#fee2e2" stroke="#e4362a" stroke-width="0.5">
+            <rect x="6" y="6" width="12" height="12"/><rect x="20" y="6" width="12" height="12"/><rect x="34" y="6" width="12" height="12"/><rect x="48" y="6" width="12" height="12"/><rect x="62" y="6" width="12" height="12"/><rect x="76" y="6" width="12" height="12"/><rect x="90" y="6" width="12" height="12"/>
+            <rect x="6" y="20" width="12" height="12"/><rect x="90" y="20" width="12" height="12"/>
+            <rect x="6" y="34" width="12" height="12"/><rect x="90" y="34" width="12" height="12"/>
+            <rect x="6" y="48" width="12" height="12"/><rect x="90" y="48" width="12" height="12"/>
+            <rect x="6" y="62" width="12" height="12"/><rect x="90" y="62" width="12" height="12"/>
+            <rect x="6" y="76" width="12" height="12"/><rect x="90" y="76" width="12" height="12"/>
+            <rect x="6" y="90" width="12" height="12"/><rect x="20" y="90" width="12" height="12"/><rect x="34" y="90" width="12" height="12"/><rect x="48" y="90" width="12" height="12"/><rect x="62" y="90" width="12" height="12"/><rect x="76" y="90" width="12" height="12"/><rect x="90" y="90" width="12" height="12"/>
+          </g>
+          <g fill="#f3f4f6" stroke="#9ca3af" stroke-width="0.4">
+            <rect x="20" y="20" width="12" height="12"/><rect x="34" y="20" width="12" height="12"/><rect x="48" y="20" width="12" height="12"/><rect x="62" y="20" width="12" height="12"/><rect x="76" y="20" width="12" height="12"/>
+            <rect x="20" y="34" width="12" height="12"/><rect x="34" y="34" width="12" height="12"/><rect x="48" y="34" width="12" height="12"/><rect x="62" y="34" width="12" height="12"/><rect x="76" y="34" width="12" height="12"/>
+            <rect x="20" y="48" width="12" height="12"/><rect x="34" y="48" width="12" height="12"/><rect x="48" y="48" width="12" height="12"/><rect x="62" y="48" width="12" height="12"/><rect x="76" y="48" width="12" height="12"/>
+            <rect x="20" y="62" width="12" height="12"/><rect x="34" y="62" width="12" height="12"/><rect x="48" y="62" width="12" height="12"/><rect x="62" y="62" width="12" height="12"/><rect x="76" y="62" width="12" height="12"/>
+            <rect x="20" y="76" width="12" height="12"/><rect x="34" y="76" width="12" height="12"/><rect x="48" y="76" width="12" height="12"/><rect x="62" y="76" width="12" height="12"/><rect x="76" y="76" width="12" height="12"/>
+          </g>
+        </g>
+        <circle cx="55" cy="55" r="47" fill="none" stroke="#e4362a" stroke-width="2"/>
+        <text x="55" y="108" text-anchor="middle" font-size="7.5" fill="#c0392b" font-weight="600">빨간색 = 잘려나가는 Die</text>
+      </svg>
+    </div>
+  </div>
+
+  <div class="fv-result-box">
+    <div class="fv-result-inner">
+      <div style="font-size:10px;font-weight:700;color:#1a7f4f;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px">= 이론 DPW (Gross Die)</div>
+      <div style="font-family:var(--mono);font-size:20px;font-weight:800;color:#1a7f4f">π×R²/A − π×D/√(2A)</div>
+      <div style="font-size:12px;color:#1a7f4f;margin-top:6px">이상적 최대 − 엣지 손실 보정</div>
+    </div>
+  </div>
 
   <div class="formula">
-    <div class="label">// 양품 Die 계산</div>
-    <div><span class="result">Good Die</span> = DPW × Wafer Yield</div>
+    <div class="label">// 변수 정리</div>
+    <div>R = 웨이퍼 반지름(mm)  →  6인치=75, 8인치=100, 12인치=150</div>
+    <div>D = 웨이퍼 지름(mm)    →  6인치=150, 8인치=200, 12인치=300</div>
+    <div>A = Die 면적(mm²)      →  Die 가로 × Die 세로</div>
     <br>
-    <div class="label">// Die 원가 계산</div>
-    <div><span class="result">Die Cost</span> = Wafer Price / Good Die</div>
+    <div class="label">// Die 원가까지</div>
+    <div><span class="result">Good Die</span> = DPW × (Wafer Yield / 100)</div>
+    <div><span class="result">Die Cost</span> = Wafer Price ÷ Good Die</div>
+    <div><span class="result">ASP</span>      = (Die Cost + OSAT) ÷ 0.69</div>
   </div>
+
+  <div class="callout callout-o">
+    <h4>⚠ 엣지 손실 — Die 크기가 클수록 치명적</h4>
+    <p>10mm² 소형 Die는 엣지 손실이 2~4% 수준입니다. 하지만 300mm² 이상의 대형 ADAS SoC는 10~20%에 달할 수 있습니다. 위 계산기에서 Die 크기를 키워보면 다이어그램에서 주황색이 급격히 늘어나는 것을 직접 확인할 수 있습니다.</p>
+  </div>
+</div>
+
+<!-- ═══ 3. Yield 시각화 ═══ -->
+<div class="section" id="sec-yield">
+  <h2>Wafer Yield — 이론에서 실제로</h2>
+  <p class="section-lead">DPW는 이론적 최대값입니다. 실제 공정에서는 결함·오염·공정 편차로 일부 Die가 불량이 됩니다. 아래 세 웨이퍼를 비교해보세요.</p>
+
+  <div class="yield-box">
+    <div class="yield-box-title">Yield별 웨이퍼 비교 — 12인치, 7×7mm Die, $1,500 웨이퍼 기준</div>
+    <div class="yield-wafers">
+      <div class="yw-item">
+        <div class="yw-lbl">Yield 95% (최상)</div>
+        <canvas id="yc-95" width="160" height="160"></canvas>
+        <div class="yw-val" style="color:var(--green)">Die 원가 ≈ $1.39</div>
+      </div>
+      <div class="yw-item">
+        <div class="yw-lbl">Yield 80% (표준)</div>
+        <canvas id="yc-80" width="160" height="160"></canvas>
+        <div class="yw-val" style="color:#c05c00">Die 원가 ≈ $1.65</div>
+      </div>
+      <div class="yw-item">
+        <div class="yw-lbl">Yield 60% (불량)</div>
+        <canvas id="yc-60" width="160" height="160"></canvas>
+        <div class="yw-val" style="color:var(--red)">Die 원가 ≈ $2.20</div>
+      </div>
+    </div>
+    <div class="yield-legend">
+      <span><span style="display:inline-block;width:10px;height:10px;background:#34c759;border-radius:2px;margin-right:4px;vertical-align:middle"></span>양품 Die</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#ff9500;border-radius:2px;margin-right:4px;vertical-align:middle"></span>엣지 손실</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#c8c8cc;border-radius:2px;margin-right:4px;vertical-align:middle"></span>Yield 불량</span>
+    </div>
+  </div>
+
+  <h3>Yield에 따른 Die 원가 변화</h3>
+  <div class="bar-chart" id="yieldBarChart"></div>
+  <p>Yield가 <strong>95% → 60%</strong>로 떨어지면 Die 원가는 <strong>약 58% 증가</strong>합니다. 생산 수율 관리가 반도체 기업 수익성의 핵심인 이유입니다.</p>
 
   <h3>Wafer Yield에 영향을 주는 요소</h3>
   <ul>
@@ -248,42 +436,107 @@ footer a{color:var(--blue);text-decoration:none}
     <li><strong>웨이퍼 내 균일성</strong> — 웨이퍼 중심부와 가장자리의 공정 균일성. 가장자리 Die의 Yield가 낮은 경향이 있습니다.</li>
   </ul>
 
-  <h3>Yield에 따른 Die 원가 변화 — 12인치/$1,500 웨이퍼, 50mm² Die 기준</h3>
   <div class="dtbl">
     <table>
       <thead><tr><th>Wafer Yield</th><th>이론 DPW</th><th>양품 Die</th><th>Die 원가</th><th>비고</th></tr></thead>
       <tbody>
-        <tr><td>95%</td><td class="num">1,200</td><td class="num">1,140</td><td class="num lo">$1.32</td><td>성숙 레거시 공정, 최상</td></tr>
-        <tr><td>90%</td><td class="num">1,200</td><td class="num">1,080</td><td class="num lo">$1.39</td><td>성숙 공정, 표준</td></tr>
-        <tr><td>85%</td><td class="num">1,200</td><td class="num">1,020</td><td class="num mid">$1.47</td><td>첨단 공정 표준</td></tr>
-        <tr><td>80%</td><td class="num">1,200</td><td class="num">960</td><td class="num mid">$1.56</td><td>미세 공정 초기</td></tr>
-        <tr><td>70%</td><td class="num">1,200</td><td class="num">840</td><td class="num hi">$1.79</td><td>첨단 공정 초기 또는 대형 Die</td></tr>
-        <tr><td>60%</td><td class="num">1,200</td><td class="num">720</td><td class="num hi">$2.08</td><td>신규 공정, 문제 상황</td></tr>
+        <tr><td>95%</td><td class="num">1,080</td><td class="num">1,026</td><td class="num lo">$1.46</td><td>성숙 레거시 공정, 최상</td></tr>
+        <tr><td>90%</td><td class="num">1,080</td><td class="num">972</td><td class="num lo">$1.54</td><td>성숙 공정, 표준</td></tr>
+        <tr><td>85%</td><td class="num">1,080</td><td class="num">918</td><td class="num mid">$1.63</td><td>첨단 공정 표준</td></tr>
+        <tr><td>80%</td><td class="num">1,080</td><td class="num">864</td><td class="num mid">$1.74</td><td>미세 공정 초기</td></tr>
+        <tr><td>70%</td><td class="num">1,080</td><td class="num">756</td><td class="num hi">$1.98</td><td>첨단 공정 초기 또는 대형 Die</td></tr>
+        <tr><td>60%</td><td class="num">1,080</td><td class="num">648</td><td class="num hi">$2.31</td><td>신규 공정, 문제 상황</td></tr>
       </tbody>
     </table>
   </div>
-  <p>Yield가 95%에서 60%로 떨어지면 Die 원가는 <strong>57% 증가</strong>합니다. 생산 수율 관리가 반도체 기업 수익성의 핵심인 이유입니다.</p>
 </div>
 
-<!-- 웨이퍼 사이즈별 -->
-<div class="section">
+<!-- ═══ 4. 웨이퍼 사이즈 비교 ═══ -->
+<div class="section" id="sec-wafersize">
   <h2>웨이퍼 사이즈별 DPW 비교</h2>
-  <p class="section-lead">큰 웨이퍼를 쓸수록 한 장에서 더 많은 Die를 얻을 수 있어 단위 원가가 낮아집니다. 하지만 대형 웨이퍼를 처리하는 장비와 시설 투자가 필요합니다.</p>
+  <p class="section-lead">큰 웨이퍼를 쓸수록 한 장에서 더 많은 Die를 얻어 단위 원가가 낮아집니다. 아래 세 웨이퍼의 상대 크기 차이를 눈으로 확인하세요.</p>
+
+  <div class="wsize-row">
+    <div class="wsize-item">
+      <svg width="82" height="82" viewBox="0 0 82 82">
+        <defs><clipPath id="w6"><circle cx="41" cy="41" r="37"/></clipPath></defs>
+        <circle cx="41" cy="41" r="37" fill="#e8f4fd" stroke="#5ba7d9" stroke-width="2"/>
+        <g clip-path="url(#w6)" fill="#bfdbfe" stroke="#0071e3" stroke-width="0.4" opacity="0.7">
+          <rect x="4" y="4" width="13" height="13"/><rect x="19" y="4" width="13" height="13"/><rect x="34" y="4" width="13" height="13"/><rect x="49" y="4" width="13" height="13"/><rect x="64" y="4" width="13" height="13"/>
+          <rect x="4" y="19" width="13" height="13"/><rect x="19" y="19" width="13" height="13"/><rect x="34" y="19" width="13" height="13"/><rect x="49" y="19" width="13" height="13"/><rect x="64" y="19" width="13" height="13"/>
+          <rect x="4" y="34" width="13" height="13"/><rect x="19" y="34" width="13" height="13"/><rect x="34" y="34" width="13" height="13"/><rect x="49" y="34" width="13" height="13"/><rect x="64" y="34" width="13" height="13"/>
+          <rect x="4" y="49" width="13" height="13"/><rect x="19" y="49" width="13" height="13"/><rect x="34" y="49" width="13" height="13"/><rect x="49" y="49" width="13" height="13"/><rect x="64" y="49" width="13" height="13"/>
+          <rect x="4" y="64" width="13" height="13"/><rect x="19" y="64" width="13" height="13"/><rect x="34" y="64" width="13" height="13"/><rect x="49" y="64" width="13" height="13"/><rect x="64" y="64" width="13" height="13"/>
+        </g>
+        <circle cx="41" cy="41" r="37" fill="none" stroke="#0071e3" stroke-width="2"/>
+        <text x="41" y="45" text-anchor="middle" font-size="12" font-weight="700" fill="#0051a8">6"</text>
+      </svg>
+      <div class="wsize-lbl">6인치 · 150mm</div>
+      <div class="wsize-cnt">~265개</div>
+      <div class="wsize-sub">50mm² Die 기준</div>
+    </div>
+    <div class="wsize-item">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <defs><clipPath id="w8"><circle cx="55" cy="55" r="51"/></clipPath></defs>
+        <circle cx="55" cy="55" r="51" fill="#e8f4fd" stroke="#5ba7d9" stroke-width="2.5"/>
+        <g clip-path="url(#w8)" fill="#93c5fd" stroke="#0071e3" stroke-width="0.4" opacity="0.7">
+          <rect x="4" y="4" width="14" height="14"/><rect x="20" y="4" width="14" height="14"/><rect x="36" y="4" width="14" height="14"/><rect x="52" y="4" width="14" height="14"/><rect x="68" y="4" width="14" height="14"/><rect x="84" y="4" width="14" height="14"/>
+          <rect x="4" y="20" width="14" height="14"/><rect x="20" y="20" width="14" height="14"/><rect x="36" y="20" width="14" height="14"/><rect x="52" y="20" width="14" height="14"/><rect x="68" y="20" width="14" height="14"/><rect x="84" y="20" width="14" height="14"/>
+          <rect x="4" y="36" width="14" height="14"/><rect x="20" y="36" width="14" height="14"/><rect x="36" y="36" width="14" height="14"/><rect x="52" y="36" width="14" height="14"/><rect x="68" y="36" width="14" height="14"/><rect x="84" y="36" width="14" height="14"/>
+          <rect x="4" y="52" width="14" height="14"/><rect x="20" y="52" width="14" height="14"/><rect x="36" y="52" width="14" height="14"/><rect x="52" y="52" width="14" height="14"/><rect x="68" y="52" width="14" height="14"/><rect x="84" y="52" width="14" height="14"/>
+          <rect x="4" y="68" width="14" height="14"/><rect x="20" y="68" width="14" height="14"/><rect x="36" y="68" width="14" height="14"/><rect x="52" y="68" width="14" height="14"/><rect x="68" y="68" width="14" height="14"/><rect x="84" y="68" width="14" height="14"/>
+          <rect x="4" y="84" width="14" height="14"/><rect x="20" y="84" width="14" height="14"/><rect x="36" y="84" width="14" height="14"/><rect x="52" y="84" width="14" height="14"/><rect x="68" y="84" width="14" height="14"/><rect x="84" y="84" width="14" height="14"/>
+        </g>
+        <circle cx="55" cy="55" r="51" fill="none" stroke="#0071e3" stroke-width="2.5"/>
+        <text x="55" y="59" text-anchor="middle" font-size="14" font-weight="700" fill="#0051a8">8"</text>
+      </svg>
+      <div class="wsize-lbl">8인치 · 200mm</div>
+      <div class="wsize-cnt">~480개</div>
+      <div class="wsize-sub">50mm² Die 기준</div>
+    </div>
+    <div class="wsize-item">
+      <svg width="164" height="164" viewBox="0 0 164 164">
+        <defs><clipPath id="w12"><circle cx="82" cy="82" r="78"/></clipPath></defs>
+        <circle cx="82" cy="82" r="78" fill="#dbeafe" stroke="#0071e3" stroke-width="3"/>
+        <g clip-path="url(#w12)" fill="#60a5fa" stroke="#0051a8" stroke-width="0.35" opacity="0.7">
+          <rect x="4" y="4" width="14" height="14"/><rect x="20" y="4" width="14" height="14"/><rect x="36" y="4" width="14" height="14"/><rect x="52" y="4" width="14" height="14"/><rect x="68" y="4" width="14" height="14"/><rect x="84" y="4" width="14" height="14"/><rect x="100" y="4" width="14" height="14"/><rect x="116" y="4" width="14" height="14"/><rect x="132" y="4" width="14" height="14"/><rect x="148" y="4" width="14" height="14"/>
+          <rect x="4" y="20" width="14" height="14"/><rect x="20" y="20" width="14" height="14"/><rect x="36" y="20" width="14" height="14"/><rect x="52" y="20" width="14" height="14"/><rect x="68" y="20" width="14" height="14"/><rect x="84" y="20" width="14" height="14"/><rect x="100" y="20" width="14" height="14"/><rect x="116" y="20" width="14" height="14"/><rect x="132" y="20" width="14" height="14"/><rect x="148" y="20" width="14" height="14"/>
+          <rect x="4" y="36" width="14" height="14"/><rect x="20" y="36" width="14" height="14"/><rect x="36" y="36" width="14" height="14"/><rect x="52" y="36" width="14" height="14"/><rect x="68" y="36" width="14" height="14"/><rect x="84" y="36" width="14" height="14"/><rect x="100" y="36" width="14" height="14"/><rect x="116" y="36" width="14" height="14"/><rect x="132" y="36" width="14" height="14"/><rect x="148" y="36" width="14" height="14"/>
+          <rect x="4" y="52" width="14" height="14"/><rect x="20" y="52" width="14" height="14"/><rect x="36" y="52" width="14" height="14"/><rect x="52" y="52" width="14" height="14"/><rect x="68" y="52" width="14" height="14"/><rect x="84" y="52" width="14" height="14"/><rect x="100" y="52" width="14" height="14"/><rect x="116" y="52" width="14" height="14"/><rect x="132" y="52" width="14" height="14"/><rect x="148" y="52" width="14" height="14"/>
+          <rect x="4" y="68" width="14" height="14"/><rect x="20" y="68" width="14" height="14"/><rect x="36" y="68" width="14" height="14"/><rect x="52" y="68" width="14" height="14"/><rect x="68" y="68" width="14" height="14"/><rect x="84" y="68" width="14" height="14"/><rect x="100" y="68" width="14" height="14"/><rect x="116" y="68" width="14" height="14"/><rect x="132" y="68" width="14" height="14"/><rect x="148" y="68" width="14" height="14"/>
+          <rect x="4" y="84" width="14" height="14"/><rect x="20" y="84" width="14" height="14"/><rect x="36" y="84" width="14" height="14"/><rect x="52" y="84" width="14" height="14"/><rect x="68" y="84" width="14" height="14"/><rect x="84" y="84" width="14" height="14"/><rect x="100" y="84" width="14" height="14"/><rect x="116" y="84" width="14" height="14"/><rect x="132" y="84" width="14" height="14"/><rect x="148" y="84" width="14" height="14"/>
+          <rect x="4" y="100" width="14" height="14"/><rect x="20" y="100" width="14" height="14"/><rect x="36" y="100" width="14" height="14"/><rect x="52" y="100" width="14" height="14"/><rect x="68" y="100" width="14" height="14"/><rect x="84" y="100" width="14" height="14"/><rect x="100" y="100" width="14" height="14"/><rect x="116" y="100" width="14" height="14"/><rect x="132" y="100" width="14" height="14"/><rect x="148" y="100" width="14" height="14"/>
+          <rect x="4" y="116" width="14" height="14"/><rect x="20" y="116" width="14" height="14"/><rect x="36" y="116" width="14" height="14"/><rect x="52" y="116" width="14" height="14"/><rect x="68" y="116" width="14" height="14"/><rect x="84" y="116" width="14" height="14"/><rect x="100" y="116" width="14" height="14"/><rect x="116" y="116" width="14" height="14"/><rect x="132" y="116" width="14" height="14"/><rect x="148" y="116" width="14" height="14"/>
+          <rect x="4" y="132" width="14" height="14"/><rect x="20" y="132" width="14" height="14"/><rect x="36" y="132" width="14" height="14"/><rect x="52" y="132" width="14" height="14"/><rect x="68" y="132" width="14" height="14"/><rect x="84" y="132" width="14" height="14"/><rect x="100" y="132" width="14" height="14"/><rect x="116" y="132" width="14" height="14"/><rect x="132" y="132" width="14" height="14"/><rect x="148" y="132" width="14" height="14"/>
+          <rect x="4" y="148" width="14" height="14"/><rect x="20" y="148" width="14" height="14"/><rect x="36" y="148" width="14" height="14"/><rect x="52" y="148" width="14" height="14"/><rect x="68" y="148" width="14" height="14"/><rect x="84" y="148" width="14" height="14"/><rect x="100" y="148" width="14" height="14"/><rect x="116" y="148" width="14" height="14"/><rect x="132" y="148" width="14" height="14"/><rect x="148" y="148" width="14" height="14"/>
+        </g>
+        <circle cx="82" cy="82" r="78" fill="none" stroke="#0071e3" stroke-width="3"/>
+        <text x="82" y="87" text-anchor="middle" font-size="18" font-weight="800" fill="#003fa5">12"</text>
+      </svg>
+      <div class="wsize-lbl">12인치 · 300mm</div>
+      <div class="wsize-cnt" style="color:var(--blue);font-size:18px;font-weight:800">~1,200개</div>
+      <div class="wsize-sub">50mm² Die 기준</div>
+    </div>
+  </div>
+
+  <p style="text-align:center;font-size:13px;color:var(--l3)">
+    8인치 → 12인치 전환 시 DPW <strong style="color:var(--l1)">약 2.5배</strong> 증가 ·
+    6인치 → 12인치 <strong style="color:var(--l1)">약 4.5배</strong> 증가
+  </p>
 
   <div class="dtbl">
     <table>
       <thead><tr><th>Die 크기</th><th>6인치 DPW</th><th>8인치 DPW</th><th>12인치 DPW</th><th>12인치 대비 6인치</th></tr></thead>
       <tbody>
-        <tr><td>10 mm²</td><td class="num">1,470</td><td class="num">2,630</td><td class="num">6,400</td><td class="hi">-77%</td></tr>
-        <tr><td>25 mm²</td><td class="num">560</td><td class="num">1,010</td><td class="num">2,500</td><td class="hi">-78%</td></tr>
-        <tr><td>50 mm²</td><td class="num">265</td><td class="num">480</td><td class="num">1,200</td><td class="hi">-78%</td></tr>
-        <tr><td>100 mm²</td><td class="num">124</td><td class="num">228</td><td class="num">580</td><td class="hi">-79%</td></tr>
-        <tr><td>200 mm²</td><td class="num">57</td><td class="num">107</td><td class="num">275</td><td class="hi">-79%</td></tr>
-        <tr><td>400 mm²</td><td class="num">25</td><td class="num">49</td><td class="num">130</td><td class="hi">-81%</td></tr>
+        <tr><td>10 mm²</td><td class="num">1,470</td><td class="num">2,630</td><td class="num" style="color:var(--blue);font-weight:700">6,400</td><td class="hi">-77%</td></tr>
+        <tr><td>25 mm²</td><td class="num">560</td><td class="num">1,010</td><td class="num" style="color:var(--blue);font-weight:700">2,500</td><td class="hi">-78%</td></tr>
+        <tr><td>50 mm²</td><td class="num">265</td><td class="num">480</td><td class="num" style="color:var(--blue);font-weight:700">1,200</td><td class="hi">-78%</td></tr>
+        <tr><td>100 mm²</td><td class="num">124</td><td class="num">228</td><td class="num" style="color:var(--blue);font-weight:700">580</td><td class="hi">-79%</td></tr>
+        <tr><td>200 mm²</td><td class="num">57</td><td class="num">107</td><td class="num" style="color:var(--blue);font-weight:700">275</td><td class="hi">-79%</td></tr>
+        <tr><td>400 mm²</td><td class="num">25</td><td class="num">49</td><td class="num" style="color:var(--blue);font-weight:700">130</td><td class="hi">-81%</td></tr>
       </tbody>
     </table>
   </div>
-  <p>8인치 → 12인치 전환 시 웨이퍼당 Die 수가 약 <strong>2.2~2.7배</strong> 증가합니다. 이것이 반도체 팹들이 12인치 전환에 막대한 투자를 하는 핵심 이유입니다.</p>
 
   <div class="callout callout-g">
     <h4>💡 차량용 반도체의 6·8인치 유지 이유</h4>
@@ -291,64 +544,71 @@ footer a{color:var(--blue);text-decoration:none}
   </div>
 </div>
 
-<!-- 실전 예제 -->
-<div class="section">
+<!-- ═══ 5. 실전 예제 ═══ -->
+<div class="section" id="sec-examples">
   <h2>실전 계산 예제 3가지</h2>
 
-  <h3>예제 1 — 소형 CAN Transceiver (0.18μm, 8인치)</h3>
-  <div class="formula">
-    <div class="comment">// 입력값</div>
-    <div>웨이퍼 = 8인치(200mm) / $700 / D=200, R=100</div>
-    <div>Die = 3mm × 3mm = 9mm²</div>
-    <div>Wafer Yield = 93%</div>
-    <br>
-    <div class="comment">// DPW 계산</div>
-    <div>DPW = π×100²/9 − π×200/√(2×9)</div>
-    <div>    = 3,491 − 148 = <span class="result">3,343</span></div>
-    <br>
-    <div class="comment">// 양품 Die & 원가</div>
-    <div>Good Die = 3,343 × 0.93 = <span class="result">3,109개</span></div>
-    <div>Die Cost = $700 / 3,109 = <span class="result">$0.225</span></div>
+  <div class="ex-grid">
+    <div class="ex-card">
+      <div class="ex-hd" style="background:linear-gradient(135deg,#0a5c36,#1a7f4f)">
+        <div class="ex-htag">예제 1</div>
+        <div class="ex-htitle">CAN Transceiver</div>
+        <div class="ex-hsub">0.18μm · 8인치</div>
+      </div>
+      <div class="ex-body">
+        <div>Die: <strong>3×3mm = 9mm²</strong></div>
+        <div>Yield: <strong>93%</strong> · 웨이퍼가: $700</div>
+        <div class="ex-result">
+          DPW = 3,491 − 148 = <strong>3,343</strong><br>
+          양품 = 3,343 × 0.93 = <strong>3,109</strong><br>
+          <span style="color:#1a7f4f;font-size:15px">Die 원가 = $0.225</span>
+        </div>
+      </div>
+    </div>
+    <div class="ex-card">
+      <div class="ex-hd" style="background:linear-gradient(135deg,#0051a8,#0071e3)">
+        <div class="ex-htag">예제 2</div>
+        <div class="ex-htitle">Powertrain MCU</div>
+        <div class="ex-hsub">90nm · 12인치</div>
+      </div>
+      <div class="ex-body">
+        <div>Die: <strong>8×9mm = 72mm²</strong></div>
+        <div>Yield: <strong>87%</strong> · 웨이퍼가: $1,500</div>
+        <div class="ex-result">
+          DPW = 981 − 78 = <strong>903</strong><br>
+          양품 = 903 × 0.87 = <strong>785</strong><br>
+          <span style="color:#0071e3;font-size:15px">Die 원가 = $1.91</span>
+        </div>
+      </div>
+    </div>
+    <div class="ex-card">
+      <div class="ex-hd" style="background:linear-gradient(135deg,#4a1d9e,#6e44cc)">
+        <div class="ex-htag">예제 3</div>
+        <div class="ex-htitle">ADAS SoC</div>
+        <div class="ex-hsub">16nm · 12인치</div>
+      </div>
+      <div class="ex-body">
+        <div>Die: <strong>18×16mm = 288mm²</strong></div>
+        <div>Yield: <strong>78%</strong> · 웨이퍼가: $5,000</div>
+        <div class="ex-result">
+          DPW = 245 − 39 = <strong>206</strong><br>
+          양품 = 206 × 0.78 = <strong>161</strong><br>
+          <span style="color:#6e44cc;font-size:15px">Die 원가 = $31.06</span>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <h3>예제 2 — Powertrain MCU (90nm, 12인치)</h3>
-  <div class="formula">
-    <div class="comment">// 입력값</div>
-    <div>웨이퍼 = 12인치(300mm) / $1,500 / D=300, R=150</div>
-    <div>Die = 8mm × 9mm = 72mm²</div>
-    <div>Wafer Yield = 87%</div>
-    <br>
-    <div class="comment">// DPW 계산</div>
-    <div>DPW = π×150²/72 − π×300/√(2×72)</div>
-    <div>    = 981 − 78 = <span class="result">903</span></div>
-    <br>
-    <div class="comment">// 양품 Die & 원가</div>
-    <div>Good Die = 903 × 0.87 = <span class="result">785개</span></div>
-    <div>Die Cost = $1,500 / 785 = <span class="result">$1.91</span></div>
-  </div>
-
-  <h3>예제 3 — ADAS SoC (16nm, 12인치)</h3>
-  <div class="formula">
-    <div class="comment">// 입력값</div>
-    <div>웨이퍼 = 12인치(300mm) / $5,000 / D=300, R=150</div>
-    <div>Die = 18mm × 16mm = 288mm²</div>
-    <div>Wafer Yield = 78%</div>
-    <br>
-    <div class="comment">// DPW 계산</div>
-    <div>DPW = π×150²/288 − π×300/√(2×288)</div>
-    <div>    = 245 − 39 = <span class="result">206</span></div>
-    <br>
-    <div class="comment">// 양품 Die & 원가</div>
-    <div>Good Die = 206 × 0.78 = <span class="result">161개</span></div>
-    <div>Die Cost = $5,000 / 161 = <span class="result">$31.06</span></div>
+  <div class="callout callout-k">
+    <h4>📌 예제 1 vs 예제 3 — 원가 138배 차이</h4>
+    <p>CAN Transceiver($0.225)와 ADAS SoC($31.06)의 Die 원가 차이는 138배입니다. Die 크기 차이(32배)만으로 설명되지 않습니다. 엣지 손실 16%, Yield 78%, 비싼 웨이퍼($5,000)가 겹쳐 원가가 기하급수적으로 올라간 결과입니다.</p>
   </div>
 </div>
 
-<!-- CTA -->
 <div class="cta-box">
   <h3>계산기로 직접 해보세요</h3>
   <p>가로×세로 입력만 하면 DPW, 양품 Die, Die 원가, 판매가까지 한번에 계산됩니다.</p>
-  <a href="index.html" class="cta-btn">🧮 계산기 열기</a>
+  <a href="calculator.html" class="cta-btn">🧮 계산기 열기</a>
   <div class="cta-links">
     <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
     <a href="fab-explorer.html">🏭 Fab Explorer</a>
@@ -359,32 +619,132 @@ footer a{color:var(--blue);text-decoration:none}
 </div>
 
 <footer>
-  <p>© 2025 ChipCalc · <a href="index.html">계산기</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a><br>
-  <span style="font-size:11px">모든 계산은 공개 공식 기반이며 참고용입니다.</span></p>
+  <div class="footer-links">
+    <a href="index.html">홈</a>
+    <a href="calculator.html">계산기</a>
+    <a href="guide-semiconductor-cost.html">원가 가이드</a>
+    <a href="fab-explorer.html">Fab Explorer</a>
+    <a href="about.html">About</a>
+    <a href="privacy.html">Privacy</a>
+  </div>
+  <div>© 2026 ChipCalc · 모든 계산은 공개 공식 기반이며 참고용입니다.</div>
 </footer>
 
 <script>
+/* ── 재현 가능 랜덤 ── */
+function mulberry32(seed){
+  return function(){
+    seed|=0;seed=seed+0x6D2B79F5|0;
+    var t=Math.imul(seed^seed>>>15,1|seed);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return((t^t>>>14)>>>0)/4294967296;
+  };
+}
+
+/* ── 웨이퍼 다이어그램 ── */
+function drawWafer(canvasId, waferD, dieW, dieH, yieldPct, px){
+  var canvas=document.getElementById(canvasId);
+  if(!canvas)return;
+  canvas.width=px;canvas.height=px;
+  var ctx=canvas.getContext('2d');
+  var cx=px/2,cy=px/2,R=waferD/2;
+  var scale=(px*0.46)/R,cr=R*scale;
+  var grad=ctx.createRadialGradient(cx,cy,0,cx,cy,cr);
+  grad.addColorStop(0,'#f0f4f8');grad.addColorStop(1,'#cfe0ec');
+  ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);
+  ctx.fillStyle=grad;ctx.fill();
+  ctx.strokeStyle='#8baabf';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.save();
+  ctx.beginPath();ctx.arc(cx,cy,cr-1,0,Math.PI*2);ctx.clip();
+  var pw=dieW*scale,ph=dieH*scale;
+  var sx=cx-Math.floor(cr/pw)*pw,sy=cy-Math.floor(cr/ph)*ph;
+  var rng=mulberry32(12345);
+  for(var y=sy-ph;y<cy+cr+ph;y+=ph){
+    for(var x=sx-pw;x<cx+cr+pw;x+=pw){
+      var cs=[[x,y],[x+pw,y],[x,y+ph],[x+pw,y+ph]];
+      var ic=cs.filter(function(c){return Math.pow(c[0]-cx,2)+Math.pow(c[1]-cy,2)<=cr*cr;}).length;
+      if(ic===0)continue;
+      if(ic<4){
+        ctx.fillStyle='#ff9500';ctx.globalAlpha=0.8;
+        ctx.fillRect(x+0.5,y+0.5,pw-1,ph-1);ctx.globalAlpha=1;
+        ctx.strokeStyle='#cc7700';ctx.lineWidth=0.5;
+        ctx.strokeRect(x+0.5,y+0.5,pw-1,ph-1);
+      } else {
+        var bad=rng()>yieldPct/100;
+        ctx.fillStyle=bad?'#c8c8cc':'#34c759';
+        ctx.strokeStyle=bad?'#999':'#28a745';
+        ctx.fillRect(x+0.5,y+0.5,pw-1,ph-1);
+        ctx.lineWidth=0.5;ctx.strokeRect(x+0.5,y+0.5,pw-1,ph-1);
+      }
+    }
+  }
+  ctx.restore();
+  ctx.beginPath();ctx.arc(cx,cy,cr,0,Math.PI*2);
+  ctx.strokeStyle='#6b8aab';ctx.lineWidth=2;ctx.stroke();
+}
+
+/* ── 메인 계산기 ── */
 function gCalc(){
   var D=parseInt(document.getElementById('g-wsize').value)||300;
   var R=D/2;
   var dw=parseFloat(document.getElementById('g-dw').value)||7;
   var dh=parseFloat(document.getElementById('g-dh').value)||7;
-  var A=dw*dh;
-  var wy=(parseFloat(document.getElementById('g-yield').value)||90)/100;
+  var wy=parseFloat(document.getElementById('g-yield').value)||90;
   var wp=parseFloat(document.getElementById('g-wprice').value)||1500;
   var osat=parseFloat(document.getElementById('g-osat').value)||0.16;
-  var gross=Math.max(Math.floor(Math.PI*R*R/A - Math.PI*D/Math.sqrt(2*A)),1);
-  var good=Math.max(Math.floor(gross*wy),1);
-  var diecost=wp/good;
-  var cogs=diecost+osat;
-  var asp=cogs/0.69;
+  var A=dw*dh;
+  var t1=Math.PI*R*R/A,t2=Math.PI*D/Math.sqrt(2*A);
+  var gross=Math.max(Math.floor(t1-t2),1);
+  var good=Math.max(Math.floor(gross*wy/100),1);
+  var dc=wp/good,asp=(dc+osat)/0.69;
   document.getElementById('g-dpw').textContent=gross.toLocaleString();
   document.getElementById('g-good').textContent=good.toLocaleString();
-  document.getElementById('g-diecost').textContent='$'+diecost.toFixed(3);
+  document.getElementById('g-diecost').textContent='$'+dc.toFixed(3);
   document.getElementById('g-asp').textContent='$'+asp.toFixed(3);
+  document.getElementById('wafer-lbl').textContent=dw+'×'+dh+'mm Die';
+  document.getElementById('info-area').textContent=(Math.PI*R*R).toFixed(0);
+  document.getElementById('info-t1').textContent=t1.toFixed(1);
+  document.getElementById('info-t2').textContent=t2.toFixed(1);
+  document.getElementById('info-ep').textContent=(t2/t1*100).toFixed(1);
+  drawWafer('waferCanvas',D,dw,dh,wy,260);
 }
-gCalc();
+
+/* ── Yield 비교 ── */
+function drawYieldWafers(){
+  drawWafer('yc-95',300,7,7,95,160);
+  drawWafer('yc-80',300,7,7,80,160);
+  drawWafer('yc-60',300,7,7,60,160);
+}
+
+/* ── Yield 막대 그래프 ── */
+function drawYieldBarChart(){
+  var data=[
+    {y:'95%',cost:1.46,color:'#34c759'},
+    {y:'90%',cost:1.54,color:'#5ac76a'},
+    {y:'85%',cost:1.63,color:'#f9b84b'},
+    {y:'80%',cost:1.74,color:'#ff9500'},
+    {y:'70%',cost:1.98,color:'#ff6b35'},
+    {y:'60%',cost:2.31,color:'#e4362a'},
+  ];
+  var maxC=2.5;
+  document.getElementById('yieldBarChart').innerHTML=data.map(function(d){
+    var w=(d.cost/maxC*100).toFixed(1);
+    return '<div class="bar-row">'+
+      '<div class="bar-lbl">'+d.y+'</div>'+
+      '<div class="bar-track"><div class="bar-fill" style="width:'+w+'%;background:'+d.color+'">$'+d.cost.toFixed(2)+'</div></div>'+
+      '<div class="bar-val" style="color:'+d.color+'">$'+d.cost.toFixed(2)+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+/* ── 초기화 ── */
+document.addEventListener('DOMContentLoaded',function(){
+  gCalc();
+  drawYieldWafers();
+  drawYieldBarChart();
+});
 </script>
+
 <script src="shared-styles.js"></script>
 <script src="shared-auth-supabase.js"></script>
 </body>
