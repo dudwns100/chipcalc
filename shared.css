@@ -1,58 +1,46 @@
 /* ═══════════════════════════════════════════════════════════
    ChipCalc — shared.css
    모든 페이지 공통 스타일
-   수정 시 이 파일 하나만 바꾸면 전체 페이지에 반영됩니다.
 ═══════════════════════════════════════════════════════════ */
 
-/* ── CSS 변수 (라이트 모드 기본값) ── */
+/* ── CSS 변수 ── */
 :root {
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
           "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
-
   --bg: #f2f2f7;
   --surface: #fff;
   --s2: #f9f9fb;
   --s3: #f2f2f7;
   --border: rgba(0,0,0,0.09);
   --border2: rgba(0,0,0,0.15);
-
   --l1: #1c1c1e;
   --l2: #3c3c43;
   --l3: #6b6b70;
   --l4: #aeaeb2;
-
   --blue: #0071e3;
   --blue-s: #d7eaff;
   --blue-t: #f0f6ff;
-
   --green: #30b94a;
   --green-s: #d4f0db;
   --green-t: #f0fbf3;
-
   --orange: #f25a00;
   --orange-s: #fde5d3;
   --orange-t: #fff5ef;
-
   --red: #e4362a;
   --red-s: #fac5c1;
   --red-t: #fff1f0;
-
   --purple: #6e44cc;
   --purple-s: #d4c8f5;
   --purple-t: #f3f0ff;
-
   --yellow: #c8960c;
   --yellow-s: #fde68a;
   --yellow-t: #fffbeb;
-
   --r: 8px;
   --r2: 12px;
   --r3: 16px;
-
   --sh: 0 2px 8px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
   --sh2: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
-
   --topbar-bg: rgba(255,255,255,0.92);
   --topbar-h: 48px;
 }
@@ -87,7 +75,7 @@ body.dark {
 /* ── 리셋 ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── 기본 body ── */
+/* ── body ── */
 body {
   background: var(--bg);
   color: var(--l1);
@@ -99,7 +87,7 @@ body {
 }
 
 /* ══════════════════════════════════════
-   TOPBAR — 모든 페이지 공통
+   TOPBAR
 ══════════════════════════════════════ */
 .topbar {
   background: var(--topbar-bg);
@@ -114,6 +102,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
+  gap: 8px;
 }
 
 .topbar-l {
@@ -153,7 +142,7 @@ body {
   margin-left: 3px;
 }
 
-/* ── 중앙 네비게이션 ── */
+/* 중앙 네비게이션 (데스크톱) */
 .nav-center {
   display: flex;
   align-items: center;
@@ -179,7 +168,7 @@ body {
 .nav-link:hover { background: var(--s3); color: var(--l1); }
 .nav-link.active { background: var(--blue-t); color: var(--blue); font-weight: 600; }
 
-/* ── 우측 영역 ── */
+/* 우측 영역 */
 .topbar-r {
   display: flex;
   align-items: center;
@@ -187,7 +176,6 @@ body {
   flex-shrink: 0;
 }
 
-/* ── 버전 배지 ── */
 .ver {
   font-family: var(--mono);
   font-size: 10px;
@@ -195,6 +183,59 @@ body {
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 2px 8px;
+}
+
+/* ── 햄버거 버튼 (모바일 전용) ── */
+.nav-hamburger {
+  display: none;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0;
+  flex-shrink: 0;
+}
+.nav-hamburger span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--l2);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+.nav-hamburger:hover { background: var(--s3); }
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── 모바일 드로어 네비게이션 ── */
+.nav-drawer {
+  display: none;
+  position: fixed;
+  top: var(--topbar-h);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 199;
+  padding: 8px 12px 12px;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-drawer.open { display: flex; }
+.nav-drawer .nav-link {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  width: 100%;
 }
 
 /* ══════════════════════════════════════
@@ -239,7 +280,6 @@ body {
 }
 .save-btn:hover { background: var(--green-s); }
 
-/* 툴팁 */
 .auth-tip {
   position: absolute;
   top: calc(100% + 6px);
@@ -270,12 +310,7 @@ body {
   border-radius: 2px;
 }
 .auth-tip-wrap:hover .auth-tip { opacity: 1; transform: translateY(0); }
-.auth-tip-title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 8px;
-}
+.auth-tip-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 8px; }
 .auth-tip-row {
   display: flex;
   align-items: flex-start;
@@ -286,9 +321,7 @@ body {
 .auth-tip-row:last-child { margin-bottom: 0; }
 .ati { flex-shrink: 0; font-size: 10px; color: var(--green); }
 
-/* ══════════════════════════════════════
-   모드 / 언어 토글
-══════════════════════════════════════ */
+/* ── 모드 / 언어 토글 ── */
 .mode-toggle, .lang-toggle {
   display: flex;
   align-items: center;
@@ -316,7 +349,7 @@ body {
 .lang-btn.active { background: var(--blue); color: #fff; box-shadow: 0 1px 3px rgba(0,113,227,0.3); }
 
 /* ══════════════════════════════════════
-   FOOTER 공통
+   FOOTER
 ══════════════════════════════════════ */
 footer {
   text-align: center;
@@ -334,4 +367,27 @@ footer a:hover { text-decoration: underline; }
   justify-content: center;
   flex-wrap: wrap;
   margin-bottom: 10px;
+}
+
+/* ══════════════════════════════════════
+   모바일 공통 (≤ 768px)
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* 네비게이션: 중앙 링크 숨기고 햄버거 표시 */
+  .nav-center { display: none; }
+  .nav-hamburger { display: flex; }
+
+  /* 우측: 모드/언어/ver 숨김 — 화면 너무 좁음 */
+  .ver { display: none; }
+  .lang-toggle { display: none; }
+
+  /* auth 버튼 텍스트 축약 */
+  .auth-btn { font-size: 10px; padding: 0 8px; }
+
+  /* 툴팁 위치 보정 */
+  .auth-tip { width: 210px; right: -8px; }
+
+  /* footer 간격 */
+  footer { padding: 20px 16px; }
+  .footer-links { gap: 12px; font-size: 11px; }
 }
