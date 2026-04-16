@@ -1,19 +1,13 @@
 /* ═══════════════════════════════════════════════════════════
-   ChipCalc — shared.css
-   모든 페이지 공통 스타일
+   ChipCalc — shared.css  (모든 페이지 공통)
 ═══════════════════════════════════════════════════════════ */
 
-/* ── CSS 변수 ── */
 :root {
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
           "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --mono: "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
-  --bg: #f2f2f7;
-  --surface: #fff;
-  --s2: #f9f9fb;
-  --s3: #f2f2f7;
-  --border: rgba(0,0,0,0.09);
-  --border2: rgba(0,0,0,0.15);
+  --bg: #f2f2f7; --surface: #fff; --s2: #f9f9fb; --s3: #f2f2f7;
+  --border: rgba(0,0,0,0.09); --border2: rgba(0,0,0,0.15);
   --l1: #1c1c1e; --l2: #3c3c43; --l3: #6b6b70; --l4: #aeaeb2;
   --blue: #0071e3; --blue-s: #d7eaff; --blue-t: #f0f6ff;
   --green: #30b94a; --green-s: #d4f0db; --green-t: #f0fbf3;
@@ -28,7 +22,6 @@
   --topbar-h: 48px;
 }
 
-/* ── 다크 모드 ── */
 body.dark {
   --bg: #1c1c1e; --surface: #2c2c2e; --s2: #3a3a3c; --s3: #2c2c2e;
   --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
@@ -43,8 +36,8 @@ body.dark {
   --topbar-bg: rgba(28,28,30,0.92);
 }
 
-/* ── 리셋 / body ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 body {
   background: var(--bg); color: var(--l1); font-family: var(--font);
   font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh;
@@ -62,7 +55,9 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 20px; gap: 8px;
 }
+
 .topbar-l { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
 .app-icon {
   width: 28px; height: 28px;
   background: linear-gradient(145deg, #0071e3, #0051a8);
@@ -70,10 +65,11 @@ body {
   color: #fff; font-size: 11px; font-weight: 700;
   box-shadow: 0 2px 6px rgba(0,113,227,0.35); flex-shrink: 0; text-decoration: none;
 }
-.app-name { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--l1); text-decoration: none; }
-.app-sub { font-size: 10px; color: var(--l3); margin-left: 3px; }
 
-/* 중앙 네비게이션 */
+.app-name { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--l1); text-decoration: none; }
+.app-sub  { font-size: 10px; color: var(--l3); margin-left: 3px; }
+
+/* 중앙 nav */
 .nav-center { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; }
 .nav-link {
   height: 30px; padding: 0 11px; border-radius: 6px;
@@ -81,14 +77,14 @@ body {
   text-decoration: none; display: flex; align-items: center; gap: 4px;
   transition: all 0.15s; white-space: nowrap;
 }
-.nav-link:hover { background: var(--s3); color: var(--l1); }
+.nav-link:hover  { background: var(--s3); color: var(--l1); }
 .nav-link.active { background: var(--blue-t); color: var(--blue); font-weight: 600; }
 
 /* 우측 */
 .topbar-r { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .ver { font-family: var(--mono); font-size: 10px; color: var(--l3); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; }
 
-/* ── 햄버거 (모바일 전용) ── */
+/* ── 햄버거 (모바일 전용, 데스크톱에서 숨김) ── */
 .nav-hamburger {
   display: none; width: 32px; height: 32px; border: none; border-radius: 8px;
   background: transparent; cursor: pointer;
@@ -111,24 +107,19 @@ body {
   flex-direction: column; gap: 2px;
 }
 .nav-drawer.open { display: flex; }
-.nav-drawer .nav-link { height: 42px; padding: 0 14px; border-radius: 8px; font-size: 13.5px; width: 100%; }
-/* 드로어 내 저장/기록 버튼 */
-.nav-drawer-actions {
-  display: none; /* 로그인 시 JS로 표시 */
-  gap: 8px; padding: 8px 0 4px;
-  border-top: 1px solid var(--border); margin-top: 4px;
-}
+.nav-drawer .nav-link { height: 42px; padding: 0 14px; border-radius: 8px; font-size: 13px; width: 100%; }
+.nav-drawer-actions { display: none; gap: 8px; padding: 8px 0 4px; border-top: 1px solid var(--border); margin-top: 4px; }
 .nav-drawer-actions.visible { display: flex; }
 .drawer-action-btn {
   flex: 1; height: 38px; border-radius: 8px; border: 1px solid var(--border2);
   background: var(--s3); color: var(--l2); font-family: var(--font);
-  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.15s;
   display: flex; align-items: center; justify-content: center; gap: 5px;
 }
 .drawer-action-btn:hover { background: var(--blue-t); color: var(--blue); border-color: var(--blue-s); }
 
 /* ══════════════════════════════════════
-   AUTH 버튼
+   AUTH 버튼 (통일된 스타일)
 ══════════════════════════════════════ */
 .auth-tip-wrap { position: relative; display: inline-flex; }
 .auth-icon { flex-shrink: 0; }
@@ -141,27 +132,28 @@ body {
   transition: all 0.15s; white-space: nowrap;
   display: inline-flex; align-items: center; gap: 2px;
 }
-.auth-btn:hover { background: var(--blue-t); color: var(--blue); }
-.auth-btn.logged { background: var(--green-t); color: var(--green); }
-.auth-btn.logged:hover { background: var(--green-s); }
+.auth-btn:hover        { background: var(--blue-t); color: var(--blue); }
+.auth-btn.logged       { color: var(--green); }
+.auth-btn.logged:hover { background: var(--green-t); }
 
+/* 저장 버튼 */
 .save-btn {
   height: 28px; padding: 0 11px; border: none; border-radius: 6px;
   font-family: var(--font); font-size: 11px; font-weight: 600;
   cursor: pointer; background: var(--green-t); color: var(--green);
-  transition: all 0.15s; white-space: nowrap; display: none;
-  align-items: center; gap: 4px;
+  transition: all 0.15s; white-space: nowrap;
+  display: none; align-items: center; gap: 4px;
 }
 .save-btn:hover { background: var(--green-s); }
 
-/* 로그인 info 툴팁 (로그아웃 상태 hover) */
+/* 로그아웃 상태 info 툴팁 */
 .auth-tip {
-  position: absolute; top: calc(100% + 6px); right: 0;
+  position: absolute; top: calc(100% + 8px); right: 0;
   background: #1c1c1e; color: #fff; border-radius: var(--r2);
   padding: 13px 15px; width: 240px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
   pointer-events: none; opacity: 0; transform: translateY(-4px);
-  transition: opacity 0.18s, transform 0.18s; z-index: 1000;
+  transition: opacity 0.18s, transform 0.18s; z-index: 300;
   font-size: 11px; line-height: 1.55;
 }
 .auth-tip::after {
@@ -169,45 +161,11 @@ body {
   width: 10px; height: 10px; background: #1c1c1e;
   transform: rotate(45deg); border-radius: 2px;
 }
-/* 로그아웃 상태일 때만 hover 툴팁 표시 */
-.auth-tip-wrap:not(:has(.auth-btn.logged)):hover .auth-tip { opacity: 1; transform: translateY(0); }
+.auth-tip-wrap:hover .auth-tip { opacity: 1; transform: translateY(0); }
 .auth-tip-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 8px; }
 .auth-tip-row { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; color: rgba(255,255,255,0.75); }
 .auth-tip-row:last-child { margin-bottom: 0; }
 .ati { flex-shrink: 0; font-size: 10px; color: var(--green); }
-
-/* ── 유저 드롭다운 메뉴 (로그인 후 클릭) ── */
-.user-menu {
-  position: absolute; top: calc(100% + 8px); right: 0;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r2); width: 220px;
-  box-shadow: 0 8px 28px rgba(0,0,0,0.14);
-  z-index: 1000; overflow: hidden;
-  opacity: 0; transform: translateY(-6px) scale(0.97);
-  pointer-events: none; transition: opacity 0.15s, transform 0.15s;
-}
-.user-menu.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-.user-menu-profile {
-  display: flex; align-items: center; gap: 10px;
-  padding: 14px 14px 12px;
-}
-.user-menu-avatar {
-  width: 36px; height: 36px; border-radius: 50%;
-  background: linear-gradient(145deg, var(--blue), #0051a8);
-  color: #fff; font-size: 14px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.user-menu-name { font-size: 13px; font-weight: 700; color: var(--l1); }
-.user-menu-email { font-size: 10.5px; color: var(--l3); margin-top: 1px; word-break: break-all; }
-.user-menu-divider { height: 1px; background: var(--border); margin: 0; }
-.user-menu-logout {
-  display: flex; align-items: center; gap: 8px;
-  width: 100%; padding: 11px 14px; border: none;
-  background: transparent; color: var(--red);
-  font-family: var(--font); font-size: 13px; font-weight: 600;
-  cursor: pointer; text-align: left; transition: background 0.12s;
-}
-.user-menu-logout:hover { background: var(--red-t); }
 
 /* ── 모드 / 언어 토글 ── */
 .mode-toggle, .lang-toggle {
@@ -235,28 +193,30 @@ footer a:hover { text-decoration: underline; }
 .footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
 
 /* ══════════════════════════════════════
-   모바일 (≤ 768px)
+   모바일 (≤ 768px) — topbar 공통
 ══════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* 네비게이션 */
-  .nav-center { display: none; }
+  .nav-center    { display: none; }
   .nav-hamburger { display: flex; }
+  .ver           { display: none; }
+  .lang-toggle   { display: none; }
 
-  /* 숨김 */
-  .ver { display: none; }
-  .lang-toggle { display: none; }
+  /* 모바일: IC 아이콘만, ChipCalc 글씨·부제목 숨김 */
+  .app-name { display: none; }
+  .app-sub  { display: none; }
 
-  /* auth 버튼: 아이콘만 원형 */
+  /* auth 버튼: 원형 아이콘만 */
   .auth-text { display: none; }
   .auth-btn {
     width: 34px; height: 34px; padding: 0; border-radius: 50%;
     font-size: 16px; justify-content: center;
     background: var(--s3); border: 1px solid var(--border);
   }
-  .auth-btn:hover { background: var(--blue-t); border-color: var(--blue-s); }
-  .auth-btn.logged { background: var(--green-t); border-color: var(--green-s); }
+  .auth-btn:hover        { background: var(--blue-t); border-color: var(--blue-s); }
+  .auth-btn.logged       { background: var(--green-t); border-color: var(--green-s); }
+  .auth-btn.logged:hover { background: var(--green-s); }
 
-  /* 저장/기록 버튼: 아이콘만 소형 */
+  /* 저장/기록: 원형 아이콘만 */
   .save-btn, #histBtn {
     width: 34px !important; height: 34px !important;
     padding: 0 !important; border-radius: 50% !important;
@@ -265,13 +225,9 @@ footer a:hover { text-decoration: underline; }
     color: var(--l2) !important;
   }
 
-  /* 툴팁 위치 */
-  .auth-tip { width: 200px; right: -8px; }
+  /* 툴팁: 살짝 좁게 */
+  .auth-tip { width: 210px; }
 
-  /* 유저 메뉴 위치 */
-  .user-menu { width: 200px; right: -8px; }
-
-  /* footer */
   footer { padding: 20px 16px; }
   .footer-links { gap: 12px; font-size: 11px; }
 }
