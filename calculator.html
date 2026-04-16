@@ -2553,25 +2553,7 @@ document.addEventListener('DOMContentLoaded',function(){
   setInterval(loadMarketData,5*60*1000);
 });
 </script>
-<script>
-/* ── 모바일 네비게이션 ── */
-function toggleMobileNav(){
-  var drawer=document.getElementById('navDrawer');
-  var btn=document.getElementById('navHamburger');
-  if(!drawer||!btn)return;
-  var isOpen=drawer.classList.toggle('open');
-  btn.classList.toggle('open',isOpen);
-}
-document.addEventListener('click',function(e){
-  var drawer=document.getElementById('navDrawer');
-  var btn=document.getElementById('navHamburger');
-  if(!drawer||!btn)return;
-  if(drawer.classList.contains('open')&&!drawer.contains(e.target)&&!btn.contains(e.target)){
-    drawer.classList.remove('open');
-    btn.classList.remove('open');
-  }
-});
-</script>
+<script src="shared-footer.js"></script>
 <script src="shared-styles.js"></script>
 <script>
 /* 드로어 저장/기록 버튼 표시 */
@@ -2581,5 +2563,6 @@ window.onAuthStateChanged = function(event, session) {
 };
 </script>
 <script src="shared-auth-supabase.js"></script>
+<footer></footer>
 </body>
 </html>

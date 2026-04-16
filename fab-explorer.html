@@ -480,35 +480,10 @@ function updateInfoPanel(data){
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 </script>
-<script>
-/* ── 모바일 nav ── */
-function toggleMobileNav(){
-  var d=document.getElementById('navDrawer'),b=document.getElementById('navHamburger');
-  if(!d||!b)return;var o=d.classList.toggle('open');b.classList.toggle('open',o);
-}
-document.addEventListener('click',function(e){
-  var d=document.getElementById('navDrawer'),b=document.getElementById('navHamburger');
-  if(!d||!b)return;
-  if(d.classList.contains('open')&&!d.contains(e.target)&&!b.contains(e.target)){
-    d.classList.remove('open');b.classList.remove('open');
-  }
-});
-/* ── Bottom Sheet 필터 ── */
-function openMobFilter(){
-  document.querySelector('.sidebar').classList.add('open');
-  document.getElementById('mobOverlay').classList.add('open');
-  document.getElementById('mobFilterBtn').style.display='none';
-}
-function closeMobFilter(){
-  document.querySelector('.sidebar').classList.remove('open');
-  document.getElementById('mobOverlay').classList.remove('open');
-  document.getElementById('mobFilterBtn').style.display='';
-}
-/* 리셋 버튼도 닫기 */
-var origReset=window.resetFilters;
-window.resetFilters=function(){if(origReset)origReset();};
-</script>
+
+<script src="shared-footer.js"></script>
 <script src="shared-styles.js"></script>
 <script src="shared-auth-supabase.js"></script>
+<footer></footer>
 </body>
 </html>

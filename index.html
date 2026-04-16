@@ -587,20 +587,9 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
 </div><!-- /main -->
 
 <!-- ── FOOTER ── -->
-<footer>
-  <div class="footer-links">
-    <a href="index.html">홈</a>
-    <a href="calculator.html">계산기</a>
-    <a href="fab-explorer.html">Fab Explorer</a>
-    <a href="guide-semiconductor-cost.html">원가 가이드</a>
-    <a href="guide-chips-per-wafer.html">DPW 가이드</a>
-    <a href="about.html">About</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="https://github.com/dudwns100/chipcalc" target="_blank" rel="noopener">GitHub</a>
-  </div>
-  <div>© 2026 ChipCalc · 모든 가격 데이터는 공개 자료 기반 추정치입니다.</div>
-</footer>
+<footer></footer>
 
+<script src="shared-footer.js"></script>
 <script src="shared-styles.js"></script>
 <script>
 /* ── TREND CHART 함수 ── */
@@ -699,20 +688,6 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
-<script>
-function toggleMobileNav(){
-  var d=document.getElementById('navDrawer'),b=document.getElementById('navHamburger');
-  if(!d||!b)return;
-  var o=d.classList.toggle('open');b.classList.toggle('open',o);
-}
-document.addEventListener('click',function(e){
-  var d=document.getElementById('navDrawer'),b=document.getElementById('navHamburger');
-  if(!d||!b)return;
-  if(d.classList.contains('open')&&!d.contains(e.target)&&!b.contains(e.target)){
-    d.classList.remove('open');b.classList.remove('open');
-  }
-});
-</script>
 <script src="shared-auth-supabase.js"></script>
 </body>
 </html>
