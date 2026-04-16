@@ -14,31 +14,14 @@
   --s3: #f2f2f7;
   --border: rgba(0,0,0,0.09);
   --border2: rgba(0,0,0,0.15);
-  --l1: #1c1c1e;
-  --l2: #3c3c43;
-  --l3: #6b6b70;
-  --l4: #aeaeb2;
-  --blue: #0071e3;
-  --blue-s: #d7eaff;
-  --blue-t: #f0f6ff;
-  --green: #30b94a;
-  --green-s: #d4f0db;
-  --green-t: #f0fbf3;
-  --orange: #f25a00;
-  --orange-s: #fde5d3;
-  --orange-t: #fff5ef;
-  --red: #e4362a;
-  --red-s: #fac5c1;
-  --red-t: #fff1f0;
-  --purple: #6e44cc;
-  --purple-s: #d4c8f5;
-  --purple-t: #f3f0ff;
-  --yellow: #c8960c;
-  --yellow-s: #fde68a;
-  --yellow-t: #fffbeb;
-  --r: 8px;
-  --r2: 12px;
-  --r3: 16px;
+  --l1: #1c1c1e; --l2: #3c3c43; --l3: #6b6b70; --l4: #aeaeb2;
+  --blue: #0071e3; --blue-s: #d7eaff; --blue-t: #f0f6ff;
+  --green: #30b94a; --green-s: #d4f0db; --green-t: #f0fbf3;
+  --orange: #f25a00; --orange-s: #fde5d3; --orange-t: #fff5ef;
+  --red: #e4362a; --red-s: #fac5c1; --red-t: #fff1f0;
+  --purple: #6e44cc; --purple-s: #d4c8f5; --purple-t: #f3f0ff;
+  --yellow: #c8960c; --yellow-s: #fde68a; --yellow-t: #fffbeb;
+  --r: 8px; --r2: 12px; --r3: 16px;
   --sh: 0 2px 8px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.05);
   --sh2: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
   --topbar-bg: rgba(255,255,255,0.92);
@@ -47,43 +30,24 @@
 
 /* ── 다크 모드 ── */
 body.dark {
-  --bg: #1c1c1e;
-  --surface: #2c2c2e;
-  --s2: #3a3a3c;
-  --s3: #2c2c2e;
-  --border: rgba(255,255,255,0.10);
-  --border2: rgba(255,255,255,0.18);
-  --l1: #f2f2f7;
-  --l2: #ebebf5;
-  --l3: #aeaeb2;
-  --l4: #636366;
-  --blue-t: rgba(0,113,227,0.18);
-  --blue-s: rgba(0,113,227,0.35);
-  --green-t: rgba(48,185,74,0.15);
-  --green-s: rgba(48,185,74,0.35);
-  --orange-t: rgba(242,90,0,0.15);
-  --orange-s: rgba(242,90,0,0.35);
-  --red-t: rgba(228,54,42,0.15);
-  --red-s: rgba(228,54,42,0.35);
-  --purple-t: rgba(110,68,204,0.18);
-  --purple-s: rgba(110,68,204,0.35);
+  --bg: #1c1c1e; --surface: #2c2c2e; --s2: #3a3a3c; --s3: #2c2c2e;
+  --border: rgba(255,255,255,0.10); --border2: rgba(255,255,255,0.18);
+  --l1: #f2f2f7; --l2: #ebebf5; --l3: #aeaeb2; --l4: #636366;
+  --blue-t: rgba(0,113,227,0.18); --blue-s: rgba(0,113,227,0.35);
+  --green-t: rgba(48,185,74,0.15); --green-s: rgba(48,185,74,0.35);
+  --orange-t: rgba(242,90,0,0.15); --orange-s: rgba(242,90,0,0.35);
+  --red-t: rgba(228,54,42,0.15); --red-s: rgba(228,54,42,0.35);
+  --purple-t: rgba(110,68,204,0.18); --purple-s: rgba(110,68,204,0.35);
   --sh: 0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.18);
   --sh2: 0 4px 16px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.20);
   --topbar-bg: rgba(28,28,30,0.92);
 }
 
-/* ── 리셋 ── */
+/* ── 리셋 / body ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* ── body ── */
 body {
-  background: var(--bg);
-  color: var(--l1);
-  font-family: var(--font);
-  font-size: 13px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  background: var(--bg); color: var(--l1); font-family: var(--font);
+  font-size: 13px; line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh;
 }
 
 /* ══════════════════════════════════════
@@ -91,263 +55,170 @@ body {
 ══════════════════════════════════════ */
 .topbar {
   background: var(--topbar-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 200;
+  position: sticky; top: 0; z-index: 200;
   height: var(--topbar-h);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  gap: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; gap: 8px;
 }
-
-.topbar-l {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
+.topbar-l { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 .app-icon {
-  width: 28px;
-  height: 28px;
+  width: 28px; height: 28px;
   background: linear-gradient(145deg, #0071e3, #0051a8);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  box-shadow: 0 2px 6px rgba(0,113,227,0.35);
-  flex-shrink: 0;
-  text-decoration: none;
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 11px; font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0,113,227,0.35); flex-shrink: 0; text-decoration: none;
 }
+.app-name { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; color: var(--l1); text-decoration: none; }
+.app-sub { font-size: 10px; color: var(--l3); margin-left: 3px; }
 
-.app-name {
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--l1);
-  text-decoration: none;
-}
-
-.app-sub {
-  font-size: 10px;
-  color: var(--l3);
-  margin-left: 3px;
-}
-
-/* 중앙 네비게이션 (데스크톱) */
-.nav-center {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  flex: 1;
-  justify-content: center;
-}
-
+/* 중앙 네비게이션 */
+.nav-center { display: flex; align-items: center; gap: 2px; flex: 1; justify-content: center; }
 .nav-link {
-  height: 30px;
-  padding: 0 11px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--l2);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.15s;
-  white-space: nowrap;
+  height: 30px; padding: 0 11px; border-radius: 6px;
+  font-size: 12px; font-weight: 500; color: var(--l2);
+  text-decoration: none; display: flex; align-items: center; gap: 4px;
+  transition: all 0.15s; white-space: nowrap;
 }
 .nav-link:hover { background: var(--s3); color: var(--l1); }
 .nav-link.active { background: var(--blue-t); color: var(--blue); font-weight: 600; }
 
-/* 우측 영역 */
-.topbar-r {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
+/* 우측 */
+.topbar-r { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.ver { font-family: var(--mono); font-size: 10px; color: var(--l3); border: 1px solid var(--border); border-radius: 20px; padding: 2px 8px; }
 
-.ver {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--l3);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 2px 8px;
-}
-
-/* ── 햄버거 버튼 (모바일 전용) ── */
+/* ── 햄버거 (모바일 전용) ── */
 .nav-hamburger {
-  display: none;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 8px;
-  background: transparent;
-  cursor: pointer;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 0;
-  flex-shrink: 0;
+  display: none; width: 32px; height: 32px; border: none; border-radius: 8px;
+  background: transparent; cursor: pointer;
+  flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  padding: 0; flex-shrink: 0;
 }
-.nav-hamburger span {
-  display: block;
-  width: 18px;
-  height: 2px;
-  background: var(--l2);
-  border-radius: 2px;
-  transition: all 0.2s;
-}
+.nav-hamburger span { display: block; width: 18px; height: 2px; background: var(--l2); border-radius: 2px; transition: all 0.2s; }
 .nav-hamburger:hover { background: var(--s3); }
 .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .nav-hamburger.open span:nth-child(2) { opacity: 0; }
 .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-/* ── 모바일 드로어 네비게이션 ── */
+/* ── 모바일 드로어 ── */
 .nav-drawer {
-  display: none;
-  position: fixed;
-  top: var(--topbar-h);
-  left: 0;
-  right: 0;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  display: none; position: fixed;
+  top: var(--topbar-h); left: 0; right: 0;
+  background: var(--surface); border-bottom: 1px solid var(--border);
   box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  z-index: 199;
-  padding: 8px 12px 12px;
-  flex-direction: column;
-  gap: 2px;
+  z-index: 199; padding: 8px 12px 12px;
+  flex-direction: column; gap: 2px;
 }
 .nav-drawer.open { display: flex; }
-.nav-drawer .nav-link {
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  width: 100%;
+.nav-drawer .nav-link { height: 42px; padding: 0 14px; border-radius: 8px; font-size: 13.5px; width: 100%; }
+/* 드로어 내 저장/기록 버튼 */
+.nav-drawer-actions {
+  display: none; /* 로그인 시 JS로 표시 */
+  gap: 8px; padding: 8px 0 4px;
+  border-top: 1px solid var(--border); margin-top: 4px;
 }
+.nav-drawer-actions.visible { display: flex; }
+.drawer-action-btn {
+  flex: 1; height: 38px; border-radius: 8px; border: 1px solid var(--border2);
+  background: var(--s3); color: var(--l2); font-family: var(--font);
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.drawer-action-btn:hover { background: var(--blue-t); color: var(--blue); border-color: var(--blue-s); }
 
 /* ══════════════════════════════════════
-   AUTH 버튼 & 툴팁
+   AUTH 버튼
 ══════════════════════════════════════ */
-.auth-tip-wrap {
-  position: relative;
-  display: inline-block;
-}
+.auth-tip-wrap { position: relative; display: inline-flex; }
+.auth-icon { flex-shrink: 0; }
+.auth-text { margin-left: 2px; }
 
 .auth-btn {
-  height: 28px;
-  padding: 0 11px;
-  border: none;
-  border-radius: 6px;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: var(--l2);
-  transition: all 0.15s;
-  white-space: nowrap;
+  height: 28px; padding: 0 11px; border: none; border-radius: 6px;
+  font-family: var(--font); font-size: 11px; font-weight: 600;
+  cursor: pointer; background: transparent; color: var(--l2);
+  transition: all 0.15s; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 2px;
 }
 .auth-btn:hover { background: var(--blue-t); color: var(--blue); }
 .auth-btn.logged { background: var(--green-t); color: var(--green); }
+.auth-btn.logged:hover { background: var(--green-s); }
 
 .save-btn {
-  height: 28px;
-  padding: 0 11px;
-  border: none;
-  border-radius: 6px;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--green-t);
-  color: var(--green);
-  transition: all 0.15s;
-  white-space: nowrap;
-  display: none;
+  height: 28px; padding: 0 11px; border: none; border-radius: 6px;
+  font-family: var(--font); font-size: 11px; font-weight: 600;
+  cursor: pointer; background: var(--green-t); color: var(--green);
+  transition: all 0.15s; white-space: nowrap; display: none;
+  align-items: center; gap: 4px;
 }
 .save-btn:hover { background: var(--green-s); }
 
+/* 로그인 info 툴팁 (로그아웃 상태 hover) */
 .auth-tip {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  background: #1c1c1e;
-  color: #fff;
-  border-radius: var(--r2);
-  padding: 13px 15px;
-  width: 240px;
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: #1c1c1e; color: #fff; border-radius: var(--r2);
+  padding: 13px 15px; width: 240px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-  pointer-events: none;
-  opacity: 0;
-  transform: translateY(-4px);
-  transition: opacity 0.18s, transform 0.18s;
-  z-index: 1000;
-  font-size: 11px;
-  line-height: 1.55;
+  pointer-events: none; opacity: 0; transform: translateY(-4px);
+  transition: opacity 0.18s, transform 0.18s; z-index: 1000;
+  font-size: 11px; line-height: 1.55;
 }
 .auth-tip::after {
-  content: '';
-  position: absolute;
-  top: -5px;
-  right: 18px;
-  width: 10px;
-  height: 10px;
-  background: #1c1c1e;
-  transform: rotate(45deg);
-  border-radius: 2px;
+  content: ''; position: absolute; top: -5px; right: 18px;
+  width: 10px; height: 10px; background: #1c1c1e;
+  transform: rotate(45deg); border-radius: 2px;
 }
-.auth-tip-wrap:hover .auth-tip { opacity: 1; transform: translateY(0); }
+/* 로그아웃 상태일 때만 hover 툴팁 표시 */
+.auth-tip-wrap:not(:has(.auth-btn.logged)):hover .auth-tip { opacity: 1; transform: translateY(0); }
 .auth-tip-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 8px; }
-.auth-tip-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-  margin-bottom: 5px;
-  color: rgba(255,255,255,0.75);
-}
+.auth-tip-row { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 5px; color: rgba(255,255,255,0.75); }
 .auth-tip-row:last-child { margin-bottom: 0; }
 .ati { flex-shrink: 0; font-size: 10px; color: var(--green); }
 
-/* ── auth 버튼 내부 구조 ── */
-.auth-icon { flex-shrink: 0; }
-.auth-text { margin-left: 3px; }
+/* ── 유저 드롭다운 메뉴 (로그인 후 클릭) ── */
+.user-menu {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r2); width: 220px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.14);
+  z-index: 1000; overflow: hidden;
+  opacity: 0; transform: translateY(-6px) scale(0.97);
+  pointer-events: none; transition: opacity 0.15s, transform 0.15s;
+}
+.user-menu.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+.user-menu-profile {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 14px 12px;
+}
+.user-menu-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(145deg, var(--blue), #0051a8);
+  color: #fff; font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.user-menu-name { font-size: 13px; font-weight: 700; color: var(--l1); }
+.user-menu-email { font-size: 10.5px; color: var(--l3); margin-top: 1px; word-break: break-all; }
+.user-menu-divider { height: 1px; background: var(--border); margin: 0; }
+.user-menu-logout {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 11px 14px; border: none;
+  background: transparent; color: var(--red);
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  cursor: pointer; text-align: left; transition: background 0.12s;
+}
+.user-menu-logout:hover { background: var(--red-t); }
 
 /* ── 모드 / 언어 토글 ── */
 .mode-toggle, .lang-toggle {
-  display: flex;
-  align-items: center;
-  background: var(--s3);
-  border: 1px solid var(--border2);
-  border-radius: 20px;
-  padding: 2px;
+  display: flex; align-items: center;
+  background: var(--s3); border: 1px solid var(--border2); border-radius: 20px; padding: 2px;
 }
 .mode-btn, .lang-btn {
-  height: 22px;
-  padding: 0 9px;
-  border: none;
-  border-radius: 18px;
-  font-family: var(--font);
-  font-size: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  background: transparent;
-  color: var(--l3);
-  transition: all 0.15s;
-  white-space: nowrap;
-  letter-spacing: 0.03em;
+  height: 22px; padding: 0 9px; border: none; border-radius: 18px;
+  font-family: var(--font); font-size: 10px; font-weight: 600;
+  cursor: pointer; background: transparent; color: var(--l3);
+  transition: all 0.15s; white-space: nowrap; letter-spacing: 0.03em;
 }
 .mode-btn.active { background: var(--surface); color: var(--l1); box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 .lang-btn.active { background: var(--blue); color: #fff; box-shadow: 0 1px 3px rgba(0,113,227,0.3); }
@@ -356,57 +227,51 @@ body {
    FOOTER
 ══════════════════════════════════════ */
 footer {
-  text-align: center;
-  padding: 28px 20px;
-  font-size: 11.5px;
-  color: var(--l4);
-  border-top: 1px solid var(--border);
-  background: var(--surface);
+  text-align: center; padding: 28px 20px; font-size: 11.5px;
+  color: var(--l4); border-top: 1px solid var(--border); background: var(--surface);
 }
 footer a { color: var(--blue); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
-.footer-links {
-  display: flex;
-  gap: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
+.footer-links { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 10px; }
 
 /* ══════════════════════════════════════
-   모바일 공통 (≤ 768px)
+   모바일 (≤ 768px)
 ══════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* 네비게이션: 중앙 링크 숨기고 햄버거 표시 */
+  /* 네비게이션 */
   .nav-center { display: none; }
   .nav-hamburger { display: flex; }
 
-  /* 버전, 언어 토글 숨김 */
+  /* 숨김 */
   .ver { display: none; }
   .lang-toggle { display: none; }
 
-  /* auth 버튼: 아이콘만 표시 (텍스트 숨김) */
+  /* auth 버튼: 아이콘만 원형 */
   .auth-text { display: none; }
   .auth-btn {
-    width: 34px;
-    height: 34px;
-    padding: 0;
-    border-radius: 50%;
-    font-size: 16px;
-    justify-content: center;
-    background: var(--s3);
-    border: 1px solid var(--border);
+    width: 34px; height: 34px; padding: 0; border-radius: 50%;
+    font-size: 16px; justify-content: center;
+    background: var(--s3); border: 1px solid var(--border);
   }
   .auth-btn:hover { background: var(--blue-t); border-color: var(--blue-s); }
   .auth-btn.logged { background: var(--green-t); border-color: var(--green-s); }
 
-  /* 모드 토글: 좀 더 컴팩트 */
-  .mode-btn { padding: 0 7px; }
+  /* 저장/기록 버튼: 아이콘만 소형 */
+  .save-btn, #histBtn {
+    width: 34px !important; height: 34px !important;
+    padding: 0 !important; border-radius: 50% !important;
+    font-size: 14px !important; justify-content: center !important;
+    background: var(--s3) !important; border: 1px solid var(--border) !important;
+    color: var(--l2) !important;
+  }
 
-  /* 툴팁 위치 보정 */
-  .auth-tip { width: 210px; right: -8px; }
+  /* 툴팁 위치 */
+  .auth-tip { width: 200px; right: -8px; }
 
-  /* footer 간격 */
+  /* 유저 메뉴 위치 */
+  .user-menu { width: 200px; right: -8px; }
+
+  /* footer */
   footer { padding: 20px 16px; }
   .footer-links { gap: 12px; font-size: 11px; }
 }

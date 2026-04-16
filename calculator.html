@@ -567,9 +567,9 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
     </button>
   <div class="topbar-r">
     <!-- 저장 기록 보기 -->
-    <button class="auth-btn" id="histBtn" onclick="openHistory()" style="display:none">📋 기록</button>
+    <button class="auth-btn" id="histBtn" onclick="openHistory()" style="display:none"><span class="auth-icon">📋</span><span class="auth-text"> 기록</span></button>
     <!-- 현재 계산 저장 -->
-    <button class="save-btn" id="saveBtn" onclick="openSaveModal()" style="display:none">💾 저장</button>
+    <button class="save-btn" id="saveBtn" onclick="openSaveModal()" style="display:none"><span class="auth-icon">💾</span><span class="auth-text"> 저장</span></button>
     <!-- 로그인/로그아웃 -->
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
@@ -602,6 +602,11 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
   <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
   <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+  <!-- 로그인 후 저장/기록 (JS로 표시) -->
+  <div class="nav-drawer-actions" id="drawerActions">
+    <button class="drawer-action-btn" onclick="openHistory();toggleMobileNav()">📋 저장 기록</button>
+    <button class="drawer-action-btn" onclick="openSaveModal();toggleMobileNav()">💾 저장</button>
+  </div>
 </nav>
 
 <div class="layout">
@@ -2593,6 +2598,13 @@ document.addEventListener('click',function(e){
 });
 </script>
 <script src="shared-styles.js"></script>
+<script>
+/* 드로어 저장/기록 버튼 표시 */
+window.onAuthStateChanged = function(event, session) {
+  var da = document.getElementById('drawerActions');
+  if(da) da.classList.toggle('visible', !!session);
+};
+</script>
 <script src="shared-auth-supabase.js"></script>
 </body>
 </html>

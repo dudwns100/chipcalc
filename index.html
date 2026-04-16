@@ -17,9 +17,8 @@
 <meta property="og:url" content="https://dudwns100.github.io/chipcalc/">
 <meta property="og:locale" content="ko_KR">
 
-<link rel="stylesheet" href="shared.css">
-
 <!-- Google Analytics GA4 -->
+<link rel="stylesheet" href="shared.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -30,6 +29,8 @@
 
 <style>
 /* ═══ 글꼴 강제 적용 (모든 요소) ═══ */
+* { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important; }
+body, html, input, button, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6, table, td, th, tr, label, a, label, input::placeholder { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important; }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -65,8 +66,8 @@ body.dark{
 
 body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
 
-
-
+/* ── TOPBAR (통일된 레이아웃) ── */
+.auth-tip-wrap:hover 
 /* ── HERO ── */
 .hero{background:linear-gradient(145deg,#0071e3 0%,#0051a8 100%);padding:40px 24px 36px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none}
@@ -198,10 +199,6 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
 .qc-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;color:rgba(255,255,255,0.6);z-index:1}
 
 /* ── FOOTER ── */
-footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;font-size:11px;color:var(--l4)}
-footer a{color:var(--blue);text-decoration:none}
-footer a:hover{text-decoration:underline}
-.footer-links{display:flex;justify-content:center;gap:16px;margin-bottom:8px;flex-wrap:wrap}
 
 /* ── SPINNER ── */
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
@@ -212,22 +209,40 @@ footer a:hover{text-decoration:underline}
   .ir-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:900px){
+
   .main{grid-template-columns:1fr}
   .sidebar{order:-1}
   .tool-grid{grid-template-columns:1fr 1fr}
   .hero-stats{display:none}
   .hero-inner{grid-template-columns:1fr}
-  .nav-center{display:none}
-}
+  }
 @media(max-width:600px){
+
   .tool-grid{grid-template-columns:1fr}
   .ir-grid{grid-template-columns:1fr}
   .hero-title{font-size:20px}
-  .topbar{padding:0 16px;height:44px}
-  .topbar-r{gap:4px}
-  .mode-btn{font-size:9px;padding:0 7px}
-  .lang-btn{font-size:9px;padding:0 8px}
-  .ver{font-size:9px;padding:1px 6px}
+          }
+
+/* ── 모바일 추가 (768px 이하) ── */
+@media(max-width:768px){
+  .hero{padding:28px 16px 24px}
+  .hero-title{font-size:20px}
+  .hero-sub{font-size:12.5px}
+  .hero-inner{grid-template-columns:1fr}
+  .hero-stats{display:none}
+  .btn-primary,.btn-ghost{height:32px;font-size:12px;padding:0 14px}
+  .main{grid-template-columns:1fr;padding:14px 14px 40px;gap:12px}
+  .tool-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .tool-card{padding:12px}
+  .ir-grid{grid-template-columns:1fr 1fr}
+  .sidebar{order:-1}
+  .qc-widget{padding:14px}
+  .news-item{padding:10px 12px}
+}
+@media(max-width:480px){
+  .tool-grid{grid-template-columns:1fr}
+  .ir-grid{grid-template-columns:1fr}
+  .main{padding:12px 12px 32px}
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -252,6 +267,9 @@ footer a:hover{text-decoration:underline}
     <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW</a>
   </nav>
   
+  <!-- 햄버거 (모바일) -->
+  <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+
   <div class="topbar-r">
     <!-- 저장 기록 보기 (계산기 페이지에서만 사용) -->
     <button class="auth-btn" id="histBtn" onclick="openHistory()" style="display:none">📋 기록</button>
@@ -281,6 +299,15 @@ footer a:hover{text-decoration:underline}
     <span class="ver">v0.9</span>
   </div>
 </div>
+
+<!-- 모바일 네비게이션 드로어 -->
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link active" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+  <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+</nav>
 
 <!-- ── HERO ── -->
 <div class="hero">
@@ -674,6 +701,21 @@ document.addEventListener('DOMContentLoaded', function(){
   drawTrendChart('trend-can', 'down');
   drawTrendChart('trend-adas', 'up');
   drawTrendChart('trend-sensor', 'flat');
+});
+</script>
+
+<script>
+function toggleMobileNav(){
+  var d=document.getElementById('navDrawer'),b=document.getElementById('navHamburger');
+  if(!d||!b)return;
+  var o=d.classList.toggle('open');b.classList.toggle('open',o);
+}
+document.addEventListener('click',function(e){
+  var d=document.getElementById('navDrawer'),b=document.getElementById('navHamburger');
+  if(!d||!b)return;
+  if(d.classList.contains('open')&&!d.contains(e.target)&&!b.contains(e.target)){
+    d.classList.remove('open');b.classList.remove('open');
+  }
 });
 </script>
 <script src="shared-auth-supabase.js"></script>
