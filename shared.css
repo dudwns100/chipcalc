@@ -321,6 +321,10 @@ body {
 .auth-tip-row:last-child { margin-bottom: 0; }
 .ati { flex-shrink: 0; font-size: 10px; color: var(--green); }
 
+/* ── auth 버튼 내부 구조 ── */
+.auth-icon { flex-shrink: 0; }
+.auth-text { margin-left: 3px; }
+
 /* ── 모드 / 언어 토글 ── */
 .mode-toggle, .lang-toggle {
   display: flex;
@@ -377,12 +381,27 @@ footer a:hover { text-decoration: underline; }
   .nav-center { display: none; }
   .nav-hamburger { display: flex; }
 
-  /* 우측: 모드/언어/ver 숨김 — 화면 너무 좁음 */
+  /* 버전, 언어 토글 숨김 */
   .ver { display: none; }
   .lang-toggle { display: none; }
 
-  /* auth 버튼 텍스트 축약 */
-  .auth-btn { font-size: 10px; padding: 0 8px; }
+  /* auth 버튼: 아이콘만 표시 (텍스트 숨김) */
+  .auth-text { display: none; }
+  .auth-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 16px;
+    justify-content: center;
+    background: var(--s3);
+    border: 1px solid var(--border);
+  }
+  .auth-btn:hover { background: var(--blue-t); border-color: var(--blue-s); }
+  .auth-btn.logged { background: var(--green-t); border-color: var(--green-s); }
+
+  /* 모드 토글: 좀 더 컴팩트 */
+  .mode-btn { padding: 0 7px; }
 
   /* 툴팁 위치 보정 */
   .auth-tip { width: 210px; right: -8px; }

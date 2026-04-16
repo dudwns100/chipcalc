@@ -47,12 +47,12 @@ function _updateAuthUI() {
     var meta = currentUser.user_metadata || {};
     var name = meta.full_name || meta.name || '사용자';
     var firstName = name.split(' ')[0];
-    authBtn.textContent = '👤 ' + firstName + ' · 로그아웃';
+    authBtn.innerHTML = '<span class="auth-icon">👤</span><span class="auth-text"> ' + firstName + ' · 로그아웃</span>';
     authBtn.classList.add('logged');
     if (saveBtn) saveBtn.style.display = 'flex';
     if (histBtn) histBtn.style.display = 'flex';
   } else {
-    authBtn.textContent = '🔐 Google 로그인';
+    authBtn.innerHTML = '<span class="auth-icon">🔐</span><span class="auth-text"> Google 로그인</span>';
     authBtn.classList.remove('logged');
     if (saveBtn) saveBtn.style.display = 'none';
     if (histBtn) histBtn.style.display = 'none';
