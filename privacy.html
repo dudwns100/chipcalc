@@ -24,6 +24,14 @@ a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
 .highlight-box{background:var(--blue-t);border:1px solid var(--blue-s);border-radius:10px;padding:16px 20px;margin:16px 0}
 .highlight-box p{margin:0;color:#0051a8;font-size:13px}
+
+/* ── 모바일 ── */
+@media(max-width:768px){
+  .wrap{padding:32px 16px 60px}
+  h1{font-size:22px}
+  h2{font-size:15px}
+  p,li{font-size:13px}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -34,7 +42,7 @@ a:hover{text-decoration:underline}
     <a class="app-icon" href="index.html">IC</a>
     <div>
       <a class="app-name" href="index.html">ChipCalc</a>
-      <span class="app-sub">· 반도체 원가 &amp; 시장 인텔리전스</span>
+      <span class="app-sub">· Privacy</span>
     </div>
   </div>
   <nav class="nav-center">
@@ -66,6 +74,7 @@ a:hover{text-decoration:underline}
       <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
     </div>
     <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
   </div>
 </div>
 

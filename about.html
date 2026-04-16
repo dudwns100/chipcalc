@@ -42,6 +42,22 @@ a:hover{text-decoration:underline}
 .update-ver{font-size:12px;font-weight:700;color:var(--blue);font-family:var(--mono)}
 .update-date{font-size:11px;color:var(--l4);margin-left:8px}
 .update-desc{font-size:13px;color:var(--l2);margin-top:3px}
+
+/* ── 모바일 ── */
+@media(max-width:768px){
+  .hero{padding:40px 18px 32px}
+  .hero h1{font-size:22px}
+  .wrap{padding:32px 16px 60px}
+  .feat-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .feat-card{padding:14px}
+  h2{font-size:17px;margin-top:28px}
+  .spec-table{font-size:12px}
+  thead th,tbody td{padding:8px 10px}
+  .update-log{padding-left:12px}
+}
+@media(max-width:420px){
+  .feat-grid{grid-template-columns:1fr}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -52,7 +68,7 @@ a:hover{text-decoration:underline}
     <a class="app-icon" href="index.html">IC</a>
     <div>
       <a class="app-name" href="index.html">ChipCalc</a>
-      <span class="app-sub">· 반도체 원가 &amp; 시장 인텔리전스</span>
+      <span class="app-sub">· About</span>
     </div>
   </div>
   <nav class="nav-center">
@@ -84,9 +100,19 @@ a:hover{text-decoration:underline}
       <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
     </div>
     <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
   </div>
 </div>
 
+
+<!-- 모바일 네비게이션 드로어 -->
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+  <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+</nav>
 <div class="hero">
   <h1>반도체 추정원가 계산기</h1>
   <p>차량용 반도체 Die 원가부터 판매가까지, 빠르고 정확한 원가 추정 도구.<br>

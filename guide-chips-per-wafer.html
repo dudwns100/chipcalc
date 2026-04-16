@@ -174,7 +174,7 @@ tbody tr:hover td{background:var(--s2)}
     <a class="app-icon" href="index.html">IC</a>
     <div>
       <a class="app-name" href="index.html">ChipCalc</a>
-      <span class="app-sub">· 반도체 원가 &amp; 시장 인텔리전스</span>
+      <span class="app-sub">· DPW 가이드</span>
     </div>
   </div>
   <nav class="nav-center">
@@ -205,6 +205,7 @@ tbody tr:hover td{background:var(--s2)}
       <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
     </div>
     <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
   </div>
 </div>
 
@@ -222,6 +223,15 @@ tbody tr:hover td{background:var(--s2)}
   </div>
 </div>
 
+
+<!-- 모바일 네비게이션 드로어 -->
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+  <a class="nav-link active" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+</nav>
 <!-- TOC -->
 <div class="toc-bar">
   <div class="toc-inner">
