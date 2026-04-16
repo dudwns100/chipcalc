@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>
+/* OAuth 리다이렉트 복귀 시 index 화면 flash 방지 */
+(function(){
+  try {
+    if (localStorage.getItem('chipcalc-return') &&
+        window.location.hash.indexOf('access_token') >= 0) {
+      /* CSS로 즉시 숨김 */
+      var s = document.createElement('style');
+      s.id = 'auth-hide';
+      s.textContent = 'body{opacity:0!important;transition:none!important}';
+      document.head.appendChild(s);
+    }
+  } catch(e) {}
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ChipCalc — 반도체 원가 & 시장 인텔리전스</title>
@@ -33,6 +48,7 @@
 body, html, input, button, select, textarea, div, span, p, h1, h2, h3, h4, h5, h6, table, td, th, tr, label, a, label, input::placeholder { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important; }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{overflow-x:hidden}
 :root{
   --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
   --mono:"SF Mono","Menlo","Monaco","Consolas",monospace;
@@ -64,7 +80,7 @@ body.dark{
   --topbar-bg:rgba(28,28,30,0.92);
 }
 
-body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
 
 /* ── TOPBAR (통일된 레이아웃) ── */
 .auth-tip-wrap:hover 
@@ -72,7 +88,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
 .hero{background:linear-gradient(145deg,#0071e3 0%,#0051a8 100%);padding:40px 24px 36px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none}
 .hero::after{content:'';position:absolute;bottom:-80px;left:-20px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none}
-.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;position:relative;z-index:1}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;position:relative;z-index:1;overflow-x:hidden}
 .hero-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.03em;line-height:1.2;margin-bottom:8px}
 .hero-sub{font-size:13px;color:rgba(255,255,255,0.72);line-height:1.6;max-width:520px}
 .hero-cta{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
@@ -214,7 +230,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   .sidebar{order:-1}
   .tool-grid{grid-template-columns:1fr 1fr}
   .hero-stats{display:none}
-  .hero-inner{grid-template-columns:1fr}
+  .hero-inner{grid-template-columns:1fr;overflow-x:hidden}
   }
 @media(max-width:600px){
 
@@ -228,7 +244,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   .hero{padding:28px 16px 24px}
   .hero-title{font-size:20px}
   .hero-sub{font-size:12.5px}
-  .hero-inner{grid-template-columns:1fr}
+  .hero-inner{grid-template-columns:1fr;overflow-x:hidden}
   .hero-stats{display:none}
   .btn-primary,.btn-ghost{height:32px;font-size:12px;padding:0 14px}
   .main{grid-template-columns:1fr;padding:14px 14px 40px;gap:12px}

@@ -22,6 +22,12 @@ function _initSupabase() {
 
 /* ── 인증 상태 리스너 ── */
 function _setupAuthListener() {
+  /* auth-hide 스타일 제거 (리다이렉트 없으면 화면 복원) */
+  (function(){
+    var s = document.getElementById('auth-hide');
+    if (s) s.parentNode.removeChild(s);
+  })();
+
   /* 페이지 로드 시: 세션 + returnTo 동시 확인 → 가장 신뢰성 높음 */
   supa.auth.getSession().then(function(res) {
     var session = res.data && res.data.session;
