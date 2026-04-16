@@ -266,16 +266,12 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
     <a class="nav-link" href="guide-semiconductor-cost.html">💰 가이드</a>
     <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW</a>
   </nav>
-  
-  <!-- 햄버거 (모바일) -->
-  <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
-
   <div class="topbar-r">
     <!-- 저장 기록 보기 (계산기 페이지에서만 사용) -->
     <!-- 현재 계산 저장 (계산기 페이지에서만 사용) -->
     <!-- 로그인/로그아웃 -->
     <div class="auth-tip-wrap">
-      <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
         <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
@@ -295,6 +291,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
       <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
     </div>
     <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
   </div>
 </div>
 

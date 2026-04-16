@@ -105,7 +105,6 @@ body.dark .sim-card.dn{background:rgba(48,185,74,0.18)}
 body.dark .sel-badge{background:rgba(0,113,227,0.18)}
 body.dark .ptrack{background:var(--s2)}
 
-
 /* ── LAYOUT ── */
 .layout{display:grid;grid-template-columns:440px 1fr 190px;height:calc(100vh - 48px);overflow:hidden}
 .lpanel{background:var(--surface);border-right:1px solid var(--border);padding:12px 14px;overflow-y:auto;height:100%}
@@ -329,30 +328,8 @@ input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;b
 .sim-drow-diff.up{color:var(--red)}.sim-drow-diff.dn{color:var(--green)}
 
 /* ── SUPABASE / AUTH / SAVE ── */
-.auth-btn{display:flex;align-items:center;gap:5px;height:28px;padding:0 11px;border-radius:7px;border:1.5px solid var(--border2);background:var(--surface);color:var(--l2);font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;white-space:nowrap}
-.auth-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-t)}
-.auth-btn.logged{border-color:var(--green-s);background:var(--green-t);color:var(--green)}
 /* ── AUTH 툴팁 ── */
-.auth-tip-wrap{position:relative;display:inline-flex}
-.auth-tip{
-  position:absolute;top:calc(100% + 8px);right:0;width:230px;
-  background:#1c1c1e;color:#fff;border-radius:var(--r2);padding:13px 15px;
-  font-size:11.5px;line-height:1.6;box-shadow:0 8px 24px rgba(0,0,0,0.2);
-  pointer-events:none;opacity:0;transform:translateY(-4px);
-  transition:opacity 0.18s,transform 0.18s;z-index:999;white-space:normal;
-}
-.auth-tip::after{
-  content:'';position:absolute;top:-5px;right:20px;
-  width:10px;height:10px;background:#1c1c1e;transform:rotate(45deg);border-radius:2px;
-}
-.auth-tip-wrap:hover .auth-tip{opacity:1;transform:translateY(0)}
-.auth-tip-title{font-size:12px;font-weight:700;color:#fff;margin-bottom:8px;display:flex;align-items:center;gap:5px}
-.auth-tip-row{display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;color:rgba(255,255,255,0.75);font-size:11px}
-.auth-tip-row:last-child{margin-bottom:0}
-.auth-tip-row .ati{flex-shrink:0}
-.save-btn{display:flex;align-items:center;gap:5px;height:28px;padding:0 12px;border-radius:7px;border:none;background:var(--blue);color:#fff;font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;transition:all 0.15s;white-space:nowrap;box-shadow:0 1px 4px rgba(0,113,227,0.25)}
-.save-btn:hover{background:#005cc4}
-.save-btn:disabled{background:var(--l4);cursor:default;box-shadow:none}
+.auth-tip-row .save-btn:disabled{background:var(--l4);cursor:default;box-shadow:none}
 
 /* Save modal */
 .save-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:500;align-items:center;justify-content:center}
@@ -560,11 +537,6 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
     <a class="nav-link" href="guide-semiconductor-cost.html">💰 가이드</a>
     <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW</a>
   </nav>
-
-    <!-- 햄버거 버튼 (모바일 전용, CSS로 표시) -->
-    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴">
-      <span></span><span></span><span></span>
-    </button>
   <div class="topbar-r">
     <!-- 저장 기록 보기 -->
     <button class="auth-btn" id="histBtn" onclick="openHistory()" style="display:none"><span class="auth-icon">📋</span><span class="auth-text"> 기록</span></button>
@@ -572,7 +544,7 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
     <button class="save-btn" id="saveBtn" onclick="openSaveModal()" style="display:none"><span class="auth-icon">💾</span><span class="auth-text"> 저장</span></button>
     <!-- 로그인/로그아웃 -->
     <div class="auth-tip-wrap">
-      <button class="auth-btn" id="authBtn" onclick="handleAuth()">🔐 Google 로그인</button>
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
         <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
@@ -592,6 +564,9 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
       <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
     </div>
     <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </div>
 
