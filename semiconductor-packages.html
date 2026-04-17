@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반도체 패키지 가이드 | Semiconductor Package Guide — ChipCalc</title>
+<meta name="description" content="DIP부터 CoWoS까지 반도체 패키지 12종의 구조와 특징을 인터랙티브 카드로 배웁니다. 차량용 반도체 AEC-Q100 패키지 완전 가이드.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/semiconductor-packages.html">
+<!-- shared.css: 폰트, CSS변수, topbar, nav, auth, 다크모드 -->
+<link rel="stylesheet" href="shared.css">
+<!-- IBM Plex Mono: 카드 내부 코드 폰트 (shared.css에 없는 것) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ═══════════════════════════════ RESET & ROOT ══════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* 패키지 페이지 전용 변수 — shared.css 변수 위에 추가 */
+:root {
+  /* shared.css의 --bg, --surface, --border, --l1~l4, --blue, --green 등 사용 */
+  /* 카드 전용 색상 */
+  --pkg-text:    #1a2740;
+  --pkg-sub:     #5a6e8c;
+  --pkg-accent:  #1557d0;
+  --pkg-gold:    #e08c20;
+  --pkg-green:   #1a8c58;
+  --pkg-purple:  #6040b0;
+  --pkg-red:     #c03020;
+  --pkg-mono:    'IBM Plex Mono', "SF Mono", "Menlo", monospace;
+  --pkg-radius:  14px;
+  --pkg-shadow:  0 4px 24px rgba(20,50,120,.09);
+  --pkg-shadow-lg: 0 12px 40px rgba(20,50,120,.15);
+  --pkg-bg-card: #f0f4f9; /* 카드 내부 배경 (shared.css --bg와 미세하게 다름) */
+  --pkg-border:  #dde5f2;
+}
+
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  font-family: var(--font); /* shared.css 폰트 사용 */
+  background: var(--bg);
+  color: var(--pkg-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════ HERO ══════════════════════════════════════ */
+.hero {
+  background: linear-gradient(135deg, #0d1e40 0%, #1557d0 60%, #0ea5e9 100%);
+  padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 60px) clamp(30px, 6vw, 60px);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+.hero-inner { max-width: 900px; margin: 0 auto; position: relative; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(255,255,255,.8);
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+.hero-eyebrow::before {
+  content: ''; width: 6px; height: 6px;
+  border-radius: 50%; background: #4df0a0;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.5;transform:scale(1.3)}
+}
+
+.hero h1 {
+  font-size: clamp(26px, 5vw, 48px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+.hero h1 em { font-style: normal; color: #7dd3fc; }
+
+.hero p {
+  font-size: clamp(14px, 2vw, 17px);
+  color: rgba(255,255,255,.72);
+  line-height: 1.7;
+  max-width: 620px;
+  font-weight: 300;
+}
+
+.hero-stats {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  margin-top: 28px;
+}
+.hero-stat {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 10px;
+  padding: 10px 18px;
+  text-align: center;
+}
+.hero-stat .num {
+  display: block;
+  font-family: var(--mono); font-size: 22px; font-weight: 600;
+  color: #fff;
+}
+.hero-stat .lbl {
+  font-size: 11px; color: rgba(255,255,255,.6);
+  font-weight: 400; margin-top: 2px;
+}
+
+/* ═══════════════════════════════ MAIN CONTENT ══════════════════════════════ */
+.main { max-width: 1200px; margin: 0 auto; padding: clamp(20px,4vw,48px) clamp(16px,3vw,32px); }
+
+/* ═══════════════════════════════ FILTERS ══════════════════════════════════ */
+.filter-bar {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 32px;
+}
+
+.filter-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  color: var(--sub);
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+.filter-btn.active {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff; box-shadow: 0 4px 14px rgba(21,87,208,.3);
+}
+.filter-btn .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; opacity: .6;
+}
+.filter-btn.active .dot { opacity: 1; background: #fff; }
+
+/* ═══════════════════════════════ SECTION TITLE ═════════════════════════════ */
+.section-label {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  color: var(--sub); letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ═══════════════════════════════ CARD GRID ═════════════════════════════════ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 480px) {
+  .cards-grid { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════ PACKAGE CARD ══════════════════════════════ */
+.pkg-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform .22s, box-shadow .22s, border-color .22s;
+  display: flex; flex-direction: column;
+}
+.pkg-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent);
+}
+.pkg-card.hidden { display: none; }
+
+/* card top strip */
+.card-strip {
+  height: 5px;
+}
+
+/* card header */
+.card-head {
+  display: flex; align-items: flex-start;
+  gap: 14px;
+  padding: 20px 20px 0;
+}
+
+.card-icon-wrap {
+  flex-shrink: 0;
+  width: 90px; height: 64px;
+  background: var(--bg);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.card-icon-wrap svg { width: 80px; height: 54px; }
+
+.card-meta { flex: 1; }
+
+.pkg-abbr {
+  display: inline-block;
+  font-family: var(--mono); font-size: 16px; font-weight: 600;
+  padding: 3px 10px; border-radius: 6px;
+  margin-bottom: 5px;
+}
+
+.pkg-fullname {
+  font-size: 12px; font-weight: 400; color: var(--sub);
+  line-height: 1.4;
+}
+
+.pkg-gen {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 6px;
+  font-family: var(--mono); font-size: 10px;
+  padding: 2px 8px; border-radius: 4px;
+  background: var(--bg); color: var(--sub);
+  border: 1px solid var(--border);
+}
+
+/* card body */
+.card-body { padding: 16px 20px; flex: 1; }
+
+.pkg-simple {
+  font-size: 14px; line-height: 1.7; color: var(--text);
+  margin-bottom: 14px;
+  font-weight: 400;
+}
+
+/* spec bars */
+.spec-list { display: flex; flex-direction: column; gap: 8px; }
+
+.spec-item label {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--sub); margin-bottom: 3px;
+  font-family: var(--mono);
+}
+.spec-bar-track {
+  height: 5px; background: var(--bg); border-radius: 10px; overflow: hidden;
+}
+.spec-bar-fill {
+  height: 100%; border-radius: 10px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+
+/* card footer */
+.card-foot {
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--bg);
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.tag-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag {
+  font-size: 10px; font-family: var(--mono);
+  padding: 2px 8px; border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--sub); background: var(--bg);
+}
+
+.detail-btn {
+  font-size: 11px; font-family: var(--mono); font-weight: 600;
+  color: var(--accent);
+  background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+.detail-btn::after { content: '›'; font-size: 16px; }
+
+/* ═══════════════════════════════ MODAL ═════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(10,20,50,.55);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 20px;
+  width: 100%; max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 80px rgba(10,20,80,.3);
+  transform: translateY(20px) scale(.97);
+  transition: transform .25s;
+  position: relative;
+}
+.modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+.modal-header {
+  padding: 28px 28px 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px;
+}
+
+.modal-icon {
+  width: 120px; height: 80px;
+  background: var(--bg);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.modal-title-group { flex: 1; }
+.modal-abbr {
+  font-family: var(--mono); font-size: 26px; font-weight: 700;
+  line-height: 1.1;
+}
+.modal-full {
+  font-size: 13px; color: var(--sub); margin-top: 4px; line-height: 1.4;
+}
+.modal-pitch {
+  font-family: var(--mono); font-size: 12px;
+  background: var(--bg); padding: 4px 10px; border-radius: 6px;
+  display: inline-block; margin-top: 8px; color: var(--sub);
+}
+
+.modal-close {
+  background: var(--bg); border: none; cursor: pointer;
+  width: 36px; height: 36px; border-radius: 50%;
+  font-size: 18px; color: var(--sub);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.modal-close:hover { background: var(--border); }
+
+.modal-body { padding: 20px 28px 28px; }
+
+.modal-section { margin-bottom: 20px; }
+.modal-section h3 {
+  font-size: 11px; font-family: var(--mono); font-weight: 600;
+  color: var(--sub); letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.modal-section h3::before {
+  content: ''; width: 3px; height: 14px;
+  border-radius: 2px; background: currentColor;
+}
+
+.modal-desc {
+  font-size: 14px; line-height: 1.8; color: var(--text);
+}
+.modal-desc strong { color: var(--accent); font-weight: 700; }
+
+.modal-specs {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.modal-spec-item {
+  background: var(--bg); border-radius: 10px;
+  padding: 12px 14px;
+}
+.modal-spec-item .key {
+  font-family: var(--mono); font-size: 10px; color: var(--sub);
+  letter-spacing: .5px; margin-bottom: 4px;
+}
+.modal-spec-item .val {
+  font-size: 15px; font-weight: 700; color: var(--text);
+}
+
+.modal-apps {
+  display: flex; flex-wrap: wrap; gap: 7px;
+}
+.app-chip {
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 6px 12px;
+  font-size: 12px; font-weight: 500; color: var(--text);
+}
+
+.modal-compare { margin-bottom: 0; }
+.compare-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.compare-label {
+  font-size: 11px; font-family: var(--mono); color: var(--sub);
+  width: 80px; flex-shrink: 0;
+}
+.compare-bar {
+  flex: 1; height: 8px; background: var(--bg); border-radius: 10px; overflow: hidden;
+}
+.compare-fill { height: 100%; border-radius: 10px; }
+.compare-val {
+  font-family: var(--mono); font-size: 11px; color: var(--sub);
+  width: 30px; text-align: right;
+}
+
+
+
+/* ═══════════════════════════════ ANIMATIONS ════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(16px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.pkg-card { animation: fadeUp .4s both; }
+.pkg-card:nth-child(1){animation-delay:.04s}
+.pkg-card:nth-child(2){animation-delay:.08s}
+.pkg-card:nth-child(3){animation-delay:.12s}
+.pkg-card:nth-child(4){animation-delay:.16s}
+.pkg-card:nth-child(5){animation-delay:.20s}
+.pkg-card:nth-child(6){animation-delay:.24s}
+.pkg-card:nth-child(7){animation-delay:.28s}
+.pkg-card:nth-child(8){animation-delay:.32s}
+.pkg-card:nth-child(9){animation-delay:.36s}
+.pkg-card:nth-child(10){animation-delay:.40s}
+.pkg-card:nth-child(11){animation-delay:.44s}
+.pkg-card:nth-child(12){animation-delay:.48s}
+
+/* ═══════════════════════════════ RESPONSIVE ════════════════════════════════ */
+@media (max-width: 600px) {
+  .modal-header { flex-wrap: wrap; }
+  .modal-specs  { grid-template-columns: 1fr 1fr; }
+  .hero-stats   { gap: 8px; }
+  .hero-stat    { padding: 8px 14px; }
+  .hero-stat .num { font-size: 18px; }
+}
+@media (max-width: 400px) {
+  .modal-specs { grid-template-columns: 1fr; }
+  .modal-icon  { display: none; }
+}
+
+/* ── 다크모드 패키지 카드 ── */
+body.dark .pkg-card { background: var(--surface); border-color: var(--border); }
+body.dark .card-foot { border-top-color: var(--border); }
+body.dark .pkg-fullname { color: var(--l3); }
+body.dark .pkg-gen { background: var(--s2); color: var(--l3); border-color: var(--border); }
+body.dark .filter-btn { background: var(--surface); border-color: var(--border2); color: var(--l3); }
+body.dark .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+body.dark .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+body.dark .spec-bar-track { background: var(--s2); }
+body.dark .tag { background: var(--s2); border-color: var(--border); color: var(--l3); }
+body.dark .modal { background: var(--surface); }
+body.dark .modal-close { background: var(--s2); color: var(--l3); }
+body.dark .modal-spec-item { background: var(--s2); }
+body.dark .modal-spec-item .key { color: var(--l3); }
+body.dark .modal-spec-item .val { color: var(--l1); }
+body.dark .app-chip { background: var(--s2); border-color: var(--border); color: var(--l2); }
+body.dark .compare-bar { background: var(--s2); }
+body.dark .section-label { color: var(--l4); }
+body.dark .section-label::after { background: var(--border); }
+body.dark .card-icon-wrap { background: var(--s2); }
+
+/* ── 모바일 패키지 페이지 ── */
+@media(max-width:768px){
+  .main { padding: 16px 14px; }
+  .filter-bar { gap: 6px; }
+  .filter-btn { padding: 7px 13px; font-size: 12px; }
+  .hero { padding: 36px 18px 28px; }
+  .hero h1 { font-size: 24px; }
+  .hero p { font-size: 14px; }
+  .hero-stats { gap: 8px; margin-top: 18px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- TOPBAR — shared.css에서 스타일 제공 -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· 패키지 가이드</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link active" href="semiconductor-packages.html">📦 패키지</a>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+      <div class="auth-tip">
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<!-- 모바일 드로어 -->
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+  <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+  <a class="nav-link active" href="semiconductor-packages.html">📦 패키지 가이드</a>
+</nav>
+
+<!-- ═══════ HERO ═══════ -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">반도체 패키지 교육 자료 · EDU MODULE</div>
+    <h1>반도체 <em>패키지</em> 완전 이해</h1>
+    <p>칩을 세상과 연결하는 기술 — DIP부터 CoWoS까지, 각 패키지의 구조와 쓰임새를 쉽게 배워봅니다.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="num">12</span><span class="lbl">패키지 종류</span></div>
+      <div class="hero-stat"><span class="num">5</span><span class="lbl">카테고리</span></div>
+      <div class="hero-stat"><span class="num">60+</span><span class="lbl">년 기술 역사</span></div>
+      <div class="hero-stat"><span class="num">3D</span><span class="lbl">어드밴스드 패키징</span></div>
+    </div>
+  </div>
+</div><!-- /hero -->
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main">
+
+  <!-- FILTERS -->
+  <div class="filter-bar" role="tablist">
+    <button class="filter-btn active" data-cat="all" role="tab" aria-selected="true">
+      <span class="dot"></span> 전체 보기
+    </button>
+    <button class="filter-btn" data-cat="through" role="tab">
+      <span class="dot"></span> 삽입형
+    </button>
+    <button class="filter-btn" data-cat="smd" role="tab">
+      <span class="dot"></span> SMD 리드
+    </button>
+    <button class="filter-btn" data-cat="leadless" role="tab">
+      <span class="dot"></span> 리드리스
+    </button>
+    <button class="filter-btn" data-cat="advanced" role="tab">
+      <span class="dot"></span> 어드밴스드
+    </button>
+  </div>
+
+  <div class="section-label" id="card-count">12개 패키지</div>
+
+  <!-- CARDS -->
+  <div class="cards-grid" id="cardsGrid"></div>
+
+</main>
+
+<footer></footer>
+
+<!-- ═══════ MODAL ═══════ -->
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-icon" id="mIcon"></div>
+      <div class="modal-title-group">
+        <div class="modal-abbr" id="mAbbr"></div>
+        <div class="modal-full" id="mFull"></div>
+        <div class="modal-pitch" id="mPitch"></div>
+      </div>
+      <button class="modal-close" id="modalClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <h3>한줄 설명</h3>
+        <div class="modal-desc" id="mSimple"></div>
+      </div>
+      <div class="modal-section">
+        <h3>자세한 설명</h3>
+        <div class="modal-desc" id="mDetail"></div>
+      </div>
+      <div class="modal-section">
+        <h3>주요 스펙</h3>
+        <div class="modal-specs" id="mSpecs"></div>
+      </div>
+      <div class="modal-section modal-compare">
+        <h3>성능 비교</h3>
+        <div id="mCompare"></div>
+      </div>
+      <div class="modal-section">
+        <h3>적용 제품</h3>
+        <div class="modal-apps" id="mApps"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════ DATA ═══════════════════════════════════════════ */
+const PACKAGES = [
+  {
+    id: 'dip',
+    cat: 'through',
+    abbr: 'DIP',
+    fullname: 'Dual In-line Package',
+    pitch: '핀 간격: 2.54mm',
+    color: '#e08c20',
+    stripColor: '#e08c20',
+    gen: '1960년대~',
+    simple: '칩 양쪽에 핀이 두 줄로 늘어선 가장 고전적인 패키지예요. PCB 구멍에 꽂아서 납땜합니다.',
+    detail: '가장 역사가 긴 패키지로, PCB에 구멍을 뚫어 삽입하는 <strong>관통홀(Through-hole)</strong> 방식입니다. 핀 간격이 넓어 손으로 납땜하기 쉽고, 빼고 꽂을 수 있어 교육·프로토타입에 지금도 사용돼요. 다만 부품이 크고 면적을 많이 차지해 현대 제품에는 거의 쓰이지 않습니다.',
+    specs: [
+      { key: '실장 방식', val: '관통홀(THT)' },
+      { key: '핀 간격', val: '2.54mm' },
+      { key: '핀 수', val: '8~64핀' },
+      { key: '시대', val: '레거시' },
+    ],
+    compare: { 소형화: 10, 핀밀도: 10, 방열: 40, 고속신호: 15 },
+    apps: ['교육용 MCU', '아날로그 IC', '레거시 시스템', 'Arduino 부품'],
+    tags: ['Through-hole', '레거시', '저비용'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="22" y="12" width="36" height="30" rx="3" fill="#FFF3E0" stroke="#e08c20" stroke-width="1.5"/>
+      <text x="40" y="29" text-anchor="middle" font-family="monospace" font-size="7" fill="#e08c20" font-weight="600">DIP</text>
+      <circle cx="25" cy="14" r="2" fill="none" stroke="#e08c20" stroke-width="1"/>
+      <line x1="22" y1="18" x2="10" y2="18" stroke="#7c6030" stroke-width="2"/>
+      <line x1="22" y1="24" x2="10" y2="24" stroke="#7c6030" stroke-width="2"/>
+      <line x1="22" y1="30" x2="10" y2="30" stroke="#7c6030" stroke-width="2"/>
+      <line x1="22" y1="36" x2="10" y2="36" stroke="#7c6030" stroke-width="2"/>
+      <line x1="58" y1="18" x2="70" y2="18" stroke="#7c6030" stroke-width="2"/>
+      <line x1="58" y1="24" x2="70" y2="24" stroke="#7c6030" stroke-width="2"/>
+      <line x1="58" y1="30" x2="70" y2="30" stroke="#7c6030" stroke-width="2"/>
+      <line x1="58" y1="36" x2="70" y2="36" stroke="#7c6030" stroke-width="2"/>
+    </svg>`
+  },
+  {
+    id: 'sop',
+    cat: 'smd',
+    abbr: 'SOP',
+    fullname: 'Small Outline Package',
+    pitch: '핀 간격: 1.27mm',
+    color: '#2e7d32',
+    stripColor: '#2e7d32',
+    gen: '1980년대~',
+    simple: 'DIP보다 훨씬 작고 납작해진 버전이에요. 핀이 갈매기 날개처럼 양옆으로 구부러져 PCB 표면에 붙습니다.',
+    detail: '표면실장(SMD) 방식의 대표 패키지예요. PCB에 구멍 없이 <strong>표면에 직접 납땜</strong>하므로 양면 실장이 가능하고 부품 크기가 크게 줄었습니다. 핀이 갈매기 날개(Gull-wing) 모양으로 구부러져 있어 납땜 품질 확인이 쉽습니다. SOIC·SSOP·TSOP 등 여러 변형 규격이 있어요.',
+    specs: [
+      { key: '실장 방식', val: 'SMD(표면실장)' },
+      { key: '핀 간격', val: '1.27mm' },
+      { key: '핀 수', val: '8~28핀' },
+      { key: '리드 형태', val: 'Gull-wing' },
+    ],
+    compare: { 소형화: 35, 핀밀도: 30, 방열: 40, 고속신호: 30 },
+    apps: ['NAND Flash', 'EEPROM', '오디오 IC', '센서'],
+    tags: ['SMD', 'Gull-wing', '범용'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="14" width="40" height="26" rx="2" fill="#E8F5E9" stroke="#2e7d32" stroke-width="1.5"/>
+      <text x="40" y="29" text-anchor="middle" font-family="monospace" font-size="7" fill="#2e7d32" font-weight="600">SOP</text>
+      <path d="M20,19 L10,19 L8,23 L10,23" stroke="#2e7d32" stroke-width="1.5" fill="none"/>
+      <path d="M20,25 L10,25 L8,29 L10,29" stroke="#2e7d32" stroke-width="1.5" fill="none"/>
+      <path d="M20,31 L10,31 L8,35 L10,35" stroke="#2e7d32" stroke-width="1.5" fill="none"/>
+      <path d="M60,19 L70,19 L72,23 L70,23" stroke="#2e7d32" stroke-width="1.5" fill="none"/>
+      <path d="M60,25 L70,25 L72,29 L70,29" stroke="#2e7d32" stroke-width="1.5" fill="none"/>
+      <path d="M60,31 L70,31 L72,35 L70,35" stroke="#2e7d32" stroke-width="1.5" fill="none"/>
+    </svg>`
+  },
+  {
+    id: 'qfp',
+    cat: 'smd',
+    abbr: 'QFP',
+    fullname: 'Quad Flat Package',
+    pitch: '핀 간격: 0.4–0.8mm',
+    color: '#1565c0',
+    stripColor: '#1565c0',
+    gen: '1980년대~',
+    simple: '사방 4면 모두에 핀이 달린 패키지예요. 핀 수가 많이 필요한 MCU나 프로세서에 많이 쓰입니다.',
+    detail: 'SOP가 2면에만 핀이 있는 것과 달리 <strong>4면 전체에 핀</strong>이 분포해 최대 304핀까지 구현 가능합니다. 핀 간격이 0.4mm까지 미세화되어 소형 고집적 칩에 적합해요. 다만 핀이 얇고 촘촘해 실장 시 납브리지(납이 이어붙음) 주의가 필요합니다. LQFP(얇은 형태), TQFP 등 변형이 있어요.',
+    specs: [
+      { key: '실장 방식', val: 'SMD(표면실장)' },
+      { key: '핀 간격', val: '0.4–0.8mm' },
+      { key: '핀 수', val: '32–304핀' },
+      { key: '리드 형태', val: 'Gull-wing 4면' },
+    ],
+    compare: { 소형화: 50, 핀밀도: 60, 방열: 35, 고속신호: 45 },
+    apps: ['마이크로컨트롤러(MCU)', 'DSP', '게이트 어레이', '임베디드 프로세서'],
+    tags: ['SMD', '4면 리드', '고핀수'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="22" y="12" width="36" height="30" rx="2" fill="#E3F2FD" stroke="#1565c0" stroke-width="1.5"/>
+      <text x="40" y="29" text-anchor="middle" font-family="monospace" font-size="7" fill="#1565c0" font-weight="600">QFP</text>
+      <circle cx="25" cy="14" r="1.8" fill="#1565c033"/>
+      <line x1="29" y1="12" x2="29" y2="5" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="35" y1="12" x2="35" y2="5" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="41" y1="12" x2="41" y2="5" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="47" y1="12" x2="47" y2="5" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="53" y1="12" x2="53" y2="5" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="29" y1="42" x2="29" y2="49" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="35" y1="42" x2="35" y2="49" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="41" y1="42" x2="41" y2="49" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="47" y1="42" x2="47" y2="49" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="53" y1="42" x2="53" y2="49" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="22" y1="18" x2="13" y2="18" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="22" y1="24" x2="13" y2="24" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="22" y1="30" x2="13" y2="30" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="22" y1="36" x2="13" y2="36" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="58" y1="18" x2="67" y2="18" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="58" y1="24" x2="67" y2="24" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="58" y1="30" x2="67" y2="30" stroke="#1565c0" stroke-width="1.3"/>
+      <line x1="58" y1="36" x2="67" y2="36" stroke="#1565c0" stroke-width="1.3"/>
+    </svg>`
+  },
+  {
+    id: 'qfn',
+    cat: 'leadless',
+    abbr: 'QFN',
+    fullname: 'Quad Flat No-lead',
+    pitch: '패드 간격: 0.4–0.65mm',
+    color: '#c2185b',
+    stripColor: '#c2185b',
+    gen: '2000년대~',
+    simple: '핀 대신 평평한 패드가 패키지 옆면에 붙어있어요. 중앙에 방열 패드가 있어 열이 잘 빠집니다.',
+    detail: 'QFP에서 긴 핀을 없애고 <strong>패키지 측면에 짧은 패드</strong>만 남긴 형태예요. 덕분에 PCB 위 공간을 덜 차지하고 전기 특성이 개선됩니다. 바닥 중앙의 <strong>노출 패드(Exposed Pad)</strong>가 열을 PCB로 직접 전달해 발열 관리가 뛰어납니다. RF·전력 반도체에 최적이에요.',
+    specs: [
+      { key: '실장 방식', val: 'SMD 리드리스' },
+      { key: '패드 간격', val: '0.4–0.65mm' },
+      { key: '핀 수', val: '8–100+핀' },
+      { key: '특징', val: '중앙 방열 패드' },
+    ],
+    compare: { 소형화: 65, 핀밀도: 65, 방열: 80, 고속신호: 60 },
+    apps: ['RF IC', '전력 관리 IC(PMIC)', '무선 SoC', 'Wi-Fi/BT 모듈'],
+    tags: ['리드리스', '방열 우수', 'RF 최적'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="9" width="44" height="36" rx="2" fill="#FCE4EC" stroke="#c2185b" stroke-width="1.5"/>
+      <rect x="30" y="18" width="20" height="18" rx="1" fill="#f8bbd0" stroke="#c2185b77" stroke-width="1"/>
+      <text x="40" y="29" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#c2185b" font-weight="600">EP</text>
+      <rect x="24" y="9"  width="6" height="4" rx="1" fill="#c2185b"/>
+      <rect x="34" y="9"  width="6" height="4" rx="1" fill="#c2185b"/>
+      <rect x="44" y="9"  width="6" height="4" rx="1" fill="#c2185b"/>
+      <rect x="24" y="41" width="6" height="4" rx="1" fill="#c2185b"/>
+      <rect x="34" y="41" width="6" height="4" rx="1" fill="#c2185b"/>
+      <rect x="44" y="41" width="6" height="4" rx="1" fill="#c2185b"/>
+      <rect x="14" y="15" width="4" height="6" rx="1" fill="#c2185b"/>
+      <rect x="14" y="24" width="4" height="6" rx="1" fill="#c2185b"/>
+      <rect x="14" y="33" width="4" height="6" rx="1" fill="#c2185b"/>
+      <rect x="62" y="15" width="4" height="6" rx="1" fill="#c2185b"/>
+      <rect x="62" y="24" width="4" height="6" rx="1" fill="#c2185b"/>
+      <rect x="62" y="33" width="4" height="6" rx="1" fill="#c2185b"/>
+    </svg>`
+  },
+  {
+    id: 'bga',
+    cat: 'leadless',
+    abbr: 'BGA',
+    fullname: 'Ball Grid Array',
+    pitch: '볼 간격: 0.5–1.27mm',
+    color: '#6a1b9a',
+    stripColor: '#6a1b9a',
+    gen: '1990년대~',
+    simple: '패키지 바닥면에 납 볼(구슬)이 격자 형태로 빼곡히 달려있어요. CPU·GPU의 표준 패키지입니다.',
+    detail: '기존 핀 방식의 한계를 돌파한 패키지예요. 패키지 <strong>바닥 전면에 솔더볼을 격자 배열</strong>하여 수백~수천 개의 I/O를 제공합니다. 리플로우 솔더링으로 자동 정렬되어 실장이 쉽고, 리드가 없어 전기 특성도 우수합니다. FCBGA(플립칩), PBGA, TBGA 등 다양한 파생형이 있으며 현재 고성능 칩의 표준 패키지예요.',
+    specs: [
+      { key: '실장 방식', val: 'SMD 솔더볼' },
+      { key: '볼 간격', val: '0.5–1.27mm' },
+      { key: '핀 수', val: '100–수천핀' },
+      { key: '리드 형태', val: '솔더볼 그리드' },
+    ],
+    compare: { 소형화: 70, 핀밀도: 85, 방열: 55, 고속신호: 75 },
+    apps: ['CPU / GPU', 'DRAM 모듈', '네트워크 IC', 'FPGA'],
+    tags: ['솔더볼', '고핀수', '저인덕턴스'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="8" width="52" height="30" rx="3" fill="#F3E5F5" stroke="#6a1b9a" stroke-width="1.5"/>
+      <rect x="24" y="14" width="32" height="18" rx="1" fill="#e1bee7" stroke="#6a1b9a55" stroke-width="1"/>
+      <text x="40" y="25" text-anchor="middle" font-family="monospace" font-size="6" fill="#6a1b9a" font-weight="600">DIE</text>
+      <circle cx="22" cy="42" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="33" cy="42" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="44" cy="42" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="55" cy="42" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="22" cy="50" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="33" cy="50" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="44" cy="50" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="55" cy="50" r="3.5" fill="#6a1b9a" stroke="#9c27b0" stroke-width="0.8"/>
+    </svg>`
+  },
+  {
+    id: 'lga',
+    cat: 'leadless',
+    abbr: 'LGA',
+    fullname: 'Land Grid Array',
+    pitch: '패드 간격: 0.8–1.27mm',
+    color: '#00695c',
+    stripColor: '#00695c',
+    gen: '2000년대~',
+    simple: '볼 없이 평평한 패드만 있어요. CPU를 소켓에 꽂아서 교체할 수 있는 인텔 데스크탑 CPU가 대표 사례입니다.',
+    detail: 'BGA와 비슷한 그리드 배열이지만 <strong>솔더볼이 없고 납작한 금속 패드</strong>만 있어요. 칩이 소켓에 눌려 접촉하는 방식이라 납땜 없이 교체 가능합니다. 볼이 없어 패키지가 더 얇아지고 손상 위험도 줄어들어요. 반면 소켓 핀이 굽어질 수 있어 주의가 필요합니다.',
+    specs: [
+      { key: '실장 방식', val: '소켓(압착)' },
+      { key: '패드 간격', val: '0.8–1.27mm' },
+      { key: '핀 수', val: '수백~수천' },
+      { key: '특징', val: '볼리스, 교체 가능' },
+    ],
+    compare: { 소형화: 60, 핀밀도: 75, 방열: 60, 고속신호: 70 },
+    apps: ['Intel 데스크탑 CPU', '서버 프로세서', '임베디드 컴퓨팅'],
+    tags: ['소켓형', '볼리스', 'CPU 표준'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="8" width="52" height="28" rx="3" fill="#E0F2F1" stroke="#00695c" stroke-width="1.5"/>
+      <text x="40" y="25" text-anchor="middle" font-family="monospace" font-size="7" fill="#00695c" font-weight="600">LGA</text>
+      <rect x="20" y="38" width="7" height="4" rx="1" fill="#00695c"/>
+      <rect x="30" y="38" width="7" height="4" rx="1" fill="#00695c"/>
+      <rect x="40" y="38" width="7" height="4" rx="1" fill="#00695c"/>
+      <rect x="50" y="38" width="7" height="4" rx="1" fill="#00695c"/>
+      <rect x="20" y="44" width="7" height="4" rx="1" fill="#004d40"/>
+      <rect x="30" y="44" width="7" height="4" rx="1" fill="#004d40"/>
+      <rect x="40" y="44" width="7" height="4" rx="1" fill="#004d40"/>
+      <rect x="50" y="44" width="7" height="4" rx="1" fill="#004d40"/>
+      <text x="40" y="53" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#00695c99">FLAT PADS</text>
+    </svg>`
+  },
+  {
+    id: 'csp',
+    cat: 'leadless',
+    abbr: 'CSP',
+    fullname: 'Chip Scale Package',
+    pitch: '볼 간격: 0.3–0.5mm',
+    color: '#e65100',
+    stripColor: '#e65100',
+    gen: '1990년대 말~',
+    simple: '패키지 크기가 칩 크기와 거의 같아요. 스마트폰·웨어러블 등 초소형 기기의 핵심 패키지입니다.',
+    detail: '패키지 면적이 <strong>다이(칩) 면적의 1.2배 이하</strong>인 초소형 패키지예요. 기존 패키지들이 칩보다 훨씬 큰 것과 달리, 칩 자체가 곧 패키지입니다. 웨이퍼레벨 공정(WLCSP)으로 대량생산하며 극한의 소형화가 가능해요. 모바일·웨어러블·IoT 기기의 부품 소형화를 이끄는 핵심 기술입니다.',
+    specs: [
+      { key: '패키지 크기', val: '다이 크기 ≤1.2×' },
+      { key: '볼 간격', val: '0.3–0.5mm' },
+      { key: '제조 방식', val: 'WLCSP' },
+      { key: '특징', val: '최소 풋프린트' },
+    ],
+    compare: { 소형화: 95, 핀밀도: 70, 방열: 55, 고속신호: 65 },
+    apps: ['모바일 애플리케이션 프로세서', '웨어러블 디바이스', 'IoT 센서', 'PMIC'],
+    tags: ['초소형', 'WLCSP', '모바일'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="8" width="44" height="28" rx="2" fill="#FBE9E7" stroke="#e65100" stroke-width="1.5"/>
+      <text x="40" y="22" text-anchor="middle" font-family="monospace" font-size="6" fill="#e65100" font-weight="600">≈ DIE SIZE</text>
+      <text x="40" y="30" text-anchor="middle" font-family="monospace" font-size="5" fill="#e6510099">WLCSP</text>
+      <line x1="18" y1="4" x2="62" y2="4" stroke="#e6510044" stroke-width="1" stroke-dasharray="3,2"/>
+      <circle cx="26" cy="40" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+      <circle cx="35" cy="40" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+      <circle cx="44" cy="40" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+      <circle cx="53" cy="40" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+      <circle cx="26" cy="49" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+      <circle cx="35" cy="49" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+      <circle cx="44" cy="49" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+      <circle cx="53" cy="49" r="3" fill="#e65100" stroke="#ff7043" stroke-width="0.8"/>
+    </svg>`
+  },
+  {
+    id: 'wlp',
+    cat: 'advanced',
+    abbr: 'WLP',
+    fullname: 'Wafer Level Package',
+    pitch: 'Fan-in / Fan-out',
+    color: '#1557d0',
+    stripColor: '#0ea5e9',
+    gen: '2000년대 말~',
+    simple: '웨이퍼째 통째로 패키지 공정을 처리해요. 낱개로 자르기 전에 수백 개의 칩을 한꺼번에 패키징합니다.',
+    detail: '기존 방식과 반대로 <strong>웨이퍼 상태에서 먼저 패키지 공정</strong>을 완료하고 나중에 낱개로 자릅니다. 대량 일괄 처리로 원가를 낮출 수 있어요. Fan-in(칩 면적 내에 배선) 방식의 WLCSP와 칩 면적 밖으로 배선을 뻗는 <strong>Fan-out(FOWLP)</strong> 두 가지가 있습니다. TSMC InFO가 대표적인 Fan-out WLP예요.',
+    specs: [
+      { key: '공정 방식', val: '웨이퍼 일괄 패키징' },
+      { key: '유형', val: 'Fan-in / Fan-out' },
+      { key: '볼 간격', val: '0.3–0.5mm' },
+      { key: '대표 기술', val: 'TSMC InFO' },
+    ],
+    compare: { 소형화: 90, 핀밀도: 75, 방열: 60, 고속신호: 70 },
+    apps: ['모바일 RF 칩', 'PMIC', '모뎀(FOWLP)', 'Apple A시리즈(InFO)'],
+    tags: ['웨이퍼급', 'Fan-out', '고밀도'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="40" cy="18" rx="28" ry="12" fill="#E3F2FD" stroke="#1557d055" stroke-width="1" stroke-dasharray="3,2"/>
+      <rect x="24" y="10" width="10" height="10" rx="1" fill="#d0e8fa" stroke="#1557d0" stroke-width="0.8"/>
+      <rect x="35" y="10" width="10" height="10" rx="1" fill="#d0e8fa" stroke="#1557d0" stroke-width="0.8"/>
+      <rect x="46" y="10" width="10" height="10" rx="1" fill="#d0e8fa" stroke="#1557d0" stroke-width="0.8"/>
+      <rect x="29" y="21" width="10" height="10" rx="1" fill="#d0e8fa" stroke="#1557d0" stroke-width="0.8"/>
+      <rect x="41" y="21" width="10" height="10" rx="1" fill="#d0e8fa" stroke="#1557d0" stroke-width="0.8"/>
+      <line x1="40" y1="33" x2="40" y2="38" stroke="#1557d055" stroke-width="1.5" stroke-dasharray="2,2"/>
+      <polygon points="40,42 36,37 44,37" fill="#1557d055"/>
+      <rect x="26" y="43" width="28" height="10" rx="2" fill="#bbdefb" stroke="#1557d0" stroke-width="1"/>
+      <text x="40" y="50" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#1557d0" font-weight="600">패키지 완성</text>
+    </svg>`
+  },
+  {
+    id: 'fcbga',
+    cat: 'advanced',
+    abbr: 'FC-BGA',
+    fullname: 'Flip Chip Ball Grid Array',
+    pitch: '범프 간격: <100μm',
+    color: '#4a148c',
+    stripColor: '#7b1fa2',
+    gen: '1990년대 말~',
+    simple: '칩을 뒤집어(Flip) 기판에 직접 미세 범프로 연결해요. 와이어 없이 신호를 가장 짧게 전달하는 방식입니다.',
+    detail: '기존 패키지는 칩 위에 가는 금선(와이어)으로 기판을 연결했는데, FC-BGA는 <strong>칩을 뒤집어 바닥의 마이크로범프로 직접 기판에 접합</strong>합니다. 신호 경로가 극도로 짧아져 고속·저전력에 유리해요. 언더필(Underfill)이라는 수지로 틈새를 채워 기계적 신뢰성을 높입니다. 현재 모든 고성능 CPU·GPU의 핵심 패키지 방식입니다.',
+    specs: [
+      { key: '접합 방식', val: 'Cu 필러 마이크로범프' },
+      { key: '범프 간격', val: '<100μm' },
+      { key: '보강재', val: '언더필(Underfill)' },
+      { key: '기판', val: '유기 기판(ABF)' },
+    ],
+    compare: { 소형화: 75, 핀밀도: 90, 방열: 65, 고속신호: 90 },
+    apps: ['고성능 CPU(AMD·Intel)', 'AI GPU(NVIDIA)', '데이터센터 가속기', 'FPGA'],
+    tags: ['플립칩', '저인덕턴스', '고속 I/O'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="38" width="64" height="12" rx="2" fill="#EDE7F6" stroke="#7b1fa2" stroke-width="1"/>
+      <text x="40" y="46" text-anchor="middle" font-family="monospace" font-size="5" fill="#7b1fa2">SUBSTRATE</text>
+      <rect x="16" y="16" width="48" height="16" rx="2" fill="#D1C4E9" stroke="#4a148c" stroke-width="1.5"/>
+      <text x="40" y="26" text-anchor="middle" font-family="monospace" font-size="6" fill="#4a148c" font-weight="600">DIE ↓ FLIP</text>
+      <circle cx="24" cy="34" r="2.5" fill="#f9a825" stroke="#f57f17" stroke-width="0.8"/>
+      <circle cx="33" cy="34" r="2.5" fill="#f9a825" stroke="#f57f17" stroke-width="0.8"/>
+      <circle cx="42" cy="34" r="2.5" fill="#f9a825" stroke="#f57f17" stroke-width="0.8"/>
+      <circle cx="51" cy="34" r="2.5" fill="#f9a825" stroke="#f57f17" stroke-width="0.8"/>
+      <circle cx="60" cy="34" r="2.5" fill="#f9a825" stroke="#f57f17" stroke-width="0.8"/>
+      <circle cx="16" cy="51" r="2.5" fill="#4a148c" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="27" cy="51" r="2.5" fill="#4a148c" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="38" cy="51" r="2.5" fill="#4a148c" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="49" cy="51" r="2.5" fill="#4a148c" stroke="#9c27b0" stroke-width="0.8"/>
+      <circle cx="60" cy="51" r="2.5" fill="#4a148c" stroke="#9c27b0" stroke-width="0.8"/>
+    </svg>`
+  },
+  {
+    id: 'sip',
+    cat: 'advanced',
+    abbr: 'SiP',
+    fullname: 'System in Package',
+    pitch: '멀티다이 통합',
+    color: '#1b5e20',
+    stripColor: '#2e7d32',
+    gen: '2000년대~',
+    simple: '여러 종류의 칩(프로세서·메모리·무선통신 등)을 하나의 패키지 안에 모두 집어넣은 방식이에요.',
+    detail: '하나의 칩이 아니라 <strong>여러 다이와 수동부품을 단일 패키지에 통합</strong>하여 완전한 서브시스템을 구현합니다. Apple Watch는 SiP 하나로 AP·통신·센서를 모두 담아 PCB 없이 작동해요. 공정이 다른 칩들을 조합할 수 있어 최신 공정 칩 + 레거시 아날로그 칩을 함께 넣는 것도 가능합니다. 소형화의 끝판왕 패키지예요.',
+    specs: [
+      { key: '통합 요소', val: '멀티다이 + 수동부품' },
+      { key: '대표 사례', val: 'Apple Watch S시리즈' },
+      { key: '제조사', val: 'TSMC, ASE, Amkor' },
+      { key: '특징', val: '완전한 서브시스템' },
+    ],
+    compare: { 소형화: 92, 핀밀도: 80, 방열: 50, 고속신호: 75 },
+    apps: ['Apple Watch', 'AirPods', 'IoT 모듈', '웨어러블 기기'],
+    tags: ['시스템 통합', '멀티다이', '공간 절감'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="6" width="64" height="38" rx="3" fill="#E8F5E9" stroke="#2e7d32" stroke-width="1.5"/>
+      <rect x="12" y="10" width="22" height="14" rx="1" fill="#c8e6c9" stroke="#2e7d32" stroke-width="1"/>
+      <text x="23" y="19" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#1b5e20" font-weight="600">SoC</text>
+      <rect x="37" y="10" width="14" height="14" rx="1" fill="#a5d6a7" stroke="#388e3c" stroke-width="1"/>
+      <text x="44" y="19" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#1b5e20" font-weight="600">MEM</text>
+      <rect x="54" y="10" width="14" height="14" rx="1" fill="#c8e6c9" stroke="#f57c00" stroke-width="1"/>
+      <text x="61" y="19" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#e65100" font-weight="600">RF</text>
+      <rect x="12" y="28" width="10" height="7" rx="1" fill="#dcedc8" stroke="#689f38" stroke-width="0.8"/>
+      <rect x="25" y="28" width="10" height="7" rx="1" fill="#dcedc8" stroke="#689f38" stroke-width="0.8"/>
+      <rect x="38" y="28" width="10" height="7" rx="1" fill="#dcedc8" stroke="#689f38" stroke-width="0.8"/>
+      <text x="40" y="40" text-anchor="middle" font-family="monospace" font-size="5" fill="#2e7d3280">PASSIVES</text>
+      <circle cx="20" cy="48" r="2.5" fill="#2e7d32"/>
+      <circle cx="30" cy="48" r="2.5" fill="#2e7d32"/>
+      <circle cx="40" cy="48" r="2.5" fill="#2e7d32"/>
+      <circle cx="50" cy="48" r="2.5" fill="#2e7d32"/>
+      <circle cx="60" cy="48" r="2.5" fill="#2e7d32"/>
+    </svg>`
+  },
+  {
+    id: 'cowos',
+    cat: 'advanced',
+    abbr: 'CoWoS',
+    fullname: 'Chip on Wafer on Substrate',
+    pitch: '2.5D 어드밴스드 패키징',
+    color: '#bf360c',
+    stripColor: '#e64a19',
+    gen: '2012년~(TSMC)',
+    simple: '실리콘 인터포저라는 중간판 위에 로직칩과 HBM 메모리를 나란히 올려 초광대역으로 연결하는 TSMC의 기술이에요.',
+    detail: 'AI 반도체 핵심 기술이에요. 일반 PCB 기판 위에 칩을 올리면 신호가 너무 느린데, <strong>실리콘 인터포저(중간판)</strong> 위에 GPU와 HBM 메모리를 나란히 올리면 수만 개의 배선으로 TB/s급 데이터를 주고받을 수 있습니다. TSV(실리콘 관통 전극)가 핵심 기술이며, NVIDIA H100·B200이 모두 CoWoS를 채택하고 있어요.',
+    specs: [
+      { key: '패키지 유형', val: '2.5D 인터포저' },
+      { key: '인터포저', val: '실리콘(Si) 인터포저' },
+      { key: '배선 기술', val: 'TSV(실리콘 관통 전극)' },
+      { key: '대표 채택', val: 'NVIDIA H100/B200' },
+    ],
+    compare: { 소형화: 70, 핀밀도: 95, 방열: 70, 고속신호: 95 },
+    apps: ['NVIDIA H100 / B200 GPU', 'AMD MI300 시리즈', 'HPC 가속기', 'AI 트레이닝'],
+    tags: ['2.5D 인터포저', 'HBM 연동', 'TSV', 'AI 핵심'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="8" y="42" width="64" height="10" rx="2" fill="#FBE9E7" stroke="#bf360c" stroke-width="1"/>
+      <text x="40" y="49" text-anchor="middle" font-family="monospace" font-size="4.5" fill="#bf360c">ORGANIC SUBSTRATE</text>
+      <rect x="10" y="28" width="60" height="12" rx="1" fill="#ffe0b2" stroke="#e64a19" stroke-width="1.5"/>
+      <text x="40" y="36" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#bf360c" font-weight="600">Si INTERPOSER</text>
+      <rect x="14" y="14" width="24" height="12" rx="1" fill="#ffccbc" stroke="#e64a19" stroke-width="1"/>
+      <text x="26" y="22" text-anchor="middle" font-family="monospace" font-size="5.5" fill="#bf360c" font-weight="600">Logic</text>
+      <rect x="42" y="7" width="12" height="6" rx="1" fill="#b3e5fc" stroke="#0288d1" stroke-width="0.8"/>
+      <rect x="42" y="13" width="12" height="6" rx="1" fill="#b3e5fc" stroke="#0288d1" stroke-width="0.8"/>
+      <rect x="42" y="19" width="12" height="6" rx="1" fill="#81d4fa" stroke="#0288d1" stroke-width="0.8"/>
+      <text x="48" y="11" text-anchor="middle" font-family="monospace" font-size="4.5" fill="#01579b" font-weight="600">HBM</text>
+      <rect x="57" y="7" width="12" height="6" rx="1" fill="#b3e5fc" stroke="#0288d1" stroke-width="0.8"/>
+      <rect x="57" y="13" width="12" height="6" rx="1" fill="#b3e5fc" stroke="#0288d1" stroke-width="0.8"/>
+      <rect x="57" y="19" width="12" height="6" rx="1" fill="#81d4fa" stroke="#0288d1" stroke-width="0.8"/>
+      <line x1="40" y1="28" x2="40" y2="40" stroke="#e64a1944" stroke-width="6"/>
+    </svg>`
+  },
+  {
+    id: 'hbm',
+    cat: 'advanced',
+    abbr: 'HBM',
+    fullname: 'High Bandwidth Memory',
+    pitch: '3D 수직 적층(TSV)',
+    color: '#0277bd',
+    stripColor: '#01579b',
+    gen: '2013년~(SK하이닉스)',
+    simple: 'DRAM 칩을 수직으로 여러 장 쌓아 초고속으로 데이터를 주고받는 메모리예요. AI 연산의 필수 부품입니다.',
+    detail: 'DRAM을 4~16개 수직으로 쌓고 <strong>TSV(실리콘 관통 전극)</strong>로 연결한 3D 적층 메모리예요. 일반 DRAM 대비 10배 이상의 대역폭(HBM3E: ~1.2TB/s)을 제공합니다. GPU 옆에 CoWoS 패키지로 나란히 탑재되어 AI 연산 시 발생하는 엄청난 데이터를 실시간으로 공급해요. SK하이닉스가 처음 개발했으며 현재 AI 반도체 시장의 핵심 부품입니다.',
+    specs: [
+      { key: '구조', val: '4–16단 수직 적층' },
+      { key: '대역폭(HBM3E)', val: '~1.2TB/s' },
+      { key: '접합 기술', val: 'TSV + 마이크로범프' },
+      { key: '개발사', val: 'SK하이닉스(최초)' },
+    ],
+    compare: { 소형화: 65, 핀밀도: 98, 방열: 60, 고속신호: 100 },
+    apps: ['NVIDIA H100 / B200', 'AMD MI300X', 'Google TPU', 'HPC 슈퍼컴퓨터'],
+    tags: ['3D 적층', '1TB/s+', 'TSV', 'AI 필수'],
+    svg: `<svg viewBox="0 0 80 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="4"  width="44" height="8" rx="1" fill="#b3e5fc" stroke="#0277bd" stroke-width="1"/>
+      <rect x="18" y="13" width="44" height="8" rx="1" fill="#b3e5fc" stroke="#0277bd" stroke-width="1"/>
+      <rect x="18" y="22" width="44" height="8" rx="1" fill="#81d4fa" stroke="#0277bd" stroke-width="1"/>
+      <rect x="18" y="31" width="44" height="8" rx="1" fill="#4fc3f7" stroke="#0277bd" stroke-width="1"/>
+      <text x="40" y="10"  text-anchor="middle" font-family="monospace" font-size="5" fill="#01579b" font-weight="600">DRAM #4</text>
+      <text x="40" y="19"  text-anchor="middle" font-family="monospace" font-size="5" fill="#01579b" font-weight="600">DRAM #3</text>
+      <text x="40" y="28"  text-anchor="middle" font-family="monospace" font-size="5" fill="#01579b" font-weight="600">DRAM #2</text>
+      <text x="40" y="37"  text-anchor="middle" font-family="monospace" font-size="5" fill="#01579b" font-weight="600">DRAM #1</text>
+      <rect x="14" y="41" width="52" height="9" rx="1" fill="#0277bd" stroke="#01579b" stroke-width="1"/>
+      <text x="40" y="47" text-anchor="middle" font-family="monospace" font-size="5" fill="#fff" font-weight="600">BASE DIE (Logic)</text>
+      <line x1="32" y1="4" x2="32" y2="41" stroke="#0277bd44" stroke-width="3"/>
+      <line x1="48" y1="4" x2="48" y2="41" stroke="#0277bd44" stroke-width="3"/>
+    </svg>`
+  }
+];
+
+const COLOR_BARS = {
+  소형화: '#1557d0',
+  핀밀도: '#7b1fa2',
+  방열:   '#c2185b',
+  고속신호: '#0277bd',
+};
+
+/* ═══════════════════════════════ RENDER CARDS ═══════════════════════════ */
+function renderCards(filter = 'all') {
+  const grid = document.getElementById('cardsGrid');
+  const countEl = document.getElementById('card-count');
+  const visible = PACKAGES.filter(p => filter === 'all' || p.cat === filter);
+
+  grid.innerHTML = '';
+  countEl.textContent = `${visible.length}개 패키지`;
+
+  visible.forEach(pkg => {
+    const card = document.createElement('article');
+    card.className = 'pkg-card';
+    card.setAttribute('data-id', pkg.id);
+    card.style.setProperty('--card-color', pkg.color);
+
+    const compareBars = Object.entries(pkg.compare)
+      .map(([k,v]) => `
+        <div class="spec-item">
+          <label><span>${k}</span><span style="color:${COLOR_BARS[k]};font-weight:600">${v}%</span></label>
+          <div class="spec-bar-track">
+            <div class="spec-bar-fill" style="width:${v}%;background:${COLOR_BARS[k]}20;border-right:3px solid ${COLOR_BARS[k]}"></div>
+          </div>
+        </div>`).join('');
+
+    card.innerHTML = `
+      <div class="card-strip" style="background:${pkg.stripColor}"></div>
+      <div class="card-head">
+        <div class="card-icon-wrap">${pkg.svg}</div>
+        <div class="card-meta">
+          <div class="pkg-abbr" style="background:${pkg.color}18;color:${pkg.color};border:1.5px solid ${pkg.color}33">${pkg.abbr}</div>
+          <div class="pkg-fullname">${pkg.fullname}</div>
+          <div class="pkg-gen">📅 ${pkg.gen}</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="pkg-simple">${pkg.simple}</p>
+        <div class="spec-list">${compareBars}</div>
+      </div>
+      <div class="card-foot">
+        <div class="tag-list">${pkg.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <button class="detail-btn" onclick="openModal('${pkg.id}')">자세히</button>
+      </div>`;
+
+    grid.appendChild(card);
+  });
+
+  // animate bars after paint
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.spec-bar-fill').forEach(bar => {
+      bar.style.width = bar.style.width; // force reflow
+    });
+  });
+}
+
+/* ═══════════════════════════════ MODAL ═════════════════════════════════ */
+function openModal(id) {
+  const pkg = PACKAGES.find(p => p.id === id);
+  if (!pkg) return;
+
+  document.getElementById('mIcon').innerHTML = `<svg style="width:100px;height:70px">${pkg.svg.replace('<svg viewBox', '<svg viewBox').replace('width="80" height="54"','')}</svg>`;
+  document.getElementById('mAbbr').textContent = pkg.abbr;
+  document.getElementById('mAbbr').style.color = pkg.color;
+  document.getElementById('mFull').textContent = pkg.fullname;
+  document.getElementById('mPitch').textContent = pkg.pitch;
+
+  document.getElementById('mSimple').innerHTML = pkg.simple;
+  document.getElementById('mDetail').innerHTML = pkg.detail;
+
+  document.getElementById('mSpecs').innerHTML = pkg.specs
+    .map(s => `<div class="modal-spec-item"><div class="key">${s.key}</div><div class="val">${s.val}</div></div>`)
+    .join('');
+
+  document.getElementById('mCompare').innerHTML = Object.entries(pkg.compare)
+    .map(([k,v]) => `
+      <div class="compare-row">
+        <div class="compare-label">${k}</div>
+        <div class="compare-bar"><div class="compare-fill" style="width:${v}%;background:${COLOR_BARS[k]}"></div></div>
+        <div class="compare-val">${v}</div>
+      </div>`).join('');
+
+  document.getElementById('mApps').innerHTML = pkg.apps
+    .map(a => `<div class="app-chip">📦 ${a}</div>`).join('');
+
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ═══════════════════════════════ FILTERS ═══════════════════════════════ */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-selected', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    renderCards(btn.dataset.cat);
+  });
+});
+
+/* ═══════════════════════════════ INIT ══════════════════════════════════ */
+renderCards('all');
+</script>
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+</body>
+</html>

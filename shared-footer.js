@@ -14,6 +14,7 @@
     '  <a href="fab-explorer.html">Fab Explorer</a>',
     '  <a href="guide-semiconductor-cost.html">원가 가이드</a>',
     '  <a href="guide-chips-per-wafer.html">DPW 가이드</a>',
+    '  <a href="semiconductor-packages.html">패키지 가이드</a>',
     '  <a href="about.html">About</a>',
     '  <a href="privacy.html">Privacy</a>',
     '  <a href="https://github.com/dudwns100/chipcalc" target="_blank" rel="noopener">GitHub</a>',
