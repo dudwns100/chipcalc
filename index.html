@@ -173,6 +173,61 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   .mkt-grid{grid-template-columns:1fr 1fr}
   .ir-grid{grid-template-columns:1fr 1fr}
 }
+
+/* ── 시세 카드 차트 버튼 ── */
+.mkt-card-foot { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.mkt-chart-btn {
+  height: 24px; padding: 0 10px;
+  border: 1px solid var(--blue-s); border-radius: 100px;
+  background: var(--blue-t); color: var(--blue);
+  font-family: var(--font); font-size: 10.5px; font-weight: 600;
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.mkt-chart-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+.mkt-chart-na { font-size: 10px; color: var(--l4); }
+
+/* ── 차트 모달 ── */
+.chart-modal {
+  display: none;
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.chart-modal.open { display: flex; }
+.chart-modal-box {
+  background: var(--surface);
+  border-radius: 16px;
+  width: 100%; max-width: 860px;
+  height: min(80vh, 560px);
+  display: flex; flex-direction: column;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+  overflow: hidden;
+}
+.chart-modal-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.chart-modal-title {
+  font-size: 14px; font-weight: 700; color: var(--l1);
+}
+.chart-modal-x {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: none; background: var(--s3); color: var(--l3);
+  font-size: 14px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.chart-modal-x:hover { background: var(--border2); }
+.chart-modal-body { flex: 1; overflow: hidden; }
+
+@media(max-width:768px){
+  .chart-modal-box { max-width:100%; height:min(85vh,480px); border-radius:12px; }
+  .mkt-grid { grid-template-columns: 1fr 1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -234,6 +289,23 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
     <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
   </div>
 </nav>
+
+
+<!-- TradingView 차트 모달 -->
+<div class="chart-modal" id="chartModal" onclick="if(event.target===this)closeChart()">
+  <div class="chart-modal-box">
+    <div class="chart-modal-hd">
+      <span class="chart-modal-title" id="chartSymbol">차트</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:10.5px;color:var(--l4)">데이터: TradingView</span>
+        <button class="chart-modal-x" onclick="closeChart()">✕</button>
+      </div>
+    </div>
+    <div class="chart-modal-body">
+      <iframe id="tvChartFrame" src="about:blank" frameborder="0" allowtransparency="true" scrolling="no" style="width:100%;height:100%;border:none"></iframe>
+    </div>
+  </div>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -381,22 +453,22 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
 /* ── 시세 데이터 ── */
 var MKT = {
   fx:[
-    {name:'USD / KRW',id:'mp-krw',val:'로딩…',sub:'미국 달러',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=USD&To=KRW'},
-    {name:'EUR / KRW',id:'mp-eur',val:'로딩…',sub:'유로화',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=EUR&To=KRW'},
-    {name:'JPY / KRW',id:'mp-jpy',val:'로딩…',sub:'엔화 (×100)',url:'https://www.xe.com/currencyconverter/convert/?Amount=100&From=JPY&To=KRW'},
-    {name:'TWD / KRW',id:'mp-twd',val:'로딩…',sub:'대만 달러',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=TWD&To=KRW'},
+    {name:'USD / KRW',id:'mp-krw',val:'로딩…',sub:'미국 달러',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=USD&To=KRW',tv:'FX_IDC:USDKRW'},
+    {name:'EUR / KRW',id:'mp-eur',val:'로딩…',sub:'유로화',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=EUR&To=KRW',tv:'FX_IDC:EURKRW'},
+    {name:'JPY / KRW',id:'mp-jpy',val:'로딩…',sub:'엔화 (×100)',url:'https://www.xe.com/currencyconverter/convert/?Amount=100&From=JPY&To=KRW',tv:'FX_IDC:JPYKRW'},
+    {name:'TWD / KRW',id:'mp-twd',val:'로딩…',sub:'대만 달러',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=TWD&To=KRW',tv:'FX_IDC:TWDKRW'},
   ],
   metal:[
-    {name:'Gold · XAU/USD',val:'~$3,320',sub:'Troy oz · 2026.04',chg:'+0.8%',ct:'up',url:'https://www.gold.org/goldhub/data/gold-prices'},
-    {name:'Silver · XAG/USD',val:'~$33.1',sub:'Troy oz · 2026.04',chg:'+1.2%',ct:'up',url:'https://www.kitco.com/price/silver/'},
-    {name:'Copper · $/lb',val:'~$4.5',sub:'LME 현물',chg:'-0.3%',ct:'dn',url:'https://www.lme.com/metals/non-ferrous/copper/'},
-    {name:'Palladium · $/oz',val:'~$980',sub:'리드프레임 소재',chg:'+0.5%',ct:'up',url:'https://www.kitco.com/price/palladium/'},
+    {name:'Gold · XAU/USD',val:'~$3,320',sub:'Troy oz · 2026.04',chg:'+0.8%',ct:'up',url:'https://www.gold.org/goldhub/data/gold-prices',tv:'COMEX:GC1!'},
+    {name:'Silver · XAG/USD',val:'~$33.1',sub:'Troy oz · 2026.04',chg:'+1.2%',ct:'up',url:'https://www.kitco.com/price/silver/',tv:'COMEX:SI1!'},
+    {name:'Copper · $/lb',val:'~$4.5',sub:'LME 현물',chg:'-0.3%',ct:'dn',url:'https://www.lme.com/metals/non-ferrous/copper/',tv:'COMEX:HG1!'},
+    {name:'Palladium · $/oz',val:'~$980',sub:'리드프레임 소재',chg:'+0.5%',ct:'up',url:'https://www.kitco.com/price/palladium/',tv:'NYMEX:PA1!'},
   ],
   semi:[
-    {name:'DRAM DDR4 8Gb',val:'~$1.8',sub:'업계 추정 · 2025 Q1',chg:'+2.1%',ct:'up',url:'https://www.dramexchange.com/'},
-    {name:'NAND 128Gb TLC',val:'~$3.2',sub:'업계 추정 · 2025 Q1',chg:'-1.4%',ct:'dn',url:'https://www.dramexchange.com/'},
-    {name:'SiC 기판 (150mm)',val:'~$400',sub:'전력반도체 소재',chg:'',ct:'flat',url:'https://www.wolfspeed.com/'},
-    {name:'폴리실리콘 $/kg',val:'~$8',sub:'웨이퍼 원재료',chg:'-3.2%',ct:'dn',url:'https://www.polysilicon.org/'},
+    {name:'DRAM DDR4 8Gb',val:'~$1.8',sub:'업계 추정 · 2025 Q1',chg:'+2.1%',ct:'up',url:'https://www.dramexchange.com/',tv:null},
+    {name:'NAND 128Gb TLC',val:'~$3.2',sub:'업계 추정 · 2025 Q1',chg:'-1.4%',ct:'dn',url:'https://www.dramexchange.com/',tv:null},
+    {name:'SiC 기판 (150mm)',val:'~$400',sub:'전력반도체 소재',chg:'',ct:'flat',url:'https://www.wolfspeed.com/',tv:'NASDAQ:WOLF'},
+    {name:'폴리실리콘 $/kg',val:'~$8',sub:'웨이퍼 원재료',chg:'-3.2%',ct:'dn',url:'https://www.polysilicon.org/',tv:'KRX:009150'},
   ]
 };
 
@@ -404,14 +476,19 @@ var curCat='fx';
 function renderMkt(cat){
   curCat=cat;
   var items=MKT[cat];
-  document.getElementById('mktGrid').innerHTML=items.map(function(d){
+  document.getElementById('mktGrid').innerHTML=items.map(function(d,i){
     var chgHtml=d.chg?'<div class="mkt-chg chg-'+d.ct+'">'+d.chg+'</div>':'';
     var valId=d.id?' id="'+d.id+'"':'';
+    var chartBtn=d.tv
+      ?'<button class="mkt-chart-btn" onclick="event.preventDefault();openChart('+JSON.stringify(d.tv)+','+JSON.stringify(d.name)+')">📈 1년 차트</button>'
+      :'<span class="mkt-chart-na">차트 준비 중</span>';
     return '<a class="mkt-card" href="'+d.url+'" target="_blank" rel="noopener">'
       +'<div class="mkt-name">'+d.name+'</div>'
       +'<div class="mkt-val"'+valId+'>'+d.val+'</div>'
       +'<div class="mkt-sub">'+d.sub+'</div>'
-      +chgHtml+'</a>';
+      +chgHtml
+      +'<div class="mkt-card-foot">'+chartBtn+'</div>'
+      +'</a>';
   }).join('');
   var srcs={fx:'ExchangeRate-API (open.er-api.com)',metal:'Kitco · LME',semi:'DRAMeXchange · 업계 추정'};
   document.getElementById('mktSrc').innerHTML='출처: '+srcs[cat]+' · 참고용 데이터';
@@ -464,6 +541,39 @@ function loadNews(){
 }
 function timeSince(d){var s=Math.floor((Date.now()-d)/1000);return s<3600?Math.floor(s/60)+'분 전':s<86400?Math.floor(s/3600)+'시간 전':Math.floor(s/86400)+'일 전';}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+
+/* ── TradingView 차트 모달 ── */
+function openChart(symbol, name) {
+  document.getElementById('chartSymbol').textContent = name;
+  var isDark = document.body.classList.contains('dark');
+  var theme = isDark ? 'dark' : 'light';
+  var iframe = document.getElementById('tvChartFrame');
+  iframe.src = 'https://www.tradingview.com/widgetembed/'
+    + '?symbol=' + encodeURIComponent(symbol)
+    + '&interval=W'
+    + '&range=12M'
+    + '&hide_side_toolbar=1'
+    + '&hide_top_toolbar=0'
+    + '&save_image=0'
+    + '&theme=' + theme
+    + '&style=2'
+    + '&locale=ko'
+    + '&allow_symbol_change=0'
+    + '&calendar=0'
+    + '&support_host=https://www.tradingview.com';
+  document.getElementById('chartModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeChart() {
+  document.getElementById('chartModal').classList.remove('open');
+  document.body.style.overflow = '';
+  var iframe = document.getElementById('tvChartFrame');
+  iframe.src = 'about:blank';
+}
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') closeChart();
+});
 
 /* ── 트렌드 차트 ── */
 function drawTrend(id,trend,color){
