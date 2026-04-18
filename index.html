@@ -2,268 +2,182 @@
 <html lang="ko">
 <head>
 <script>
-/* OAuth 리다이렉트 복귀 시 index 화면 flash 방지 */
 (function(){
-  try {
-    if (localStorage.getItem('chipcalc-return') &&
-        window.location.hash.indexOf('access_token') >= 0) {
-      /* CSS로 즉시 숨김 */
-      var s = document.createElement('style');
-      s.id = 'auth-hide';
-      s.textContent = 'body{opacity:0!important;transition:none!important}';
+  try{
+    if(localStorage.getItem('chipcalc-return')&&window.location.hash.indexOf('access_token')>=0){
+      var s=document.createElement('style');s.id='auth-hide';
+      s.textContent='body{opacity:0!important;transition:none!important}';
       document.head.appendChild(s);
     }
-  } catch(e) {}
+  }catch(e){}
 })();
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChipCalc — 반도체 원가 & 시장 인텔리전스</title>
-<meta name="description" content="차량용 반도체 원가 계산기, 실시간 시장 시세, 주요 반도체 기업 IR 리포트, 반도체 뉴스를 한 곳에서. Free semiconductor cost estimator & market intelligence.">
-<meta name="keywords" content="반도체 원가 계산기, 차량용 반도체, 반도체 뉴스, 반도체 IR, AEC-Q100, semiconductor cost estimator, automotive IC, wafer price">
-<meta name="author" content="ChipCalc">
+<title>ChipCalc — 차량용 반도체 인텔리전스</title>
+<meta name="description" content="차량용 반도체 원가 계산, 실시간 시세, 공급망 현황, 주요 기업 IR 일정. Automotive semiconductor intelligence.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/">
-
-<!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="ChipCalc — 반도체 원가 & 시장 인텔리전스">
-<meta property="og:description" content="차량용 반도체 원가 계산기, 실시간 시장 시세, IR 리포트, 반도체 뉴스를 한 곳에서.">
+<meta property="og:title" content="ChipCalc — 차량용 반도체 인텔리전스">
 <meta property="og:url" content="https://dudwns100.github.io/chipcalc/">
-<meta property="og:locale" content="ko_KR">
-
-<!-- Google Analytics GA4 -->
 <link rel="stylesheet" href="shared.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* ═══ 글꼴 강제 적용 (모든 요소) ═══ */
-
+/* ── 기본 ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{overflow-x:hidden}
-:root{
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-  --mono:"SF Mono","Menlo","Monaco","Consolas",monospace;
-  --bg:#f2f2f7;--surface:#fff;--s2:#f9f9fb;--s3:#f2f2f7;
-  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.15);
-  --l1:#1c1c1e;--l2:#3c3c43;--l3:#6b6b70;--l4:#aeaeb2;
-  --blue:#0071e3;--blue-s:#d7eaff;--blue-t:#f0f6ff;
-  --green:#30b94a;--green-s:#d4f0db;--green-t:#f0fbf3;
-  --orange:#f25a00;--orange-s:#fde5d3;--orange-t:#fff5ef;
-  --red:#e4362a;--red-t:#fff1f0;--red-s:#fac5c1;
-  --purple:#6e44cc;--purple-t:#f3f0ff;--purple-s:#d4c8f5;
-  --r:8px;--r2:12px;--r3:16px;
-  --sh:0 2px 8px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.05);
-  --sh2:0 4px 16px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.05);
-  --topbar-bg:rgba(255,255,255,0.92);
-}
-
-body.dark{
-  --bg:#1c1c1e;--surface:#2c2c2e;--s2:#3a3a3c;--s3:#2c2c2e;
-  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
-  --l1:#f2f2f7;--l2:#ebebf5;--l3:#aeaeb2;--l4:#636366;
-  --blue-t:rgba(0,113,227,0.18);--blue-s:rgba(0,113,227,0.35);
-  --green-t:rgba(48,185,74,0.15);--green-s:rgba(48,185,74,0.35);
-  --orange-t:rgba(242,90,0,0.15);--orange-s:rgba(242,90,0,0.35);
-  --red-t:rgba(228,54,42,0.15);--red-s:rgba(228,54,42,0.35);
-  --purple-t:rgba(110,68,204,0.18);--purple-s:rgba(110,68,204,0.35);
-  --sh:0 2px 8px rgba(0,0,0,0.25),0 1px 3px rgba(0,0,0,0.18);
-  --sh2:0 4px 16px rgba(0,0,0,0.30),0 2px 6px rgba(0,0,0,0.20);
-  --topbar-bg:rgba(28,28,30,0.92);
-}
-
 body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
 
-/* ── TOPBAR (통일된 레이아웃) ── */
-.auth-tip-wrap:hover 
 /* ── HERO ── */
-.hero{background:linear-gradient(145deg,#0071e3 0%,#0051a8 100%);padding:40px 24px 36px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:-80px;left:-20px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none}
-.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;position:relative;z-index:1;overflow-x:hidden}
-.hero-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.03em;line-height:1.2;margin-bottom:8px}
-.hero-sub{font-size:13px;color:rgba(255,255,255,0.72);line-height:1.6;max-width:520px}
-.hero-cta{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-.btn-primary{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 18px;background:#fff;color:var(--blue);border-radius:20px;font-size:12.5px;font-weight:700;text-decoration:none;transition:all 0.15s;box-shadow:0 2px 8px rgba(0,0,0,0.12);white-space:nowrap}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.18)}
-.btn-ghost{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;background:rgba(255,255,255,0.15);color:#fff;border-radius:20px;font-size:12.5px;font-weight:600;text-decoration:none;transition:all 0.15s;border:1px solid rgba(255,255,255,0.25);white-space:nowrap}
-.btn-ghost:hover{background:rgba(255,255,255,0.22)}
-.hero-stats{display:flex;gap:20px;flex-shrink:0}
-.hstat{text-align:center}
-.hstat-val{font-size:22px;font-weight:800;color:#fff;font-family:var(--mono);line-height:1}
-.hstat-lbl{font-size:9.5px;color:rgba(255,255,255,0.6);margin-top:3px;letter-spacing:0.04em;text-transform:uppercase;font-weight:500}
+.hero{background:linear-gradient(135deg,#0a1628 0%,#0d2d5c 40%,#0051a8 75%,#0071e3 100%);padding:56px 28px 48px;position:relative;overflow:hidden;text-align:center}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(0,163,255,.18) 0%,transparent 55%);pointer-events:none}
+.hero-inner{max-width:720px;margin:0 auto;position:relative;z-index:1}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:100px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,.85);margin-bottom:20px}
+.hero-eyebrow::before{content:'';width:6px;height:6px;border-radius:50%;background:#4df0a0;flex-shrink:0}
+.hero h1{font-size:38px;font-weight:800;letter-spacing:-.03em;line-height:1.12;margin-bottom:14px;color:#fff}
+.hero h1 span{color:#7dd3fc}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.75);max-width:560px;margin:0 auto 24px;line-height:1.7}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 22px;background:#fff;color:#0051a8;border-radius:100px;font-size:13px;font-weight:700;text-decoration:none;transition:all .15s;box-shadow:0 4px 14px rgba(0,0,0,.16)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.22);text-decoration:none}
+.btn-ghost{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 20px;background:rgba(255,255,255,.12);color:#fff;border-radius:100px;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;border:1px solid rgba(255,255,255,.25)}
+.btn-ghost:hover{background:rgba(255,255,255,.20);text-decoration:none}
+.hero-stats{display:flex;gap:0;justify-content:center;margin-top:32px;border-top:1px solid rgba(255,255,255,.12);padding-top:24px}
+.hstat{flex:1;max-width:130px;text-align:center}
+.hstat:not(:last-child){border-right:1px solid rgba(255,255,255,.12)}
+.hstat-val{font-size:24px;font-weight:800;color:#fff;font-family:var(--mono);line-height:1}
+.hstat-lbl{font-size:10px;color:rgba(255,255,255,.55);margin-top:5px;letter-spacing:.04em;text-transform:uppercase}
 
-/* ── MAIN LAYOUT ── */
-.main{max-width:1200px;margin:0 auto;padding:20px 20px 60px;display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start}
+/* ── 메인 레이아웃 ── */
+.main{max-width:1240px;margin:0 auto;padding:28px 20px 80px;display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
 
-/* ── SECTION HEADER ── */
+/* ── 섹션 헤더 ── */
 .sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.sec-title{font-size:13px;font-weight:700;color:var(--l1);letter-spacing:-0.01em;display:flex;align-items:center;gap:6px}
-.sec-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.dot-b{background:var(--blue)}.dot-g{background:var(--green)}.dot-o{background:var(--orange)}.dot-p{background:var(--purple)}
-.sec-badge{font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:0.04em}
+.sec-title{font-size:13px;font-weight:700;color:var(--l1);display:flex;align-items:center;gap:7px}
+.sec-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--blue)}
+.sec-badge{font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:100px}
 .badge-live{background:var(--green-t);color:var(--green);border:1px solid var(--green-s)}
-.sec-link{font-size:11px;color:var(--blue);text-decoration:none;font-weight:500}
+.sec-link{font-size:11.5px;color:var(--blue);text-decoration:none;font-weight:500}
 .sec-link:hover{text-decoration:underline}
 
-/* ── CARD BASE ── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--sh);overflow:hidden}
-.card-body{padding:14px 16px}
+/* ── 카드 ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
+.card:last-child{margin-bottom:0}
 
-/* ── TOOL GRID ── */
-.tool-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px}
-.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;text-decoration:none;color:var(--l1);transition:all 0.18s;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
-.tool-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--blue-s)}
-.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.tool-card.tc-blue::before{background:linear-gradient(90deg,#0071e3,#34aaff)}
-.tool-card.tc-green::before{background:linear-gradient(90deg,#30b94a,#5dd97a)}
-.tool-card.tc-orange::before{background:linear-gradient(90deg,#f25a00,#ff8c42)}
-.tool-card.tc-purple::before{background:linear-gradient(90deg,#6e44cc,#9b6ef5)}
-.tool-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
-.ti-blue{background:var(--blue-t)}.ti-green{background:var(--green-t)}.ti-orange{background:var(--orange-t)}.ti-purple{background:var(--purple-t)}
-.tool-name{font-size:12.5px;font-weight:700;color:var(--l1);letter-spacing:-0.01em}
-.tool-desc{font-size:11px;color:var(--l3);line-height:1.5}
-.tool-tag{display:inline-flex;align-items:center;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:2px;width:fit-content}
-.tt-blue{background:var(--blue-t);color:var(--blue)}.tt-green{background:var(--green-t);color:var(--green)}.tt-orange{background:var(--orange-t);color:var(--orange)}.tt-purple{background:var(--purple-t);color:var(--purple)}
+/* ── 시세 ── */
+.mkt-tabs{display:flex;gap:5px;margin-bottom:12px}
+.mkt-tab{height:26px;padding:0 13px;border-radius:100px;border:1px solid var(--border2);background:var(--surface);color:var(--l3);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.mkt-tab:hover{border-color:var(--blue);color:var(--blue)}
+.mkt-tab.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.mkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.mkt-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px 15px;box-shadow:var(--sh);text-decoration:none;color:var(--l1);transition:all .15s;display:block}
+.mkt-card:hover{border-color:var(--blue-s);box-shadow:var(--sh2);transform:translateY(-1px)}
+.mkt-name{font-size:11px;font-weight:600;color:var(--l3);margin-bottom:5px}
+.mkt-val{font-family:var(--mono);font-size:19px;font-weight:800;color:var(--l1);line-height:1.1}
+.mkt-sub{font-size:10.5px;color:var(--l4);margin-top:3px;font-family:var(--mono)}
+.mkt-chg{font-size:11px;font-weight:700;margin-top:5px;font-family:var(--mono)}
+.chg-up{color:var(--red)}.chg-dn{color:var(--green)}.chg-flat{color:var(--l4)}
+.mkt-src{font-size:10px;color:var(--l4);text-align:right;margin-bottom:20px}
+.mkt-src a{color:var(--blue);text-decoration:none}
 
-/* ── NEWS FEED ── */
-.news-list{display:flex;flex-direction:column;gap:0}
-.news-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;text-decoration:none;color:var(--l1)}
+/* ── 뉴스 ── */
+.news-list{display:flex;flex-direction:column}
+.news-item{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--l1);transition:background .12s}
 .news-item:last-child{border-bottom:none}
 .news-item:hover{background:var(--s2)}
-.news-num{font-size:11px;font-weight:700;color:var(--l4);font-family:var(--mono);width:16px;flex-shrink:0;margin-top:1px}
+.news-num{font-size:11px;font-weight:700;color:var(--l4);font-family:var(--mono);width:18px;flex-shrink:0;margin-top:1px}
 .news-body{flex:1;min-width:0}
-.news-title{font-size:12.5px;font-weight:600;color:var(--l1);line-height:1.45;margin-bottom:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.news-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.news-source{font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-t);padding:1px 6px;border-radius:4px}
+.news-title{font-size:13px;font-weight:600;color:var(--l1);line-height:1.45;margin-bottom:5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.news-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.news-src{font-size:10px;font-weight:600;color:var(--blue);background:var(--blue-t);padding:1px 6px;border-radius:4px}
 .news-date{font-size:10px;color:var(--l4)}
 .news-tag{font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:4px}
 .nt-auto{background:var(--orange-t);color:var(--orange)}
 .nt-market{background:var(--green-t);color:var(--green)}
 .nt-policy{background:var(--purple-t);color:var(--purple)}
 .nt-tech{background:var(--blue-t);color:var(--blue)}
-.news-arrow{font-size:12px;color:var(--l4);flex-shrink:0;margin-top:2px}
+.news-arrow{font-size:13px;color:var(--l4);flex-shrink:0;margin-top:1px}
 .news-loading{padding:20px 16px;text-align:center;color:var(--l4);font-size:12px}
-.news-error{padding:16px;background:var(--orange-t);border-radius:var(--r);margin:12px 16px;font-size:11.5px;color:var(--orange)}
+.news-error{padding:14px 16px;font-size:12px;color:var(--orange);background:var(--orange-t)}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── WAFER PRICE TABLE ── */
+/* ── 웨이퍼 가격 테이블 ── */
 .wp-table{width:100%;border-collapse:collapse;font-size:11.5px}
-.wp-table th{padding:6px 10px;text-align:left;font-size:9.5px;font-weight:700;color:var(--l3);letter-spacing:0.05em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--s3)}
-.wp-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--l2);font-family:var(--mono)}
+.wp-table th{padding:6px 10px;text-align:left;font-size:9.5px;font-weight:700;color:var(--l4);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--s3)}
+.wp-table td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--l2);font-family:var(--mono);font-size:11px}
 .wp-table tr:last-child td{border-bottom:none}
 .wp-table tr:hover td{background:var(--s2)}
-.wp-table td:first-child{font-family:var(--font);font-weight:600;color:var(--l1)}
-.node-badge{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9.5px;font-weight:700;font-family:var(--font)}
-.nb-legacy{background:var(--green-t);color:var(--green)}.nb-mature{background:var(--blue-t);color:var(--blue)}.nb-adv{background:var(--orange-t);color:var(--orange)}.nb-cut{background:var(--purple-t);color:var(--purple)}
+.wp-table td:first-child{font-family:var(--font);font-weight:600;color:var(--l1);font-size:11.5px}
+.nb{display:inline-block;border-radius:4px;padding:1px 6px;font-size:9.5px;font-weight:700;font-family:var(--font)}
+.nb-legacy{background:var(--green-t);color:var(--green)}
+.nb-mature{background:var(--blue-t);color:var(--blue)}
+.nb-adv{background:var(--orange-t);color:var(--orange)}
 
-/* ── IR SECTION (4열 그리드) ── */
-.ir-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+/* ── IR 그리드 ── */
+.ir-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .ir-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:12px;box-shadow:var(--sh)}
-.ir-logo{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em;margin-bottom:8px}
-.ir-name{font-size:11.5px;font-weight:700;color:var(--l1);line-height:1.3;margin-bottom:2px}
+.ir-logo{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:8px}
+.ir-name{font-size:11px;font-weight:700;color:var(--l1);line-height:1.3;margin-bottom:2px}
 .ir-ticker{font-size:9px;color:var(--l3);font-family:var(--mono);margin-bottom:8px}
-.ir-links{display:flex;flex-direction:column;gap:4px}
-.ir-link{display:flex;align-items:center;gap:4px;padding:5px 8px;border-radius:6px;text-decoration:none;font-size:10px;color:var(--l2);transition:all 0.12s;border:1px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ir-links{display:flex;flex-direction:column;gap:3px}
+.ir-link{display:flex;align-items:center;gap:4px;padding:4px 7px;border-radius:5px;text-decoration:none;font-size:10px;color:var(--l2);transition:all .12s;border:1px solid transparent}
 .ir-link:hover{background:var(--blue-t);color:var(--blue);border-color:var(--blue-s)}
-.ir-link-icon{font-size:10px;width:14px;text-align:center;flex-shrink:0}
-.ir-link-type{font-size:8.5px;font-weight:600;padding:1px 4px;border-radius:3px;margin-left:auto;flex-shrink:0}
-.ilt-annual{background:var(--blue-t);color:var(--blue)}.ilt-q{background:var(--green-t);color:var(--green)}.ilt-ir{background:var(--s3);color:var(--l3)}
+.ilt{font-size:8.5px;font-weight:600;padding:1px 4px;border-radius:3px;margin-left:auto}
+.ilt-q{background:var(--green-t);color:var(--green)}
+.ilt-ir{background:var(--s3);color:var(--l3)}
 
-/* ── SIDEBAR CARDS ── */
-.sidebar{display:flex;flex-direction:column;gap:14px}
+/* ── 사이드바 ── */
+.sidebar{display:flex;flex-direction:column;gap:16px}
 .side-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--sh);overflow:hidden}
-.side-hd{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.side-title{font-size:11px;font-weight:700;color:var(--l3);letter-spacing:0.06em;text-transform:uppercase}
-.side-body{padding:12px 14px}
-
-/* ── SUPPLY CHAIN STATUS ── */
-.sc-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.side-hd{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.side-title{font-size:10.5px;font-weight:700;color:var(--l3);letter-spacing:.06em;text-transform:uppercase}
+.side-sub{font-size:9.5px;color:var(--l4)}
+.side-body{padding:10px 15px}
+/* 공급망 */
+.sc-item{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}
 .sc-item:last-child{border-bottom:none}
 .sc-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.sc-green{background:#30b94a}.sc-yellow{background:#f5a623}.sc-red{background:#e4362a}.sc-gray{background:var(--l4)}
+.sc-green{background:#30b94a}.sc-yellow{background:#f5a623}
 .sc-name{font-size:11.5px;font-weight:500;color:var(--l2);flex:1}
-.sc-status{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px}
-.ss-normal{background:var(--green-t);color:var(--green)}.ss-tight{background:var(--orange-t);color:var(--orange)}.ss-short{background:var(--red-t);color:var(--red)}.ss-ease{background:var(--blue-t);color:var(--blue)}
-.sc-trend{width:60px;height:24px;margin-left:auto;flex-shrink:0}
-
-/* ── CALENDAR ── */
+.sc-status{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.ss-normal{background:var(--green-t);color:var(--green)}
+.ss-tight{background:var(--orange-t);color:var(--orange)}
+.ss-ease{background:var(--blue-t);color:var(--blue)}
+.sc-trend{width:56px;height:22px;margin-left:6px;flex-shrink:0}
+/* 실적 캘린더 */
 .cal-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
 .cal-item:last-child{border-bottom:none}
 .cal-date{width:36px;height:36px;border-radius:8px;background:var(--blue-t);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
-.cal-month{font-size:8px;font-weight:700;color:var(--blue);letter-spacing:0.05em;text-transform:uppercase}
-.cal-day{font-size:14px;font-weight:800;color:var(--blue);line-height:1;font-family:var(--mono)}
+.cal-month{font-size:8px;font-weight:700;color:var(--blue);letter-spacing:.05em;text-transform:uppercase}
+.cal-day{font-size:15px;font-weight:800;color:var(--blue);line-height:1;font-family:var(--mono)}
 .cal-info{flex:1;min-width:0}
-.cal-company{font-size:11.5px;font-weight:700;color:var(--l1)}
-.cal-event{font-size:10.5px;color:var(--l3);margin-top:1px}
-.cal-badge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;margin-top:3px;display:inline-block}
-.cb-q{background:var(--green-t);color:var(--green)}.cb-a{background:var(--blue-t);color:var(--blue)}
+.cal-co{font-size:12px;font-weight:700;color:var(--l1)}
+.cal-ev{font-size:10.5px;color:var(--l3);margin-top:1px}
+.cal-badge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;margin-top:3px;display:inline-block;background:var(--green-t);color:var(--green)}
 
-/* ── QUICK CALC WIDGET ── */
-.qc-widget{background:linear-gradient(145deg,#0071e3,#0051a8);border-radius:var(--r2);padding:16px;color:#fff;position:relative;overflow:hidden;text-decoration:none;display:block;transition:all 0.18s}
-.qc-widget:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,113,227,0.3)}
-.qc-widget::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.08)}
-.qc-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;position:relative;z-index:1}
-.qc-sub{font-size:11px;color:rgba(255,255,255,0.7);line-height:1.5;position:relative;z-index:1}
-.qc-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:18px;color:rgba(255,255,255,0.6);z-index:1}
-
-/* ── FOOTER ── */
-
-/* ── SPINNER ── */
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── RESPONSIVE ── */
-@media(max-width:1100px){
-  .ir-grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:900px){
-
-  .main{grid-template-columns:1fr}
-  .sidebar{order:-1}
-  .tool-grid{grid-template-columns:1fr 1fr}
-  .hero-stats{display:none}
-  .hero-inner{grid-template-columns:1fr;overflow-x:hidden}
-  }
-@media(max-width:600px){
-
-  .tool-grid{grid-template-columns:1fr}
-  .ir-grid{grid-template-columns:1fr}
-  .hero-title{font-size:20px}
-          }
-
-/* ── 모바일 추가 (768px 이하) ── */
+/* ── 반응형 ── */
+@media(max-width:1060px){.ir-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.main{grid-template-columns:1fr}.sidebar{order:-1}.ir-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){
-  .hero{padding:28px 16px 24px}
-  .hero-title{font-size:20px}
-  .hero-sub{font-size:12.5px}
-  .hero-inner{grid-template-columns:1fr;overflow-x:hidden}
-  .hero-stats{display:none}
-  .btn-primary,.btn-ghost{height:32px;font-size:12px;padding:0 14px}
-  .main{grid-template-columns:1fr;padding:14px 14px 40px;gap:12px}
-  .tool-grid{grid-template-columns:1fr 1fr;gap:8px}
-  .tool-card{padding:12px}
-  .ir-grid{grid-template-columns:1fr 1fr}
-  .sidebar{order:-1}
-  .qc-widget{padding:14px}
-  .news-item{padding:10px 12px}
+  .hero{padding:38px 18px 32px}.hero h1{font-size:26px}.hero-sub{font-size:14px}
+  .main{padding:16px 14px 60px;gap:14px}
+  .mkt-grid{grid-template-columns:1fr 1fr;gap:7px}
 }
 @media(max-width:480px){
-  .tool-grid{grid-template-columns:1fr}
-  .ir-grid{grid-template-columns:1fr}
-  .main{padding:12px 12px 32px}
+  .hero h1{font-size:22px}.hero-stats{display:none}
+  .mkt-grid{grid-template-columns:1fr 1fr}
+  .ir-grid{grid-template-columns:1fr 1fr}
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
-<!-- ── TOPBAR (통일된 레이아웃) ── -->
+<!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-l">
     <a class="app-icon" href="index.html">IC</a>
@@ -272,36 +186,29 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
       <span class="app-sub">· 홈</span>
     </div>
   </div>
-  
-    <nav class="nav-center">
+  <nav class="nav-center">
     <a class="nav-link active" href="index.html">🏠 홈</a>
     <a class="nav-link" href="calculator.html">🧮 계산기</a>
     <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
     <div class="nav-resources">
       <button class="nav-resources-btn">📚 리소스 <span class="caret">▾</span></button>
       <div class="nav-dropdown">
-        <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
-        <a href="guide-chips-per-wafer.html" class="">📐 DPW 가이드</a>
-        <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
+        <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html">📦 패키지 가이드</a>
       </div>
     </div>
   </nav>
   <div class="topbar-r">
-    <!-- 저장 기록 보기 (계산기 페이지에서만 사용) -->
-    <!-- 현재 계산 저장 (계산기 페이지에서만 사용) -->
-    <!-- 로그인/로그아웃 -->
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
         <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
       </div>
     </div>
-
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
       <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
@@ -315,7 +222,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   </div>
 </div>
 
-<!-- 모바일 네비게이션 드로어 -->
+<!-- 모바일 드로어 -->
 <nav class="nav-drawer" id="navDrawer">
   <a class="nav-link active" href="index.html">🏠 홈</a>
   <a class="nav-link" href="calculator.html">🧮 계산기</a>
@@ -328,19 +235,18 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   </div>
 </nav>
 
-<!-- ── HERO ── -->
+<!-- HERO -->
 <div class="hero">
   <div class="hero-inner">
-    <div>
-      <div class="hero-title">반도체 원가 & 시장 인텔리전스</div>
-      <div class="hero-sub">차량용 반도체 원가 계산, 실시간 시장 시세, 글로벌 팹 탐색, 주요 기업 IR 리포트를 한 곳에서 확인하세요.</div>
-      <div class="hero-cta">
-        <a class="btn-primary" href="calculator.html">🧮 원가 계산기</a>
-        <a class="btn-ghost" href="fab-explorer.html">🏭 Fab Explorer</a>
-      </div>
+    <div class="hero-eyebrow">Automotive Semiconductor Intelligence</div>
+    <h1>차량용 반도체<br><span>시장 인텔리전스</span></h1>
+    <p class="hero-sub">원가 계산 · 글로벌 팹 탐색 · 실시간 시세 · 공급망 현황을 한 플랫폼에서.<br>오토모티브 반도체 실무자를 위한 데이터 허브.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="calculator.html">🧮 원가 계산기</a>
+      <a class="btn-ghost" href="fab-explorer.html">🏭 Fab Explorer</a>
     </div>
     <div class="hero-stats">
-      <div class="hstat"><div class="hstat-val">37</div><div class="hstat-lbl">AEC 패키지</div></div>
+      <div class="hstat"><div class="hstat-val">12</div><div class="hstat-lbl">패키지 종류</div></div>
       <div class="hstat"><div class="hstat-val">76</div><div class="hstat-lbl">글로벌 팹</div></div>
       <div class="hstat"><div class="hstat-val">16</div><div class="hstat-lbl">국가</div></div>
       <div class="hstat"><div class="hstat-val">Free</div><div class="hstat-lbl">무료</div></div>
@@ -348,370 +254,243 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   </div>
 </div>
 
-<!-- ── MAIN CONTENT ── -->
+<!-- MAIN -->
 <div class="main">
+<div>
 
-  <!-- ── LEFT COLUMN ── -->
-  <div>
+  <!-- 시장 시세 -->
+  <div class="sec-hd">
+    <div class="sec-title"><span class="sec-dot"></span>실시간 시장 시세</div>
+  </div>
+  <div class="mkt-tabs">
+    <button class="mkt-tab on" onclick="showMktCat('fx',this)">환율</button>
+    <button class="mkt-tab" onclick="showMktCat('metal',this)">귀금속·원자재</button>
+    <button class="mkt-tab" onclick="showMktCat('semi',this)">반도체 시세</button>
+  </div>
+  <div class="mkt-grid" id="mktGrid"></div>
+  <div class="mkt-src" id="mktSrc"></div>
 
-    <!-- 도구 바로가기 -->
-    <div class="sec-hd">
-      <div class="sec-title"><span class="sec-dot dot-b"></span>도구 & 가이드</div>
+  <!-- 뉴스 -->
+  <div class="sec-hd">
+    <div class="sec-title">
+      <span class="sec-dot" style="background:var(--orange)"></span>반도체 주요 뉴스
+      <span class="sec-badge badge-live" id="news-freshness">로딩 중</span>
     </div>
-    <div class="tool-grid">
-      <a class="tool-card tc-blue" href="calculator.html">
-        <div class="tool-icon ti-blue">🧮</div>
-        <div class="tool-name">원가 계산기</div>
-        <div class="tool-desc">웨이퍼 가격, Die 크기, OSAT를 입력하면 ASP까지 자동 계산.</div>
-        <div class="tool-tag tt-blue">핵심 도구</div>
-      </a>
-      <a class="tool-card tc-green" href="fab-explorer.html">
-        <div class="tool-icon ti-green">🏭</div>
-        <div class="tool-name">Fab Explorer</div>
-        <div class="tool-desc">전 세계 76개 팹 인터랙티브 지도. 공정 노드별 필터링.</div>
-        <div class="tool-tag tt-green">76개 팹</div>
-      </a>
-      <a class="tool-card tc-orange" href="guide-semiconductor-cost.html">
-        <div class="tool-icon ti-orange">💰</div>
-        <div class="tool-name">원가 가이드</div>
-        <div class="tool-desc">웨이퍼 비용, OSAT, Yield, 판매가 구조까지.</div>
-        <div class="tool-tag tt-orange">읽기 8분</div>
-      </a>
-      <a class="tool-card tc-purple" href="guide-chips-per-wafer.html">
-        <div class="tool-icon ti-purple">📐</div>
-        <div class="tool-name">DPW 가이드</div>
-        <div class="tool-desc">웨이퍼당 칩 수 계산 원리와 공식.</div>
-        <div class="tool-tag tt-purple">읽기 6분</div>
-      </a>
+    <a class="sec-link" href="https://news.google.com/search?q=차량용+반도체&hl=ko&gl=KR" target="_blank" rel="noopener">더보기 →</a>
+  </div>
+  <div class="card">
+    <div class="news-list" id="news-list">
+      <div class="news-loading"><span class="spinner"></span>뉴스를 불러오는 중...</div>
     </div>
+  </div>
 
-    <!-- 반도체 뉴스 -->
-    <div class="sec-hd" style="margin-top:6px">
-      <div class="sec-title"><span class="sec-dot dot-b"></span>반도체 주요 뉴스 <span class="sec-badge badge-live" id="news-freshness">로딩 중</span></div>
-      <a class="sec-link" href="https://news.google.com/search?q=%EB%B0%98%EB%8F%84%EC%B2%B4+%EC%B0%A8%EB%9F%89%EC%9A%A9&hl=ko&gl=KR&ceid=KR:ko" target="_blank" rel="noopener">더보기 →</a>
+  <!-- 웨이퍼 가격표 -->
+  <div class="sec-hd" style="margin-top:6px">
+    <div class="sec-title"><span class="sec-dot" style="background:var(--purple)"></span>공정 노드별 웨이퍼 가격</div>
+    <span style="font-size:10px;color:var(--l4)">2026년 시장 추정치</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table class="wp-table">
+      <thead><tr><th>공정 노드</th><th>분류</th><th>12인치 $/장</th><th>8인치 $/장</th><th>주요 차량용 용도</th></tr></thead>
+      <tbody>
+        <tr><td>0.35μm</td><td><span class="nb nb-legacy">Legacy</span></td><td style="color:var(--l4)">—</td><td>~$430</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">파워 MOSFET</td></tr>
+        <tr><td>0.18μm</td><td><span class="nb nb-legacy">Legacy</span></td><td>~$900</td><td>~$700</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">MCU Body · CAN/LIN</td></tr>
+        <tr><td>90nm</td><td><span class="nb nb-mature">Mature</span></td><td>~$1,500</td><td>~$950</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">MCU Chassis</td></tr>
+        <tr><td>65nm</td><td><span class="nb nb-mature">Mature</span></td><td>~$1,800</td><td>~$1,250</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">고성능 MCU · PMIC</td></tr>
+        <tr><td>28nm</td><td><span class="nb nb-mature">Mature</span></td><td>~$3,000</td><td style="color:var(--l4)">—</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">ADAS 초급 · Gateway</td></tr>
+        <tr><td>7nm</td><td><span class="nb nb-adv">Advanced</span></td><td>~$10,000</td><td style="color:var(--l4)">—</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">ADAS SoC</td></tr>
+        <tr><td>5nm</td><td><span class="nb nb-adv">Advanced</span></td><td>~$16,000</td><td style="color:var(--l4)">—</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">자율주행 SoC</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- IR 그리드 -->
+  <div class="sec-hd" style="margin-top:6px">
+    <div class="sec-title"><span class="sec-dot" style="background:var(--purple)"></span>주요 차량용 반도체 기업 IR</div>
+  </div>
+  <div class="ir-grid">
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#f5a623,#e8890a)">NXP</div><div class="ir-name">NXP Semiconductors</div><div class="ir-ticker">NASDAQ: NXPI</div><div class="ir-links"><a class="ir-link" href="https://investors.nxp.com/" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://investors.nxp.com/financial-information/quarterly-results" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#0071e3,#0051a8)">IFX</div><div class="ir-name">Infineon Technologies</div><div class="ir-ticker">XETRA: IFX</div><div class="ir-links"><a class="ir-link" href="https://www.infineon.com/about/investor" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://www.infineon.com/about/investor/reports-presentations/financial-results" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#30b94a,#1e8f35)">STM</div><div class="ir-name">STMicroelectronics</div><div class="ir-ticker">NYSE: STM</div><div class="ir-links"><a class="ir-link" href="https://investors.st.com/" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://investors.st.com/financial-information/quarterly-results" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#e4362a,#b02820)">RNS</div><div class="ir-name">Renesas Electronics</div><div class="ir-ticker">TSE: 6723</div><div class="ir-links"><a class="ir-link" href="https://www.renesas.com/en/about/investor-relations" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://www.renesas.com/en/about/investor-relations/financial-results" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#6e44cc,#5030a0)">TXN</div><div class="ir-name">Texas Instruments</div><div class="ir-ticker">NASDAQ: TXN</div><div class="ir-links"><a class="ir-link" href="https://investor.ti.com/" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://investor.ti.com/financial-information/quarterly-results" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#f25a00,#c04500)">ON</div><div class="ir-name">onsemi</div><div class="ir-ticker">NASDAQ: ON</div><div class="ir-links"><a class="ir-link" href="https://investor.onsemi.com/" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://investor.onsemi.com/financials" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#1c7ed6,#1558a8)">MCHP</div><div class="ir-name">Microchip Technology</div><div class="ir-ticker">NASDAQ: MCHP</div><div class="ir-links"><a class="ir-link" href="https://ir.microchip.com/" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://ir.microchip.com/financial-information/quarterly-results" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+    <div class="ir-card"><div class="ir-logo" style="background:linear-gradient(145deg,#2d9cdb,#1a7ab5)">ADI</div><div class="ir-name">Analog Devices</div><div class="ir-ticker">NASDAQ: ADI</div><div class="ir-links"><a class="ir-link" href="https://investor.analog.com/" target="_blank" rel="noopener">🔗 IR 홈 <span class="ilt ilt-ir">IR</span></a><a class="ir-link" href="https://investor.analog.com/financial-information/quarterly-results" target="_blank" rel="noopener">📊 분기 <span class="ilt ilt-q">Q</span></a></div></div>
+  </div>
+
+</div><!-- /left -->
+
+<!-- 사이드바 -->
+<div class="sidebar">
+
+  <!-- 공급망 현황 -->
+  <div class="side-card">
+    <div class="side-hd"><div class="side-title">🔗 차량용 반도체 공급망</div><span class="side-sub">2026 Q1</span></div>
+    <div class="side-body">
+      <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">MCU (Body/Chassis)</div><div class="sc-status ss-normal">정상</div><canvas class="sc-trend" id="trend-mcu"></canvas></div>
+      <div class="sc-item"><div class="sc-dot sc-yellow"></div><div class="sc-name">파워 반도체 (SiC)</div><div class="sc-status ss-tight">타이트</div><canvas class="sc-trend" id="trend-sic"></canvas></div>
+      <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">PMIC / LDO</div><div class="sc-status ss-normal">정상</div><canvas class="sc-trend" id="trend-pmic"></canvas></div>
+      <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">CAN / LIN</div><div class="sc-status ss-ease">완화</div><canvas class="sc-trend" id="trend-can"></canvas></div>
+      <div class="sc-item"><div class="sc-dot sc-yellow"></div><div class="sc-name">ADAS SoC</div><div class="sc-status ss-tight">타이트</div><canvas class="sc-trend" id="trend-adas"></canvas></div>
+      <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">MEMS Sensor</div><div class="sc-status ss-normal">정상</div><canvas class="sc-trend" id="trend-sensor"></canvas></div>
     </div>
-    <div class="card" style="margin-bottom:18px">
-      <div class="news-list" id="news-list">
-        <div class="news-loading"><span class="spinner"></span>뉴스를 불러오는 중...</div>
-      </div>
+  </div>
+
+  <!-- 실적 발표 일정 -->
+  <div class="side-card">
+    <div class="side-hd"><div class="side-title">📅 실적 발표 일정</div><span class="side-sub">2026 Q1/Q2</span></div>
+    <div class="side-body">
+      <div class="cal-item"><div class="cal-date"><div class="cal-month">APR</div><div class="cal-day">21</div></div><div class="cal-info"><div class="cal-co">Texas Instruments</div><div class="cal-ev">Q1 2026 실적 발표</div><span class="cal-badge">분기</span></div></div>
+      <div class="cal-item"><div class="cal-date"><div class="cal-month">APR</div><div class="cal-day">28</div></div><div class="cal-info"><div class="cal-co">STMicroelectronics</div><div class="cal-ev">Q1 2026 실적 발표</div><span class="cal-badge">분기</span></div></div>
+      <div class="cal-item"><div class="cal-date"><div class="cal-month">MAY</div><div class="cal-day">5</div></div><div class="cal-info"><div class="cal-co">NXP Semiconductors</div><div class="cal-ev">Q1 2026 실적 발표</div><span class="cal-badge">분기</span></div></div>
+      <div class="cal-item"><div class="cal-date"><div class="cal-month">MAY</div><div class="cal-day">7</div></div><div class="cal-info"><div class="cal-co">onsemi</div><div class="cal-ev">Q1 2026 실적 발표</div><span class="cal-badge">분기</span></div></div>
+      <div class="cal-item"><div class="cal-date"><div class="cal-month">MAY</div><div class="cal-day">13</div></div><div class="cal-info"><div class="cal-co">Microchip Technology</div><div class="cal-ev">Q2 FY2026 실적 발표</div><span class="cal-badge">분기</span></div></div>
+      <div class="cal-item"><div class="cal-date"><div class="cal-month">MAY</div><div class="cal-day">20</div></div><div class="cal-info"><div class="cal-co">Infineon Technologies</div><div class="cal-ev">Q2 FY2026 실적 발표</div><span class="cal-badge">분기</span></div></div>
     </div>
+  </div>
 
-    <!-- 웨이퍼 가격 참고표 -->
-    <div class="sec-hd">
-      <div class="sec-title"><span class="sec-dot dot-o"></span>공정 노드별 웨이퍼 가격</div>
-      <span style="font-size:10px;color:var(--l4)">2026년 시장 추정치</span>
+  <!-- AEC-Q 인증 기준 -->
+  <div class="side-card">
+    <div class="side-hd">
+      <div class="side-title">🚗 AEC-Q 인증 기준</div>
+      <a class="sec-link" href="guide-semiconductor-cost.html" style="font-size:10.5px">자세히 →</a>
     </div>
-    <div class="card" style="margin-bottom:18px">
-      <div style="overflow-x:auto">
-        <table class="wp-table">
-          <thead>
-            <tr>
-              <th>공정 노드</th>
-              <th>분류</th>
-              <th>12인치 $/장</th>
-              <th>8인치 $/장</th>
-              <th>주요 용도</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>0.35μm</td><td><span class="node-badge nb-legacy">Legacy</span></td><td style="color:var(--l4)">—</td><td>~$430</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">파워 MOSFET</td></tr>
-            <tr><td>0.18μm</td><td><span class="node-badge nb-legacy">Legacy</span></td><td>~$900</td><td>~$700</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">MCU (Body)</td></tr>
-            <tr><td>90nm</td><td><span class="node-badge nb-mature">Mature</span></td><td>~$1,500</td><td>~$950</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">MCU (Chassis)</td></tr>
-            <tr><td>65nm</td><td><span class="node-badge nb-mature">Mature</span></td><td>~$1,800</td><td>~$1,250</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">고성능 MCU</td></tr>
-            <tr><td>28nm</td><td><span class="node-badge nb-mature">Mature</span></td><td>~$3,000</td><td style="color:var(--l4)">—</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">ADAS 초급</td></tr>
-            <tr><td>7nm</td><td><span class="node-badge nb-adv">Advanced</span></td><td>~$10,000</td><td style="color:var(--l4)">—</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">ADAS SoC</td></tr>
-            <tr><td>5nm</td><td><span class="node-badge nb-adv">Advanced</span></td><td>~$16,000</td><td style="color:var(--l4)">—</td><td style="font-family:var(--font);font-size:11px;color:var(--l3)">자율주행</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- IR 리포트 (4열 그리드) -->
-    <div class="sec-hd">
-      <div class="sec-title"><span class="sec-dot dot-p"></span>주요 차량용 반도체 기업 IR</div>
-    </div>
-    <div class="ir-grid" id="ir-grid">
-      <!-- NXP -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#f5a623,#e8890a)">NXP</div>
-        <div class="ir-name">NXP Semiconductors</div>
-        <div class="ir-ticker">NASDAQ: NXPI</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://investors.nxp.com/" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://investors.nxp.com/financial-information/quarterly-results" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://www.nxp.com/docs/en/supporting-information/NXP202410K.pdf" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
-      </div>
-
-      <!-- Infineon -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#0071e3,#0051a8)">IFX</div>
-        <div class="ir-name">Infineon Technologies</div>
-        <div class="ir-ticker">XETRA: IFX</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://www.infineon.com/about/investor" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://www.infineon.com/about/investor/reports-presentations/financial-results" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://www.infineon.com/about/investor/reports-presentations/annual-reports" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
-      </div>
-
-      <!-- STMicroelectronics -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#30b94a,#1e8f35)">STM</div>
-        <div class="ir-name">STMicroelectronics</div>
-        <div class="ir-ticker">NYSE: STM</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://investors.st.com/" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://investors.st.com/financial-information/quarterly-results" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://investors.st.com/financial-information/annual-reports" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
-      </div>
-
-      <!-- Renesas -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#e4362a,#b02820)">RNS</div>
-        <div class="ir-name">Renesas Electronics</div>
-        <div class="ir-ticker">TSE: 6723</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://www.renesas.com/en/about/investor-relations" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://www.renesas.com/en/about/investor-relations/financial-results" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://www.renesas.com/en/about/investor-relations/annual-reports" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
-      </div>
-
-      <!-- Texas Instruments -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#6e44cc,#5030a0)">TXN</div>
-        <div class="ir-name">Texas Instruments</div>
-        <div class="ir-ticker">NASDAQ: TXN</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://investor.ti.com/" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://investor.ti.com/financial-information/quarterly-results" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://investor.ti.com/financial-information/annual-reports" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
-      </div>
-
-      <!-- onsemi -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#f25a00,#c04500)">ON</div>
-        <div class="ir-name">onsemi (ON Semiconductor)</div>
-        <div class="ir-ticker">NASDAQ: ON</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://investor.onsemi.com/" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://investor.onsemi.com/financials" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://investor.onsemi.com/news-releases" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
-      </div>
-
-      <!-- Microchip -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#1c7ed6,#1558a8)">MCHP</div>
-        <div class="ir-name">Microchip Technology</div>
-        <div class="ir-ticker">NASDAQ: MCHP</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://ir.microchip.com/" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://ir.microchip.com/financial-information/quarterly-results" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://ir.microchip.com/financial-information/annual-reports" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
-      </div>
-
-      <!-- Analog Devices -->
-      <div class="ir-card">
-        <div class="ir-logo" style="background:linear-gradient(145deg,#2d9cdb,#1a7ab5)">ADI</div>
-        <div class="ir-name">Analog Devices (ADI)</div>
-        <div class="ir-ticker">NASDAQ: ADI</div>
-        <div class="ir-links">
-          <a class="ir-link" href="https://investor.analog.com/" target="_blank" rel="noopener"><span class="ir-link-icon">🔗</span><span style="flex:1">IR 홈</span><span class="ir-link-type ilt-ir">IR</span></a>
-          <a class="ir-link" href="https://investor.analog.com/financial-information/quarterly-results" target="_blank" rel="noopener"><span class="ir-link-icon">📊</span><span style="flex:1">분기</span><span class="ir-link-type ilt-q">Q</span></a>
-          <a class="ir-link" href="https://investor.analog.com/financial-info/annual-reports/" target="_blank" rel="noopener"><span class="ir-link-icon">📄</span><span style="flex:1">연간</span><span class="ir-link-type ilt-annual">A</span></a>
-        </div>
+    <div class="side-body">
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+        <div style="display:flex;justify-content:space-between"><span style="font-weight:700;color:var(--l1)">AEC-Q100</span><span style="color:var(--l3);font-size:10.5px;font-family:var(--mono)">IC · 집적회로</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-weight:700;color:var(--l1)">AEC-Q101</span><span style="color:var(--l3);font-size:10.5px;font-family:var(--mono)">Discrete · 이산소자</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-weight:700;color:var(--l1)">AEC-Q102</span><span style="color:var(--l3);font-size:10.5px;font-family:var(--mono)">LED · 광소자</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-weight:700;color:var(--l1)">AEC-Q103</span><span style="color:var(--l3);font-size:10.5px;font-family:var(--mono)">MEMS Sensor</span></div>
+        <div style="display:flex;justify-content:space-between"><span style="font-weight:700;color:var(--l1)">AEC-Q104</span><span style="color:var(--l3);font-size:10.5px;font-family:var(--mono)">MCM · 멀티칩모듈</span></div>
+        <div style="margin-top:4px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--l3);line-height:1.6">-40°C~+150°C · 습도·진동·ESD 가혹 환경 기준 통과 필수</div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /left -->
-
-  <!-- ── SIDEBAR ── -->
-  <div class="sidebar">
-
-    <!-- 원가 계산기 바로가기 -->
-    <a class="qc-widget" href="calculator.html">
-      <div class="qc-title">🧮 원가 계산기</div>
-      <div class="qc-sub">웨이퍼 가격 · Die 크기 · OSAT → ASP 자동 계산</div>
-      <div class="qc-arrow">→</div>
-    </a>
-
-    <!-- 공급망 현황 (트렌드 그래프 포함) -->
-    <div class="side-card">
-      <div class="side-hd">
-        <div class="side-title">🔗 공급망 현황</div>
-        <span style="font-size:9.5px;color:var(--l4)">2026 Q1</span>
-      </div>
-      <div class="side-body" style="padding:10px 14px">
-        <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">MCU (Body/Chassis)</div><div class="sc-status ss-normal">정상</div><canvas class="sc-trend" id="trend-mcu"></canvas></div>
-        <div class="sc-item"><div class="sc-dot sc-yellow"></div><div class="sc-name">파워 반도체 (SiC)</div><div class="sc-status ss-tight">타이트</div><canvas class="sc-trend" id="trend-sic"></canvas></div>
-        <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">PMIC / LDO</div><div class="sc-status ss-normal">정상</div><canvas class="sc-trend" id="trend-pmic"></canvas></div>
-        <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">CAN/LIN</div><div class="sc-status ss-ease">완화</div><canvas class="sc-trend" id="trend-can"></canvas></div>
-        <div class="sc-item"><div class="sc-dot sc-yellow"></div><div class="sc-name">ADAS SoC</div><div class="sc-status ss-tight">타이트</div><canvas class="sc-trend" id="trend-adas"></canvas></div>
-        <div class="sc-item"><div class="sc-dot sc-green"></div><div class="sc-name">Sensor (MEMS)</div><div class="sc-status ss-normal">정상</div><canvas class="sc-trend" id="trend-sensor"></canvas></div>
-      </div>
-    </div>
-
-    <!-- 실적 발표 캘린더 (2026 Q1/Q2) -->
-    <div class="side-card">
-      <div class="side-hd">
-        <div class="side-title">📅 실적 발표 일정</div>
-        <span style="font-size:9.5px;color:var(--l4)">2026 Q1/Q2</span>
-      </div>
-      <div class="side-body" style="padding:10px 14px">
-        <div class="cal-item">
-          <div class="cal-date"><div class="cal-month">APR</div><div class="cal-day">21</div></div>
-          <div class="cal-info">
-            <div class="cal-company">Texas Instruments</div>
-            <div class="cal-event">Q1 2026 실적 발표</div>
-            <div class="cal-badge cb-q">분기</div>
-          </div>
-        </div>
-        <div class="cal-item">
-          <div class="cal-date"><div class="cal-month">APR</div><div class="cal-day">28</div></div>
-          <div class="cal-info">
-            <div class="cal-company">STMicroelectronics</div>
-            <div class="cal-event">Q1 2026 실적 발표</div>
-            <div class="cal-badge cb-q">분기</div>
-          </div>
-        </div>
-        <div class="cal-item">
-          <div class="cal-date"><div class="cal-month">MAY</div><div class="cal-day">5</div></div>
-          <div class="cal-info">
-            <div class="cal-company">NXP Semiconductors</div>
-            <div class="cal-event">Q1 2026 실적 발표</div>
-            <div class="cal-badge cb-q">분기</div>
-          </div>
-        </div>
-        <div class="cal-item">
-          <div class="cal-date"><div class="cal-month">MAY</div><div class="cal-day">7</div></div>
-          <div class="cal-info">
-            <div class="cal-company">onsemi</div>
-            <div class="cal-event">Q1 2026 실적 발표</div>
-            <div class="cal-badge cb-q">분기</div>
-          </div>
-        </div>
-        <div class="cal-item">
-          <div class="cal-date"><div class="cal-month">MAY</div><div class="cal-day">13</div></div>
-          <div class="cal-info">
-            <div class="cal-company">Microchip Technology</div>
-            <div class="cal-event">Q2 FY2026 실적 발표</div>
-            <div class="cal-badge cb-q">분기</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /sidebar -->
-
+</div><!-- /sidebar -->
 </div><!-- /main -->
 
-<!-- ── FOOTER ── -->
 <footer></footer>
 
 <script src="shared-footer.js"></script>
 <script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
 <script>
-/* ── TREND CHART 함수 ── */
-function drawTrendChart(canvasId, trend){
-  const canvas = document.getElementById(canvasId);
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.offsetWidth || 60;
-  const h = canvas.offsetHeight || 24;
-  canvas.width = w * window.devicePixelRatio;
-  canvas.height = h * window.devicePixelRatio;
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-  
-  const data = trend === 'up' ? [2,3,4,5,6,7,8] : trend === 'down' ? [8,7,6,5,4,3,2] : [5,5,5,5,5,5,5];
-  const color = trend === 'up' ? '#e4362a' : trend === 'down' ? '#30b94a' : '#aeaeb2';
-  
-  ctx.clearRect(0,0,w,h);
+/* ── 시세 데이터 ── */
+var MKT = {
+  fx:[
+    {name:'USD / KRW',id:'mp-krw',val:'로딩…',sub:'미국 달러',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=USD&To=KRW'},
+    {name:'EUR / KRW',id:'mp-eur',val:'로딩…',sub:'유로화',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=EUR&To=KRW'},
+    {name:'JPY / KRW',id:'mp-jpy',val:'로딩…',sub:'엔화 (×100)',url:'https://www.xe.com/currencyconverter/convert/?Amount=100&From=JPY&To=KRW'},
+    {name:'TWD / KRW',id:'mp-twd',val:'로딩…',sub:'대만 달러',url:'https://www.xe.com/currencyconverter/convert/?Amount=1&From=TWD&To=KRW'},
+  ],
+  metal:[
+    {name:'Gold · XAU/USD',val:'~$3,320',sub:'Troy oz · 2026.04',chg:'+0.8%',ct:'up',url:'https://www.gold.org/goldhub/data/gold-prices'},
+    {name:'Silver · XAG/USD',val:'~$33.1',sub:'Troy oz · 2026.04',chg:'+1.2%',ct:'up',url:'https://www.kitco.com/price/silver/'},
+    {name:'Copper · $/lb',val:'~$4.5',sub:'LME 현물',chg:'-0.3%',ct:'dn',url:'https://www.lme.com/metals/non-ferrous/copper/'},
+    {name:'Palladium · $/oz',val:'~$980',sub:'리드프레임 소재',chg:'+0.5%',ct:'up',url:'https://www.kitco.com/price/palladium/'},
+  ],
+  semi:[
+    {name:'DRAM DDR4 8Gb',val:'~$1.8',sub:'업계 추정 · 2025 Q1',chg:'+2.1%',ct:'up',url:'https://www.dramexchange.com/'},
+    {name:'NAND 128Gb TLC',val:'~$3.2',sub:'업계 추정 · 2025 Q1',chg:'-1.4%',ct:'dn',url:'https://www.dramexchange.com/'},
+    {name:'SiC 기판 (150mm)',val:'~$400',sub:'전력반도체 소재',chg:'',ct:'flat',url:'https://www.wolfspeed.com/'},
+    {name:'폴리실리콘 $/kg',val:'~$8',sub:'웨이퍼 원재료',chg:'-3.2%',ct:'dn',url:'https://www.polysilicon.org/'},
+  ]
+};
+
+var curCat='fx';
+function renderMkt(cat){
+  curCat=cat;
+  var items=MKT[cat];
+  document.getElementById('mktGrid').innerHTML=items.map(function(d){
+    var chgHtml=d.chg?'<div class="mkt-chg chg-'+d.ct+'">'+d.chg+'</div>':'';
+    var valId=d.id?' id="'+d.id+'"':'';
+    return '<a class="mkt-card" href="'+d.url+'" target="_blank" rel="noopener">'
+      +'<div class="mkt-name">'+d.name+'</div>'
+      +'<div class="mkt-val"'+valId+'>'+d.val+'</div>'
+      +'<div class="mkt-sub">'+d.sub+'</div>'
+      +chgHtml+'</a>';
+  }).join('');
+  var srcs={fx:'ExchangeRate-API (open.er-api.com)',metal:'Kitco · LME',semi:'DRAMeXchange · 업계 추정'};
+  document.getElementById('mktSrc').innerHTML='출처: '+srcs[cat]+' · 참고용 데이터';
+  if(cat==='fx') fetchFX();
+}
+function showMktCat(cat,btn){
+  document.querySelectorAll('.mkt-tab').forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+  renderMkt(cat);
+}
+function fetchFX(){
+  fetch('https://open.er-api.com/v6/latest/USD')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var r=d.rates,krw=r.KRW||0;
+      var set=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
+      if(krw){set('mp-krw','₩'+Math.round(krw).toLocaleString());}
+      if(r.EUR&&krw) set('mp-eur','₩'+Math.round(krw/r.EUR).toLocaleString());
+      if(r.JPY&&krw) set('mp-jpy','₩'+(krw/r.JPY*100).toFixed(1));
+      if(r.TWD&&krw) set('mp-twd','₩'+(krw/r.TWD).toFixed(1));
+    }).catch(function(){});
+}
+
+/* ── 뉴스 ── */
+function loadNews(){
+  var url='https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent('https://news.google.com/rss/search?q=차량용+반도체&hl=ko&gl=KR&ceid=KR:ko');
+  fetch(url).then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.items||!d.items.length) throw 0;
+      var html=d.items.slice(0,8).map(function(item,i){
+        var src=(item.author||'').replace(/via .*/,'').trim()||'뉴스';
+        var t=item.title||'';
+        var dt=item.pubDate?timeSince(new Date(item.pubDate)):'';
+        var tag=/차량용|automotive|ADAS|EV/i.test(t)?'<span class="news-tag nt-auto">차량용</span>'
+          :/시세|가격|달러|환율/i.test(t)?'<span class="news-tag nt-market">시세</span>'
+          :/정책|규제|정부/i.test(t)?'<span class="news-tag nt-policy">정책</span>'
+          :'<span class="news-tag nt-tech">기술</span>';
+        return '<a class="news-item" href="'+(item.link||'#')+'" target="_blank" rel="noopener">'
+          +'<div class="news-num">'+String(i+1).padStart(2,'0')+'</div>'
+          +'<div class="news-body"><div class="news-title">'+esc(t)+'</div>'
+          +'<div class="news-meta"><span class="news-src">'+esc(src)+'</span><span class="news-date">'+dt+'</span>'+tag+'</div></div>'
+          +'<div class="news-arrow">↗</div></a>';
+      }).join('');
+      document.getElementById('news-list').innerHTML=html;
+      var el=document.getElementById('news-freshness');if(el)el.textContent='최신';
+    }).catch(function(){
+      document.getElementById('news-list').innerHTML='<div class="news-error">뉴스를 불러오지 못했습니다. <a href="https://news.google.com/search?q=차량용+반도체" target="_blank" rel="noopener">Google 뉴스 →</a></div>';
+      var el=document.getElementById('news-freshness');if(el)el.textContent='오류';
+    });
+}
+function timeSince(d){var s=Math.floor((Date.now()-d)/1000);return s<3600?Math.floor(s/60)+'분 전':s<86400?Math.floor(s/3600)+'시간 전':Math.floor(s/86400)+'일 전';}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── 트렌드 차트 ── */
+function drawTrend(id,trend,color){
+  var canvas=document.getElementById(id);if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  var w=canvas.offsetWidth||56,h=canvas.offsetHeight||22;
+  canvas.width=w*devicePixelRatio;canvas.height=h*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);
+  var pts=trend==='up'?[2,3,4,5,6,7,8]:trend==='dn'?[8,7,6,5,4,3,2]:[5,5,4,5,6,5,5];
+  var mn=Math.min.apply(null,pts),mx=Math.max.apply(null,pts);
   ctx.beginPath();
-  data.forEach((v,i)=>{
-    const x = (i/(data.length-1))*w;
-    const y = h - (v/10)*h;
-    i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-  });
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  pts.forEach(function(v,i){var x=i/(pts.length-1)*w,y=h-(mx===mn?h/2:(v-mn)/(mx-mn)*(h-4)+2);i?ctx.lineTo(x,y):ctx.moveTo(x,y);});
+  ctx.strokeStyle=color||'#30b94a';ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.stroke();
 }
 
-/* ── NEWS FEED ── */
-const CURATED_NEWS = [
-  {title:"NXP, 2026년 차량용 반도체 수요 회복세 전망 — Q1 실적 발표",source:"NXP IR",date:"2026-04-21",url:"https://investors.nxp.com/",tag:"auto"},
-  {title:"Infineon, SiC 파워 반도체 생산능력 확대 — 신규 팹 투자 발표",source:"Infineon",date:"2026-04-18",url:"https://www.infineon.com/about/investor",tag:"market"},
-  {title:"TSMC, 2nm 공정 양산 가속화 — 차량용 고급 SoC 수요 대응",source:"TSMC",date:"2026-04-15",url:"https://investor.tsmc.com/",tag:"tech"},
-  {title:"onsemi, EV용 SiC 모듈 신제품 출시 — 인버터 효율 18% 향상",source:"onsemi",date:"2026-04-12",url:"https://investor.onsemi.com/",tag:"auto"},
-  {title:"미국 반도체 지원법(CHIPS Act) 추가 예산 편성 — 차량용 팹 우선 지원",source:"Reuters",date:"2026-04-10",url:"https://www.reuters.com/technology/semiconductors/",tag:"policy"}
-];
-
-const TAG_LABELS = {auto:'차량용',market:'시장',policy:'정책',tech:'기술'};
-const TAG_CLASSES = {auto:'nt-auto',market:'nt-market',policy:'nt-policy',tech:'nt-tech'};
-
-function renderNews(items){
-  const list = document.getElementById('news-list');
-  list.innerHTML = '';
-  items.forEach((item,i)=>{
-    const a = document.createElement('a');
-    a.className = 'news-item';
-    a.href = item.url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    const tagLabel = TAG_LABELS[item.tag] || '기술';
-    const tagClass = TAG_CLASSES[item.tag] || 'nt-tech';
-    const dateStr = item.date ? formatDate(item.date) : '';
-    a.innerHTML = `
-      <div class="news-num">${String(i+1).padStart(2,'0')}</div>
-      <div class="news-body">
-        <div class="news-title">${escapeHtml(item.title)}</div>
-        <div class="news-meta">
-          <span class="news-source">${escapeHtml(item.source)}</span>
-          ${dateStr ? `<span class="news-date">${dateStr}</span>` : ''}
-          <span class="news-tag ${tagClass}">${tagLabel}</span>
-        </div>
-      </div>
-      <div class="news-arrow">↗</div>
-    `;
-    list.appendChild(a);
-  });
-  document.getElementById('news-freshness').textContent = '최신';
-  document.getElementById('news-freshness').className = 'sec-badge badge-live';
-}
-
-function formatDate(dateStr){
-  try{
-    const d = new Date(dateStr);
-    const now = new Date();
-    const diff = Math.floor((now - d) / (1000*60*60*24));
-    if(diff === 0) return '오늘';
-    if(diff === 1) return '어제';
-    if(diff < 7) return diff + '일 전';
-    return d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
-  }catch(e){ return dateStr; }
-}
-
-function escapeHtml(str){
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-/* ── INIT ── */
-document.addEventListener('DOMContentLoaded', function(){
-  renderNews(CURATED_NEWS);
-  drawTrendChart('trend-mcu', 'flat');
-  drawTrendChart('trend-sic', 'up');
-  drawTrendChart('trend-pmic', 'flat');
-  drawTrendChart('trend-can', 'down');
-  drawTrendChart('trend-adas', 'up');
-  drawTrendChart('trend-sensor', 'flat');
+/* ── 초기화 ── */
+document.addEventListener('DOMContentLoaded',function(){
+  renderMkt('fx');
+  loadNews();
+  setTimeout(function(){
+    drawTrend('trend-mcu','flat','#30b94a');
+    drawTrend('trend-sic','up','#f25a00');
+    drawTrend('trend-pmic','flat','#30b94a');
+    drawTrend('trend-can','dn','#0071e3');
+    drawTrend('trend-adas','up','#f25a00');
+    drawTrend('trend-sensor','flat','#30b94a');
+  },200);
 });
 </script>
-
-<script src="shared-auth-supabase.js"></script>
 </body>
 </html>
