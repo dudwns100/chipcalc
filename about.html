@@ -71,13 +71,18 @@ a:hover{text-decoration:underline}
       <span class="app-sub">· About</span>
     </div>
   </div>
-  <nav class="nav-center">
+    <nav class="nav-center">
     <a class="nav-link" href="index.html">🏠 홈</a>
     <a class="nav-link" href="calculator.html">🧮 계산기</a>
     <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
-    <a class="nav-link" href="guide-semiconductor-cost.html">💰 가이드</a>
-    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW</a>
-    <a class="nav-link active" href="about.html">ℹ About</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html" class="">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
+      </div>
+    </div>
   </nav>
   <div class="topbar-r">
     <div class="auth-tip-wrap">
@@ -110,10 +115,13 @@ a:hover{text-decoration:underline}
   <a class="nav-link" href="index.html">🏠 홈</a>
   <a class="nav-link" href="calculator.html">🧮 계산기</a>
   <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
-  <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
-  <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
-<a class="nav-link" href="semiconductor-packages.html">📦 패키지</a>
-  </nav>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
+  </div>
+</nav>
 <div class="hero">
   <h1>반도체 추정원가 계산기</h1>
   <p>차량용 반도체 Die 원가부터 판매가까지, 빠르고 정확한 원가 추정 도구.<br>
