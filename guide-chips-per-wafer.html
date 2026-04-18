@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>웨이퍼당 칩 수(DPW) 계산 완전 가이드 | Chips Per Wafer — ChipCalc</title>
-<meta name="description" content="DPW(Dies Per Wafer) 공식의 모든 것. 웨이퍼당 칩 수를 계산하는 방법, 엣지 Die 손실, Wafer Yield 적용 방법을 인터랙티브 시각화와 함께 설명합니다.">
+<meta name="description" content="DPW(Dies Per Wafer) 공식의 모든 것. 웨이퍼당 칩 수 계산 방법 · 엣지 Die 손실 · Wafer Yield 적용까지. 인터랙티브 웨이퍼 다이어그램과 실전 예제 3가지 포함.">
 <meta name="keywords" content="DPW 계산, Dies Per Wafer, 웨이퍼당 Die 수, 칩 수 계산, Wafer Yield, 엣지 Die 손실, semiconductor yield, chip per wafer calculator">
 <meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="DPW 계산 완전 가이드 — 웨이퍼당 칩 수 | ChipCalc">
+<meta property="og:description" content="Dies Per Wafer 공식 원리부터 Yield 보정까지. 인터랙티브 시각화 포함.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/guide-chips-per-wafer.html">
+<meta property="og:locale" content="ko_KR">
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/guide-chips-per-wafer.html">
 
 <!-- shared.css: 폰트, CSS변수, topbar, nav, auth, 다크모드 전부 포함 -->
@@ -791,7 +796,27 @@ body.dark .ex-result  { border-top-color: var(--border2); color: var(--l3); }
   .wsize-row { flex-wrap: wrap; justify-content: center; align-items: center; }
 }
 .bar-wrap { display: flex; align-items: center; gap: 10px; }
+
+/* ── AdSense 광고 래퍼 ── */
+.ad-wrap {
+  margin: 24px 0;
+  padding: 4px 0;
+  text-align: center;
+  min-height: 90px;
+  position: relative;
+}
+.ad-wrap::before {
+  content: 'Advertisement';
+  display: block;
+  font-size: 9px;
+  color: var(--l4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
 </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -957,6 +982,17 @@ body.dark .ex-result  { border-top-color: var(--border2); color: var(--l3); }
   </div>
 </div>
 
+
+<!-- AdSense · DPW-계산기뒤 -->
+<div class="ad-wrap">
+<ins class="adsbygoogle"
+     style="display:block;text-align:center"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-8001568484522021"
+     data-ad-slot="3456789012"></ins>
+<script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+</div>
 <!-- ═══ 2. 공식 원리 ═══ -->
 <div class="section" id="sec-formula">
   <h2>DPW 공식 — 두 항의 의미</h2>
@@ -1098,6 +1134,17 @@ body.dark .ex-result  { border-top-color: var(--border2); color: var(--l3); }
   </div>
 </div>
 
+
+<!-- AdSense · DPW-Yield뒤 -->
+<div class="ad-wrap">
+<ins class="adsbygoogle"
+     style="display:block;text-align:center"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-8001568484522021"
+     data-ad-slot="3456789013"></ins>
+<script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+</div>
 <!-- ═══ 4. 웨이퍼 사이즈 비교 ═══ -->
 <div class="section" id="sec-wafersize">
   <h2>웨이퍼 사이즈별 DPW 비교</h2>
@@ -1191,6 +1238,17 @@ body.dark .ex-result  { border-top-color: var(--border2); color: var(--l3); }
   </div>
 </div>
 
+
+<!-- AdSense · DPW-웨이퍼사이즈뒤 -->
+<div class="ad-wrap">
+<ins class="adsbygoogle"
+     style="display:block;text-align:center"
+     data-ad-layout="in-article"
+     data-ad-format="fluid"
+     data-ad-client="ca-pub-8001568484522021"
+     data-ad-slot="3456789014"></ins>
+<script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
+</div>
 <!-- ═══ 5. 실전 예제 ═══ -->
 <div class="section" id="sec-examples">
   <h2>실전 계산 예제 3가지</h2>
