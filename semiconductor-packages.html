@@ -21,7 +21,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; overflow-x: hidden; }
-body {
+body{background:var(--bg);
   font-family: var(--font); /* shared.css 폰트 사용 */
   background: var(--bg);
   color: var(--l1);
@@ -438,9 +438,10 @@ body.dark .toc-bar{background:var(--surface)}
   .modal-icon{display:none}
 }
 
-
 body.dark .formula{background:#1a1a2e}
-</style>
+
+.callout-k{background:#eef5ff;border-left:4px solid var(--blue)}
+body.dark .callout-k{background:rgba(0,113,227,0.12)}</style>
 </head>
 <body>
 

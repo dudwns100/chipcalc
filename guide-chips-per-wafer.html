@@ -106,100 +106,139 @@
 .ex-htag{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;opacity:0.7;margin-bottom:4px}
 .ex-htitle{font-size:14px;font-weight:700}
 .ex-hsub{font-size:11px;opacity:0.65;margin-top:2px}
-.ex-body{padding:13px 15px;font-size:12.5px;line-height:1.85;color:var(--l2)}
+.ex-body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
 .ex-result{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-weight:600}
 
 /* CTA */
-.cta-box .cta-box .cta-links
-
-/* ─── 가이드 공통 CSS ─── */
-.hero{padding:52px 32px 44px;color:#fff;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none}
-.hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
-.hero-tag{display:inline-block;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:4px 14px;font-size:11.5px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:14px;font-family:var(--mono)}
-.hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;line-height:1.2}
-.hero-sub{font-size:15px;color:rgba(255,255,255,0.82);max-width:580px;line-height:1.65;margin-bottom:18px}
-.hero-meta{display:flex;gap:20px;font-size:12px;color:rgba(255,255,255,0.65);flex-wrap:wrap}
-.hero-meta span{display:flex;align-items:center;gap:5px}
-.toc-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:var(--topbar-h);z-index:90;overflow-x:auto}
-.toc-bar::-webkit-scrollbar{display:none}
-.toc-inner{max-width:900px;margin:0 auto;display:flex}
-.toc-link{display:block;padding:11px 14px;font-size:11.5px;font-weight:500;color:var(--l3);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
-.toc-link:hover{color:var(--blue);border-bottom-color:var(--blue)}
-.toc-link.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
-.page-wrap{max-width:900px;margin:0 auto;padding:0 24px}
-.content{padding:44px 0 80px}
-.section{margin-bottom:60px;scroll-margin-top:108px}
-.section h2{font-size:22px;font-weight:800;color:var(--l1);margin-bottom:6px;letter-spacing:-0.02em}
-.section-lead{font-size:14.5px;color:var(--l3);margin-bottom:28px;line-height:1.65}
-p{font-size:13.5px;color:var(--l2);margin-bottom:14px;line-height:1.78}
-h3{font-size:17px;font-weight:700;color:var(--l1);margin:28px 0 10px}
-h4{font-size:14px;font-weight:700;color:var(--l1);margin:18px 0 8px}
-ul,ol{margin:8px 0 16px 22px}
-li{font-size:13.5px;color:var(--l2);margin-bottom:7px;line-height:1.65}
-strong{color:var(--l1)}
-a{color:var(--blue);text-decoration:none}
-a:hover{text-decoration:underline}
-.formula{background:#1c1c1e;color:#f0f6ff;border-radius:12px;padding:20px 24px;margin:20px 0;font-family:var(--mono);font-size:14px;line-height:1.9}
 .formula .label,.formula .lbl{color:#6b8aad;font-size:11.5px}
 .formula .val,.formula .v{color:#0a84ff}
 .formula .result,.formula .r{color:#30b94a;font-weight:700}
 .formula .comment,.formula .cm{color:#636366;font-size:12px}
-.callout{border-radius:12px;padding:16px 20px;margin:20px 0 28px}
-.callout-k{background:var(--blue-t);border:1px solid var(--blue-s)}
-.callout-k p,.callout-k h4{color:#004fa3;margin:0;font-size:13px}
-.callout-g{background:var(--green-t);border:1px solid var(--green-s)}
-.callout-g p,.callout-g h4{color:#0f5c36;margin:0;font-size:13px}
-.callout-o{background:var(--orange-t);border:1px solid var(--orange-s)}
-.callout-o p,.callout-o h4{color:#8b3800;margin:0;font-size:13px}
+.callout-k p,.callout-k .callout-g p,.callout-g .callout-o p,.callout-o .callout           }
+
+/* DPW 가이드 다크모드 보완 */
+/* ── 공통 레이아웃 ── */
+.hero-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
+.hero-tag{display:inline-block;background:rgba(255,255,255,0.20);border:1px solid rgba(255,255,255,0.32);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;font-family:var(--mono);color:#fff}
+.hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;margin-bottom:10px;line-height:1.2;color:#fff}
+.hero-sub{font-size:15px;color:rgba(255,255,255,0.85);max-width:580px;line-height:1.65;margin-bottom:18px}
+.hero-meta{display:flex;gap:20px;font-size:12px;color:rgba(255,255,255,0.68);flex-wrap:wrap}
+.hero-meta span{display:flex;align-items:center;gap:5px}
+.toc-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;position:sticky;top:var(--topbar-h);z-index:90;overflow-x:auto}
+.toc-bar::-webkit-scrollbar{display:none}
+.toc-inner{max-width:900px;margin:0 auto;display:flex}
+.toc-link{display:block;padding:11px 14px;font-size:11.5px;font-weight:500;color:var(--l3);text-decoration:none;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
+.toc-link:hover{color:var(--blue);border-bottom-color:var(--blue)}
+.toc-link.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.page-wrap{max-width:900px;margin:0 auto;padding:0 28px}
+.content{padding:48px 0 80px}
+.section{margin-bottom:64px;scroll-margin-top:108px}
+.section h2{font-size:22px;font-weight:800;color:var(--l1);margin-bottom:6px;letter-spacing:-0.02em;line-height:1.25}
+.section-lead{font-size:14.5px;color:var(--l3);margin-bottom:28px;line-height:1.65;border-left:3px solid var(--border2);padding-left:12px}
+p{font-size:13.5px;color:var(--l2);margin-bottom:14px;line-height:1.78}
+h3{font-size:17px;font-weight:700;color:var(--l1);margin:28px 0 10px;letter-spacing:-0.01em}
+h4{font-size:14px;font-weight:700;color:var(--l1);margin:18px 0 8px}
+ul,ol{margin:8px 0 16px 22px}
+li{font-size:13.5px;color:var(--l2);margin-bottom:7px;line-height:1.65}
+strong{color:var(--l1);font-weight:700}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+.formula{background:#0f1923;color:#e0eaff;border-radius:12px;padding:20px 24px;margin:20px 0;font-family:var(--mono);font-size:13.5px;line-height:2;border:1px solid #1e3050}
+.formula .label,.formula .lbl{color:#5a8aad;font-size:11px;display:block;margin-bottom:4px}
+.formula .val,.formula .v{color:#4fc3f7}
+.formula .result,.formula .r{color:#69f0ae;font-weight:700}
+.formula .comment,.formula .cm,.formula .eq{color:#546e7a;font-size:12px}
+.callout{border-radius:10px;padding:16px 20px;margin:20px 0 28px}
+.callout-k{background:#eef5ff;border-left:4px solid var(--blue)}
+.callout-k h4,.callout-k p{color:#003d99;margin:0}
+.callout-g{background:#edfaf2;border-left:4px solid var(--green)}
+.callout-g h4,.callout-g p{color:#0a5c36;margin:0}
+.callout-o{background:#fff5ec;border-left:4px solid var(--orange)}
+.callout-o h4,.callout-o p{color:#7a3000;margin:0}
 .callout h4{font-size:13px;font-weight:700;margin:0 0 6px}
-.dtbl{overflow-x:auto;margin:18px 0;border-radius:12px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,0.05)}
+.dtbl{overflow-x:auto;margin:18px 0;border-radius:12px;border:1px solid var(--border);box-shadow:var(--sh)}
 table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface)}
-thead th{background:var(--s3);padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l3);letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid var(--border);white-space:nowrap}
+thead th{background:#f5f5f7;padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l3);letter-spacing:0.06em;text-transform:uppercase;border-bottom:2px solid var(--border)}
 tbody td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:middle}
 tbody tr:last-child td{border-bottom:none}
-tbody tr:hover td{background:var(--s2)}
+tbody tr:hover td{background:#f9f9fb}
 .num{font-family:var(--mono);font-weight:600;color:var(--l1)}
-.hi{color:#c0392b;font-weight:700}.lo{color:var(--green);font-weight:700}.mid{color:#c05c00;font-weight:700}
+.hi{color:#c0392b;font-weight:700}.lo{color:#1a7f4f;font-weight:700}.mid{color:#c05c00;font-weight:700}
 .cta-box{border-radius:16px;padding:36px 40px;text-align:center;margin:48px 0 0;color:#fff}
-.cta-box h3{font-size:22px;font-weight:800;margin-bottom:10px;letter-spacing:-0.02em}
-.cta-box p{font-size:14px;color:rgba(255,255,255,0.82);margin-bottom:22px}
-.cta-btn{display:inline-block;background:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:30px;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,0.15);transition:transform 0.15s}
-.cta-btn:hover{text-decoration:none;transform:translateY(-2px)}
+.cta-box h3{font-size:22px;font-weight:800;margin-bottom:10px}
+.cta-box p{font-size:14px;color:rgba(255,255,255,0.85);margin-bottom:22px}
+.cta-btn{display:inline-block;background:#fff;font-weight:700;font-size:14px;padding:12px 28px;border-radius:30px;text-decoration:none;transition:transform 0.15s;box-shadow:0 4px 16px rgba(0,0,0,0.15)}
+.cta-btn:hover{transform:translateY(-2px);text-decoration:none}
 .cta-links{margin-top:14px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
-.cta-links a{color:rgba(255,255,255,0.75);font-size:12.5px;text-decoration:none}
+.cta-links a{color:rgba(255,255,255,0.78);font-size:12.5px;text-decoration:none}
 .cta-links a:hover{color:#fff}
-/* 다크모드 */
-body.dark .formula{background:#1a1a2e}
-body.dark .callout-k p,body.dark .callout-k h4{color:#a0c4ff}
-body.dark .callout-g p,body.dark .callout-g h4{color:#80d4a0}
-body.dark .callout-o p,body.dark .callout-o h4{color:#ffb07a}
+body.dark .callout-k{background:rgba(0,113,227,0.12);border-left-color:var(--blue)}
+body.dark .callout-k h4,body.dark .callout-k p{color:#a0c8ff}
+body.dark .callout-g{background:rgba(48,185,74,0.10);border-left-color:var(--green)}
+body.dark .callout-g h4,body.dark .callout-g p{color:#80d4a0}
+body.dark .callout-o{background:rgba(242,90,0,0.10);border-left-color:var(--orange)}
+body.dark .callout-o h4,body.dark .callout-o p{color:#ffb07a}
+body.dark .formula{background:#0a0f1a;border-color:#1a2a40}
 body.dark table{background:var(--surface)}
-body.dark thead th{background:var(--s2)}
+body.dark thead th{background:var(--s2);color:var(--l4)}
+body.dark tbody tr:hover td{background:var(--s2)}
 body.dark .toc-bar{background:var(--surface)}
-/* 모바일 */
+body.dark .section-lead{border-left-color:var(--border2);color:var(--l3)}
 @media(max-width:768px){
-  .hero{padding:36px 18px 28px}.hero h1{font-size:22px}.hero-sub{font-size:13.5px}
-  .hero-meta{gap:12px}.toc-bar{top:var(--topbar-h)}.page-wrap{padding:0 16px}
-  .content{padding:28px 0 60px}.section h2{font-size:18px}
-  .section-lead{font-size:13.5px;margin-bottom:20px}
+  .hero h1{font-size:22px}
+  .hero-sub{font-size:13.5px}
+  .page-wrap{padding:0 16px}
+  .content{padding:28px 0 60px}
+  .section h2{font-size:18px}
+  .section-lead{font-size:13px;margin-bottom:18px}
   .formula{font-size:12px;padding:14px 16px}
-  .cta-box{padding:28px 20px;border-radius:12px}.cta-box h3{font-size:18px}
-  .cta-links{flex-wrap:wrap;gap:12px}
+  .cta-box{padding:26px 18px;border-radius:12px}
+  .cta-links{gap:12px}
 }
 @media(max-width:480px){
-  .hero h1{font-size:20px}.dtbl{margin-left:-16px;margin-right:-16px;border-radius:0}
+  .dtbl{margin-left:-16px;margin-right:-16px;border-radius:0}
   thead th,tbody td{padding:8px 10px;font-size:12px}
 }
 
+/* ── DPW 전용 ── */
+.hero{background:linear-gradient(135deg,#1a7f4f 0%,#30b94a 60%,#4cd97a 100%);padding:52px 32px 44px;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none}
 
-/* DPW 가이드 다크모드 보완 */
-body.dark .wafer-panel{background:var(--surface)}
+/* 인터랙티브 계산기: 가로 2열 (파라미터 | 웨이퍼 다이어그램) */
+.calc-wafer-wrap{display:grid;grid-template-columns:1fr 320px;gap:20px;margin:24px 0;align-items:start}
+.cpf{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:20px;box-shadow:var(--sh)}
+.cpf label{display:block;font-size:11px;font-weight:700;color:var(--l3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px}
+.cpf input[type=number],.cpf select{width:100%;height:36px;padding:0 10px;border:1.5px solid var(--border2);border-radius:var(--r);font-family:var(--font);font-size:13px;color:var(--l1);background:var(--surface);outline:none;transition:border-color 0.15s;margin-bottom:14px}
+.cpf input:focus,.cpf select:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,113,227,0.10)}
+.wafer-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:16px;box-shadow:var(--sh);position:sticky;top:calc(var(--topbar-h) + 56px)}
+.wafer-panel-hd{font-size:12px;font-weight:700;color:var(--l1);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.wafer-canvas-wrap{display:flex;justify-content:center}
+
+/* 결과 카드 */
+.fv-result-inner{display:inline-block;background:var(--green-t);border:2px solid var(--green-s);border-radius:12px;padding:14px 20px;text-align:center;margin:12px 0;min-width:160px}
+.ri-label{font-size:11px;font-weight:600;color:var(--l3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px}
+.ri-val{font-family:var(--mono);font-size:28px;font-weight:800;color:var(--green)}
+
+/* Yield 비교 & 웨이퍼 크기 비교 SVG */
+.yield-wafers{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.wafer-size-compare{display:flex;gap:20px;align-items:flex-end;justify-content:center;margin:16px 0}
+
+/* 다크모드 DPW 전용 */
+body.dark .cpf{background:var(--surface)}
 body.dark .cpf input,body.dark .cpf select{background:var(--s2);color:var(--l1);border-color:var(--border2)}
-body.dark .fv-result-inner{background:rgba(48,185,74,0.12);border-color:var(--green-s)}
+body.dark .wafer-panel{background:var(--surface)}
+body.dark .fv-result-inner{background:var(--green-t);border-color:var(--green-s)}
 body.dark .fv-result-inner .ri-label{color:var(--l3)}
 body.dark .fv-result-inner .ri-val{color:var(--green)}
 
+/* 모바일: 계산기 세로 전환 */
+@media(max-width:768px){
+  .calc-wafer-wrap{grid-template-columns:1fr}
+  .wafer-panel{position:static}
+}
+
+@media(max-width:768px){.hero{padding:32px 18px 26px}}
 </style>
 </head>
 <body>
