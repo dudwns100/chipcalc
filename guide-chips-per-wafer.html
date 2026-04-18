@@ -462,6 +462,185 @@ body.dark .fv-result-inner { background: rgba(48,185,74,0.10); border-color: var
   .ri-val { font-size: 26px; }
 }
 
+
+
+/* ══════════════════════════════════
+   DPW 가이드 전용 CSS (고유 컴포넌트)
+══════════════════════════════════ */
+
+/* ── section h2/lead — section-num 없이 직접 사용 ── */
+.section h2 {
+  font-size: 22px; font-weight: 800;
+  color: var(--l1); letter-spacing: -0.02em; line-height: 1.2;
+  margin: 0 0 6px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--border);
+}
+.section-lead {
+  font-size: 14px; color: var(--l3);
+  margin: 0 0 24px; line-height: 1.7;
+  padding-left: 0;   /* section-num 없음 */
+}
+
+/* ── 계산기 레이아웃 ── */
+.calc-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: var(--sh);
+}
+.calc-panel-title {
+  font-size: 13px; font-weight: 700; color: var(--l1);
+  margin-bottom: 16px; letter-spacing: -0.01em;
+}
+.cpgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.cpf {
+  background: var(--s3);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.cpf label {
+  display: block;
+  font-size: 10.5px; font-weight: 700; color: var(--l4);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.cpf input[type=number], .cpf select {
+  width: 100%; height: 36px; padding: 0 10px;
+  border: 1.5px solid var(--border2);
+  border-radius: 8px; font-family: var(--font); font-size: 13.5px;
+  color: var(--l1); background: var(--surface); outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+.cpf input:focus, .cpf select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(0,113,227,0.10);
+}
+
+/* ── 결과 그리드 ── */
+.res-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.res-item {
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+}
+.ri-green { background: var(--green-t); border-color: var(--green-s); }
+.ri-blue  { background: var(--blue-t);  border-color: var(--blue-s);  }
+.ri-lbl { font-size: 10px; font-weight: 700; color: var(--l3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+.ri-val { font-family: var(--mono); font-size: 20px; font-weight: 800; line-height: 1.1; }
+.ri-green .ri-val { color: var(--green); }
+.ri-blue  .ri-val { color: var(--blue);  }
+.ri-sub { font-size: 10px; color: var(--l4); margin-top: 2px; }
+
+/* ── 정보 스트립 ── */
+.info-strip {
+  background: var(--s3); border-radius: 8px;
+  padding: 10px 14px; font-size: 12px; color: var(--l3);
+  line-height: 1.8; font-family: var(--mono);
+}
+
+/* ── 웨이퍼 패널 ── */
+.wafer-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px; box-shadow: var(--sh);
+  position: sticky; top: calc(var(--topbar-h) + 52px);
+}
+.wafer-panel-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; font-weight: 700; color: var(--l3);
+  letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px;
+}
+.wafer-canvas-wrap { display: flex; justify-content: center; }
+.wleg-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center; margin-top: 10px;
+}
+.wleg { display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--l3); }
+.wleg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* ── DPW 공식 분해 시각화 ── */
+.fv-wrap {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 12px;
+  align-items: center;
+  margin: 24px 0 20px;
+}
+.fv-card {
+  background: var(--surface); border-radius: 14px;
+  padding: 20px; border: 1.5px solid var(--border);
+  box-shadow: var(--sh); text-align: center;
+}
+.fv-lbl {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.fv-lbl-1 { color: var(--blue); }
+.fv-lbl-2 { color: var(--red); }
+.fv-eq {
+  font-family: var(--mono); font-size: 18px; font-weight: 800;
+  margin-bottom: 10px; line-height: 1.2;
+}
+.fv-eq-1 { color: var(--blue); }
+.fv-eq-2 { color: var(--red); }
+.fv-desc {
+  font-size: 12.5px; color: var(--l3); line-height: 1.65;
+  text-align: left;
+}
+.fv-op {
+  font-size: 36px; font-weight: 800; color: var(--l3);
+  text-align: center; flex-shrink: 0; line-height: 1;
+}
+.fv-result-box {
+  display: flex; justify-content: center; margin: 20px 0;
+}
+.fv-result-inner {
+  background: var(--green-t); border: 1.5px solid var(--green-s);
+  border-radius: 12px; padding: 18px 28px; text-align: center;
+}
+
+/* ── 다크모드 DPW 전용 ── */
+body.dark .calc-panel { background: var(--surface); }
+body.dark .cpf { background: var(--s2); }
+body.dark .cpf input, body.dark .cpf select { background: var(--s3); color: var(--l1); border-color: var(--border2); }
+body.dark .wafer-panel { background: var(--surface); }
+body.dark .info-strip { background: var(--s2); color: var(--l3); }
+body.dark .res-item { background: var(--surface); border-color: var(--border2); }
+body.dark .ri-green { background: var(--green-t); border-color: var(--green-s); }
+body.dark .ri-blue  { background: var(--blue-t);  border-color: var(--blue-s); }
+body.dark .fv-card  { background: var(--surface); border-color: var(--border2); }
+body.dark .fv-desc  { color: var(--l3); }
+body.dark .fv-result-inner { background: var(--green-t); border-color: var(--green-s); }
+body.dark .wleg { color: var(--l3); }
+
+/* ── 모바일 DPW ── */
+@media (max-width: 768px) {
+  .calc-wafer-wrap { grid-template-columns: 1fr; }
+  .wafer-panel { position: static; }
+  .cpgrid { grid-template-columns: 1fr 1fr; }
+  .res-grid { grid-template-columns: 1fr 1fr; }
+  .fv-wrap { grid-template-columns: 1fr; }
+  .fv-op { font-size: 28px; transform: rotate(90deg); }
+  .ri-val { font-size: 18px; }
+}
+@media (max-width: 480px) {
+  .cpgrid { grid-template-columns: 1fr; }
+  .res-grid { grid-template-columns: 1fr 1fr; }
+}
 </style>
 </head>
 <body>
