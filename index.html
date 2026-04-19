@@ -236,6 +236,37 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   margin-bottom: 4px;
 }
 
+
+/* ── 추천 리소스 카드 ── */
+.resources-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.res-card{
+  display:flex;align-items:flex-start;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);padding:13px 14px;box-shadow:var(--sh);
+  text-decoration:none;color:var(--l1);transition:all 0.15s;
+  position:relative;
+}
+.res-card:hover{border-color:var(--blue-s);box-shadow:var(--sh2);transform:translateY(-1px)}
+.res-icon{
+  flex-shrink:0;width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:14px;font-weight:800;
+}
+.res-body{flex:1;min-width:0}
+.res-name{font-size:12.5px;font-weight:700;color:var(--l1);line-height:1.3}
+.res-meta{font-size:10.5px;color:var(--l3);margin-top:2px;font-family:var(--mono)}
+.res-desc{font-size:11px;color:var(--l2);margin-top:6px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.res-platform{
+  position:absolute;top:12px;right:12px;
+  font-size:9px;font-weight:700;color:var(--l4);
+  background:var(--s3);padding:2px 7px;border-radius:100px;
+  letter-spacing:0.04em;
+}
+body.dark .res-card{background:var(--surface)}
+body.dark .res-platform{background:var(--s2);color:var(--l4)}
+@media(max-width:900px){.resources-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.resources-grid{grid-template-columns:1fr}}
+
 </style>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
 </head>
@@ -257,6 +288,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
     <div class="nav-resources">
       <button class="nav-resources-btn">📚 리소스 <span class="caret">▾</span></button>
       <div class="nav-dropdown">
+        <a href="sic-calculator.html" class="">🔋 SiC 계산기</a>
         <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
         <a href="guide-chips-per-wafer.html" class="">📐 DPW 가이드</a>
         <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
@@ -296,6 +328,7 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
   <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
   <div class="nav-drawer-section">
     <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link " href="sic-calculator.html">🔋 SiC 계산기</a>
     <a class="nav-link " href="guide-semiconductor-cost.html">💰 원가 가이드</a>
     <a class="nav-link " href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
     <a class="nav-link " href="semiconductor-packages.html">📦 패키지 가이드</a>
@@ -418,6 +451,103 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:13px
      data-full-width-responsive="true"></ins>
 <script>(adsbygoogle=window.adsbygoogle||[]).push({});</script>
 </div>
+
+
+
+  <!-- 추천 리소스 -->
+  <div class="sec-hd" style="margin-top:6px">
+    <div class="sec-title"><span class="sec-dot" style="background:var(--green)"></span>추천 정보 채널</div>
+    <span style="font-size:10px;color:var(--l4)">큐레이션</span>
+  </div>
+  <div class="resources-grid">
+    <!-- 텔레그램 -->
+    <a class="res-card" href="https://t.me/joonsungkim" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#0088cc">📱</div>
+      <div class="res-body">
+        <div class="res-name">김준성 애널리스트 채널</div>
+        <div class="res-meta">메리츠증권 · Telegram</div>
+        <div class="res-desc">자동차·모빌리티·반도체 산업 일간 리포트와 주요 뉴스 요약</div>
+      </div>
+      <div class="res-platform">Telegram</div>
+    </a>
+
+    <a class="res-card" href="https://t.me/techanalyst" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#0088cc">📱</div>
+      <div class="res-body">
+        <div class="res-name">Tech Analyst</div>
+        <div class="res-meta">반도체 · 테크 뉴스 · Telegram</div>
+        <div class="res-desc">글로벌 반도체 업계 실시간 이슈 공유</div>
+      </div>
+      <div class="res-platform">Telegram</div>
+    </a>
+
+    <!-- 유튜브 -->
+    <a class="res-card" href="https://www.youtube.com/@thelec_" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#ff0000">▶</div>
+      <div class="res-body">
+        <div class="res-name">더일렉 THELEC</div>
+        <div class="res-meta">반도체·디스플레이 전문 매체</div>
+        <div class="res-desc">업계 심층 분석, 기업 탐방, 애널리스트 인터뷰</div>
+      </div>
+      <div class="res-platform">YouTube</div>
+    </a>
+
+    <a class="res-card" href="https://www.youtube.com/@asianometry" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#ff0000">▶</div>
+      <div class="res-body">
+        <div class="res-name">Asianometry</div>
+        <div class="res-meta">영문 · 반도체 역사·기술</div>
+        <div class="res-desc">TSMC·Intel·Samsung 등 기업 심층 다큐멘터리</div>
+      </div>
+      <div class="res-platform">YouTube</div>
+    </a>
+
+    <!-- 뉴스레터 -->
+    <a class="res-card" href="https://www.semianalysis.com/" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#1e40af">📧</div>
+      <div class="res-body">
+        <div class="res-name">SemiAnalysis</div>
+        <div class="res-meta">Dylan Patel · 뉴스레터</div>
+        <div class="res-desc">AI 가속기·CoWoS·HBM 등 최신 반도체 분석 (영문)</div>
+      </div>
+      <div class="res-platform">Newsletter</div>
+    </a>
+
+    <a class="res-card" href="https://semiengineering.com/" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#059669">🌐</div>
+      <div class="res-body">
+        <div class="res-name">Semiconductor Engineering</div>
+        <div class="res-meta">웹사이트 · 영문</div>
+        <div class="res-desc">EDA·설계·제조 기술 심층 기사</div>
+      </div>
+      <div class="res-platform">Web</div>
+    </a>
+
+    <!-- X (Twitter) -->
+    <a class="res-card" href="https://x.com/dylan522p" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#000">𝕏</div>
+      <div class="res-body">
+        <div class="res-name">Dylan Patel</div>
+        <div class="res-meta">SemiAnalysis · @dylan522p</div>
+        <div class="res-desc">반도체·AI 업계 실시간 인사이트</div>
+      </div>
+      <div class="res-platform">X</div>
+    </a>
+
+    <a class="res-card" href="https://x.com/ret2vim" target="_blank" rel="noopener">
+      <div class="res-icon" style="background:#000">𝕏</div>
+      <div class="res-body">
+        <div class="res-name">Retired Engineer</div>
+        <div class="res-meta">반도체 공정·팹 · @ret2vim</div>
+        <div class="res-desc">팹 증설·공정 노드 관련 정확한 정보</div>
+      </div>
+      <div class="res-platform">X</div>
+    </a>
+  </div>
+
+  <div style="font-size:11px;color:var(--l4);margin-top:10px;line-height:1.6">
+    ⚠ 외부 채널은 운영자와 무관합니다. 각 채널의 콘텐츠는 원저작자에게 저작권이 있으며, 투자·업무 결정의 근거로 사용 시 주의가 필요합니다.
+  </div>
 
 </div><!-- /left -->
 

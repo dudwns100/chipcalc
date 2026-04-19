@@ -399,10 +399,6 @@ body.dark .section-lead { color: var(--l3); }
   transition: border-color 0.15s, box-shadow 0.15s;
   -webkit-appearance: none;
 }
-.cpf input:focus, .cpf select:focus {
-  border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(0,113,227,0.10);
-}
 
 /* 웨이퍼 다이어그램 패널 */
 .wafer-panel {
@@ -422,7 +418,6 @@ body.dark .section-lead { color: var(--l3); }
   text-transform: uppercase;
   margin-bottom: 12px;
 }
-.wafer-canvas-wrap { display: flex; justify-content: center; }
 
 /* 결과 표시 */
 .fv-result-inner {
@@ -458,7 +453,6 @@ body.dark .section-lead { color: var(--l3); }
 /* 다크모드 */
 body.dark .cpf { background: var(--surface); }
 body.dark .cpf input, body.dark .cpf select { background: var(--s2); color: var(--l1); border-color: var(--border2); }
-body.dark .wafer-panel { background: var(--surface); }
 body.dark .fv-result-inner { background: rgba(48,185,74,0.10); border-color: var(--green-s); }
 
 /* 모바일 */
@@ -467,8 +461,6 @@ body.dark .fv-result-inner { background: rgba(48,185,74,0.10); border-color: var
   .wafer-panel { position: static; }
   .ri-val { font-size: 26px; }
 }
-
-
 
 /* ══════════════════════════════════
    DPW 가이드 전용 CSS (고유 컴포넌트)
@@ -837,6 +829,7 @@ body.dark .ex-result  { border-top-color: var(--border2); color: var(--l3); }
     <div class="nav-resources">
       <button class="nav-resources-btn active">📚 리소스 <span class="caret">▾</span></button>
       <div class="nav-dropdown">
+        <a href="sic-calculator.html" class="">🔋 SiC 계산기</a>
         <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
         <a href="guide-chips-per-wafer.html" class="active">📐 DPW 가이드</a>
         <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
@@ -893,6 +886,7 @@ body.dark .ex-result  { border-top-color: var(--border2); color: var(--l3); }
   <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
   <div class="nav-drawer-section">
     <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link " href="sic-calculator.html">🔋 SiC 계산기</a>
     <a class="nav-link " href="guide-semiconductor-cost.html">💰 원가 가이드</a>
     <a class="nav-link active" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
     <a class="nav-link " href="semiconductor-packages.html">📦 패키지 가이드</a>

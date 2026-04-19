@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiC 파워반도체 원가 계산기 | ChipCalc</title>
+<meta name="description" content="EV 인버터·OBC용 SiC(실리콘 카바이드) 파워반도체 원가를 실시간 계산. 150mm/200mm 웨이퍼, Die 크기, Yield를 입력하면 Die당 원가가 자동 계산됩니다.">
+<meta name="keywords" content="SiC 원가 계산기, 실리콘 카바이드, EV 파워반도체, SiC MOSFET, SiC 웨이퍼 가격, 인버터 원가, automotive SiC">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SiC 파워반도체 원가 계산기 | ChipCalc">
+<meta property="og:description" content="EV용 SiC 파워반도체 Die당 원가를 실시간 계산하는 무료 도구.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/sic-calculator.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/sic-calculator.html">
+
+<link rel="stylesheet" href="shared.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* HERO (가이드 페이지와 통일 - SiC는 주황 그라데이션) */
+.hero{padding:40px 28px 34px;color:#fff;position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(135deg,#4a1d00 0%,#8b3800 40%,#c04500 70%,#f25a00 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(255,180,100,0.18) 0%,transparent 55%);pointer-events:none}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.9);margin-bottom:14px}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:10px;color:#fff}
+.hero-desc{font-size:14px;color:rgba(255,255,255,0.80);max-width:560px;margin:0 auto;line-height:1.6}
+
+/* 메인 레이아웃 */
+.page-wrap{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px;align-items:start}
+
+/* 카드 */
+.calc-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;box-shadow:var(--sh)}
+.card-title{font-size:13px;font-weight:800;color:var(--l1);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title .dot{width:8px;height:8px;border-radius:2px;background:var(--orange)}
+
+/* 입력 필드 */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field-full{grid-column:1/-1}
+.field label{font-size:10.5px;font-weight:700;color:var(--l4);letter-spacing:0.06em;text-transform:uppercase}
+.field input,.field select{
+  height:38px;padding:0 12px;
+  border:1.5px solid var(--border2);border-radius:8px;
+  font-family:var(--font);font-size:14px;color:var(--l1);
+  background:var(--surface);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+  -webkit-appearance:none;
+}
+.field input:focus,.field select:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(242,90,0,0.10)}
+
+/* 결과 카드 */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.res-item{padding:14px;border-radius:10px;text-align:center;border:1.5px solid}
+.res-orange{background:var(--orange-t);border-color:var(--orange-s)}
+.res-green{background:var(--green-t);border-color:var(--green-s)}
+.res-blue{background:var(--blue-t);border-color:var(--blue-s)}
+.res-purple{background:var(--purple-t);border-color:var(--purple-s)}
+.res-lbl{font-size:10px;font-weight:700;color:var(--l3);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px}
+.res-val{font-family:var(--mono);font-size:22px;font-weight:800;line-height:1.1}
+.res-orange .res-val{color:var(--orange)}
+.res-green .res-val{color:var(--green)}
+.res-blue .res-val{color:var(--blue)}
+.res-purple .res-val{color:var(--purple)}
+.res-sub{font-size:10.5px;color:var(--l4);margin-top:3px}
+
+/* 비교 테이블 */
+.compare-box{margin-top:18px;padding:14px 16px;background:var(--s3);border-radius:10px;font-size:12.5px;color:var(--l2);line-height:1.8}
+.compare-box strong{color:var(--l1)}
+
+/* 정보 섹션 */
+.info-section{margin-top:36px}
+.info-section h2{font-size:20px;font-weight:800;color:var(--l1);margin-bottom:8px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.info-section p{font-size:13.5px;color:var(--l2);margin-bottom:12px;line-height:1.78}
+.info-section strong{color:var(--l1);font-weight:700}
+.info-section ul{margin:8px 0 16px 20px}
+.info-section li{font-size:13.5px;color:var(--l2);margin-bottom:6px;line-height:1.65}
+
+.dtbl{overflow-x:auto;margin:16px 0;border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--surface)}
+thead th{background:#f5f5f8;padding:10px 14px;text-align:left;font-size:10px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--l2)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f9f9fb}
+.num{font-family:var(--mono);font-weight:600;color:var(--l1)}
+
+.callout{border-radius:12px;padding:16px 20px;margin:18px 0;background:#fff8f0;border:1px solid #ffd4a8;border-left:4px solid var(--orange)}
+.callout h4{font-size:13px;font-weight:700;margin:0 0 6px;color:#7a3a00}
+.callout p{font-size:13px;margin:0;color:#7a3a00;line-height:1.7}
+
+/* 다크모드 */
+body.dark .calc-card{background:var(--surface)}
+body.dark .field input,body.dark .field select{background:var(--s2);color:var(--l1);border-color:var(--border2)}
+body.dark table{background:var(--surface)}
+body.dark thead th{background:var(--s2);color:var(--l4)}
+body.dark tbody tr:hover td{background:var(--s3)}
+body.dark .compare-box{background:var(--s2)}
+body.dark .callout{background:rgba(242,90,0,0.10);border-color:rgba(242,90,0,0.22)}
+body.dark .callout h4,body.dark .callout p{color:#ffa870}
+
+.ad-wrap{margin:24px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 모바일 */
+@media(max-width:900px){
+  .calc-grid{grid-template-columns:1fr}
+  .hero{padding:32px 18px 26px}
+  .hero h1{font-size:22px}
+  .hero-desc{font-size:13px}
+  .page-wrap{padding:20px 14px 60px}
+}
+@media(max-width:480px){
+  .field-grid{grid-template-columns:1fr}
+  .result-grid{grid-template-columns:1fr 1fr}
+  .res-val{font-size:18px}
+  .dtbl{margin-left:-14px;margin-right:-14px;border-radius:0}
+  thead th,tbody td{padding:8px 10px;font-size:11.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· SiC 계산기</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="sic-calculator.html" class="">🔋 SiC 계산기</a>
+        <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html">📦 패키지 가이드</a>
+        <a href="guide-osat.html">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+        <a href="news-archive.html">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link" href="sic-calculator.html">🔋 SiC 계산기</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link" href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link" href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link" href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">⚡ SiC Power Semiconductor</div>
+    <h1>SiC 파워반도체 원가 계산기</h1>
+    <p class="hero-desc">EV 인버터·온보드 충전기(OBC)·DC-DC 컨버터에 쓰이는<br>SiC(Silicon Carbide) MOSFET 원가를 빠르게 추정합니다.</p>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <div class="calc-grid">
+    <!-- 입력 -->
+    <div class="calc-card">
+      <div class="card-title"><span class="dot"></span>SiC 파라미터 입력</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>웨이퍼 사이즈</label>
+          <select id="sic-wsize" onchange="calc()">
+            <option value="150">150mm (6인치)</option>
+            <option value="200" selected>200mm (8인치)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>웨이퍼 가격 (USD)</label>
+          <input type="number" id="sic-wprice" value="1200" step="50" min="0" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Die 가로 (mm)</label>
+          <input type="number" id="sic-dw" value="5" step="0.5" min="0.5" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Die 세로 (mm)</label>
+          <input type="number" id="sic-dh" value="5" step="0.5" min="0.5" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>Wafer Yield (%)</label>
+          <input type="number" id="sic-yield" value="75" step="1" min="10" max="100" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>제품 유형</label>
+          <select id="sic-type" onchange="calc()">
+            <option value="mosfet">SiC MOSFET</option>
+            <option value="diode">SiC Schottky Diode</option>
+            <option value="module">SiC Module (패키지)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>패키지·테스트 비용 ($/die)</label>
+          <input type="number" id="sic-osat" value="2.5" step="0.1" min="0" oninput="calc()">
+        </div>
+        <div class="field">
+          <label>AEC-Q101 가산비 (%)</label>
+          <input type="number" id="sic-aec" value="15" step="1" min="0" max="50" oninput="calc()">
+        </div>
+      </div>
+    </div>
+
+    <!-- 결과 -->
+    <div class="calc-card">
+      <div class="card-title"><span class="dot"></span>계산 결과</div>
+      <div class="result-grid">
+        <div class="res-item res-orange">
+          <div class="res-lbl">Gross DPW</div>
+          <div class="res-val" id="r-dpw">—</div>
+          <div class="res-sub">웨이퍼당 Die 수</div>
+        </div>
+        <div class="res-item res-green">
+          <div class="res-lbl">양품 Die</div>
+          <div class="res-val" id="r-good">—</div>
+          <div class="res-sub">Yield 적용</div>
+        </div>
+        <div class="res-item res-blue">
+          <div class="res-lbl">Die 원가</div>
+          <div class="res-val" id="r-diecost">—</div>
+          <div class="res-sub">USD / die</div>
+        </div>
+        <div class="res-item res-purple">
+          <div class="res-lbl">최종 원가</div>
+          <div class="res-val" id="r-final">—</div>
+          <div class="res-sub">AEC-Q101 포함</div>
+        </div>
+      </div>
+
+      <div class="compare-box">
+        <div><strong>💡 Si MOSFET 대비:</strong> 약 <span id="r-vs-si" style="color:var(--orange);font-weight:700">—</span> 더 비쌈</div>
+        <div style="margin-top:6px"><strong>EV 인버터 1대 기준:</strong> <span id="r-inv" style="color:var(--l1);font-weight:700">—</span> (MOSFET 6개 가정)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AD -->
+  <div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7444444401"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+  <!-- 정보 섹션 -->
+  <div class="info-section">
+    <h2>SiC 파워반도체란?</h2>
+    <p><strong>SiC(Silicon Carbide, 탄화규소)</strong>는 실리콘(Si)보다 에너지 갭이 3배 넓어 고전압·고온·고주파에서 효율적으로 동작하는 차세대 전력반도체 소재입니다. 특히 <strong>EV(전기차) 인버터</strong>와 <strong>급속 충전기</strong>에 사용되면서 시장이 폭발적으로 성장하고 있습니다.</p>
+
+    <h2>Si vs SiC 특성 비교</h2>
+    <div class="dtbl">
+      <table>
+        <thead><tr><th>항목</th><th>Silicon (Si)</th><th>Silicon Carbide (SiC)</th></tr></thead>
+        <tbody>
+          <tr><td>Band Gap</td><td class="num">1.12 eV</td><td class="num" style="color:var(--orange)">3.26 eV</td></tr>
+          <tr><td>최대 동작 온도</td><td class="num">~150°C</td><td class="num" style="color:var(--orange)">~200°C+</td></tr>
+          <tr><td>스위칭 손실</td><td>기준</td><td class="num" style="color:var(--green)">-75% 감소</td></tr>
+          <tr><td>EV 인버터 효율</td><td class="num">~92%</td><td class="num" style="color:var(--green)">~97%</td></tr>
+          <tr><td>Die 원가</td><td>낮음</td><td class="num" style="color:#c0392b">3~5배 비쌈</td></tr>
+          <tr><td>웨이퍼 사이즈</td><td class="num">300mm 주류</td><td class="num">150/200mm (300mm 전환 중)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>주요 SiC 업체</h2>
+    <div class="dtbl">
+      <table>
+        <thead><tr><th>회사</th><th>본사</th><th>시장 점유율 (2024)</th><th>주요 제품</th></tr></thead>
+        <tbody>
+          <tr><td><strong>STMicroelectronics</strong></td><td>스위스·이탈리아</td><td class="num">~35%</td><td>Tesla Model 3/Y SiC 공급</td></tr>
+          <tr><td><strong>Infineon</strong></td><td>독일</td><td class="num">~20%</td><td>현대 E-GMP SiC 인버터</td></tr>
+          <tr><td><strong>onsemi</strong></td><td>미국</td><td class="num">~15%</td><td>BMW·VW SiC 공급</td></tr>
+          <tr><td><strong>Wolfspeed</strong></td><td>미국</td><td class="num">~12%</td><td>세계 최대 SiC 웨이퍼 제조</td></tr>
+          <tr><td><strong>ROHM</strong></td><td>일본</td><td class="num">~10%</td><td>도요타·혼다 SiC 공급</td></tr>
+          <tr><td><strong>기타</strong></td><td>—</td><td class="num">~8%</td><td>Mitsubishi, Toshiba, Fuji, Renesas</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <h4>⚠ SiC 웨이퍼 병목 현상</h4>
+      <p>SiC 웨이퍼는 Si 대비 성장이 어렵고 결함 밀도가 높아 공급 부족이 지속되고 있습니다. Wolfspeed·Coherent·SK실트론CSS·STMicro가 200mm SiC 웨이퍼 양산을 확대 중이며, 2026년 이후 300mm SiC 전환이 본격화될 전망입니다.</p>
+    </div>
+
+    <h2>주요 EV 채택 사례</h2>
+    <ul>
+      <li><strong>Tesla Model 3</strong> (2018~) — 세계 최초 SiC 인버터 대량 채택 (STMicro 공급)</li>
+      <li><strong>현대 아이오닉 5/6, 기아 EV6</strong> — E-GMP 플랫폼 800V 시스템 (Infineon)</li>
+      <li><strong>Porsche Taycan / Audi e-tron GT</strong> — 800V 급속 충전 SiC 시스템</li>
+      <li><strong>BYD 한·당</strong> — 중국 EV 선두, 내재화 SiC 모듈 (自研)</li>
+      <li><strong>GM Ultium 플랫폼</strong> — SiC 인버터 기반 EV 전용 플랫폼</li>
+    </ul>
+
+    <div class="callout">
+      <h4>💰 SiC의 원가 가치</h4>
+      <p>SiC MOSFET 6개(EV 인버터 기본 구성) 가격은 $300~$600으로 Si IGBT 대비 $200 이상 비싸지만, <strong>배터리 5~10% 절감</strong>(약 $500~$1,000 가치)과 <strong>주행거리 5~10% 향상</strong> 효과로 총 시스템 원가는 SiC가 유리합니다. 이것이 SiC 채택이 가속화되는 이유입니다.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
+<script>
+function calc() {
+  var D = parseInt(document.getElementById('sic-wsize').value) || 200;
+  var R = D / 2;
+  var dw = parseFloat(document.getElementById('sic-dw').value) || 5;
+  var dh = parseFloat(document.getElementById('sic-dh').value) || 5;
+  var wy = parseFloat(document.getElementById('sic-yield').value) || 75;
+  var wp = parseFloat(document.getElementById('sic-wprice').value) || 1200;
+  var osat = parseFloat(document.getElementById('sic-osat').value) || 2.5;
+  var aec = parseFloat(document.getElementById('sic-aec').value) || 15;
+  
+  var A = dw * dh;
+  // DPW 공식
+  var t1 = Math.PI * R * R / A;
+  var t2 = Math.PI * D / Math.sqrt(2 * A);
+  var gross = Math.max(Math.floor(t1 - t2), 1);
+  var good = Math.max(Math.floor(gross * wy / 100), 1);
+  var dieCost = wp / good;
+  var totalCost = (dieCost + osat) * (1 + aec / 100);
+  
+  // Si 대비 SiC 비용 배수 추정 (웨이퍼 가격 × yield 패널티)
+  var siPrice = 1500; // 300mm Si 웨이퍼 $1500 기준
+  var siDPW = Math.PI * (150 * 150) / A - Math.PI * 300 / Math.sqrt(2 * A);
+  var siGood = siDPW * 0.92;  // Si yield 92%
+  var siCost = siPrice / siGood + osat;
+  var vsSi = (totalCost / siCost).toFixed(1);
+  
+  // EV 인버터 (MOSFET 6개)
+  var invCost = totalCost * 6;
+  
+  document.getElementById('r-dpw').textContent = gross.toLocaleString();
+  document.getElementById('r-good').textContent = good.toLocaleString();
+  document.getElementById('r-diecost').textContent = '$' + dieCost.toFixed(2);
+  document.getElementById('r-final').textContent = '$' + totalCost.toFixed(2);
+  document.getElementById('r-vs-si').textContent = vsSi + '배';
+  document.getElementById('r-inv').textContent = '$' + invCost.toFixed(0);
+}
+
+document.addEventListener('DOMContentLoaded', calc);
+</script>
+
+</body>
+</html>
