@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>글로벌 팹 확장 타임라인 — 2024~2030 반도체 팹 가동 로드맵 | ChipCalc</title>
+<meta name="description" content="TSMC Arizona · Samsung Taylor · Intel Ohio · Rapidus Hokkaido · Infineon Dresden 등 전 세계 주요 반도체 팹 확장 프로젝트의 가동 시점과 투자 규모를 한눈에. CHIPS Act · EU Chips Act · 일본 보조금 비교.">
+<meta name="keywords" content="팹 확장, TSMC Arizona, Samsung Taylor, Intel Ohio, Rapidus, Infineon Dresden, 반도체 팹 타임라인, CHIPS Act, fab construction 2026 2027">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="글로벌 팹 확장 타임라인 | ChipCalc">
+<meta property="og:description" content="2024~2030 전 세계 반도체 팹 가동 로드맵과 투자 규모.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/fab-timeline.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/fab-timeline.html">
+
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://dudwns100.github.io/chipcalc/"},{"@type":"ListItem","position":2,"name":"리소스"},{"@type":"ListItem","position":3,"name":"팹 확장 타임라인"}]},{"@type":"Article","headline":"글로벌 팹 확장 타임라인","description":"2024~2030 전 세계 반도체 팹 가동 로드맵.","url":"https://dudwns100.github.io/chipcalc/fab-timeline.html","inLanguage":"ko","mainEntityOfPage":{"@type":"WebPage","@id":"https://dudwns100.github.io/chipcalc/fab-timeline.html"},"publisher":{"@type":"Organization","name":"ChipCalc","url":"https://dudwns100.github.io/chipcalc/"}}]}</script>
+
+<link rel="stylesheet" href="shared.css">
+<script src="shared-analytics.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* HERO — 청록+파랑 (건설/미래 지향) */
+.hero{padding:44px 28px 36px;color:#fff;position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(135deg,#0a1628 0%,#0e3a5c 35%,#0891b2 75%,#06b6d4 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(100,220,255,0.2) 0%,transparent 55%);pointer-events:none}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.9);margin-bottom:14px}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:10px;color:#fff}
+.hero-desc{font-size:14px;color:rgba(255,255,255,0.82);max-width:580px;margin:0 auto 16px;line-height:1.65}
+.hero-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.hero-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);border-radius:100px;padding:4px 12px;font-size:11.5px;color:rgba(255,255,255,0.88)}
+
+.page-wrap{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
+
+/* 요약 통계 */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.sum-card.c-cyan::before{background:linear-gradient(90deg,#06b6d4,#0891b2)}
+.sum-card.c-green::before{background:linear-gradient(90deg,#10b981,#059669)}
+.sum-card.c-purple::before{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+.sum-card.c-orange::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.sum-lbl{font-size:10.5px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px}
+.sum-val{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--l1);line-height:1.1;letter-spacing:-0.02em}
+.sum-sub{font-size:10.5px;color:var(--l3);margin-top:3px}
+
+/* 타임라인 */
+.timeline-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px 8px;margin-bottom:24px;box-shadow:var(--sh);overflow:hidden}
+.timeline-title{font-size:13px;font-weight:800;color:var(--l1);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.timeline-title::before{content:'';width:8px;height:8px;border-radius:2px;background:#06b6d4}
+.timeline-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:8px}
+.timeline-scroll::-webkit-scrollbar{height:6px}
+.timeline-scroll::-webkit-scrollbar-track{background:var(--s3);border-radius:3px}
+.timeline-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* 연도 헤더 */
+.years-row{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:0;min-width:980px;border-bottom:2px solid var(--border);padding-bottom:6px;margin-bottom:14px}
+.yr-col{text-align:center;position:relative}
+.yr-col::after{content:'';position:absolute;right:0;top:4px;bottom:-6px;width:1px;background:var(--border)}
+.yr-col:last-child::after{display:none}
+.yr-lbl{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--l1);letter-spacing:-0.02em}
+.yr-sub{font-size:9.5px;color:var(--l4);margin-top:2px;letter-spacing:0.07em;text-transform:uppercase}
+.yr-now{color:#06b6d4 !important}
+
+/* 타임라인 행 */
+.tl-rows{min-width:980px;position:relative}
+.tl-row{display:grid;grid-template-columns:repeat(7,minmax(130px,1fr));gap:0;height:44px;position:relative;align-items:center}
+.tl-row::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:var(--border);opacity:0.4}
+.tl-row .yr-col{height:100%;position:relative}
+.tl-row .yr-col::after{content:'';position:absolute;right:0;top:0;bottom:0;width:1px;background:var(--border);opacity:0.3}
+
+.tl-bar{
+  position:absolute;top:8px;height:28px;
+  border-radius:6px;padding:0 10px;
+  display:flex;align-items:center;gap:6px;
+  font-size:10.5px;font-weight:700;color:#fff;
+  white-space:nowrap;overflow:hidden;
+  cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;
+  z-index:2;
+}
+.tl-bar:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.2);z-index:3}
+.tl-bar-icon{font-size:12px}
+.tl-bar-label{text-overflow:ellipsis;overflow:hidden}
+.tl-phase{background:linear-gradient(90deg,#3b82f6,#1e40af)}
+.tl-const{background:linear-gradient(90deg,#8b5cf6,#6d28d9)}
+.tl-equip{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.tl-prod{background:linear-gradient(90deg,#10b981,#059669)}
+
+/* 현재 시점 마커 */
+.now-line{position:absolute;top:-12px;bottom:0;width:2px;background:#06b6d4;z-index:4;pointer-events:none}
+.now-line::before{content:'NOW';position:absolute;top:-18px;left:50%;transform:translateX(-50%);background:#06b6d4;color:#fff;padding:1px 6px;border-radius:3px;font-size:8.5px;font-weight:800;letter-spacing:0.08em;font-family:var(--mono)}
+
+.tl-legend{display:flex;gap:12px;flex-wrap:wrap;padding:12px 0 0;margin-top:8px;border-top:1px solid var(--border);font-size:11px}
+.tl-legend-item{display:flex;align-items:center;gap:5px;color:var(--l3)}
+.tl-legend-dot{width:12px;height:8px;border-radius:2px}
+
+/* 필터 컨트롤 */
+.ctrl-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.ctrl-title{font-size:13px;font-weight:700;color:var(--l1)}
+.ctrl-title .cnt{color:var(--blue);font-family:var(--mono);margin-left:6px}
+.filter-chips{display:flex;gap:5px;flex-wrap:wrap}
+.filter-chip{height:28px;padding:0 13px;border-radius:100px;border:1px solid var(--border2);background:var(--surface);font-family:var(--font);font-size:11.5px;font-weight:600;color:var(--l3);cursor:pointer;transition:all 0.15s}
+.filter-chip:hover{border-color:var(--blue);color:var(--blue)}
+.filter-chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* 프로젝트 카드 */
+.proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:28px}
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--sh);transition:all 0.2s;position:relative;overflow:hidden}
+.proj-card:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.proj-card::before{content:'';position:absolute;top:0;left:0;width:4px;bottom:0}
+.proj-card.st-active::before{background:#10b981}
+.proj-card.st-equip::before{background:#f59e0b}
+.proj-card.st-const::before{background:#8b5cf6}
+.proj-card.st-plan::before{background:#6b7280}
+.proj-card.st-delay::before{background:#dc2626}
+
+.proj-hd{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.proj-flag{font-size:22px;line-height:1;flex-shrink:0;margin-top:2px}
+.proj-title-wrap{flex:1;min-width:0}
+.proj-co{font-size:11px;font-weight:800;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono)}
+.proj-name{font-size:15px;font-weight:800;color:var(--l1);line-height:1.25;margin-top:2px}
+.proj-loc{font-size:11px;color:var(--l3);margin-top:3px}
+.status-badge{padding:3px 10px;border-radius:100px;font-size:9.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.st-active .status-badge{background:rgba(16,185,129,0.15);color:#059669}
+.st-equip .status-badge{background:rgba(245,158,11,0.15);color:#d97706}
+.st-const .status-badge{background:rgba(139,92,246,0.15);color:#7c3aed}
+.st-plan .status-badge{background:rgba(107,114,128,0.15);color:#525b6b}
+.st-delay .status-badge{background:rgba(220,38,38,0.15);color:#dc2626}
+
+.proj-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px}
+.proj-stat{text-align:center}
+.proj-stat-lbl{font-size:9.5px;color:var(--l4);font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.proj-stat-val{font-family:var(--mono);font-size:15px;font-weight:800;color:var(--l1);margin-top:3px;letter-spacing:-0.01em}
+.proj-stat-sub{font-size:10px;color:var(--l3);margin-top:1px}
+
+.phases{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.phase-item{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:11.5px;border-bottom:1px dashed var(--border)}
+.phase-item:last-child{border-bottom:none}
+.phase-name{color:var(--l2);font-weight:600}
+.phase-status{font-family:var(--mono);font-weight:700}
+
+.proj-footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px}
+.proj-tags{display:flex;gap:4px;flex-wrap:wrap}
+.proj-tag{font-size:9.5px;padding:2px 7px;border-radius:4px;background:var(--s3);color:var(--l3);font-family:var(--mono);font-weight:700}
+.proj-tag.hi{background:var(--blue-t);color:var(--blue)}
+.proj-note{font-size:11px;color:var(--l3);line-height:1.55;margin-top:8px;font-style:italic}
+
+/* 정책 비교 */
+.policy-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.policy-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.policy-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.policy-us::before{background:linear-gradient(90deg,#3b82f6,#1e3a8a)}
+.policy-eu::before{background:linear-gradient(90deg,#fbbf24,#d97706)}
+.policy-jp::before{background:linear-gradient(90deg,#ef4444,#b91c1c)}
+
+.policy-hd{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.policy-flag{font-size:24px}
+.policy-name{font-size:14px;font-weight:800;color:var(--l1);line-height:1.2}
+.policy-sub{font-size:10.5px;color:var(--l3);margin-top:2px}
+.policy-amt{font-family:var(--mono);font-size:22px;font-weight:800;margin:8px 0 4px;letter-spacing:-0.02em}
+.policy-us .policy-amt{color:#1e40af}
+.policy-eu .policy-amt{color:#d97706}
+.policy-jp .policy-amt{color:#dc2626}
+.policy-amt-sub{font-size:11px;color:var(--l4);margin-bottom:10px}
+.policy-item{font-size:11.5px;color:var(--l2);padding:4px 0;line-height:1.5}
+.policy-item::before{content:'✓';color:#10b981;font-weight:700;margin-right:6px}
+
+/* 섹션 타이틀 */
+.sec-title{font-size:18px;font-weight:800;color:var(--l1);margin:32px 0 10px;padding-bottom:8px;border-bottom:2px solid var(--border);letter-spacing:-0.01em}
+.sec-desc{font-size:12.5px;color:var(--l3);margin-bottom:14px;line-height:1.6}
+
+/* 지역 분포 */
+.region-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}
+.region-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;position:relative;overflow:hidden}
+.region-flag{font-size:28px;margin-bottom:6px}
+.region-name{font-size:11px;font-weight:700;color:var(--l1)}
+.region-cnt{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--blue);margin:4px 0}
+.region-inv{font-size:10px;color:var(--l3);font-family:var(--mono);font-weight:600}
+.region-sub{font-size:9.5px;color:var(--l4);margin-top:4px}
+
+/* 면책 */
+.disclaimer{background:#fff8f0;border:1px solid #ffd4a8;border-left:4px solid #f59e0b;border-radius:10px;padding:16px 20px;margin-top:24px}
+.disclaimer h4{font-size:12.5px;font-weight:700;color:#7a3a00;margin:0 0 6px}
+.disclaimer p{font-size:12px;color:#7a3a00;line-height:1.65;margin:0}
+.disclaimer p+p{margin-top:6px}
+
+.ad-wrap{margin:24px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 다크모드 */
+body.dark .sum-card,body.dark .proj-card,body.dark .policy-card,body.dark .region-card,body.dark .timeline-wrap{background:var(--surface)}
+body.dark .disclaimer{background:rgba(245,158,11,0.10);border-color:rgba(245,158,11,0.22)}
+body.dark .disclaimer h4,body.dark .disclaimer p{color:#fbbf24}
+
+/* 모바일 */
+@media(max-width:1100px){
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .proj-grid{grid-template-columns:1fr}
+  .policy-grid{grid-template-columns:1fr}
+  .region-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:768px){
+  .hero{padding:30px 18px 24px}
+  .hero h1{font-size:22px}
+  .hero-desc{font-size:13px}
+  .page-wrap{padding:18px 14px 60px}
+  .sum-val{font-size:18px}
+  .proj-card{padding:14px 16px}
+  .proj-stats{gap:8px}
+  .proj-stat-val{font-size:13px}
+  .region-grid{grid-template-columns:1fr 1fr}
+  .ctrl-bar{flex-direction:column;align-items:stretch}
+  .filter-chips{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .filter-chips::-webkit-scrollbar{display:none}
+}
+@media(max-width:480px){
+  .summary-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .sum-card{padding:12px 14px}
+  .sum-val{font-size:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· 팹 타임라인</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn active">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="sic-calculator.html">🔋 SiC 계산기</a>
+        <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html">📦 패키지 가이드</a>
+        <a href="guide-osat.html">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+        <a href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+        <a href="earnings-dashboard.html">📊 실적 대시보드</a>
+        <a href="fab-timeline.html" class="active">🏗️ 팹 타임라인</a>
+        <a href="glossary.html">📖 용어 사전</a>
+        <a href="news-archive.html">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link" href="sic-calculator.html">🔋 SiC 계산기</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link" href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link" href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link" href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+    <a class="nav-link" href="earnings-dashboard.html">📊 실적 대시보드</a>
+    <a class="nav-link active" href="fab-timeline.html">🏗️ 팹 타임라인</a>
+    <a class="nav-link" href="glossary.html">📖 용어 사전</a>
+    <a class="nav-link" href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🏗️ Global Fab Expansion · 2024~2030</div>
+    <h1>글로벌 팹 확장 타임라인</h1>
+    <p class="hero-desc">전 세계 주요 반도체 팹 프로젝트의 가동 로드맵.<br>TSMC · Samsung · Intel · Rapidus · Infineon 등 15개 프로젝트.</p>
+    <div class="hero-chips">
+      <span class="hero-chip">🏢 15개 프로젝트</span>
+      <span class="hero-chip">🌍 9개국</span>
+      <span class="hero-chip">💰 $450B+</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- 요약 통계 -->
+  <div class="summary-grid">
+    <div class="sum-card c-cyan">
+      <div class="sum-lbl">총 발표 투자액</div>
+      <div class="sum-val">$450B+</div>
+      <div class="sum-sub">2022~2030 누적 (공개 발표 기준)</div>
+    </div>
+    <div class="sum-card c-green">
+      <div class="sum-lbl">2026~2027 가동</div>
+      <div class="sum-val">8개 팹</div>
+      <div class="sum-sub">2년 내 양산 시작 예정</div>
+    </div>
+    <div class="sum-card c-purple">
+      <div class="sum-lbl">2nm 이하 선단 공정</div>
+      <div class="sum-val">5개 프로젝트</div>
+      <div class="sum-sub">TSMC·Samsung·Intel·Rapidus</div>
+    </div>
+    <div class="sum-card c-orange">
+      <div class="sum-lbl">차량용 SiC 전용</div>
+      <div class="sum-val">3개 팹</div>
+      <div class="sum-sub">Infineon · onsemi · Wolfspeed</div>
+    </div>
+  </div>
+
+  <!-- 타임라인 -->
+  <div class="timeline-wrap">
+    <div class="timeline-title">연도별 가동 로드맵 (가로 스크롤 가능)</div>
+    <div class="timeline-scroll" id="tlScroll">
+      <div class="years-row" id="yearsRow"></div>
+      <div class="tl-rows" id="tlRows"></div>
+    </div>
+    <div class="tl-legend">
+      <div class="tl-legend-item"><span class="tl-legend-dot tl-const"></span>착공/건설</div>
+      <div class="tl-legend-item"><span class="tl-legend-dot tl-equip"></span>장비 반입</div>
+      <div class="tl-legend-item"><span class="tl-legend-dot tl-prod"></span>양산 시작</div>
+      <div class="tl-legend-item"><span class="tl-legend-dot tl-phase"></span>Phase 확장</div>
+    </div>
+  </div>
+
+  <!-- 정책 비교 -->
+  <h2 class="sec-title">💰 3대 반도체 지원 정책 비교</h2>
+  <p class="sec-desc">미국·EU·일본이 글로벌 팹 유치 경쟁을 벌이며 막대한 보조금을 쏟고 있습니다.</p>
+  <div class="policy-grid">
+    <div class="policy-card policy-us">
+      <div class="policy-hd">
+        <div class="policy-flag">🇺🇸</div>
+        <div><div class="policy-name">CHIPS and Science Act</div><div class="policy-sub">미국 · 2022년 제정</div></div>
+      </div>
+      <div class="policy-amt">$52B</div>
+      <div class="policy-amt-sub">제조·R&D·인력 양성 직접 지원</div>
+      <div class="policy-item">TSMC Arizona · $6.6B 보조금</div>
+      <div class="policy-item">Samsung Texas · $6.4B 보조금</div>
+      <div class="policy-item">Intel · $8.5B 보조금</div>
+      <div class="policy-item">Micron · $6.1B 보조금</div>
+    </div>
+    <div class="policy-card policy-eu">
+      <div class="policy-hd">
+        <div class="policy-flag">🇪🇺</div>
+        <div><div class="policy-name">EU Chips Act</div><div class="policy-sub">EU · 2023년 발효</div></div>
+      </div>
+      <div class="policy-amt">€43B</div>
+      <div class="policy-amt-sub">2030년까지 EU 점유율 2배 목표</div>
+      <div class="policy-item">Infineon Dresden · 승인 대기 중</div>
+      <div class="policy-item">TSMC ESMC Dresden · €5B 지원</div>
+      <div class="policy-item">STM/GF Crolles · €2.9B 보조</div>
+      <div class="policy-item">onsemi Czech SiC · 심사 중</div>
+    </div>
+    <div class="policy-card policy-jp">
+      <div class="policy-hd">
+        <div class="policy-flag">🇯🇵</div>
+        <div><div class="policy-name">경제안보기금·METI</div><div class="policy-sub">일본 · 2021년~</div></div>
+      </div>
+      <div class="policy-amt">¥6.5T</div>
+      <div class="policy-amt-sub">약 $43B · TSMC·Rapidus·Micron 지원</div>
+      <div class="policy-item">TSMC JASM 1기 · ¥476B 지원</div>
+      <div class="policy-item">TSMC JASM 2기 · ¥732B 지원</div>
+      <div class="policy-item">Rapidus · ¥920B+ 누적 지원</div>
+      <div class="policy-item">Micron Hiroshima · ¥465B 지원</div>
+    </div>
+  </div>
+
+  <!-- AD -->
+  <div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7888888801"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+  <!-- 필터 + 프로젝트 카드 -->
+  <div class="ctrl-bar">
+    <div class="ctrl-title">프로젝트 상세<span class="cnt" id="projCnt">15개</span></div>
+    <div class="filter-chips" id="filterChips">
+      <button class="filter-chip on" data-f="all" onclick="setFilter('all',this)">전체</button>
+      <button class="filter-chip" data-f="leading" onclick="setFilter('leading',this)">🚀 선단 공정</button>
+      <button class="filter-chip" data-f="auto" onclick="setFilter('auto',this)">🚗 차량용</button>
+      <button class="filter-chip" data-f="us" onclick="setFilter('us',this)">🇺🇸 미국</button>
+      <button class="filter-chip" data-f="asia" onclick="setFilter('asia',this)">🌏 아시아</button>
+      <button class="filter-chip" data-f="eu" onclick="setFilter('eu',this)">🇪🇺 유럽</button>
+    </div>
+  </div>
+
+  <div class="proj-grid" id="projGrid"></div>
+
+  <!-- 지역 분포 -->
+  <h2 class="sec-title">🌍 지역별 팹 투자 집중도</h2>
+  <p class="sec-desc">차세대 팹 투자는 미국·일본·대만·한국·유럽으로 분산되고 있으며, "지정학적 리스크 헤지"가 핵심 키워드입니다.</p>
+  <div class="region-grid">
+    <div class="region-card"><div class="region-flag">🇺🇸</div><div class="region-name">미국</div><div class="region-cnt">5</div><div class="region-inv">$330B+</div><div class="region-sub">TSMC·Intel·Samsung·TI·Micron</div></div>
+    <div class="region-card"><div class="region-flag">🇯🇵</div><div class="region-name">일본</div><div class="region-cnt">3</div><div class="region-inv">$60B+</div><div class="region-sub">TSMC JASM · Rapidus · Micron</div></div>
+    <div class="region-card"><div class="region-flag">🇹🇼</div><div class="region-name">대만</div><div class="region-cnt">2</div><div class="region-inv">$40B+</div><div class="region-sub">TSMC 2nm · 1.4nm</div></div>
+    <div class="region-card"><div class="region-flag">🇰🇷</div><div class="region-name">한국</div><div class="region-cnt">2</div><div class="region-inv">₩300T+</div><div class="region-sub">Samsung P5 · 용인 클러스터</div></div>
+    <div class="region-card"><div class="region-flag">🇪🇺</div><div class="region-name">유럽</div><div class="region-cnt">3</div><div class="region-inv">€25B+</div><div class="region-sub">Infineon·TSMC ESMC·STM/GF</div></div>
+  </div>
+
+  <!-- 면책 -->
+  <div class="disclaimer">
+    <h4>⚠ 데이터 출처 및 주의사항</h4>
+    <p>본 페이지는 <strong>기업 공식 발표, IR 자료, SEC/BaFin 공시, 주요 언론 보도</strong>를 기반으로 정리한 정보입니다. 투자액·일정·공정 노드는 변경될 수 있으며, 특히 <strong>CHIPS Act·EU Chips Act 보조금 지급 지연, 건설 일정 조정, 지정학적 리스크</strong> 등으로 실제 결과와 차이가 발생할 수 있습니다.</p>
+    <p>주요 출처: TSMC·Samsung·Intel·Infineon·Rapidus IR 자료, TrendForce, Nikkei Asia, Reuters, Tom's Hardware. 최종 업데이트: 2026년 4월. 정확한 정보는 각 기업 공식 자료를 참고하세요.</p>
+  </div>
+
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════
+   팹 확장 프로젝트 데이터
+═══════════════════════════════════════════════ */
+
+var YEARS = [2023, 2024, 2025, 2026, 2027, 2028, 2029];
+var CURRENT_YEAR = 2026;  // NOW 라인
+var CURRENT_FRAC = 0.3;   // 2026년 중 30% 지점 (4월)
+
+var PROJECTS = [
+  {
+    co: 'TSMC',
+    name: 'Fab 21 Arizona (Phase 1~3)',
+    location: 'Phoenix, 미국',
+    flag: '🇺🇸',
+    region: 'us',
+    investment: '$165B',
+    nodes: ['4nm','3nm','2nm','A16'],
+    status: 'equip',
+    statusLabel: '장비 반입',
+    phases: [
+      {name:'Phase 1 (4nm)', year:2024, frac:0.9, status:'양산 중', color:'tl-prod'},
+      {name:'Phase 2 (3nm)', year:2026, frac:0.7, status:'장비 반입 Q3', color:'tl-equip', dur:1.5, label:'Phase 2 장비 → 2027 양산'},
+      {name:'Phase 3 (2nm)', year:2027, frac:0.3, status:'건설 중', color:'tl-const', dur:2, label:'Phase 3 건설 → 2028~2029 2nm'},
+    ],
+    tags: ['CHIPS Act','FinFET','GAA'],
+    highlight: true,
+    note: '2024년 말 4nm 양산 시작. 2026년 10월 Phase 2 장비 반입 시작으로 일정 1년 앞당김. Apple·NVIDIA가 주요 고객.',
+  },
+  {
+    co: 'Samsung Foundry',
+    name: 'Taylor Fab (2nm)',
+    location: 'Taylor, Texas 미국',
+    flag: '🇺🇸',
+    region: 'us',
+    investment: '$17B+ ($40B 계획)',
+    nodes: ['2nm','GAA'],
+    status: 'equip',
+    statusLabel: '장비 반입',
+    phases: [
+      {name:'건설 완료', year:2025, frac:0.4, status:'완료', color:'tl-const', dur:1},
+      {name:'장비 반입 세리모니', year:2026, frac:0.3, status:'4.24 시작', color:'tl-equip', dur:1, label:'장비 반입 → 2027 2nm 양산'},
+      {name:'2nm 양산', year:2027, frac:0.5, status:'목표', color:'tl-prod', dur:2, label:'Tesla AI5/AI6 생산'},
+    ],
+    tags: ['CHIPS Act','2nm GAA','Tesla'],
+    highlight: true,
+    note: '2026년 4월 24일 장비 반입 세리모니. Tesla AI5/AI6 칩 2027년 하반기 양산 목표. 파운드리 흑자 전환 핵심.',
+  },
+  {
+    co: 'Intel Foundry',
+    name: 'Ohio One (Fab 1, Fab 2)',
+    location: 'New Albany, Ohio 미국',
+    flag: '🇺🇸',
+    region: 'us',
+    investment: '$20B (→ $100B 확대 계획)',
+    nodes: ['18A','14A'],
+    status: 'const',
+    statusLabel: '건설 중',
+    phases: [
+      {name:'초기 건설', year:2023, frac:0.2, status:'진행', color:'tl-const', dur:3},
+      {name:'완공 지연', year:2026, frac:0.5, status:'2026~27로 연기', color:'tl-const', dur:1.5},
+      {name:'양산 목표', year:2027, frac:0.7, status:'2027~28', color:'tl-prod', dur:2},
+    ],
+    tags: ['CHIPS Act','18A','지연'],
+    note: '원래 2025년 가동 목표였으나 보조금 지연과 수요 둔화로 2027~2028년으로 연기. 최대 8개 팹 $100B 장기 계획.',
+  },
+  {
+    co: 'Intel Foundry',
+    name: 'Fab 52/62 Arizona',
+    location: 'Chandler, Arizona 미국',
+    flag: '🇺🇸',
+    region: 'us',
+    investment: '$32B',
+    nodes: ['18A','2nm'],
+    status: 'const',
+    statusLabel: '건설 중',
+    phases: [
+      {name:'건설', year:2024, frac:0.3, status:'진행', color:'tl-const', dur:2.5},
+      {name:'Fab 52 완공', year:2026, frac:0.6, status:'목표', color:'tl-equip', dur:1},
+      {name:'Fab 62 완공', year:2027, frac:0.5, status:'목표', color:'tl-prod', dur:1.5},
+    ],
+    tags: ['CHIPS Act','18A'],
+    note: 'Intel의 주력 2nm급 팹. 미국 내 첨단 공정 핵심 거점.',
+  },
+  {
+    co: 'TSMC',
+    name: 'JASM Kumamoto (Phase 2)',
+    location: 'Kumamoto, 일본',
+    flag: '🇯🇵',
+    region: 'asia',
+    investment: '$20B',
+    nodes: ['6/7nm','12/16nm','22/28nm'],
+    status: 'const',
+    statusLabel: '2기 건설',
+    phases: [
+      {name:'Phase 1 (28/22nm)', year:2024, frac:0.9, status:'양산 중', color:'tl-prod', dur:5.5},
+      {name:'Phase 2 착공', year:2025, frac:0.5, status:'진행', color:'tl-const', dur:1.5},
+      {name:'Phase 2 양산', year:2027, frac:0.5, status:'6/7nm', color:'tl-prod', dur:2.5, label:'Phase 2 6/7nm 양산'},
+    ],
+    tags: ['METI 지원','Sony·Denso'],
+    auto: true,
+    note: 'Sony·Denso 합작. 일본 자동차·이미지센서용 6/7nm 확장. 일본 정부가 최대 ¥732B 지원.',
+  },
+  {
+    co: 'Rapidus',
+    name: 'Hokkaido Fab (2nm)',
+    location: 'Chitose, 홋카이도 일본',
+    flag: '🇯🇵',
+    region: 'asia',
+    investment: '$27B (¥4조)',
+    nodes: ['2nm','1.4nm'],
+    status: 'const',
+    statusLabel: '파일럿 라인',
+    phases: [
+      {name:'공장 건설', year:2023, frac:0.5, status:'진행', color:'tl-const', dur:2},
+      {name:'파일럿 라인', year:2025, frac:0.5, status:'2025 하반기', color:'tl-equip', dur:1.5},
+      {name:'2nm 양산', year:2027, frac:0.3, status:'목표', color:'tl-prod', dur:2.5},
+    ],
+    tags: ['METI ¥920B','IBM 기술','2nm GAA'],
+    highlight: true,
+    note: 'IBM 2nm 기술 도입. 일본 정부 누적 ¥920B+ 지원. 양산 성공 시 일본 반도체 재건의 상징적 프로젝트.',
+  },
+  {
+    co: 'TSMC',
+    name: 'ESMC Dresden',
+    location: 'Dresden, 독일',
+    flag: '🇩🇪',
+    region: 'eu',
+    investment: '€10B',
+    nodes: ['12nm','22nm','28nm'],
+    status: 'const',
+    statusLabel: '건설 중',
+    phases: [
+      {name:'착공', year:2024, frac:0.7, status:'2024-08-20', color:'tl-const', dur:3},
+      {name:'양산', year:2027, frac:0.6, status:'2027 하반기', color:'tl-prod', dur:1.8, label:'EU 첫 자동차 전용 팹'},
+    ],
+    tags: ['EU Chips Act','Bosch·Infineon·NXP JV'],
+    auto: true,
+    note: 'Bosch·Infineon·NXP 합작. EU 첫 자동차 전용 파운드리. EU 보조금 €5B 지원 승인.',
+  },
+  {
+    co: 'Infineon',
+    name: 'Smart Power Dresden',
+    location: 'Dresden, 독일',
+    flag: '🇩🇪',
+    region: 'eu',
+    investment: '€5B',
+    nodes: ['200mm 아날로그/파워'],
+    status: 'const',
+    statusLabel: '완공 임박',
+    phases: [
+      {name:'건설', year:2023, frac:0.5, status:'진행', color:'tl-const', dur:3},
+      {name:'가동 목표', year:2026, frac:0.6, status:'EU 승인 지연', color:'tl-delay', dur:1.5, label:'EU 보조금 승인 대기'},
+    ],
+    tags: ['EU Chips Act 대기','차량용 파워'],
+    auto: true,
+    note: 'Infineon 역사상 최대 투자. EU 보조금 승인이 지연되면서 가동 시점 리스크. 차량용 IGBT·SiC·아날로그.',
+  },
+  {
+    co: 'Wolfspeed',
+    name: 'Mohawk Valley (200mm SiC)',
+    location: 'Marcy, NY 미국',
+    flag: '🇺🇸',
+    region: 'us',
+    investment: '$1B+',
+    nodes: ['200mm SiC','SiC MOSFET'],
+    status: 'active',
+    statusLabel: '가동 중',
+    phases: [
+      {name:'가동 시작', year:2022, frac:0.7, status:'완료', color:'tl-prod', dur:4.5},
+      {name:'Durham 150mm 종료', year:2025, frac:0.9, status:'완료', color:'tl-equip', dur:0.5, label:'200mm 전환'},
+      {name:'Toyota OBC 수주', year:2026, frac:0.1, status:'확정', color:'tl-prod', dur:3, label:'Toyota SiC 공급'},
+    ],
+    tags: ['SiC','200mm','차량용'],
+    auto: true,
+    note: '세계 최초 200mm SiC 양산 팹. Chapter 11 재편 후 Renesas가 이사회 합류. Toyota BEV OBC 수주로 복귀.',
+  },
+  {
+    co: 'onsemi',
+    name: 'Roznov SiC 확장',
+    location: 'Roznov, 체코',
+    flag: '🇨🇿',
+    region: 'eu',
+    investment: '$2B',
+    nodes: ['200mm SiC'],
+    status: 'plan',
+    statusLabel: 'EU 승인 대기',
+    phases: [
+      {name:'발표', year:2024, frac:0.5, status:'완료', color:'tl-const', dur:2},
+      {name:'EU 승인', year:2026, frac:0.2, status:'대기', color:'tl-delay', dur:1.5, label:'EU 보조금 심사'},
+      {name:'양산', year:2028, frac:0.1, status:'목표', color:'tl-prod', dur:2},
+    ],
+    tags: ['SiC','EU Chips Act 대기'],
+    auto: true,
+    note: '유럽 최대 SiC 허브 목표. EU 보조금 승인이 관건.',
+  },
+  {
+    co: 'TI',
+    name: 'Sherman Fab (4기)',
+    location: 'Sherman, Texas 미국',
+    flag: '🇺🇸',
+    region: 'us',
+    investment: '$40B',
+    nodes: ['300mm 아날로그'],
+    status: 'const',
+    statusLabel: '1기 가동 임박',
+    phases: [
+      {name:'착공', year:2023, frac:0.3, status:'완료', color:'tl-const', dur:3},
+      {name:'1기 가동', year:2026, frac:0.5, status:'하반기', color:'tl-prod', dur:1, label:'1기 첫 웨이퍼'},
+      {name:'2~4기', year:2028, frac:0.1, status:'단계적', color:'tl-prod', dur:2},
+    ],
+    tags: ['아날로그','차량용'],
+    auto: true,
+    note: '1기 2026년 하반기 양산 시작. 2~4기는 2030년까지 단계적 완공. 아날로그·임베디드 중심.',
+  },
+  {
+    co: 'TI',
+    name: 'Lehi 2기 (LFAB2)',
+    location: 'Lehi, Utah 미국',
+    flag: '🇺🇸',
+    region: 'us',
+    investment: '$11B',
+    nodes: ['300mm 아날로그'],
+    status: 'const',
+    statusLabel: '건설 중',
+    phases: [
+      {name:'착공', year:2023, frac:0.6, status:'진행', color:'tl-const', dur:3},
+      {name:'가동', year:2026, frac:0.7, status:'목표', color:'tl-prod', dur:2},
+    ],
+    tags: ['아날로그','300mm'],
+    note: '기존 Lehi 팹(Micron 인수) 확장. 2026년 이후 양산.',
+  },
+  {
+    co: 'TSMC',
+    name: 'Central Taiwan (1.4nm)',
+    location: 'Taichung, 대만',
+    flag: '🇹🇼',
+    region: 'asia',
+    investment: '$30B+',
+    nodes: ['1.4nm','A14'],
+    status: 'plan',
+    statusLabel: '계획 단계',
+    phases: [
+      {name:'부지 확보', year:2025, frac:0.5, status:'완료', color:'tl-const', dur:0.5},
+      {name:'착공', year:2026, frac:0.2, status:'예상', color:'tl-const', dur:2},
+      {name:'1.4nm 양산', year:2028, frac:0.5, status:'목표', color:'tl-prod', dur:1.5, label:'1.4nm 선단 공정'},
+    ],
+    tags: ['1.4nm','GAA','선단'],
+    highlight: true,
+    note: 'TSMC 대만 내 1.4nm 전용 팹. 최첨단 AI 칩 생산 거점.',
+  },
+  {
+    co: 'Samsung',
+    name: 'Pyeongtaek P5 · 용인 클러스터',
+    location: '평택·용인, 한국',
+    flag: '🇰🇷',
+    region: 'asia',
+    investment: '₩300T+',
+    nodes: ['2nm','HBM','DRAM'],
+    status: 'plan',
+    statusLabel: '용인 착공',
+    phases: [
+      {name:'P5 준비', year:2024, frac:0.5, status:'진행', color:'tl-const', dur:2.5},
+      {name:'용인 클러스터', year:2026, frac:0.3, status:'착공', color:'tl-const', dur:4, label:'용인 세계 최대 반도체 클러스터'},
+    ],
+    tags: ['DRAM','HBM','Foundry'],
+    highlight: true,
+    note: '용인 "시스템 반도체 클러스터"는 세계 최대 규모. 총 ₩300조원 이상 투자 계획.',
+  },
+  {
+    co: 'SMIC',
+    name: 'Lingang Shanghai',
+    location: '상하이, 중국',
+    flag: '🇨🇳',
+    region: 'asia',
+    investment: '$8.87B',
+    nodes: ['28nm','14nm','7nm'],
+    status: 'active',
+    statusLabel: '양산 중',
+    phases: [
+      {name:'가동', year:2024, frac:0.4, status:'완료', color:'tl-prod', dur:5},
+    ],
+    tags: ['중국 정부 지원','내수'],
+    note: '미중 제재로 EUV 미사용. DUV 기반 제한적 7nm 양산. 중국 국산화 핵심.',
+  },
+];
+
+/* ═══════════════════════════════════════════════
+   타임라인 렌더링
+═══════════════════════════════════════════════ */
+
+function renderYears() {
+  var html = YEARS.map(function(y){
+    var cls = y === CURRENT_YEAR ? 'yr-lbl yr-now' : 'yr-lbl';
+    return '<div class="yr-col"><div class="' + cls + '">' + y + '</div><div class="yr-sub">' + (y === CURRENT_YEAR ? '현재' : '') + '</div></div>';
+  }).join('');
+  document.getElementById('yearsRow').innerHTML = html;
+}
+
+function renderTimeline() {
+  var html = '';
+  PROJECTS.forEach(function(p, idx) {
+    var barsHtml = p.phases.map(function(ph) {
+      var startIdx = YEARS.indexOf(ph.year);
+      if(startIdx < 0) return '';
+      var colPct = 100 / YEARS.length;
+      var left = (startIdx + ph.frac) * colPct;
+      var width = (ph.dur || 0.5) * colPct;
+      // 화면 경계 체크
+      if(left + width > 100) width = 100 - left - 0.5;
+      var label = ph.label || (ph.name + ' · ' + ph.status);
+      return '<div class="tl-bar ' + ph.color + '" style="left:' + left + '%;width:' + width + '%" title="' + label.replace(/"/g,'&quot;') + '"><span class="tl-bar-icon">▶</span><span class="tl-bar-label">' + ph.name + '</span></div>';
+    }).join('');
+    
+    html += '<div class="tl-row" data-idx="' + idx + '">';
+    for(var i = 0; i < YEARS.length; i++) html += '<div class="yr-col"></div>';
+    html += barsHtml + '</div>';
+  });
+  
+  // NOW 라인
+  var nowLeft = (YEARS.indexOf(CURRENT_YEAR) + CURRENT_FRAC) * (100 / YEARS.length);
+  html += '<div class="now-line" style="left:' + nowLeft + '%"></div>';
+  
+  document.getElementById('tlRows').innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════
+   프로젝트 카드
+═══════════════════════════════════════════════ */
+
+var currentFilter = 'all';
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('on')});
+  btn.classList.add('on');
+  renderProjects();
+}
+
+function filterProjects() {
+  return PROJECTS.filter(function(p) {
+    if(currentFilter === 'all') return true;
+    if(currentFilter === 'leading') return p.nodes.some(function(n){return /2nm|3nm|1\.4nm|18A|A14|A16|4nm|5nm|7nm/.test(n)}) || p.highlight;
+    if(currentFilter === 'auto') return p.auto === true;
+    if(currentFilter === 'us' || currentFilter === 'asia' || currentFilter === 'eu') return p.region === currentFilter;
+    return true;
+  });
+}
+
+function renderProjects() {
+  var list = filterProjects();
+  document.getElementById('projCnt').textContent = list.length + '개';
+  
+  var html = list.map(function(p) {
+    var statusClass = 'st-' + p.status;
+    var tagHtml = (p.tags || []).map(function(t, i){
+      return '<span class="proj-tag' + (i === 0 ? ' hi' : '') + '">' + t + '</span>';
+    }).join('');
+    var phaseHtml = p.phases.map(function(ph){
+      var cc = ph.color === 'tl-prod' ? '#059669' : (ph.color === 'tl-equip' ? '#d97706' : (ph.color === 'tl-delay' ? '#dc2626' : '#8b5cf6'));
+      return '<div class="phase-item"><span class="phase-name">' + ph.name + '</span><span class="phase-status" style="color:' + cc + '">' + ph.year + ' · ' + ph.status + '</span></div>';
+    }).join('');
+    var nodesStr = p.nodes.slice(0, 3).join(' · ');
+    
+    return '<div class="proj-card ' + statusClass + '">'
+      + '<div class="proj-hd">'
+        + '<div class="proj-flag">' + p.flag + '</div>'
+        + '<div class="proj-title-wrap">'
+          + '<div class="proj-co">' + p.co + '</div>'
+          + '<div class="proj-name">' + p.name + '</div>'
+          + '<div class="proj-loc">📍 ' + p.location + '</div>'
+        + '</div>'
+        + '<div class="status-badge">' + p.statusLabel + '</div>'
+      + '</div>'
+      + '<div class="proj-stats">'
+        + '<div class="proj-stat"><div class="proj-stat-lbl">투자액</div><div class="proj-stat-val">' + p.investment + '</div></div>'
+        + '<div class="proj-stat"><div class="proj-stat-lbl">공정 노드</div><div class="proj-stat-val" style="font-size:12px">' + nodesStr + '</div></div>'
+        + '<div class="proj-stat"><div class="proj-stat-lbl">Phase</div><div class="proj-stat-val">' + p.phases.length + '개</div></div>'
+      + '</div>'
+      + '<div class="phases">' + phaseHtml + '</div>'
+      + '<div class="proj-footer"><div class="proj-tags">' + tagHtml + '</div></div>'
+      + '<div class="proj-note">' + p.note + '</div>'
+    + '</div>';
+  }).join('');
+  
+  document.getElementById('projGrid').innerHTML = html;
+}
+
+/* 초기화 */
+document.addEventListener('DOMContentLoaded', function() {
+  renderYears();
+  renderTimeline();
+  renderProjects();
+});
+</script>
+
+</body>
+</html>
