@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>차량용 반도체 용어 사전 — 실무자를 위한 용어 정리 | ChipCalc</title>
+<meta name="description" content="차량용 반도체 업계에서 자주 쓰이는 용어 80여 개를 한 페이지에 정리. DPW · AEC-Q100 · SiC · OSAT · CoWoS 등 약어와 전문 용어를 한국어·영어로 설명합니다.">
+<meta name="keywords" content="반도체 용어, 반도체 약어, 차량용 반도체 용어사전, DPW, AEC-Q100, OSAT, SiC, semiconductor glossary, automotive semiconductor terms">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="차량용 반도체 용어 사전 | ChipCalc">
+<meta property="og:description" content="차량용 반도체 업계 용어 80여 개를 한국어·영어로 정리한 실무 용어 사전.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/glossary.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/glossary.html">
+
+<link rel="stylesheet" href="shared.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* HERO - 슬레이트 그레이 (중립적, 사전 느낌) */
+.hero{padding:42px 28px 36px;color:#fff;position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(135deg,#1e293b 0%,#334155 50%,#475569 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(150,170,200,0.15) 0%,transparent 55%);pointer-events:none}
+.hero-inner{max-width:760px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.85);margin-bottom:14px}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:10px;color:#fff}
+.hero-desc{font-size:14px;color:rgba(255,255,255,0.78);max-width:560px;margin:0 auto;line-height:1.65}
+
+.page-wrap{max-width:960px;margin:0 auto;padding:28px 24px 90px}
+
+/* 검색/필터 바 (sticky) */
+.glossary-ctrl{
+  position:sticky;top:var(--topbar-h);z-index:80;
+  background:var(--bg);padding:14px 0 10px;margin-bottom:20px;
+  border-bottom:1px solid var(--border);
+}
+.search-box{
+  width:100%;height:44px;padding:0 16px 0 44px;
+  border:1.5px solid var(--border2);border-radius:10px;
+  background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") no-repeat 14px center;
+  font-family:var(--font);font-size:14px;color:var(--l1);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.search-box:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,0.08)}
+.cat-chips{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;overflow-x:auto;padding-bottom:2px}
+.cat-chips::-webkit-scrollbar{display:none}
+.cat-chip{
+  height:26px;padding:0 12px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--surface);
+  font-family:var(--font);font-size:11px;font-weight:600;color:var(--l3);
+  cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.cat-chip:hover{border-color:var(--blue);color:var(--blue)}
+.cat-chip.on{background:#334155;border-color:#334155;color:#fff}
+.result-count{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:11.5px;color:var(--l4);margin-top:8px;padding:0 2px;
+}
+
+/* A~Z 네비게이션 */
+.alpha-nav{
+  display:flex;flex-wrap:wrap;gap:3px;margin-bottom:20px;
+  padding:12px 14px;background:var(--surface);
+  border:1px solid var(--border);border-radius:10px;
+  font-family:var(--mono);
+}
+.alpha-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:24px;height:24px;padding:0 5px;
+  border:none;background:transparent;color:var(--l3);
+  font-family:var(--mono);font-size:11.5px;font-weight:700;
+  border-radius:5px;cursor:pointer;transition:all 0.15s;
+}
+.alpha-btn:hover{background:var(--s3);color:var(--blue)}
+.alpha-btn.active{color:var(--blue)}
+.alpha-btn.disabled{color:var(--l4);opacity:0.3;cursor:default}
+
+/* 알파벳 섹션 */
+.alpha-section{margin-bottom:28px;scroll-margin-top:170px}
+.alpha-head{
+  font-family:var(--mono);font-size:24px;font-weight:800;
+  color:var(--blue);padding:0 0 6px;margin-bottom:12px;
+  border-bottom:2px solid var(--blue);display:inline-block;
+  letter-spacing:-0.02em;
+}
+
+/* 용어 카드 */
+.term-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:16px 18px;margin-bottom:10px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.04);
+  transition:box-shadow 0.15s,transform 0.15s;
+}
+.term-card:hover{box-shadow:0 3px 10px rgba(0,0,0,0.07)}
+.term-hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.term-name{font-size:15px;font-weight:800;color:var(--l1);letter-spacing:-0.01em}
+.term-full{font-size:12px;color:var(--l3);font-weight:500}
+.term-tags{display:flex;gap:5px;flex-wrap:wrap}
+.term-tag{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:0.04em;text-transform:uppercase}
+.tag-fab{background:var(--blue-t);color:var(--blue)}
+.tag-pkg{background:var(--purple-t);color:var(--purple)}
+.tag-auto{background:var(--orange-t);color:var(--orange)}
+.tag-cost{background:var(--green-t);color:var(--green)}
+.tag-cert{background:var(--red-t);color:var(--red)}
+.tag-power{background:#fef3c7;color:#92400e}
+.tag-ai{background:#e0e7ff;color:#3730a3}
+body.dark .tag-power{background:rgba(245,158,11,0.15);color:#fbbf24}
+body.dark .tag-ai{background:rgba(99,102,241,0.15);color:#a5b4fc}
+
+.term-desc{font-size:13px;color:var(--l2);line-height:1.7}
+.term-desc strong{color:var(--l1);font-weight:700}
+.term-link{display:inline-block;margin-top:6px;font-size:11px;color:var(--blue);font-weight:600}
+
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--l4);font-size:14px;
+}
+.empty-state-icon{font-size:40px;margin-bottom:10px;opacity:0.5}
+
+.ad-wrap{margin:28px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 다크모드 */
+body.dark .term-card{background:var(--surface)}
+body.dark .alpha-nav{background:var(--surface)}
+body.dark .glossary-ctrl{background:var(--bg)}
+body.dark .search-box{background-color:var(--s2);color:var(--l1)}
+
+/* 모바일 */
+@media(max-width:768px){
+  .hero{padding:30px 18px 26px}
+  .hero h1{font-size:22px}
+  .hero-desc{font-size:13px}
+  .page-wrap{padding:18px 14px 60px}
+  .alpha-nav{gap:2px;padding:8px 10px}
+  .alpha-btn{min-width:22px;height:22px;font-size:11px}
+  .term-card{padding:13px 14px}
+  .term-name{font-size:14px}
+  .term-desc{font-size:12.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· 용어 사전</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn active">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="sic-calculator.html">🔋 SiC 계산기</a>
+        <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html">📦 패키지 가이드</a>
+        <a href="guide-osat.html">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+        <a href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+        <a href="glossary.html" class="active">📖 용어 사전</a>
+        <a href="news-archive.html">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link" href="sic-calculator.html">🔋 SiC 계산기</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link" href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link" href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link" href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+    <a class="nav-link active" href="glossary.html">📖 용어 사전</a>
+    <a class="nav-link" href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">📖 Glossary · Korean/English</div>
+    <h1>차량용 반도체 용어 사전</h1>
+    <p class="hero-desc">업계에서 자주 쓰이는 약어와 전문 용어 80여 개를<br>한국어·영어로 설명합니다. 검색하거나 알파벳별로 탐색하세요.</p>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- 검색·필터 -->
+  <div class="glossary-ctrl">
+    <input type="text" class="search-box" id="searchInput" placeholder="용어 검색… (예: DPW, SiC, AEC, OSAT)" oninput="filterTerms()">
+    <div class="cat-chips" id="catChips">
+      <button class="cat-chip on" data-cat="all" onclick="setCat('all',this)">전체</button>
+      <button class="cat-chip" data-cat="fab" onclick="setCat('fab',this)">🏭 팹/공정</button>
+      <button class="cat-chip" data-cat="pkg" onclick="setCat('pkg',this)">📦 패키지</button>
+      <button class="cat-chip" data-cat="power" onclick="setCat('power',this)">⚡ 파워</button>
+      <button class="cat-chip" data-cat="auto" onclick="setCat('auto',this)">🚗 차량용</button>
+      <button class="cat-chip" data-cat="cert" onclick="setCat('cert',this)">✅ 인증</button>
+      <button class="cat-chip" data-cat="cost" onclick="setCat('cost',this)">💰 원가</button>
+      <button class="cat-chip" data-cat="ai" onclick="setCat('ai',this)">🤖 AI/SoC</button>
+    </div>
+    <div class="result-count">
+      <span id="resultCount">전체 용어 로딩 중…</span>
+      <button onclick="clearFilters()" style="background:none;border:none;color:var(--blue);font-size:11.5px;font-weight:600;cursor:pointer;font-family:var(--font)">↺ 초기화</button>
+    </div>
+  </div>
+
+  <!-- 알파벳 네비 -->
+  <div class="alpha-nav" id="alphaNav"></div>
+
+  <!-- 용어 리스트 (렌더링 영역) -->
+  <div id="glossaryBody"></div>
+
+  <!-- AD -->
+  <div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7666666601"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
+<script>
+/* ════════════════════════════════
+   용어 데이터
+════════════════════════════════ */
+var GLOSSARY = [
+  // A
+  {term:'ADAS', full:'Advanced Driver Assistance Systems', cats:['auto','ai'], desc:'<strong>첨단 운전자 보조 시스템</strong>. 차선 이탈 경고, 긴급 제동, 적응형 크루즈 등을 수행하는 반자율 주행 기술. 보통 전용 SoC(NVIDIA Xavier, Mobileye EyeQ 등)로 구현됨.', link:{href:'guide-aec-q100.html',text:'AEC-Q100 가이드'}},
+  {term:'AEC', full:'Automotive Electronics Council', cats:['cert','auto'], desc:'1993년 Chrysler·Ford·GM이 설립한 자동차 전자부품 신뢰성 시험 기준 컨소시엄. AEC-Q100, Q101 등 차량용 부품 필수 인증 체계의 주관 기관.', link:{href:'guide-aec-q100.html',text:'AEC-Q100 가이드'}},
+  {term:'AEC-Q100', full:'IC 신뢰성 시험 표준', cats:['cert','auto'], desc:'차량용 <strong>집적회로(IC)</strong>의 신뢰성 시험 기준. Grade 0(-40°C~+150°C) ~ Grade 4까지 작동 온도에 따라 등급이 나뉨. 차량용 반도체 진입의 사실상 필수 인증.', link:{href:'guide-aec-q100.html',text:'자세히'}},
+  {term:'AEC-Q101', full:'Discrete 반도체 신뢰성 표준', cats:['cert','power'], desc:'차량용 <strong>개별 반도체</strong>(MOSFET, IGBT, 다이오드 등) 신뢰성 시험 기준. SiC/GaN 등 차세대 전력반도체도 이 규격을 통과해야 함.'},
+  {term:'ASIC', full:'Application-Specific Integrated Circuit', cats:['fab','ai'], desc:'특정 용도에 맞게 설계된 <strong>맞춤형 반도체</strong>. 범용 칩보다 성능·전력 효율이 우수하지만 개발 비용이 높음. 자율주행용 NPU 등이 대표적.'},
+  {term:'ASP', full:'Average Selling Price', cats:['cost'], desc:'<strong>평균 판매가</strong>. 반도체 업체 IR 자료에 자주 등장하며 원가 대비 수익성을 보여주는 핵심 지표.', link:{href:'guide-semiconductor-cost.html',text:'원가 가이드'}},
+
+  // B
+  {term:'BCD', full:'Bipolar-CMOS-DMOS', cats:['fab','power'], desc:'Bipolar 트랜지스터, CMOS, DMOS(Power MOSFET)를 한 칩에 집적하는 공정. <strong>PMIC, 오디오 앰프, 모터 드라이버</strong> 등 아날로그+파워 IC 제조에 사용.'},
+  {term:'BEOL', full:'Back End of Line', cats:['fab'], desc:'반도체 전공정 중 <strong>배선(Metallization) 단계</strong>. 트랜지스터 간 연결을 위해 Cu·Al 등 금속층을 쌓음. FEOL(트랜지스터 형성)과 구분됨.'},
+  {term:'BEV', full:'Battery Electric Vehicle', cats:['auto','power'], desc:'100% 배터리로 구동되는 <strong>순수 전기차</strong>. ICE 대비 반도체 사용량이 약 3배.', link:{href:'ev-vs-ice-semiconductor.html',text:'EV 비교'}},
+  {term:'BGA', full:'Ball Grid Array', cats:['pkg'], desc:'패키지 하단에 솔더 볼을 격자 형태로 배열한 방식. 고밀도 I/O에 적합하며 FCBGA, LGA 등 파생형이 있음.', link:{href:'semiconductor-packages.html',text:'패키지 가이드'}},
+  {term:'BMS', full:'Battery Management System', cats:['auto','power'], desc:'EV 배터리의 <strong>충방전·온도·셀 밸런싱</strong>을 제어하는 시스템. 셀 단위 모니터링 IC(LTC6811 등)가 96~100개 셀에 배치됨.'},
+  {term:'BOM', full:'Bill of Materials', cats:['cost'], desc:'<strong>자재 명세서</strong>. 제품 제조에 필요한 모든 부품과 비용을 정리한 문서. 반도체 원가 산출의 기초 자료.'},
+
+  // C
+  {term:'CAN', full:'Controller Area Network', cats:['auto'], desc:'자동차 내 ECU 간 통신에 널리 쓰이는 <strong>버스 프로토콜</strong>. CAN-FD로 발전, 최근에는 10Mbps 이상의 CAN-XL도 등장.'},
+  {term:'CHIPS Act', full:'CHIPS and Science Act', cats:['fab'], desc:'미국의 <strong>$52B 반도체 보조금법</strong>(2022). TSMC Arizona, Intel Ohio, Samsung Texas 등 미국 내 팹 증설을 지원.'},
+  {term:'CMOS', full:'Complementary Metal-Oxide-Semiconductor', cats:['fab'], desc:'현대 반도체의 주류 공정 기술. n-MOS와 p-MOS를 상보적으로 배치해 소비전력을 최소화.'},
+  {term:'COGS', full:'Cost of Goods Sold', cats:['cost'], desc:'<strong>매출원가</strong>. 제품 제조에 직접 들어간 비용. 반도체의 경우 Die 원가 + 패키지 + 테스트 = COGS.'},
+  {term:'CoWoS', full:'Chip on Wafer on Substrate', cats:['pkg','ai'], desc:'TSMC의 <strong>2.5D 어드밴스드 패키징</strong>. HBM과 로직 칩을 실리콘 인터포저로 연결. NVIDIA H100/B200, AMD MI300 등 AI 가속기 핵심 패키지.', link:{href:'semiconductor-packages.html',text:'패키지 가이드'}},
+
+  // D
+  {term:'DIP', full:'Dual In-line Package', cats:['pkg'], desc:'양 옆에 두 줄의 핀이 삽입되는 <strong>스루홀 패키지</strong>. 옛날 기술이지만 아직도 일부 산업용에서 사용됨.'},
+  {term:'DMOS', full:'Double-Diffused MOSFET', cats:['power','fab'], desc:'이중 확산 구조로 <strong>고전압·고전류</strong>를 처리할 수 있는 파워 MOSFET. 자동차 배터리 보호 IC, DC-DC 컨버터 등에 사용.'},
+  {term:'DPW', full:'Dies Per Wafer', cats:['cost','fab'], desc:'<strong>웨이퍼당 칩 개수</strong>. DPW ≈ π×R²/A − π×D/√(2A) 공식으로 계산. Die 원가 산정의 핵심 변수.', link:{href:'guide-chips-per-wafer.html',text:'DPW 가이드'}},
+  {term:'DRAM', full:'Dynamic Random Access Memory', cats:['fab'], desc:'<strong>주 메모리</strong>로 쓰이는 휘발성 반도체. Samsung, SK하이닉스, Micron이 세계 시장의 95%를 차지.'},
+
+  // E
+  {term:'ECU', full:'Electronic Control Unit', cats:['auto'], desc:'자동차의 특정 기능(엔진·변속기·ABS 등)을 제어하는 <strong>전자제어장치</strong>. 현대 차량은 평균 100개 이상의 ECU를 탑재.'},
+  {term:'EDA', full:'Electronic Design Automation', cats:['fab'], desc:'반도체 <strong>설계 자동화 소프트웨어</strong>. Synopsys, Cadence, Siemens EDA(Mentor) 3사가 시장을 과점.'},
+  {term:'EMI/EMC', full:'Electromagnetic Interference/Compatibility', cats:['cert','auto'], desc:'전자파 장해(EMI)와 전자파 적합성(EMC). 차량용 반도체는 가혹한 EMC 규격 통과가 필수.'},
+  {term:'ESD', full:'Electrostatic Discharge', cats:['cert'], desc:'<strong>정전기 방전</strong> 시험. AEC-Q100에서 HBM ±2kV, CDM ±500V 수준의 정전기 내성을 요구.'},
+  {term:'EUV', full:'Extreme Ultraviolet Lithography', cats:['fab'], desc:'13.5nm 파장의 <strong>극자외선 노광 기술</strong>. 7nm 이하 공정에 필수. ASML이 유일하게 EUV 장비를 공급.'},
+  {term:'EV', full:'Electric Vehicle', cats:['auto'], desc:'전기차 통칭. BEV(순수)·HEV(하이브리드)·PHEV(플러그인) 등을 포괄.', link:{href:'ev-vs-ice-semiconductor.html',text:'EV vs ICE'}},
+
+  // F
+  {term:'Fab', full:'Fabrication Facility', cats:['fab'], desc:'<strong>반도체 제조 공장</strong>. 웨이퍼에 회로를 만드는 전공정 시설. TSMC Fab 12A, Samsung S5 등.', link:{href:'fab-explorer.html',text:'Fab Explorer'}},
+  {term:'Fabless', full:'팹리스', cats:['fab'], desc:'자체 생산 시설 없이 <strong>설계만 하는</strong> 반도체 기업. NVIDIA, AMD, Qualcomm, Apple 등. 제조는 TSMC 등 파운드리에 위탁.'},
+  {term:'FCBGA', full:'Flip Chip BGA', cats:['pkg'], desc:'Die를 뒤집어 기판에 솔더 범프로 연결한 BGA. ADAS SoC, Gateway 등 고성능 차량용 IC에 사용.'},
+  {term:'FEOL', full:'Front End of Line', cats:['fab'], desc:'전공정 중 <strong>트랜지스터 형성 단계</strong>. Photolithography, 이온 주입, 산화 등이 포함됨.'},
+  {term:'FinFET', full:'Fin Field-Effect Transistor', cats:['fab'], desc:'3D 구조 트랜지스터. 22nm~3nm 공정의 주류 구조. 2nm부터는 GAA(Gate-All-Around)로 전환.'},
+  {term:'Foundry', full:'파운드리', cats:['fab'], desc:'팹리스 고객의 설계를 대신 제조해주는 <strong>위탁 생산</strong> 업체. TSMC · Samsung Foundry · Intel Foundry · SMIC 등.'},
+  {term:'FOWLP', full:'Fan-Out Wafer-Level Packaging', cats:['pkg'], desc:'Die 크기보다 큰 패키지 영역으로 I/O를 "확장"하는 어드밴스드 패키징. Apple A-series 등에 사용.'},
+
+  // G
+  {term:'GaN', full:'Gallium Nitride', cats:['power'], desc:'질화갈륨. SiC와 함께 <strong>차세대 전력반도체 소재</strong>. 고주파 응용(USB PD, 5G) 및 EV OBC에 적합.'},
+  {term:'Grade 0~4', full:'AEC-Q100 등급', cats:['cert','auto'], desc:'차량용 IC의 작동 온도 범위 등급. Grade 0은 -40°C~+150°C(엔진룸), Grade 4는 0°C~+70°C(일반 실내).', link:{href:'guide-aec-q100.html',text:'AEC-Q100 가이드'}},
+
+  // H
+  {term:'HBM', full:'High Bandwidth Memory', cats:['ai'], desc:'다층 적층 DRAM. CoWoS 패키징으로 AI 가속기에 연결. SK하이닉스·Samsung·Micron이 주요 공급사.'},
+  {term:'HEV', full:'Hybrid Electric Vehicle', cats:['auto','power'], desc:'엔진과 전기모터를 결합한 <strong>하이브리드차</strong>. ICE 대비 반도체 사용량 약 +80%.', link:{href:'ev-vs-ice-semiconductor.html',text:'EV 비교'}},
+  {term:'HTOL', full:'High Temperature Operating Life', cats:['cert'], desc:'AEC-Q100의 <strong>고온 동작 수명 시험</strong>. 일반적으로 125°C에서 1000시간 동작 검증.'},
+
+  // I
+  {term:'IATF 16949', full:'자동차 품질경영 표준', cats:['cert','auto'], desc:'ISO 9001 기반 <strong>자동차 산업 품질 시스템 인증</strong>. 차량용 반도체 공급사는 기본적으로 보유해야 함.', link:{href:'guide-aec-q100.html',text:'AEC-Q100 가이드'}},
+  {term:'ICE', full:'Internal Combustion Engine', cats:['auto'], desc:'내연기관 차량 통칭. 반도체 사용량의 <strong>기준선</strong>으로 비교에 자주 쓰임.', link:{href:'ev-vs-ice-semiconductor.html',text:'EV vs ICE'}},
+  {term:'IDM', full:'Integrated Device Manufacturer', cats:['fab'], desc:'설계·제조·패키징·테스트를 모두 자체 수행하는 <strong>종합 반도체 기업</strong>. Intel, Samsung, Infineon, Texas Instruments 등.'},
+  {term:'IGBT', full:'Insulated Gate Bipolar Transistor', cats:['power'], desc:'고전압 고전류 스위칭 소자. HEV 인버터·산업용 인버터에 사용. BEV에서는 SiC MOSFET으로 대체되는 추세.'},
+  {term:'Inverter', full:'인버터', cats:['power','auto'], desc:'배터리 DC 전원을 모터용 AC로 변환하는 장치. EV의 핵심 부품이며 SiC MOSFET 6개가 일반적.'},
+
+  // L
+  {term:'LDMOS', full:'Lateral Diffused MOSFET', cats:['power'], desc:'수평 확산 구조 파워 MOSFET. 자동차 엔진 제어·부하 스위칭에 널리 쓰임.'},
+  {term:'LIN', full:'Local Interconnect Network', cats:['auto'], desc:'자동차 내 저속 통신 버스. CAN보다 저렴하며 윈도우·시트 등 저우선순위 제어에 사용.'},
+
+  // M
+  {term:'MCU', full:'Microcontroller Unit', cats:['auto'], desc:'CPU + 메모리 + 주변기기가 한 칩에 있는 <strong>마이크로컨트롤러</strong>. 현대 차량은 100개 이상의 MCU 탑재. NXP S32, Infineon AURIX, Renesas RH850이 대표적.'},
+  {term:'MEMS', full:'Micro-Electro-Mechanical Systems', cats:['auto'], desc:'미세 전자기계 시스템. 차량용 <strong>가속도계·자이로·압력 센서</strong> 등에 광범위하게 사용. AEC-Q103이 관련 표준.'},
+  {term:'MOSFET', full:'Metal-Oxide-Semiconductor FET', cats:['power','fab'], desc:'전압 제어형 트랜지스터. 저전력 로직부터 고전력 스위칭까지 다양하게 쓰임.'},
+  {term:'MPU', full:'Microprocessor Unit', cats:['fab'], desc:'범용 마이크로프로세서. MCU보다 고성능이며 운영체제 구동이 가능. 차량에서는 Gateway·Infotainment에 사용.'},
+
+  // N
+  {term:'NAND Flash', full:'NAND 플래시 메모리', cats:['fab'], desc:'비휘발성 메모리. SSD·차량용 eMMC·UFS에 사용. Samsung·SK하이닉스·Kioxia·Micron이 주요 공급사.'},
+  {term:'Node', full:'공정 노드 / Process Node', cats:['fab'], desc:'반도체 공정의 <strong>세대 구분</strong>(28nm, 7nm, 3nm 등). 차량용은 보통 28nm~180nm 성숙 공정이 주력.'},
+  {term:'NRE', full:'Non-Recurring Engineering', cats:['cost'], desc:'마스크 제작·초기 엔지니어링에 들어가는 <strong>1회성 비용</strong>. 5nm 이하에서는 $1억 이상으로 매우 높음.'},
+
+  // O
+  {term:'OBC', full:'On-Board Charger', cats:['auto','power'], desc:'EV의 <strong>차량 내장 충전기</strong>. AC 전원을 배터리용 DC로 변환. 11kW~22kW급에 SiC MOSFET 사용.'},
+  {term:'OEM', full:'Original Equipment Manufacturer', cats:['auto','cost'], desc:'자동차 업계에서는 <strong>완성차 업체</strong>를 의미. 현대·도요타·GM·VW 등이 OEM이며, 반도체 공급사는 Tier 2~3.'},
+  {term:'OSAT', full:'Outsourced Semiconductor Assembly & Test', cats:['pkg'], desc:'반도체 <strong>후공정 전문 업체</strong>. ASE·Amkor·JCET·SPIL이 Top 4. 패키징·테스트를 위탁 수행.', link:{href:'guide-osat.html',text:'OSAT 가이드'}},
+  {term:'OTA', full:'Over-The-Air Update', cats:['auto'], desc:'무선 펌웨어 업데이트. Tesla가 대중화했으며 최근 모든 OEM이 채택. 차량용 Gateway·보안 MCU 성능 요구 증가 원인.'},
+
+  // P
+  {term:'PCB', full:'Printed Circuit Board', cats:['pkg'], desc:'인쇄회로기판. 반도체 패키지와 다른 부품을 연결하는 기판.'},
+  {term:'PDK', full:'Process Design Kit', cats:['fab'], desc:'파운드리가 제공하는 <strong>공정별 설계 키트</strong>. 설계 규칙·소자 모델 등 포함. Foundry 계약 후 NDA 하에 제공.'},
+  {term:'PMIC', full:'Power Management IC', cats:['power'], desc:'<strong>전원 관리 IC</strong>. 배터리 전압을 여러 개의 안정된 전압으로 변환. 스마트폰·차량·노트북 등 모든 전자기기에 필수.'},
+  {term:'PPAP', full:'Production Part Approval Process', cats:['cert','auto'], desc:'자동차 산업의 <strong>양산 부품 승인 절차</strong>. Level 1~5의 5단계로 구분. 보통 Level 3가 신규 부품 기본.', link:{href:'guide-aec-q100.html',text:'AEC-Q100 가이드'}},
+  {term:'PPM', full:'Parts Per Million', cats:['cert'], desc:'백만 개당 불량 수. 차량용 반도체는 보통 <strong>&lt;1ppm</strong> 불량률 목표.'},
+
+  // Q
+  {term:'QFN', full:'Quad Flat No-lead', cats:['pkg'], desc:'리드가 없는 소형 사각 패키지. 차량용 MCU·트랜시버에 많이 쓰임. 비용이 저렴함.'},
+  {term:'QFP', full:'Quad Flat Package', cats:['pkg'], desc:'4면에 리드가 나온 패키지. 중급 I/O용으로 여전히 자동차에서 많이 사용됨.'},
+
+  // R
+  {term:'R&D', full:'Research & Development', cats:['cost'], desc:'연구개발비. 반도체 원가 구조에서 영업이익 전 16% 수준을 차지하는 항목.'},
+  {term:'RF', full:'Radio Frequency', cats:['auto'], desc:'고주파. 차량용에서는 <strong>키리스 엔트리·타이어 압력 센서·Bluetooth·5G</strong> 등에 쓰임.'},
+  {term:'RISC-V', full:'오픈소스 RISC 명령어 집합', cats:['ai'], desc:'로열티 없는 오픈 ISA. ARM 대안으로 중국·러시아·자동차 업계가 주목. Infineon AURIX 차세대가 RISC-V로 전환 예정.'},
+
+  // S
+  {term:'SiC', full:'Silicon Carbide', cats:['power'], desc:'탄화규소. 차세대 <strong>파워반도체 소재</strong>. EV 인버터 효율 5~10% 개선. Tesla가 먼저 대중화.', link:{href:'sic-calculator.html',text:'SiC 계산기'}},
+  {term:'SiP', full:'System in Package', cats:['pkg'], desc:'복수의 칩을 하나의 패키지에 집적. 차량용 레이더 모듈·카메라 SoC에 활용.'},
+  {term:'SoC', full:'System on Chip', cats:['ai','fab'], desc:'CPU·GPU·NPU·모뎀 등을 한 칩에 통합. ADAS용 NVIDIA Orin, Qualcomm Snapdragon Ride가 대표적.'},
+  {term:'Substrate', full:'기판', cats:['pkg'], desc:'반도체 패키지의 기반이 되는 적층 기판. 최근 유리기판(Glass substrate) 기술이 주목받고 있음.'},
+
+  // T
+  {term:'Tapeout', full:'테이프아웃', cats:['fab','cost'], desc:'설계가 완료되어 팹에 제조 발주하는 시점. 5nm 이하에서는 tapeout 비용이 <strong>$1억 이상</strong>.'},
+  {term:'Tier 1', full:'1차 협력사', cats:['auto'], desc:'완성차 OEM에 직접 납품하는 업체. Bosch, Continental, Denso, ZF 등. 반도체 업체는 보통 Tier 2~3.'},
+  {term:'TSV', full:'Through-Silicon Via', cats:['pkg'], desc:'실리콘을 관통하는 수직 배선. HBM·3D 적층·CoWoS의 핵심 기술.'},
+
+  // U
+  {term:'UMC', full:'United Microelectronics', cats:['fab'], desc:'대만의 주요 파운드리. 성숙 공정(0.18μm~22nm) 전문. 차량용 반도체 주요 제조 파트너.'},
+
+  // V
+  {term:'V2X', full:'Vehicle-to-Everything', cats:['auto'], desc:'차량과 외부(차·인프라·보행자·네트워크) 간 통신. C-V2X·DSRC 등이 있음. 2026년 이후 필수화 논의 중.'},
+  {term:'VLSI', full:'Very Large Scale Integration', cats:['fab'], desc:'초대규모 집적회로. 수십억 트랜지스터 집적 수준을 의미.'},
+
+  // W
+  {term:'Wafer', full:'웨이퍼', cats:['fab'], desc:'반도체 제조의 기본 원재료. 실리콘 단결정 잉곳을 얇게 잘라 만듦. 12인치(300mm)가 주류, SiC는 6~8인치.'},
+  {term:'Wire Bond', full:'와이어 본딩', cats:['pkg'], desc:'Die와 리드프레임을 금·알루미늄 와이어로 연결하는 전통 패키징 기술. 비용이 저렴해 저가 IC에 주로 사용.'},
+
+  // Y
+  {term:'Yield', full:'수율', cats:['cost','fab'], desc:'웨이퍼의 Die 중 양품 비율. 성숙 공정은 90%+, 5nm 초기에는 50~70% 수준. 원가에 직접 영향.', link:{href:'guide-semiconductor-cost.html',text:'원가 가이드'}},
+];
+
+/* ════════════════════════════════
+   렌더링
+════════════════════════════════ */
+var state = {cat:'all', search:''};
+
+function filterTerms() {
+  state.search = document.getElementById('searchInput').value.trim().toLowerCase();
+  render();
+}
+function setCat(cat, btn) {
+  state.cat = cat;
+  document.querySelectorAll('.cat-chip').forEach(function(c){c.classList.remove('on')});
+  btn.classList.add('on');
+  render();
+}
+function clearFilters() {
+  state.cat = 'all'; state.search = '';
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.cat-chip').forEach(function(c){c.classList.remove('on')});
+  document.querySelector('.cat-chip[data-cat="all"]').classList.add('on');
+  render();
+}
+
+function render() {
+  var filtered = GLOSSARY.filter(function(t){
+    if(state.cat !== 'all' && (!t.cats || t.cats.indexOf(state.cat) < 0)) return false;
+    if(state.search) {
+      var hay = (t.term + ' ' + (t.full||'') + ' ' + t.desc).toLowerCase();
+      if(hay.indexOf(state.search) < 0) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('resultCount').textContent = filtered.length + '개 용어';
+
+  // 알파벳별 그룹화
+  var byAlpha = {};
+  filtered.forEach(function(t){
+    var firstChar = t.term.charAt(0).toUpperCase();
+    if(!/[A-Z]/.test(firstChar)) firstChar = '#';
+    if(!byAlpha[firstChar]) byAlpha[firstChar] = [];
+    byAlpha[firstChar].push(t);
+  });
+
+  // 알파벳 네비 렌더
+  var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+  document.getElementById('alphaNav').innerHTML = letters.map(function(L){
+    var hasItems = byAlpha[L] && byAlpha[L].length;
+    var cls = hasItems ? 'alpha-btn' : 'alpha-btn disabled';
+    return hasItems
+      ? '<a href="#alpha-'+L+'" class="'+cls+'">'+L+'</a>'
+      : '<span class="'+cls+'">'+L+'</span>';
+  }).join('');
+
+  // 섹션 렌더
+  var body = document.getElementById('glossaryBody');
+  if(filtered.length === 0) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div>검색 결과가 없습니다.<br>다른 검색어나 카테고리를 시도해보세요.</div>';
+    return;
+  }
+
+  var html = '';
+  letters.forEach(function(L){
+    if(!byAlpha[L]) return;
+    html += '<div class="alpha-section" id="alpha-'+L+'">';
+    html += '<div class="alpha-head">'+L+'</div>';
+    byAlpha[L].sort(function(a,b){return a.term.localeCompare(b.term);});
+    byAlpha[L].forEach(function(t){
+      var tags = (t.cats||[]).map(function(c){
+        var clsMap = {fab:'tag-fab',pkg:'tag-pkg',auto:'tag-auto',cost:'tag-cost',cert:'tag-cert',power:'tag-power',ai:'tag-ai'};
+        var lblMap = {fab:'팹/공정',pkg:'패키지',auto:'차량용',cost:'원가',cert:'인증',power:'파워',ai:'AI/SoC'};
+        return '<span class="term-tag '+(clsMap[c]||'tag-fab')+'">'+(lblMap[c]||c)+'</span>';
+      }).join('');
+      html += '<div class="term-card">'
+        +'<div class="term-hd">'
+        +'<div><span class="term-name">'+t.term+'</span>'+(t.full?' <span class="term-full">· '+t.full+'</span>':'')+'</div>'
+        +'<div class="term-tags">'+tags+'</div>'
+        +'</div>'
+        +'<div class="term-desc">'+t.desc+(t.link?' <a class="term-link" href="'+t.link.href+'">→ '+t.link.text+'</a>':'')+'</div>'
+        +'</div>';
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', function(){ render(); });
+</script>
+
+</body>
+</html>
