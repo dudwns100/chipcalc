@@ -44,6 +44,27 @@
   </url>
 
   <url>
+    <loc>https://dudwns100.github.io/chipcalc/guide-osat.html</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://dudwns100.github.io/chipcalc/guide-aec-q100.html</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://dudwns100.github.io/chipcalc/news-archive.html</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <url>
     <loc>https://dudwns100.github.io/chipcalc/about.html</loc>
     <lastmod>2026-04-19</lastmod>
     <changefreq>yearly</changefreq>

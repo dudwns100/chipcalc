@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSAT 완전 가이드 — 후공정·패키지 외주 | ChipCalc</title>
+<meta name="description" content="OSAT(Outsourced Semiconductor Assembly and Test)란? In-house 패키징과 비교, 주요 OSAT 업체(ASE·Amkor·JCET·SPIL) 순위와 시장 점유율, 차량용 반도체 OSAT 선정 기준을 정리합니다.">
+<meta name="keywords" content="OSAT, 반도체 후공정, 패키징 외주, ASE, Amkor, JCET, SPIL, Tongfu, 차량용 반도체 OSAT, 반도체 어셈블리">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OSAT 완전 가이드 — 후공정·패키지 외주 | ChipCalc">
+<meta property="og:description" content="OSAT이란? 주요 업체 점유율, In-house 비교, 차량용 OSAT 선정 기준 완전 정리.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/guide-osat.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/guide-osat.html">
+
+<link rel="stylesheet" href="shared.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* ══ 가이드 공통 CSS ══ */
+.hero{padding:52px 32px 44px;color:#fff;position:relative;overflow:hidden;text-align:center;background:linear-gradient(135deg,#7a3300 0%,#c04500 50%,#f25a00 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(255,255,255,0.08) 0%,transparent 60%);pointer-events:none}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:100px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.9);margin-bottom:18px}
+.hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:14px;color:#fff}
+.hero-desc{font-size:15px;color:rgba(255,255,255,0.80);max-width:600px;margin:0 auto 18px;line-height:1.7}
+.hero-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hero-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);border-radius:100px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,0.88)}
+
+.toc-bar{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:var(--topbar-h);z-index:90;overflow-x:auto}
+.toc-bar::-webkit-scrollbar{display:none}
+.toc-inner{max-width:860px;margin:0 auto;display:flex;padding:0 28px}
+.toc-link{display:block;padding:12px 14px;font-size:12px;font-weight:500;color:var(--l3);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s,border-color 0.15s;flex-shrink:0}
+.toc-link:hover{color:var(--l1);border-bottom-color:var(--border2)}
+.toc-link.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+
+.page-wrap{max-width:860px;margin:0 auto;padding:0 28px}
+.content{padding:52px 0 90px}
+.section{margin-bottom:72px;scroll-margin-top:96px}
+.section h2{font-size:22px;font-weight:800;color:var(--l1);letter-spacing:-0.02em;line-height:1.25;margin:0 0 6px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.section-lead{font-size:14px;color:var(--l3);margin:0 0 24px;line-height:1.7}
+p{font-size:13.5px;color:var(--l2);margin-bottom:14px;line-height:1.78}
+h3{font-size:17px;font-weight:700;color:var(--l1);margin:28px 0 10px;letter-spacing:-0.01em}
+h4{font-size:14px;font-weight:700;color:var(--l1);margin:18px 0 8px}
+ul,ol{margin:8px 0 16px 20px}
+li{font-size:13.5px;color:var(--l2);margin-bottom:6px;line-height:1.65}
+strong{color:var(--l1);font-weight:700}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.callout{border-radius:12px;padding:18px 22px;margin:20px 0 28px}
+.callout-k{background:#f0f6ff;border:1px solid #c8dcff;border-left:4px solid var(--blue)}
+.callout-k h4,.callout-k p{color:#1a4d9a;margin:0}
+.callout-g{background:#f0faf4;border:1px solid #b6e6cc;border-left:4px solid #1a8c58}
+.callout-g h4,.callout-g p{color:#0a5235;margin:0}
+.callout-o{background:#fff8f0;border:1px solid #ffd4a8;border-left:4px solid var(--orange)}
+.callout-o h4,.callout-o p{color:#7a3a00;margin:0}
+.callout-r{background:#fff1f0;border:1px solid #fac5c1;border-left:4px solid var(--red)}
+.callout-r h4,.callout-r p{color:#8a1a12;margin:0}
+.callout h4{font-size:13px;font-weight:700;margin:0 0 6px}
+.callout p{font-size:13px;line-height:1.7}
+
+.dtbl{overflow-x:auto;margin:20px 0;border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface)}
+thead th{background:#f5f5f8;padding:11px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f9f9fb}
+.num{font-family:var(--mono);font-weight:600;color:var(--l1)}
+
+.cta-box{border-radius:20px;padding:48px 40px;text-align:center;margin:56px 0 0;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#7a3300 0%,#c04500 50%,#f25a00 100%)}
+.cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 30%,rgba(255,255,255,0.08) 0%,transparent 60%)}
+.cta-box h3{font-size:24px;font-weight:800;margin-bottom:10px;position:relative;color:#fff}
+.cta-box p{font-size:14px;color:rgba(255,255,255,0.82);margin-bottom:24px;position:relative}
+.cta-btn{display:inline-block;background:#fff;font-weight:700;font-size:14px;padding:13px 30px;border-radius:100px;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,0.18);transition:transform 0.15s;position:relative;color:#c04500}
+.cta-btn:hover{transform:translateY(-2px);text-decoration:none}
+.cta-links{margin-top:18px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;position:relative}
+.cta-links a{color:rgba(255,255,255,0.72);font-size:12.5px;text-decoration:none}
+.cta-links a:hover{color:#fff}
+
+.ad-wrap{margin:28px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 다크모드 */
+body.dark .callout-k{background:rgba(0,113,227,0.10);border-color:rgba(0,113,227,0.25)}
+body.dark .callout-k h4,body.dark .callout-k p{color:#7ab8ff}
+body.dark .callout-g{background:rgba(26,140,88,0.10);border-color:rgba(26,140,88,0.25)}
+body.dark .callout-g h4,body.dark .callout-g p{color:#6fd4a0}
+body.dark .callout-o{background:rgba(242,90,0,0.10);border-color:rgba(242,90,0,0.22)}
+body.dark .callout-o h4,body.dark .callout-o p{color:#ffa870}
+body.dark .callout-r{background:rgba(228,54,42,0.10);border-color:rgba(228,54,42,0.22)}
+body.dark .callout-r h4,body.dark .callout-r p{color:#ff8a82}
+body.dark table{background:var(--surface)}
+body.dark thead th{background:var(--s2);color:var(--l4)}
+body.dark tbody tr:hover td{background:var(--s3)}
+body.dark .toc-bar{background:var(--surface)}
+
+/* 모바일 */
+@media(max-width:768px){
+  .hero{padding:40px 20px 32px}
+  .hero h1{font-size:24px}
+  .hero-desc{font-size:14px}
+  .toc-inner{padding:0 16px}
+  .page-wrap{padding:0 16px}
+  .content{padding:36px 0 72px}
+  .section{margin-bottom:52px}
+  .section h2{font-size:19px}
+  .section-lead{font-size:13.5px}
+  .cta-box{padding:36px 20px;border-radius:14px}
+  .cta-box h3{font-size:20px}
+}
+@media(max-width:480px){
+  .hero h1{font-size:21px}
+  .dtbl{margin-left:-16px;margin-right:-16px;border-radius:0}
+  thead th,tbody td{padding:8px 10px;font-size:12px}
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· OSAT 가이드</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn active">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html" class="">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
+        <a href="guide-osat.html" class="active">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html" class="">🚗 AEC-Q100 가이드</a>
+        <a href="news-archive.html" class="">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+      <div class="auth-tip">
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<!-- 모바일 드로어 -->
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link " href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link " href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link " href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link active" href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link " href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link " href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🔧 Resource Guide · Backend</div>
+    <h1>OSAT 완전 가이드</h1>
+    <p class="hero-desc">OSAT(Outsourced Semiconductor Assembly & Test)란 무엇인가?<br>In-house 패키징과의 차이부터 주요 업체 선정 기준까지 한 번에 정리.</p>
+    <div class="hero-chips"><span class="hero-chip">📅 2026년 기준</span><span class="hero-chip">⏱ 읽기 약 6분</span><span class="hero-chip">🏭 주요 OSAT 10개사</span></div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-bar">
+  <div class="toc-inner">
+    <a class="toc-link" href="#sec-what">OSAT란?</a>
+    <a class="toc-link" href="#sec-workflow">전체 흐름</a>
+    <a class="toc-link" href="#sec-vs">In-house 비교</a>
+    <a class="toc-link" href="#sec-top">주요 업체</a>
+    <a class="toc-link" href="#sec-market">시장 점유율</a>
+    <a class="toc-link" href="#sec-auto">차량용 선정</a>
+    <a class="toc-link" href="#sec-cost">비용 구조</a>
+  </div>
+</div>
+
+<div class="page-wrap">
+<div class="content">
+
+
+<!-- 1. OSAT이란 -->
+<div class="section" id="sec-what">
+  <h2>OSAT이란?</h2>
+  <p class="section-lead">팹에서 만든 웨이퍼를 개별 칩으로 만들고 테스트까지 해주는 전문 업체를 말합니다.</p>
+  <p><strong>OSAT(Outsourced Semiconductor Assembly and Test)</strong>은 반도체 후공정(Back-end)을 전문으로 하는 외주 업체입니다. 팹리스(NVIDIA, AMD 등)나 팹(TSMC 등)이 생산한 웨이퍼를 받아 다음 작업을 수행합니다.</p>
+  <ul>
+    <li><strong>Dicing (다이싱)</strong> — 웨이퍼를 개별 다이(die)로 절단</li>
+    <li><strong>Die Bonding</strong> — 다이를 리드프레임 또는 기판에 부착</li>
+    <li><strong>Wire Bonding / Flip Chip</strong> — 외부 핀과 다이를 전기적으로 연결</li>
+    <li><strong>Molding / Encapsulation</strong> — 플라스틱 수지로 보호 몰딩</li>
+    <li><strong>Final Test</strong> — 전기적 특성 측정, 불량품 걸러내기</li>
+    <li><strong>Advanced Packaging</strong> — 최근 CoWoS, 3D 적층 등 고급 패키징</li>
+  </ul>
+  <div class="callout callout-k">
+    <h4>💡 OSAT이 중요한 이유</h4>
+    <p>전체 반도체 제조 원가에서 패키지·테스트 비용은 소형 칩 기준 약 15~25%를 차지합니다. 최근 AI 가속기·차량용 SoC처럼 CoWoS·FOWLP 같은 <strong>어드밴스드 패키징</strong>이 확대되면서 OSAT의 역할과 시장 규모가 급격히 커지고 있습니다.</p>
+  </div>
+</div>
+
+<!-- 2. 흐름 -->
+<div class="section" id="sec-workflow">
+  <h2>반도체 제조 전체 흐름에서의 OSAT 위치</h2>
+  <p class="section-lead">팹리스 → 팹(전공정) → OSAT(후공정) → 최종 칩으로 이어지는 가치사슬</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>단계</th><th>담당</th><th>주요 작업</th><th>대표 업체</th></tr></thead>
+      <tbody>
+        <tr><td>① 설계</td><td>팹리스</td><td>Chip Design, Tape-out</td><td>NVIDIA · AMD · Qualcomm · NXP</td></tr>
+        <tr><td>② 전공정 (FEOL)</td><td>팹/파운드리</td><td>Lithography · Etching · Doping</td><td>TSMC · Samsung · Intel · SMIC</td></tr>
+        <tr><td>③ 후공정 (BEOL)</td><td><strong>OSAT</strong></td><td>Packaging · Assembly · Test</td><td><strong>ASE · Amkor · JCET · SPIL</strong></td></tr>
+        <tr><td>④ 유통</td><td>유통사·고객</td><td>Distribution · End-use</td><td>Tesla · Apple · 현대차 등</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AD -->
+<div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7111111101"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<!-- 3. In-house vs OSAT -->
+<div class="section" id="sec-vs">
+  <h2>In-house vs OSAT — 뭐가 다른가?</h2>
+  <p class="section-lead">IDM(종합반도체기업)처럼 자체 후공정 시설을 가진 회사와 OSAT에 위탁하는 방식을 비교합니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>항목</th><th>In-house (IDM)</th><th>OSAT 위탁</th></tr></thead>
+      <tbody>
+        <tr><td>대표 사례</td><td>Intel · Samsung · Infineon · NXP 일부</td><td>Apple · NVIDIA · AMD · Qualcomm · MediaTek</td></tr>
+        <tr><td>초기 투자비</td><td><span class="num" style="color:#c0392b">매우 높음 (수조 원)</span></td><td><span class="num" style="color:#1a8c58">낮음</span></td></tr>
+        <tr><td>규모 유연성</td><td>낮음 (고정비 부담)</td><td>높음 (OSAT 여러 곳 조합)</td></tr>
+        <tr><td>기술 컨트롤</td><td>완전</td><td>OSAT 역량 의존</td></tr>
+        <tr><td>최첨단 패키징</td><td>일부만 보유</td><td>최신 CoWoS·FOWLP 접근 가능</td></tr>
+        <tr><td>원가 경쟁력</td><td>물량 많을 때 유리</td><td>소량·다품종에 유리</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-g">
+    <h4>🚗 차량용 반도체의 경우</h4>
+    <p>NXP · Infineon · STMicro 같은 전통 자동차 반도체 업체는 대부분 <strong>In-house + OSAT 혼용</strong> 전략을 씁니다. 레거시 노드(0.18μm 등)는 자체 후공정, 첨단 AEC-Q100 칩과 대량 품목은 OSAT에 위탁합니다.</p>
+  </div>
+</div>
+
+<!-- 4. 주요 OSAT 업체 -->
+<div class="section" id="sec-top">
+  <h2>주요 OSAT 업체 Top 10</h2>
+  <p class="section-lead">2025년 매출 기준 글로벌 상위 OSAT. 대만 업체가 여전히 시장을 주도합니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>순위</th><th>업체명</th><th>본사</th><th>2024 매출 (추정)</th><th>특징</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td><strong>ASE Technology</strong></td><td>대만</td><td class="num">~$19B</td><td>업계 1위, SiP·FCBGA 강점, SPIL 인수</td></tr>
+        <tr><td>2</td><td><strong>Amkor Technology</strong></td><td>미국 (한국계)</td><td class="num">~$6.3B</td><td>자동차 특화, 인천 공장, CoWoS 파트너</td></tr>
+        <tr><td>3</td><td><strong>JCET Group</strong></td><td>중국</td><td class="num">~$5.0B</td><td>중국 최대, STATS ChipPAC 인수</td></tr>
+        <tr><td>4</td><td><strong>SPIL</strong></td><td>대만</td><td class="num">~$3.2B</td><td>ASE 자회사, Wirebond 강점</td></tr>
+        <tr><td>5</td><td><strong>Tongfu Microelectronics</strong></td><td>중국</td><td class="num">~$2.4B</td><td>AMD 주요 파트너</td></tr>
+        <tr><td>6</td><td><strong>PowerTech (PTI)</strong></td><td>대만</td><td class="num">~$2.3B</td><td>메모리 패키징 전문</td></tr>
+        <tr><td>7</td><td><strong>Chipbond</strong></td><td>대만</td><td class="num">~$0.9B</td><td>디스플레이 드라이버 IC 전문</td></tr>
+        <tr><td>8</td><td><strong>Hana Micron</strong></td><td>한국</td><td class="num">~$0.8B</td><td>한국 최대, 메모리 + SiP</td></tr>
+        <tr><td>9</td><td><strong>ChipMOS</strong></td><td>대만</td><td class="num">~$0.7B</td><td>디스플레이 드라이버 + 메모리</td></tr>
+        <tr><td>10</td><td><strong>Nepes</strong></td><td>한국</td><td class="num">~$0.5B</td><td>FOWLP · PLP 선도</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 5. 시장 -->
+<div class="section" id="sec-market">
+  <h2>지역별 OSAT 시장 점유율</h2>
+  <p class="section-lead">대만 약 50%, 중국 약 25%로 아시아가 사실상 독점하는 구조입니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>지역</th><th>점유율 (2024)</th><th>주요 업체</th><th>특징</th></tr></thead>
+      <tbody>
+        <tr><td>대만</td><td class="num" style="color:#0071e3;font-weight:800">~50%</td><td>ASE, SPIL, PTI, Chipbond</td><td>어드밴스드 패키징 주도</td></tr>
+        <tr><td>중국</td><td class="num">~25%</td><td>JCET, Tongfu, Huatian</td><td>내수 중심, 규모 급성장</td></tr>
+        <tr><td>한국</td><td class="num">~8%</td><td>Hana Micron, Nepes, LB Semicon</td><td>FOWLP · 패널 레벨 강점</td></tr>
+        <tr><td>미국</td><td class="num">~12%</td><td>Amkor</td><td>자동차·방위산업 특화</td></tr>
+        <tr><td>동남아</td><td class="num">~3%</td><td>UTAC (싱가포르), Unisem (말레이시아)</td><td>저비용 대량 생산</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-o">
+    <h4>⚠ CHIPS Act와 OSAT 지역 다변화</h4>
+    <p>미국 CHIPS Act · EU Chips Act로 Amkor Peoria(애리조나), ASE 북미 확장 등 <strong>서구권 OSAT 투자</strong>가 가속화되고 있습니다. 지정학적 리스크 완화와 AEC-Q100 자동차 반도체의 공급망 재편이 배경입니다.</p>
+  </div>
+</div>
+
+<!-- AD -->
+<div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7111111102"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<!-- 6. 차량용 선정 -->
+<div class="section" id="sec-auto">
+  <h2>차량용 반도체 OSAT 선정 기준</h2>
+  <p class="section-lead">AEC-Q100 자격 획득과 장기 공급 안정성이 자동차 OSAT의 핵심입니다.</p>
+  <h3>① AEC-Q100 · IATF 16949 인증</h3>
+  <p>차량용 부품을 위한 필수 인증. 온도 내성(-40°C ~ +150°C), 장기 신뢰성, 낮은 ppm 불량률(보통 &lt;1ppm 목표)을 보장해야 합니다.</p>
+  <h3>② PPAP (Production Part Approval Process)</h3>
+  <p>완성차 업체 납품 전 필수 프로세스. 4~8개월의 양산 승인 과정이 필요하므로 한번 선정된 OSAT를 쉽게 교체하기 어렵습니다.</p>
+  <h3>③ 장기 공급 능력 (LTB - Long Term Buy)</h3>
+  <p>차량 모델 수명은 보통 7~15년. OSAT는 모델 단종 후 수년간 동일 패키지로 안정 공급해야 합니다.</p>
+  <h3>④ 지리적 다변화</h3>
+  <p>자연재해·지정학 리스크 대비를 위해 최소 2개 이상의 지역에서 생산 가능한 OSAT가 선호됩니다. Amkor(미국+한국+중국), ASE(대만+중국+한국) 등이 유리합니다.</p>
+</div>
+
+<!-- 7. 비용 구조 -->
+<div class="section" id="sec-cost">
+  <h2>OSAT 비용 구조</h2>
+  <p class="section-lead">패키지 유형에 따라 Die당 $0.05에서 수천 달러까지 차이가 납니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>패키지 유형</th><th>Die당 비용 (참고)</th><th>주 용도</th></tr></thead>
+      <tbody>
+        <tr><td>QFN / SOP · 단순 리드프레임</td><td class="num">$0.05 ~ $0.30</td><td>MCU, CAN 트랜시버</td></tr>
+        <tr><td>QFP / BGA · 표준</td><td class="num">$0.30 ~ $1.50</td><td>자동차 MCU, PMIC</td></tr>
+        <tr><td>FCBGA · 플립칩</td><td class="num">$3 ~ $30</td><td>ADAS SoC, Gateway</td></tr>
+        <tr><td>SiP · System in Package</td><td class="num">$5 ~ $50</td><td>레이더 모듈, LiDAR 프런트엔드</td></tr>
+        <tr><td>CoWoS · 2.5D</td><td class="num">$300 ~ $1,500</td><td>AI 가속기 (NVIDIA, AMD)</td></tr>
+        <tr><td>CoWoS-L · 대면적 3D</td><td class="num">$1,500 ~ $3,000</td><td>H100, B200, MI300</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-k">
+    <h4>💡 Die Cost vs Package Cost 비율</h4>
+    <p>소형 차량용 IC(예: CAN 트랜시버)는 Die 원가보다 패키지 · 테스트 비용이 더 큽니다. 반대로 ADAS SoC 같은 대형 칩은 Die가 훨씬 비싸지만 CoWoS를 쓰면 패키지 비용도 $1,000 이상으로 급증합니다.</p>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-box">
+  <h3>OSAT · 패키지별 Die당 원가가 궁금하다면?</h3>
+  <p>ChipCalc 원가 계산기로 OSAT 비용을 포함한 Die 원가와 ASP를 계산해보세요.</p>
+  <a class="cta-btn" href="calculator.html">🧮 원가 계산기 →</a>
+  <div class="cta-links">
+    <a href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a href="fab-explorer.html">🏭 Fab Explorer</a>
+  </div>
+</div>
+
+
+</div>
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
+</body>
+</html>

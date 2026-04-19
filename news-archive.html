@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반도체 뉴스 아카이브 — 주간 리포트 | ChipCalc</title>
+<meta name="description" content="차량용 반도체·파운드리·OSAT 업계 주요 뉴스를 주간 단위로 큐레이션합니다. 실시간 Google 뉴스 피드와 주요 카테고리별 정리 제공.">
+<meta name="keywords" content="반도체 뉴스, 차량용 반도체 뉴스, 파운드리 뉴스, TSMC 뉴스, Samsung 뉴스, SiC 뉴스, automotive semiconductor news">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="반도체 뉴스 아카이브 — 주간 리포트 | ChipCalc">
+<meta property="og:description" content="차량용 반도체·파운드리·OSAT 업계 주요 뉴스 주간 큐레이션.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/news-archive.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/news-archive.html">
+
+<link rel="stylesheet" href="shared.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* ══ 가이드 공통 CSS ══ */
+.hero{padding:52px 32px 44px;color:#fff;position:relative;overflow:hidden;text-align:center;background:linear-gradient(135deg,#0a3b3b 0%,#0f6b6b 50%,#14a0a0 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(255,255,255,0.08) 0%,transparent 60%);pointer-events:none}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:100px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.9);margin-bottom:18px}
+.hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:14px;color:#fff}
+.hero-desc{font-size:15px;color:rgba(255,255,255,0.80);max-width:600px;margin:0 auto 18px;line-height:1.7}
+.hero-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hero-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);border-radius:100px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,0.88)}
+
+.toc-bar{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:var(--topbar-h);z-index:90;overflow-x:auto}
+.toc-bar::-webkit-scrollbar{display:none}
+.toc-inner{max-width:860px;margin:0 auto;display:flex;padding:0 28px}
+.toc-link{display:block;padding:12px 14px;font-size:12px;font-weight:500;color:var(--l3);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s,border-color 0.15s;flex-shrink:0}
+.toc-link:hover{color:var(--l1);border-bottom-color:var(--border2)}
+.toc-link.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+
+.page-wrap{max-width:860px;margin:0 auto;padding:0 28px}
+.content{padding:52px 0 90px}
+.section{margin-bottom:72px;scroll-margin-top:96px}
+.section h2{font-size:22px;font-weight:800;color:var(--l1);letter-spacing:-0.02em;line-height:1.25;margin:0 0 6px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.section-lead{font-size:14px;color:var(--l3);margin:0 0 24px;line-height:1.7}
+p{font-size:13.5px;color:var(--l2);margin-bottom:14px;line-height:1.78}
+h3{font-size:17px;font-weight:700;color:var(--l1);margin:28px 0 10px;letter-spacing:-0.01em}
+h4{font-size:14px;font-weight:700;color:var(--l1);margin:18px 0 8px}
+ul,ol{margin:8px 0 16px 20px}
+li{font-size:13.5px;color:var(--l2);margin-bottom:6px;line-height:1.65}
+strong{color:var(--l1);font-weight:700}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.callout{border-radius:12px;padding:18px 22px;margin:20px 0 28px}
+.callout-k{background:#f0f6ff;border:1px solid #c8dcff;border-left:4px solid var(--blue)}
+.callout-k h4,.callout-k p{color:#1a4d9a;margin:0}
+.callout-g{background:#f0faf4;border:1px solid #b6e6cc;border-left:4px solid #1a8c58}
+.callout-g h4,.callout-g p{color:#0a5235;margin:0}
+.callout-o{background:#fff8f0;border:1px solid #ffd4a8;border-left:4px solid var(--orange)}
+.callout-o h4,.callout-o p{color:#7a3a00;margin:0}
+.callout-r{background:#fff1f0;border:1px solid #fac5c1;border-left:4px solid var(--red)}
+.callout-r h4,.callout-r p{color:#8a1a12;margin:0}
+.callout h4{font-size:13px;font-weight:700;margin:0 0 6px}
+.callout p{font-size:13px;line-height:1.7}
+
+.dtbl{overflow-x:auto;margin:20px 0;border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface)}
+thead th{background:#f5f5f8;padding:11px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f9f9fb}
+.num{font-family:var(--mono);font-weight:600;color:var(--l1)}
+
+.cta-box{border-radius:20px;padding:48px 40px;text-align:center;margin:56px 0 0;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#0a3b3b 0%,#0f6b6b 50%,#14a0a0 100%)}
+.cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 30%,rgba(255,255,255,0.08) 0%,transparent 60%)}
+.cta-box h3{font-size:24px;font-weight:800;margin-bottom:10px;position:relative;color:#fff}
+.cta-box p{font-size:14px;color:rgba(255,255,255,0.82);margin-bottom:24px;position:relative}
+.cta-btn{display:inline-block;background:#fff;font-weight:700;font-size:14px;padding:13px 30px;border-radius:100px;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,0.18);transition:transform 0.15s;position:relative;color:#0f6b6b}
+.cta-btn:hover{transform:translateY(-2px);text-decoration:none}
+.cta-links{margin-top:18px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;position:relative}
+.cta-links a{color:rgba(255,255,255,0.72);font-size:12.5px;text-decoration:none}
+.cta-links a:hover{color:#fff}
+
+.ad-wrap{margin:28px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 다크모드 */
+body.dark .callout-k{background:rgba(0,113,227,0.10);border-color:rgba(0,113,227,0.25)}
+body.dark .callout-k h4,body.dark .callout-k p{color:#7ab8ff}
+body.dark .callout-g{background:rgba(26,140,88,0.10);border-color:rgba(26,140,88,0.25)}
+body.dark .callout-g h4,body.dark .callout-g p{color:#6fd4a0}
+body.dark .callout-o{background:rgba(242,90,0,0.10);border-color:rgba(242,90,0,0.22)}
+body.dark .callout-o h4,body.dark .callout-o p{color:#ffa870}
+body.dark .callout-r{background:rgba(228,54,42,0.10);border-color:rgba(228,54,42,0.22)}
+body.dark .callout-r h4,body.dark .callout-r p{color:#ff8a82}
+body.dark table{background:var(--surface)}
+body.dark thead th{background:var(--s2);color:var(--l4)}
+body.dark tbody tr:hover td{background:var(--s3)}
+body.dark .toc-bar{background:var(--surface)}
+
+/* 모바일 */
+@media(max-width:768px){
+  .hero{padding:40px 20px 32px}
+  .hero h1{font-size:24px}
+  .hero-desc{font-size:14px}
+  .toc-inner{padding:0 16px}
+  .page-wrap{padding:0 16px}
+  .content{padding:36px 0 72px}
+  .section{margin-bottom:52px}
+  .section h2{font-size:19px}
+  .section-lead{font-size:13.5px}
+  .cta-box{padding:36px 20px;border-radius:14px}
+  .cta-box h3{font-size:20px}
+}
+@media(max-width:480px){
+  .hero h1{font-size:21px}
+  .dtbl{margin-left:-16px;margin-right:-16px;border-radius:0}
+  thead th,tbody td{padding:8px 10px;font-size:12px}
+}
+
+
+/* ── 뉴스 카테고리 탭 ── */
+.news-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.news-tab{
+  height:34px;padding:0 16px;border-radius:100px;
+  border:1.5px solid var(--border2);background:var(--surface);
+  font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--l3);
+  cursor:pointer;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px;
+}
+.news-tab:hover{border-color:#0f6b6b;color:#0f6b6b}
+.news-tab.on{background:#0f6b6b;border-color:#0f6b6b;color:#fff}
+.news-tab .cnt{font-family:var(--mono);opacity:0.8;font-size:11px}
+
+/* ── 뉴스 카드 ── */
+.news-feed{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--sh);overflow:hidden;margin-bottom:24px}
+.news-item{display:flex;align-items:flex-start;gap:14px;padding:14px 18px;border-bottom:1px solid var(--border);text-decoration:none;color:var(--l1);transition:background 0.12s}
+.news-item:last-child{border-bottom:none}
+.news-item:hover{background:var(--s2)}
+.news-num{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--l4);min-width:22px;margin-top:2px}
+.news-body{flex:1;min-width:0}
+.news-title{font-size:14px;font-weight:600;color:var(--l1);line-height:1.45;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.news-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px}
+.news-src{color:#0f6b6b;font-weight:600;background:#e0f5f5;padding:1px 7px;border-radius:4px}
+.news-date{color:var(--l4)}
+.news-tag{font-weight:600;padding:1px 7px;border-radius:4px;font-size:10.5px}
+.nt-auto{background:var(--orange-t);color:var(--orange)}
+.nt-foundry{background:var(--blue-t);color:var(--blue)}
+.nt-ai{background:var(--purple-t);color:var(--purple)}
+.nt-policy{background:var(--red-t);color:var(--red)}
+.nt-market{background:var(--green-t);color:var(--green)}
+.nt-tech{background:var(--s3);color:var(--l3)}
+.news-arrow{color:var(--l4);font-size:14px;flex-shrink:0}
+.news-loading{padding:40px 20px;text-align:center;color:var(--l4);font-size:13px}
+.news-error{padding:20px;background:var(--orange-t);color:var(--orange);font-size:12.5px;text-align:center}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:#0f6b6b;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+body.dark .news-src{background:rgba(15,107,107,0.18);color:#4ed1d1}
+body.dark .news-tab{background:var(--surface);color:var(--l3)}
+body.dark .news-feed{background:var(--surface)}
+
+@media(max-width:600px){
+  .news-tab{padding:0 12px;font-size:12px;height:30px}
+  .news-title{font-size:13px}
+  .news-item{padding:12px 14px;gap:10px}
+}
+
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· 뉴스 아카이브</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn active">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html" class="">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
+        <a href="guide-osat.html" class="">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html" class="">🚗 AEC-Q100 가이드</a>
+        <a href="news-archive.html" class="active">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+      <div class="auth-tip">
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<!-- 모바일 드로어 -->
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link " href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link " href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link " href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link " href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link " href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link active" href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">📰 News · Weekly Report</div>
+    <h1>반도체 뉴스 아카이브</h1>
+    <p class="hero-desc">차량용 반도체 · 파운드리 · OSAT · AI 가속기 업계 주요 뉴스를<br>주간 단위로 카테고리별 큐레이션합니다.</p>
+    <div class="hero-chips"><span class="hero-chip">🔄 매일 자동 갱신</span><span class="hero-chip">📂 4개 카테고리</span><span class="hero-chip">🌐 글로벌 피드</span></div>
+  </div>
+</div>
+
+
+
+<div class="page-wrap">
+<div class="content">
+
+
+<!-- 카테고리 탭 -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+  <div style="font-size:12px;color:var(--l3)">
+    📡 데이터: Google News RSS · 마지막 업데이트: <span id="lastUpdate" style="color:var(--l1);font-weight:600;font-family:var(--mono)">—</span>
+  </div>
+  <button onclick="loadNews()" style="height:32px;padding:0 14px;border-radius:100px;border:1.5px solid var(--border2);background:var(--surface);color:var(--l2);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer">🔄 새로고침</button>
+</div>
+
+<div class="news-tabs" id="newsTabs"></div>
+
+<div class="news-feed" id="newsFeed">
+  <div class="news-loading"><span class="spinner"></span>뉴스를 불러오는 중...</div>
+</div>
+
+<!-- AD -->
+<div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7333333301"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<!-- 주요 정보 소스 -->
+<div class="section" style="margin-top:40px">
+  <h2>📚 주요 정보 소스</h2>
+  <p class="section-lead">반도체 업계 심층 정보를 원할 때 참고할 만한 출처들입니다.</p>
+  
+  <h3>국내 매체</h3>
+  <ul>
+    <li><a href="https://www.thelec.kr" target="_blank" rel="noopener">더일렉</a> — 반도체·디스플레이 업계 전문지</li>
+    <li><a href="https://www.etnews.com" target="_blank" rel="noopener">전자신문</a> — IT·전자 종합 일간지</li>
+    <li><a href="https://kipost.net" target="_blank" rel="noopener">KIPOST</a> — 반도체 장비·소재 전문</li>
+    <li><a href="https://www.hankyung.com" target="_blank" rel="noopener">한국경제신문</a> — 증권·산업 중심</li>
+  </ul>
+  
+  <h3>해외 매체 · 리서치</h3>
+  <ul>
+    <li><a href="https://www.semiconductor-today.com" target="_blank" rel="noopener">Semiconductor Today</a> — 전 세계 반도체 산업 뉴스</li>
+    <li><a href="https://semiengineering.com" target="_blank" rel="noopener">Semiconductor Engineering</a> — 심층 기술 분석</li>
+    <li><a href="https://www.eetimes.com" target="_blank" rel="noopener">EE Times</a> — 전자 · 임베디드 전문</li>
+    <li><a href="https://www.anandtech.com" target="_blank" rel="noopener">AnandTech</a> — 칩 아키텍처 · 벤치마크</li>
+    <li><a href="https://www.trendforce.com" target="_blank" rel="noopener">TrendForce</a> — 반도체 시장 조사</li>
+  </ul>
+  
+  <h3>주요 기업 IR · 투자자 자료</h3>
+  <p>각 회사의 분기 실적 발표 자료는 업계 트렌드를 파악하는 데 가장 정확합니다. <a href="index.html#ir">홈 페이지 IR 섹션</a>에서 주요 차량용 반도체 기업 IR 페이지 바로가기를 확인할 수 있습니다.</p>
+</div>
+
+<!-- CTA -->
+<div class="cta-box">
+  <h3>반도체 원가와 공급망을 탐색하고 싶다면?</h3>
+  <p>ChipCalc 도구로 실제 계산하고 글로벌 팹까지 탐색해보세요.</p>
+  <a class="cta-btn" href="calculator.html">🧮 원가 계산기 →</a>
+  <div class="cta-links">
+    <a href="fab-explorer.html">🏭 Fab Explorer</a>
+    <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a href="index.html">🏠 홈 대시보드</a>
+  </div>
+</div>
+
+
+</div>
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+<script>
+/* ── 뉴스 카테고리 쿼리 ── */
+var NEWS_CATEGORIES = [
+  {id:'all', label:'전체', q:'차량용+반도체+OR+자동차+반도체+OR+파운드리+OR+반도체+OR+semiconductor'},
+  {id:'auto', label:'🚗 차량용', q:'차량용+반도체+OR+automotive+semiconductor+OR+ADAS+OR+EV+chip'},
+  {id:'foundry', label:'🏭 파운드리', q:'TSMC+OR+Samsung+foundry+OR+파운드리+OR+Intel+foundry+OR+SMIC'},
+  {id:'ai', label:'🤖 AI 칩', q:'NVIDIA+H100+OR+B200+OR+AI+chip+OR+AI+가속기+OR+HBM'},
+  {id:'policy', label:'📜 정책·규제', q:'CHIPS+Act+OR+반도체+정책+OR+반도체+규제+OR+수출+통제'},
+];
+
+var curCat = 'all';
+
+function switchCat(catId, btn) {
+  document.querySelectorAll('.news-tab').forEach(function(b){b.classList.remove('on')});
+  btn.classList.add('on');
+  curCat = catId;
+  loadNews();
+}
+
+function buildTabs() {
+  var html = NEWS_CATEGORIES.map(function(c, i) {
+    var cls = i === 0 ? 'news-tab on' : 'news-tab';
+    return '<button class="'+cls+'" onclick="switchCat(\''+c.id+'\',this)">'+c.label+'</button>';
+  }).join('');
+  document.getElementById('newsTabs').innerHTML = html;
+}
+
+function loadNews() {
+  var cat = NEWS_CATEGORIES.find(function(c){return c.id===curCat});
+  var rssUrl = 'https://news.google.com/rss/search?q=' + cat.q + '&hl=ko&gl=KR&ceid=KR:ko';
+  var url = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(rssUrl);
+  
+  document.getElementById('newsFeed').innerHTML = '<div class="news-loading"><span class="spinner"></span>뉴스를 불러오는 중...</div>';
+  
+  fetch(url)
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d.items || !d.items.length) throw new Error('No items');
+      renderNews(d.items.slice(0, 20));
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleString('ko-KR');
+    })
+    .catch(function() {
+      document.getElementById('newsFeed').innerHTML = '<div class="news-error">뉴스를 불러오지 못했습니다. <a href="https://news.google.com/search?q=차량용+반도체" target="_blank" rel="noopener" style="color:#f25a00;text-decoration:underline">Google 뉴스에서 직접 보기 →</a></div>';
+    });
+}
+
+function renderNews(items) {
+  var html = items.map(function(item, i) {
+    var src = (item.author||'').replace(/via .*/,'').trim() || '뉴스';
+    var date = item.pubDate ? timeSince(new Date(item.pubDate)) : '';
+    var t = item.title || '';
+    var tag;
+    if(/차량용|automotive|ADAS|EV|전기차/i.test(t)) tag = '<span class="news-tag nt-auto">차량용</span>';
+    else if(/TSMC|Samsung|파운드리|foundry|Intel|SMIC/i.test(t)) tag = '<span class="news-tag nt-foundry">파운드리</span>';
+    else if(/NVIDIA|AI|H100|B200|HBM|가속기/i.test(t)) tag = '<span class="news-tag nt-ai">AI</span>';
+    else if(/정책|규제|CHIPS|수출|제재/i.test(t)) tag = '<span class="news-tag nt-policy">정책</span>';
+    else if(/가격|시세|실적|매출|투자/i.test(t)) tag = '<span class="news-tag nt-market">시장</span>';
+    else tag = '<span class="news-tag nt-tech">기술</span>';
+    
+    return '<a class="news-item" href="'+(item.link||'#')+'" target="_blank" rel="noopener">'
+      +'<div class="news-num">'+String(i+1).padStart(2,'0')+'</div>'
+      +'<div class="news-body">'
+        +'<div class="news-title">'+esc(t)+'</div>'
+        +'<div class="news-meta"><span class="news-src">'+esc(src)+'</span><span class="news-date">'+date+'</span>'+tag+'</div>'
+      +'</div>'
+      +'<div class="news-arrow">↗</div>'
+      +'</a>';
+  }).join('');
+  document.getElementById('newsFeed').innerHTML = html;
+}
+
+function timeSince(d) {
+  var s = Math.floor((Date.now()-d)/1000);
+  if(s<3600) return Math.floor(s/60)+'분 전';
+  if(s<86400) return Math.floor(s/3600)+'시간 전';
+  return Math.floor(s/86400)+'일 전';
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+
+document.addEventListener('DOMContentLoaded', function() {
+  buildTabs();
+  loadNews();
+});
+</script>
+</body>
+</html>

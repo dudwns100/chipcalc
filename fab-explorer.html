@@ -2,139 +2,245 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>Global Fab Explorer — 반도체 팹 지도 | ChipCalc</title>
-<meta name="description" content="전 세계 반도체 팹(전공정/후공정) 인터랙티브 지도. TSMC · Samsung · Infineon · STMicro 등 76개 이상 팹을 공정 노드 · 국가별로 필터링하고 탐색하세요.">
+<meta name="description" content="전 세계 76개 반도체 팹(전공정·후공정) 인터랙티브 지도. TSMC·Samsung·Intel·SMIC·Infineon·STMicro 등을 공정 노드·국가·회사별로 필터링하고 탐색하세요.">
+<meta name="keywords" content="반도체 팹, semiconductor fab map, TSMC fabs, Samsung fabs, Intel foundry, 전공정, 후공정, OSAT, wafer fab locations">
 <meta name="robots" content="index, follow">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/fab-explorer.html">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Global Fab Explorer — 반도체 팹 지도 | ChipCalc">
-<meta property="og:description" content="전 세계 76개+ 반도체 팹을 한눈에. 공정 노드·국가별 필터, 팹 상세 정보 제공.">
+<meta property="og:description" content="전 세계 76개 반도체 팹을 한눈에. 공정 노드·국가·회사별 필터 제공.">
 <meta property="og:url" content="https://dudwns100.github.io/chipcalc/fab-explorer.html">
 <meta property="og:locale" content="ko_KR">
-<link rel="canonical" href="https://dudwns100.github.io/chipcalc/fab-explorer.html">
+
 <link rel="stylesheet" href="shared.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+
 <style>
-/* ═══ 글꼴 강제 적용 (모든 요소) ═══ */
-
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-  --mono:"SF Mono","Menlo","Monaco","Consolas",monospace;
-  --bg:#f2f2f7;--surface:#fff;--s2:#f9f9fb;--s3:#f2f2f7;
-  --border:rgba(0,0,0,0.09);--border2:rgba(0,0,0,0.15);
-  --l1:#1c1c1e;--l2:#3c3c43;--l3:#6b6b70;--l4:#aeaeb2;
-  --blue:#0071e3;--blue-s:#d7eaff;--blue-t:#f0f6ff;
-  --green:#30b94a;--green-s:#d4f0db;--green-t:#f0fbf3;
-  --orange:#f25a00;--orange-t:#fff5ef;--orange-s:#fde5d3;
-  --yellow:#c8960c;--yellow-t:#fffbeb;--yellow-s:#fde68a;
-  --red:#e4362a;--red-t:#fff1f0;
-  --purple:#6e44cc;--purple-t:#f3f0ff;--purple-s:#d4c8f5;
-  --r:8px;--r2:12px;
-  --sh:0 2px 8px rgba(0,0,0,0.07),0 1px 3px rgba(0,0,0,0.05);
-  --sh2:0 4px 16px rgba(0,0,0,0.10),0 2px 6px rgba(0,0,0,0.06);
 
-  --topbar-bg:rgba(255,255,255,0.92);}
-
-html,body{font-family:var(--font);height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:12px;line-height:1.45;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column}
-
-/* ── TOPBAR (통일된 레이아웃) ── */
-.auth-tip-wrap:hover .io-title{font-size:9.5px;font-weight:700;color:var(--l3);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:9px}
-.io-row{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;margin-bottom:4px}
-.io-label{color:var(--l3);display:flex;align-items:center;gap:4px}
-.io-val{font-family:var(--mono);font-weight:700;color:var(--l1)}
-
-/* ════════════════════════════════════════
-   FAB EXPLORER MOBILE (≤ 768px)
-   - 지도 전체 화면
-   - 필터: 하단 버튼 → Bottom Sheet 슬라이드업
-════════════════════════════════════════ */
-@media(max-width:768px){
-  html,body{height:100%}
-
-  /* sidebar 기본 숨김 */
-  .sidebar{
-    display:none;
-    position:fixed;
-    bottom:0;left:0;right:0;
-    width:100%;
-    height:72vh;
-    border-radius:20px 20px 0 0;
-    border-right:none;
-    border-top:1px solid var(--border);
-    box-shadow:0 -8px 32px rgba(0,0,0,0.14);
-    z-index:500;
-    overflow:hidden;
-    animation:slideUp 0.28s cubic-bezier(.25,.46,.45,.94);
-  }
-  .sidebar.open{display:flex;flex-direction:column}
-  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-
-  /* 핸들 바 */
-  .sidebar::before{
-    content:'';display:block;width:40px;height:4px;
-    background:var(--l4);border-radius:2px;
-    margin:10px auto 6px;flex-shrink:0;
-  }
-
-  /* 지도: 전체 높이 */
-  .body-wrap{flex-direction:column}
-  .map-wrap{flex:1;min-height:0}
-  #map{width:100%;height:100%}
-
-  /* stats bar: 가로 스크롤 유지, 높이 줄임 */
-  .stats-bar{height:30px}
-  .si-num{font-size:13px}
-
-  /* 필터 버튼 (하단 고정) */
-  .mob-filter-btn{
-    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-    height:42px;padding:0 22px;
-    background:var(--blue);color:#fff;
-    border:none;border-radius:24px;
-    font-family:var(--font);font-size:13.5px;font-weight:700;
-    box-shadow:0 4px 16px rgba(0,113,227,0.38);
-    cursor:pointer;z-index:400;display:flex;align-items:center;gap:6px;
-    transition:transform 0.15s,box-shadow 0.15s;
-  }
-  .mob-filter-btn:active{transform:translateX(-50%) scale(0.97)}
-
-  /* 오버레이 (bottom sheet 뒤 배경) */
-  .mob-overlay{
-    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:499;
-  }
-  .mob-overlay.open{display:block}
-
-  /* info overlay 위치 조정 */
-  .info-overlay{top:6px;right:6px;padding:9px 11px;min-width:140px;font-size:10px}
-  .io-row{font-size:10.5px}
+body{
+  background:var(--bg);color:var(--l1);
+  font-family:var(--font);font-size:13px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;overflow-x:hidden;
 }
 
-/* 데스크톱: 필터 버튼 숨김 */
-@media(min-width:769px){
-  .mob-filter-btn,.mob-overlay{display:none!important}
+/* ─── 페이지 히어로 (가이드 페이지와 통일) ─── */
+.fab-hero{
+  background:linear-gradient(135deg,#0a1628 0%,#0d2d5c 40%,#0051a8 75%,#0071e3 100%);
+  padding:36px 28px 30px;
+  color:#fff;
+  text-align:center;
+  position:relative;overflow:hidden;
+}
+.fab-hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 70% 30%,rgba(0,163,255,0.18) 0%,transparent 55%);
+  pointer-events:none}
+.fab-hero-inner{max-width:820px;margin:0 auto;position:relative;z-index:1}
+.fab-hero-eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);
+  border-radius:100px;padding:4px 14px;
+  font-size:10.5px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;
+  font-family:var(--mono);color:rgba(255,255,255,0.85);margin-bottom:14px;
+}
+.fab-hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:10px;color:#fff}
+.fab-hero-sub{font-size:14px;color:rgba(255,255,255,0.75);line-height:1.7;max-width:620px;margin:0 auto}
+
+/* ─── 통계 스트립 ─── */
+.fab-stats{
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;gap:28px;justify-content:center;flex-wrap:wrap;
+  position:sticky;top:var(--topbar-h);z-index:80;
+}
+.fab-stat{display:flex;flex-direction:column;align-items:center}
+.fab-stat-val{font-family:var(--mono);font-size:20px;font-weight:800;color:var(--l1);line-height:1}
+.fab-stat-lbl{font-size:10px;font-weight:600;color:var(--l4);margin-top:4px;letter-spacing:0.05em;text-transform:uppercase}
+
+/* ─── 메인 레이아웃 ─── */
+.fab-main{
+  max-width:1400px;margin:0 auto;padding:20px;
+  display:grid;grid-template-columns:260px 1fr;gap:16px;
+}
+
+/* ─── 필터 사이드바 ─── */
+.fab-filters{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);box-shadow:var(--sh);
+  padding:16px;
+  position:sticky;top:calc(var(--topbar-h) + 90px);
+  max-height:calc(100vh - var(--topbar-h) - 110px);
+  overflow-y:auto;
+}
+.filter-group{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.filter-group:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.filter-title{
+  font-size:10px;font-weight:700;color:var(--l4);
+  letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.filter-title .count{color:var(--blue);font-family:var(--mono);font-weight:700}
+
+/* 체크박스형 버튼 */
+.filter-chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:4px 11px;border-radius:100px;
+  border:1px solid var(--border2);background:var(--surface);
+  font-size:11px;font-weight:500;color:var(--l2);cursor:pointer;
+  font-family:var(--font);transition:all 0.15s;
+}
+.chip:hover{border-color:var(--blue);color:var(--blue)}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+
+/* 검색 */
+.search-input{
+  width:100%;height:34px;padding:0 12px;
+  border:1.5px solid var(--border2);border-radius:8px;
+  font-family:var(--font);font-size:12.5px;
+  background:var(--surface);color:var(--l1);outline:none;
+  transition:border-color 0.15s, box-shadow 0.15s;
+}
+.search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,0.10)}
+.reset-btn{
+  width:100%;height:32px;margin-top:10px;
+  background:var(--s3);color:var(--l2);
+  border:1px solid var(--border);border-radius:8px;
+  font-family:var(--font);font-size:11.5px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;
+}
+.reset-btn:hover{background:var(--border);color:var(--l1)}
+
+/* ─── 지도 + 리스트 영역 ─── */
+.fab-right{display:flex;flex-direction:column;gap:16px;min-width:0}
+.map-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);box-shadow:var(--sh);overflow:hidden;
+}
+#fabMap{width:100%;height:500px}
+
+/* 지도 팝업 */
+.leaflet-popup-content-wrapper{border-radius:12px!important;padding:0!important;overflow:hidden}
+.leaflet-popup-content{margin:0!important;padding:0!important;width:260px!important}
+.pop-hd{padding:12px 14px 8px;border-bottom:1px solid var(--border)}
+.pop-co{font-size:10px;font-weight:700;color:var(--blue);letter-spacing:0.06em;text-transform:uppercase;font-family:var(--mono)}
+.pop-name{font-size:14px;font-weight:700;color:var(--l1);margin-top:2px;line-height:1.3}
+.pop-body{padding:10px 14px 12px;font-size:12px}
+.pop-row{display:flex;justify-content:space-between;padding:3px 0}
+.pop-lbl{color:var(--l3);font-size:11px}
+.pop-val{color:var(--l1);font-weight:600;font-family:var(--mono);font-size:11.5px}
+
+/* 범례 */
+.map-legend{
+  padding:10px 14px;border-top:1px solid var(--border);
+  background:var(--s2);display:flex;flex-wrap:wrap;gap:14px;font-size:11px;
+}
+.lg-item{display:flex;align-items:center;gap:5px;color:var(--l3)}
+.lg-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.15)}
+
+/* ─── 팹 리스트 ─── */
+.list-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);box-shadow:var(--sh);overflow:hidden;
+}
+.list-hd{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--s2);
+}
+.list-title{font-size:12px;font-weight:700;color:var(--l2)}
+.list-title .cnt{color:var(--blue);font-family:var(--mono);margin-left:6px}
+
+.fab-list{max-height:500px;overflow-y:auto}
+.fab-row{
+  display:grid;grid-template-columns:1fr 90px 80px 80px 70px;
+  gap:12px;align-items:center;
+  padding:11px 16px;border-bottom:1px solid var(--border);
+  font-size:12px;cursor:pointer;transition:background 0.12s;
+}
+.fab-row:hover{background:var(--s2)}
+.fab-row:last-child{border-bottom:none}
+.fr-name{font-weight:600;color:var(--l1);line-height:1.3;min-width:0}
+.fr-co{font-size:10.5px;color:var(--l3);font-family:var(--mono);margin-top:2px}
+.fr-country{color:var(--l3);font-size:11.5px;white-space:nowrap}
+.fr-node{font-family:var(--mono);font-weight:700;color:var(--blue);font-size:11.5px}
+.fr-type-f{background:var(--blue-t);color:var(--blue);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-align:center;font-family:var(--mono)}
+.fr-type-o{background:var(--orange-t);color:var(--orange);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-align:center;font-family:var(--mono)}
+.fr-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;text-align:center;font-family:var(--mono)}
+.fs-op{background:var(--green-t);color:var(--green)}
+.fs-co{background:var(--yellow-t);color:var(--yellow)}
+.fs-pl{background:var(--s3);color:var(--l3)}
+
+.fab-list-empty{padding:40px 20px;text-align:center;color:var(--l4);font-size:13px}
+
+/* ─── 다크모드 ─── */
+body.dark .fab-filters{background:var(--surface)}
+body.dark .map-card,body.dark .list-card{background:var(--surface)}
+body.dark .list-hd{background:var(--s2)}
+body.dark .map-legend{background:var(--s2)}
+body.dark .chip{background:var(--surface);color:var(--l3)}
+body.dark .chip.on{background:var(--blue);color:#fff}
+body.dark .search-input{background:var(--s2);color:var(--l1)}
+
+/* ─── 반응형 ─── */
+@media(max-width:900px){
+  .fab-main{grid-template-columns:1fr;padding:14px}
+  .fab-filters{
+    position:static;max-height:none;
+    padding:14px;
+  }
+  .filter-group{margin-bottom:12px;padding-bottom:12px}
+  #fabMap{height:360px}
+  .fab-row{
+    grid-template-columns:1fr auto;
+    gap:6px;padding:10px 14px;
+    position:relative;
+  }
+  .fr-country,.fr-node,.fr-type-f,.fr-type-o{display:none}
+  .fr-status{justify-self:end}
+  .fr-name-wrap{min-width:0}
+  .fr-meta-m{
+    display:flex;gap:8px;margin-top:4px;font-size:10.5px;color:var(--l3);
+  }
+  .fr-meta-m .m-node{color:var(--blue);font-weight:700;font-family:var(--mono)}
+  .fr-meta-m .m-type{font-family:var(--mono);font-weight:600}
+  .fab-stats{padding:10px 14px;gap:18px}
+  .fab-stat-val{font-size:17px}
+  .fab-hero{padding:28px 18px 24px}
+  .fab-hero h1{font-size:22px}
+  .fab-hero-sub{font-size:13px}
+  .list-hd{padding:10px 14px}
+}
+@media(min-width:901px){
+  .fr-meta-m{display:none}
+}
+@media(max-width:500px){
+  .fab-stats{gap:14px}
+  .fab-stat-val{font-size:15px}
+  .fab-stat-lbl{font-size:9px}
 }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
 </head>
 <body>
 
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-l">
-    <a class="app-icon" href="index.html" style="text-decoration:none">IC</a>
+    <a class="app-icon" href="index.html">IC</a>
     <div>
       <a class="app-name" href="index.html">ChipCalc</a>
       <span class="app-sub">· Fab Explorer</span>
     </div>
   </div>
-
-    <nav class="nav-center">
+  <nav class="nav-center">
     <a class="nav-link" href="index.html">🏠 홈</a>
     <a class="nav-link" href="calculator.html">🧮 계산기</a>
     <a class="nav-link active" href="fab-explorer.html">🏭 Fab</a>
@@ -144,23 +250,22 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:12px
         <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
         <a href="guide-chips-per-wafer.html" class="">📐 DPW 가이드</a>
         <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
+        <a href="guide-osat.html" class="">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html" class="">🚗 AEC-Q100 가이드</a>
+        <a href="news-archive.html" class="">📰 뉴스 아카이브</a>
       </div>
     </div>
   </nav>
-
   <div class="topbar-r">
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
         <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
       </div>
     </div>
-
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
       <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
@@ -174,80 +279,114 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:12px
   </div>
 </div>
 
-
-<!-- 모바일 네비게이션 드로어 -->
+<!-- 모바일 드로어 -->
 <nav class="nav-drawer" id="navDrawer">
   <a class="nav-link" href="index.html">🏠 홈</a>
   <a class="nav-link" href="calculator.html">🧮 계산기</a>
   <a class="nav-link active" href="fab-explorer.html">🏭 Fab</a>
   <div class="nav-drawer-section">
     <div class="nav-drawer-section-label">리소스</div>
-    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
-    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
-    <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link " href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link " href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link " href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link" href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link" href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link" href="news-archive.html">📰 뉴스 아카이브</a>
   </div>
 </nav>
-<!-- 모바일 Bottom Sheet 오버레이 -->
-<div class="mob-overlay" id="mobOverlay" onclick="closeMobFilter()"></div>
-<!-- 모바일 필터 버튼 -->
-<button class="mob-filter-btn" id="mobFilterBtn" onclick="openMobFilter()">🔍 필터</button>
 
-<!-- STATS BAR -->
-<div class="stats-bar" id="statsBar"></div>
+<!-- HERO -->
+<div class="fab-hero">
+  <div class="fab-hero-inner">
+    <div class="fab-hero-eyebrow">🏭 Global Fab Map</div>
+    <h1>전 세계 반도체 팹 탐색</h1>
+    <p class="fab-hero-sub">76개의 글로벌 반도체 팹(전공정·후공정)을 회사·국가·공정 노드별로 필터링하고<br>지도에서 위치와 상태를 한눈에 확인하세요.</p>
+  </div>
+</div>
 
-<!-- BODY -->
-<div class="body-wrap">
+<!-- 통계 바 -->
+<div class="fab-stats">
+  <div class="fab-stat"><div class="fab-stat-val" id="stat-total">76</div><div class="fab-stat-lbl">총 팹</div></div>
+  <div class="fab-stat"><div class="fab-stat-val" id="stat-fab">—</div><div class="fab-stat-lbl">전공정 (Fab)</div></div>
+  <div class="fab-stat"><div class="fab-stat-val" id="stat-osat">—</div><div class="fab-stat-lbl">후공정 (OSAT)</div></div>
+  <div class="fab-stat"><div class="fab-stat-val" id="stat-country">—</div><div class="fab-stat-lbl">국가</div></div>
+  <div class="fab-stat"><div class="fab-stat-val" id="stat-company">—</div><div class="fab-stat-lbl">회사</div></div>
+</div>
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sb-inner">
-      <div class="sb-search">
-        <input type="text" id="searchInput" placeholder="팹명, 회사, 도시..." oninput="updateAll()">
-      </div>
+<!-- MAIN -->
+<div class="fab-main">
 
-      <div class="fg">
-        <div class="fg-title">Company</div>
-        <div class="chips" id="companyChips"></div>
-      </div>
-      <div class="fg">
-        <div class="fg-title">Country</div>
-        <div class="chips" id="countryChips"></div>
-      </div>
-      <div class="fg">
-        <div class="fg-title">Tech Node</div>
-        <div class="chips" id="nodeChips"></div>
-      </div>
-      <div class="fg">
-        <div class="fg-title">Type</div>
-        <div class="chips" id="typeChips"></div>
-      </div>
+  <!-- 필터 -->
+  <aside class="fab-filters">
+    <div class="filter-group">
+      <div class="filter-title">🔍 검색</div>
+      <input type="text" class="search-input" id="searchInput" placeholder="팹 이름, 도시, 회사…" oninput="applyFilters()">
+    </div>
 
-      <div class="fg legend">
-        <div class="fg-title">Legend</div>
-        <div class="leg-item"><div class="leg-circle" style="background:#d7eaff;border-color:#0071e3"></div>Frontend Fab (Wafer)</div>
-        <div class="leg-item"><div class="leg-diamond" style="background:#d4c8f5;border-color:#6e44cc"></div>Backend / OSAT</div>
-        <div style="height:4px"></div>
-        <div class="leg-item"><div class="leg-circle" style="background:var(--green);border-color:var(--green-s)"></div>Operating</div>
-        <div class="leg-item"><div class="leg-circle" style="background:var(--yellow);border-color:var(--yellow-s)"></div>Under Construction</div>
-        <div class="leg-item"><div class="leg-circle" style="background:var(--blue);border-color:var(--blue-s)"></div>Planned</div>
-      </div>
+    <div class="filter-group">
+      <div class="filter-title">유형 <span class="count" id="cnt-type"></span></div>
+      <div class="filter-chips" id="typeChips"></div>
+    </div>
 
-      <button class="reset-btn" onclick="resetFilters()">✕ 필터 초기화</button>
+    <div class="filter-group">
+      <div class="filter-title">상태 <span class="count" id="cnt-status"></span></div>
+      <div class="filter-chips" id="statusChips"></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-title">회사 <span class="count" id="cnt-company"></span></div>
+      <div class="filter-chips" id="companyChips"></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-title">국가 <span class="count" id="cnt-country"></span></div>
+      <div class="filter-chips" id="countryChips"></div>
+    </div>
+
+    <div class="filter-group">
+      <div class="filter-title">공정 노드 <span class="count" id="cnt-node"></span></div>
+      <div class="filter-chips" id="nodeChips"></div>
+    </div>
+
+    <button class="reset-btn" onclick="resetFilters()">↺ 필터 초기화</button>
+  </aside>
+
+  <!-- 지도 + 리스트 -->
+  <div class="fab-right">
+    <!-- 지도 -->
+    <div class="map-card">
+      <div id="fabMap"></div>
+      <div class="map-legend">
+        <div class="lg-item"><span class="lg-dot" style="background:#0071e3"></span>전공정 (Fab)</div>
+        <div class="lg-item"><span class="lg-dot" style="background:#f25a00"></span>후공정 (OSAT)</div>
+        <div class="lg-item"><span class="lg-dot" style="background:#30b94a;border-color:#30b94a"></span>운영 중</div>
+        <div class="lg-item"><span class="lg-dot" style="background:#c8960c;border-color:#c8960c"></span>건설 중</div>
+        <div class="lg-item"><span class="lg-dot" style="background:#aeaeb2;border-color:#aeaeb2"></span>계획 중</div>
+      </div>
+    </div>
+
+    <!-- 팹 리스트 -->
+    <div class="list-card">
+      <div class="list-hd">
+        <div class="list-title">필터 결과 <span class="cnt" id="listCount">0</span></div>
+      </div>
+      <div class="fab-list" id="fabList"></div>
     </div>
   </div>
 
-  <!-- MAP -->
-  <div class="map-wrap">
-    <div id="map"></div>
-    <div class="info-overlay" id="infoOverlay">
-      <div class="io-title">국가별 사이트</div>
-      <div id="infoPanelContent"></div>
-    </div>
-  </div>
+</div><!-- /main -->
 
-</div><!-- /body-wrap -->
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+/* ════════════════════════════════════════
+   팹 데이터
+════════════════════════════════════════ */
 const fabData = [
   // ── TSMC ──
   {name:"TSMC Fab 12A/B",company:"TSMC",country:"Taiwan",city:"Hsinchu",lat:24.7868,lng:120.9965,type:"fab",node:"7nm",status:"operating",wafer:300},
@@ -344,162 +483,247 @@ const fabData = [
   {name:"Intel Vietnam ATP",company:"Intel",country:"Vietnam",city:"Ho Chi Minh City",lat:10.8551,lng:106.6866,type:"osat",node:"ATP",status:"operating"},
 ];
 
-// ── STATE ──
-let filters={company:new Set(),country:new Set(),node:new Set(),type:new Set()};
-let map,markers=[];
+/* ════════════════════════════════════════
+   상태
+════════════════════════════════════════ */
+var state = {
+  type: new Set(),      // 'fab' | 'osat'
+  status: new Set(),    // 'operating' | 'construction' | 'planned'
+  company: new Set(),
+  country: new Set(),
+  node: new Set(),
+  search: ''
+};
 
-// ── INIT ──
-document.addEventListener('DOMContentLoaded',()=>{
+var map, markerLayer;
+
+/* ════════════════════════════════════════
+   초기화
+════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
   initMap();
   buildFilters();
-  updateAll();
+  applyFilters();
 });
 
-function initMap(){
-  map=L.map('map',{center:[28,108],zoom:3,minZoom:2,maxZoom:14,zoomControl:true,worldCopyJump:true});
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-    subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap © CARTO'
+function initMap() {
+  map = L.map('fabMap', {
+    center: [30, 50],
+    zoom: 2,
+    minZoom: 2,
+    maxZoom: 10,
+    worldCopyJump: true,
+    scrollWheelZoom: false,
+  }).on('click', function() { map.scrollWheelZoom.enable(); });
+  
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO',
+    subdomains: 'abcd',
+    maxZoom: 19
   }).addTo(map);
+  
+  markerLayer = L.layerGroup().addTo(map);
 }
 
-function buildFilters(){
-  const cos=[...new Set(fabData.map(f=>f.company))].sort();
-  const ctrs=[...new Set(fabData.map(f=>f.country))].sort();
-  const nds=[...new Set(fabData.map(f=>f.node))].sort((a,b)=>{
-    const nm=s=>{const m=s.match(/(\d+(?:\.\d+)?)\s*(nm|μm)/i);return m?parseFloat(m[1])*(m[2]==='μm'?1000:1):9999;};
-    return nm(a)-nm(b);
+/* ════════════════════════════════════════
+   필터 UI 구축
+════════════════════════════════════════ */
+function buildFilters() {
+  // 유형
+  renderChips('typeChips', [
+    {val:'fab',  label:'전공정 Fab'},
+    {val:'osat', label:'후공정 OSAT'}
+  ], 'type');
+  
+  // 상태
+  renderChips('statusChips', [
+    {val:'operating',    label:'운영 중'},
+    {val:'construction', label:'건설 중'},
+    {val:'planned',      label:'계획 중'}
+  ], 'status');
+  
+  // 회사 (중복 제거 + 팹 수 내림차순)
+  var companies = uniqSorted(fabData.map(function(f){return f.company}));
+  renderChips('companyChips', companies.map(function(c){
+    return {val:c, label:c};
+  }), 'company');
+  
+  // 국가
+  var countries = uniqSorted(fabData.map(function(f){return f.country}));
+  renderChips('countryChips', countries.map(function(c){
+    return {val:c, label:c};
+  }), 'country');
+  
+  // 노드 (숫자 정렬)
+  var nodes = uniqSorted(fabData.map(function(f){return f.node}), sortNode);
+  renderChips('nodeChips', nodes.map(function(n){
+    return {val:n, label:n};
+  }), 'node');
+}
+
+function renderChips(containerId, items, stateKey) {
+  var html = items.map(function(item) {
+    return '<button class="chip" data-val="' + escAttr(item.val) + '" onclick="toggleFilter(\'' + stateKey + '\',\'' + escAttr(item.val) + '\',this)">' + esc(item.label) + '</button>';
+  }).join('');
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function toggleFilter(key, val, btn) {
+  if(state[key].has(val)) {
+    state[key].delete(val);
+    btn.classList.remove('on');
+  } else {
+    state[key].add(val);
+    btn.classList.add('on');
+  }
+  applyFilters();
+}
+
+function resetFilters() {
+  Object.keys(state).forEach(function(k){
+    if(state[k] instanceof Set) state[k].clear();
   });
-  renderChips('companyChips',cos,'company');
-  renderChips('countryChips',ctrs,'country');
-  renderChips('nodeChips',nds,'node');
-  document.getElementById('typeChips').innerHTML=
-    `<div class="chip" data-key="type" data-value="fab" onclick="toggleFilter(this,'type','fab')">🏭 Frontend Fab</div>
-     <div class="chip" data-key="type" data-value="osat" onclick="toggleFilter(this,'type','osat')">📦 OSAT / Backend</div>`;
+  state.search = '';
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.chip.on').forEach(function(c){c.classList.remove('on')});
+  applyFilters();
 }
 
-function renderChips(id,items,key){
-  document.getElementById(id).innerHTML=items.map(v=>
-    `<div class="chip" data-key="${key}" data-value="${esc(v)}" onclick="toggleFilter(this,'${key}','${esc(v)}')">${esc(v)}</div>`
-  ).join('');
-}
-
-function toggleFilter(el,key,val){
-  if(filters[key].has(val)){filters[key].delete(val);el.classList.remove('active');}
-  else{filters[key].add(val);el.classList.add('active');}
-  updateAll();
-}
-
-function setView(v,btn){
-  document.querySelectorAll('.vtab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  filters.type.clear();
-  document.querySelectorAll('[data-key="type"]').forEach(c=>c.classList.remove('active'));
-  if(v==='wafer'){filters.type.add('fab');document.querySelector('[data-value="fab"]')?.classList.add('active');}
-  else if(v==='packaging'){filters.type.add('osat');document.querySelector('[data-value="osat"]')?.classList.add('active');}
-  updateAll();
-}
-
-function resetFilters(){
-  Object.keys(filters).forEach(k=>filters[k].clear());
-  document.querySelectorAll('.chip.active').forEach(c=>c.classList.remove('active'));
-  document.getElementById('searchInput').value='';
-  updateAll();
-}
-
-function getFiltered(){
-  const q=document.getElementById('searchInput').value.trim().toLowerCase();
-  return fabData.filter(f=>{
-    if(filters.company.size&&!filters.company.has(f.company))return false;
-    if(filters.country.size&&!filters.country.has(f.country))return false;
-    if(filters.node.size&&!filters.node.has(f.node))return false;
-    if(filters.type.size&&!filters.type.has(f.type))return false;
-    if(q&&![f.name,f.company,f.city,f.country,f.node].some(s=>s.toLowerCase().includes(q)))return false;
+/* ════════════════════════════════════════
+   필터 적용
+════════════════════════════════════════ */
+function applyFilters() {
+  state.search = document.getElementById('searchInput').value.trim().toLowerCase();
+  
+  var filtered = fabData.filter(function(f) {
+    if(state.type.size    && !state.type.has(f.type)) return false;
+    if(state.status.size  && !state.status.has(f.status)) return false;
+    if(state.company.size && !state.company.has(f.company)) return false;
+    if(state.country.size && !state.country.has(f.country)) return false;
+    if(state.node.size    && !state.node.has(f.node)) return false;
+    if(state.search) {
+      var t = (f.name + ' ' + f.company + ' ' + f.city + ' ' + f.country).toLowerCase();
+      if(t.indexOf(state.search) < 0) return false;
+    }
     return true;
   });
+  
+  renderMap(filtered);
+  renderList(filtered);
+  updateStats(filtered);
 }
 
-function updateAll(){
-  const d=getFiltered();
-  updateStats(d);
-  updateMap(d);
-  updateInfoPanel(d);
-}
-
-function updateStats(d){
-  const fbs=d.filter(x=>x.type==='fab').length;
-  const os=d.filter(x=>x.type==='osat').length;
-  const op=d.filter(x=>x.status==='operating').length;
-  const con=d.filter(x=>x.status==='construction').length;
-  const plan=d.filter(x=>x.status==='planned'||x.status==='ramping').length;
-  const ctrs=new Set(d.map(x=>x.country)).size;
-  const cos=new Set(d.map(x=>x.company)).size;
-  document.getElementById('statsBar').innerHTML=
-    `<div class="si"><span class="si-num">${d.length}</span> / ${fabData.length} 사이트</div>
-     <div class="si"><span class="si-num">${fbs}</span> Frontend Fabs</div>
-     <div class="si"><span class="si-num">${os}</span> OSAT</div>
-     <div class="si"><span class="si-num">${ctrs}</span> 국가</div>
-     <div class="si"><span class="si-num">${cos}</span> 기업</div>
-     <div class="si"><span class="si-dot" style="background:var(--green)"></span><span class="si-num">${op}</span> 운영 중</div>
-     <div class="si"><span class="si-dot" style="background:var(--yellow)"></span><span class="si-num">${con}</span> 건설 중</div>
-     <div class="si"><span class="si-dot" style="background:var(--blue)"></span><span class="si-num">${plan}</span> 예정</div>`;
-}
-
-function mkColor(status){return status==='operating'?'#30b94a':status==='construction'?'#c8960c':'#0071e3';}
-
-function mkIcon(fab){
-  const c=mkColor(fab.status);
-  const border=fab.type==='fab'?'#0071e3':'#6e44cc';
-  const sz=fab.type==='fab'?14:12;
-  const shape=fab.type==='fab'?'border-radius:50%;':'transform:rotate(45deg);border-radius:2px;';
-  return L.divIcon({
-    className:'',
-    html:`<div style="width:${sz}px;height:${sz}px;background:${c};border:2px solid ${border};${shape}box-shadow:0 1px 5px rgba(0,0,0,0.18),0 0 6px ${c}55;"></div>`,
-    iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]
+/* ════════════════════════════════════════
+   지도 렌더링
+════════════════════════════════════════ */
+function renderMap(list) {
+  markerLayer.clearLayers();
+  list.forEach(function(f) {
+    var baseColor = f.type === 'fab' ? '#0071e3' : '#f25a00';
+    var borderColor = f.status === 'operating' ? '#30b94a'
+                    : f.status === 'construction' ? '#c8960c' : '#aeaeb2';
+    
+    var marker = L.circleMarker([f.lat, f.lng], {
+      radius: 7,
+      fillColor: baseColor,
+      color: borderColor,
+      weight: 2.5,
+      opacity: 1,
+      fillOpacity: 0.85
+    });
+    
+    marker.bindPopup(makePopup(f), {maxWidth:260, className:'fab-popup'});
+    marker.addTo(markerLayer);
   });
 }
 
-function updateMap(data){
-  markers.forEach(m=>map.removeLayer(m));
-  markers=[];
-  data.forEach(fab=>{
-    const m=L.marker([fab.lat,fab.lng],{icon:mkIcon(fab)}).addTo(map);
-    const sCls=fab.status==='operating'?'fpb-op':fab.status==='construction'?'fpb-con':'fpb-plan';
-    const sLbl=fab.status==='operating'?'✓ Operating':fab.status==='construction'?'🔨 Under Construction':fab.status==='ramping'?'📈 Ramping':'📋 Planned';
-    const tLbl=fab.type==='fab'?'Frontend Fab':'OSAT / Backend';
-    m.bindPopup(`<div class="fp">
-      <div class="fp-co">${esc(fab.company)}</div>
-      <div class="fp-name">${esc(fab.name)}</div>
-      <div class="fp-row">위치: <b>${esc(fab.city)}, ${esc(fab.country)}</b></div>
-      <div class="fp-row">유형: <b>${tLbl}</b></div>
-      <div class="fp-row">노드: <b>${esc(fab.node)}</b></div>
-      ${fab.wafer?`<div class="fp-row">웨이퍼: <b>${fab.wafer}mm</b></div>`:''}
-      <div class="fp-badge ${sCls}">${sLbl}</div>
-    </div>`,{maxWidth:280});
-    m.on('mouseover',function(){const e=this.getElement()?.querySelector('div');if(e)e.style.transform=fab.type==='osat'?'rotate(45deg) scale(1.5)':'scale(1.5)';});
-    m.on('mouseout',function(){const e=this.getElement()?.querySelector('div');if(e)e.style.transform=fab.type==='osat'?'rotate(45deg)':'';});
-    markers.push(m);
-  });
+function makePopup(f) {
+  var typeL = f.type === 'fab' ? '전공정 Fab' : '후공정 OSAT';
+  var statusL = f.status === 'operating' ? '🟢 운영 중'
+              : f.status === 'construction' ? '🟡 건설 중' : '⚪ 계획 중';
+  return '<div class="pop-hd">'
+    + '<div class="pop-co">' + esc(f.company) + '</div>'
+    + '<div class="pop-name">' + esc(f.name) + '</div>'
+    + '</div>'
+    + '<div class="pop-body">'
+    + '<div class="pop-row"><span class="pop-lbl">📍 위치</span><span class="pop-val">' + esc(f.city) + ', ' + esc(f.country) + '</span></div>'
+    + '<div class="pop-row"><span class="pop-lbl">유형</span><span class="pop-val">' + typeL + '</span></div>'
+    + '<div class="pop-row"><span class="pop-lbl">공정 노드</span><span class="pop-val">' + esc(f.node) + '</span></div>'
+    + '<div class="pop-row"><span class="pop-lbl">상태</span><span class="pop-val">' + statusL + '</span></div>'
+    + (f.wafer ? '<div class="pop-row"><span class="pop-lbl">웨이퍼</span><span class="pop-val">' + f.wafer + 'mm</span></div>' : '')
+    + '</div>';
 }
 
-function updateInfoPanel(data){
-  const flags={'Taiwan':'🇹🇼','USA':'🇺🇸','China':'🇨🇳','South Korea':'🇰🇷','Japan':'🇯🇵',
-    'Germany':'🇩🇪','Singapore':'🇸🇬','Malaysia':'🇲🇾','Ireland':'🇮🇪','Israel':'🇮🇱',
-    'Italy':'🇮🇹','France':'🇫🇷','Austria':'🇦🇹','Netherlands':'🇳🇱',
-    'Philippines':'🇵🇭','Vietnam':'🇻🇳','Thailand':'🇹🇭','Portugal':'🇵🇹'};
-  const by={};
-  data.forEach(f=>{by[f.country]=(by[f.country]||0)+1;});
-  const sorted=Object.entries(by).sort((a,b)=>b[1]-a[1]).slice(0,9);
-  document.getElementById('infoPanelContent').innerHTML=sorted.map(([c,n])=>
-    `<div class="io-row"><span class="io-label">${flags[c]||'🏳️'} ${esc(c)}</span><span class="io-val">${n}</span></div>`
-  ).join('');
+/* ════════════════════════════════════════
+   리스트 렌더링
+════════════════════════════════════════ */
+function renderList(list) {
+  document.getElementById('listCount').textContent = list.length;
+  
+  if(list.length === 0) {
+    document.getElementById('fabList').innerHTML = '<div class="fab-list-empty">조건에 맞는 팹이 없습니다. 필터를 조정해보세요.</div>';
+    return;
+  }
+  
+  // 이름순 정렬
+  var sorted = list.slice().sort(function(a,b){return a.name.localeCompare(b.name)});
+  
+  var html = sorted.map(function(f) {
+    var typeCls = f.type === 'fab' ? 'fr-type-f' : 'fr-type-o';
+    var typeL = f.type === 'fab' ? 'FAB' : 'OSAT';
+    var statusCls = f.status === 'operating' ? 'fs-op'
+                  : f.status === 'construction' ? 'fs-co' : 'fs-pl';
+    var statusL = f.status === 'operating' ? '운영'
+                : f.status === 'construction' ? '건설' : '계획';
+    
+    return '<div class="fab-row" onclick="flyTo(' + f.lat + ',' + f.lng + ')">'
+      + '<div class="fr-name-wrap">'
+        + '<div class="fr-name">' + esc(f.name) + '</div>'
+        + '<div class="fr-co">' + esc(f.company) + ' · ' + esc(f.city) + '</div>'
+        + '<div class="fr-meta-m"><span class="m-node">' + esc(f.node) + '</span><span class="m-type">' + typeL + '</span><span>' + esc(f.country) + '</span></div>'
+      + '</div>'
+      + '<div class="fr-country">' + esc(f.country) + '</div>'
+      + '<div class="fr-node">' + esc(f.node) + '</div>'
+      + '<div class="' + typeCls + '">' + typeL + '</div>'
+      + '<div class="fr-status ' + statusCls + '">' + statusL + '</div>'
+      + '</div>';
+  }).join('');
+  document.getElementById('fabList').innerHTML = html;
 }
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function flyTo(lat, lng) {
+  map.flyTo([lat, lng], 6, {duration: 0.8});
+  window.scrollTo({top: document.querySelector('.map-card').offsetTop - 80, behavior:'smooth'});
+}
+
+/* ════════════════════════════════════════
+   통계 업데이트
+════════════════════════════════════════ */
+function updateStats(list) {
+  document.getElementById('stat-total').textContent = list.length;
+  document.getElementById('stat-fab').textContent  = list.filter(function(f){return f.type==='fab'}).length;
+  document.getElementById('stat-osat').textContent = list.filter(function(f){return f.type==='osat'}).length;
+  document.getElementById('stat-country').textContent = uniqSorted(list.map(function(f){return f.country})).length;
+  document.getElementById('stat-company').textContent = uniqSorted(list.map(function(f){return f.company})).length;
+}
+
+/* ════════════════════════════════════════
+   유틸
+════════════════════════════════════════ */
+function uniqSorted(arr, sorter) {
+  var u = Array.from(new Set(arr));
+  return sorter ? u.sort(sorter) : u.sort();
+}
+function sortNode(a,b) {
+  var na = parseFloat(a), nb = parseFloat(b);
+  if(isNaN(na) && isNaN(nb)) return a.localeCompare(b);
+  if(isNaN(na)) return 1;
+  if(isNaN(nb)) return -1;
+  return na - nb;
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function escAttr(s){return esc(s).replace(/'/g,'&#39;')}
 </script>
 
-<script src="shared-footer.js"></script>
-<script src="shared-styles.js"></script>
-<script src="shared-auth-supabase.js"></script>
-<footer></footer>
 </body>
 </html>

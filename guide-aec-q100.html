@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AEC-Q100 완전 가이드 — 차량용 반도체 인증 기준 | ChipCalc</title>
+<meta name="description" content="AEC-Q100은 차량용 집적회로(IC)의 필수 신뢰성 인증입니다. Grade 0~4, 테스트 항목, PPAP, IATF 16949와의 관계, 인증 획득 프로세스를 실무자 관점에서 정리.">
+<meta name="keywords" content="AEC-Q100, 차량용 반도체 인증, 자동차 반도체, PPAP, IATF 16949, 반도체 신뢰성, Grade 0, Grade 1, Grade 2, automotive qualification">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AEC-Q100 완전 가이드 — 차량용 반도체 인증 기준">
+<meta property="og:description" content="AEC-Q100 등급(Grade 0~4), 테스트 항목, PPAP 프로세스, IATF 16949와의 관계 완전 정리.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/guide-aec-q100.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/guide-aec-q100.html">
+
+<link rel="stylesheet" href="shared.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.75;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* ══ 가이드 공통 CSS ══ */
+.hero{padding:52px 32px 44px;color:#fff;position:relative;overflow:hidden;text-align:center;background:linear-gradient(135deg,#8a1a12 0%,#c0392b 50%,#e4362a 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(255,255,255,0.08) 0%,transparent 60%);pointer-events:none}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:100px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.9);margin-bottom:18px}
+.hero h1{font-size:30px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:14px;color:#fff}
+.hero-desc{font-size:15px;color:rgba(255,255,255,0.80);max-width:600px;margin:0 auto 18px;line-height:1.7}
+.hero-chips{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.hero-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);border-radius:100px;padding:5px 14px;font-size:12px;color:rgba(255,255,255,0.88)}
+
+.toc-bar{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:var(--topbar-h);z-index:90;overflow-x:auto}
+.toc-bar::-webkit-scrollbar{display:none}
+.toc-inner{max-width:860px;margin:0 auto;display:flex;padding:0 28px}
+.toc-link{display:block;padding:12px 14px;font-size:12px;font-weight:500;color:var(--l3);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap;transition:color 0.15s,border-color 0.15s;flex-shrink:0}
+.toc-link:hover{color:var(--l1);border-bottom-color:var(--border2)}
+.toc-link.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+
+.page-wrap{max-width:860px;margin:0 auto;padding:0 28px}
+.content{padding:52px 0 90px}
+.section{margin-bottom:72px;scroll-margin-top:96px}
+.section h2{font-size:22px;font-weight:800;color:var(--l1);letter-spacing:-0.02em;line-height:1.25;margin:0 0 6px;padding-bottom:10px;border-bottom:2px solid var(--border)}
+.section-lead{font-size:14px;color:var(--l3);margin:0 0 24px;line-height:1.7}
+p{font-size:13.5px;color:var(--l2);margin-bottom:14px;line-height:1.78}
+h3{font-size:17px;font-weight:700;color:var(--l1);margin:28px 0 10px;letter-spacing:-0.01em}
+h4{font-size:14px;font-weight:700;color:var(--l1);margin:18px 0 8px}
+ul,ol{margin:8px 0 16px 20px}
+li{font-size:13.5px;color:var(--l2);margin-bottom:6px;line-height:1.65}
+strong{color:var(--l1);font-weight:700}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.callout{border-radius:12px;padding:18px 22px;margin:20px 0 28px}
+.callout-k{background:#f0f6ff;border:1px solid #c8dcff;border-left:4px solid var(--blue)}
+.callout-k h4,.callout-k p{color:#1a4d9a;margin:0}
+.callout-g{background:#f0faf4;border:1px solid #b6e6cc;border-left:4px solid #1a8c58}
+.callout-g h4,.callout-g p{color:#0a5235;margin:0}
+.callout-o{background:#fff8f0;border:1px solid #ffd4a8;border-left:4px solid var(--orange)}
+.callout-o h4,.callout-o p{color:#7a3a00;margin:0}
+.callout-r{background:#fff1f0;border:1px solid #fac5c1;border-left:4px solid var(--red)}
+.callout-r h4,.callout-r p{color:#8a1a12;margin:0}
+.callout h4{font-size:13px;font-weight:700;margin:0 0 6px}
+.callout p{font-size:13px;line-height:1.7}
+
+.dtbl{overflow-x:auto;margin:20px 0;border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface)}
+thead th{background:#f5f5f8;padding:11px 14px;text-align:left;font-size:10.5px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f9f9fb}
+.num{font-family:var(--mono);font-weight:600;color:var(--l1)}
+
+.cta-box{border-radius:20px;padding:48px 40px;text-align:center;margin:56px 0 0;color:#fff;position:relative;overflow:hidden;background:linear-gradient(135deg,#8a1a12 0%,#c0392b 50%,#e4362a 100%)}
+.cta-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 30%,rgba(255,255,255,0.08) 0%,transparent 60%)}
+.cta-box h3{font-size:24px;font-weight:800;margin-bottom:10px;position:relative;color:#fff}
+.cta-box p{font-size:14px;color:rgba(255,255,255,0.82);margin-bottom:24px;position:relative}
+.cta-btn{display:inline-block;background:#fff;font-weight:700;font-size:14px;padding:13px 30px;border-radius:100px;text-decoration:none;box-shadow:0 4px 20px rgba(0,0,0,0.18);transition:transform 0.15s;position:relative;color:#c0392b}
+.cta-btn:hover{transform:translateY(-2px);text-decoration:none}
+.cta-links{margin-top:18px;display:flex;gap:20px;justify-content:center;flex-wrap:wrap;position:relative}
+.cta-links a{color:rgba(255,255,255,0.72);font-size:12.5px;text-decoration:none}
+.cta-links a:hover{color:#fff}
+
+.ad-wrap{margin:28px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 다크모드 */
+body.dark .callout-k{background:rgba(0,113,227,0.10);border-color:rgba(0,113,227,0.25)}
+body.dark .callout-k h4,body.dark .callout-k p{color:#7ab8ff}
+body.dark .callout-g{background:rgba(26,140,88,0.10);border-color:rgba(26,140,88,0.25)}
+body.dark .callout-g h4,body.dark .callout-g p{color:#6fd4a0}
+body.dark .callout-o{background:rgba(242,90,0,0.10);border-color:rgba(242,90,0,0.22)}
+body.dark .callout-o h4,body.dark .callout-o p{color:#ffa870}
+body.dark .callout-r{background:rgba(228,54,42,0.10);border-color:rgba(228,54,42,0.22)}
+body.dark .callout-r h4,body.dark .callout-r p{color:#ff8a82}
+body.dark table{background:var(--surface)}
+body.dark thead th{background:var(--s2);color:var(--l4)}
+body.dark tbody tr:hover td{background:var(--s3)}
+body.dark .toc-bar{background:var(--surface)}
+
+/* 모바일 */
+@media(max-width:768px){
+  .hero{padding:40px 20px 32px}
+  .hero h1{font-size:24px}
+  .hero-desc{font-size:14px}
+  .toc-inner{padding:0 16px}
+  .page-wrap{padding:0 16px}
+  .content{padding:36px 0 72px}
+  .section{margin-bottom:52px}
+  .section h2{font-size:19px}
+  .section-lead{font-size:13.5px}
+  .cta-box{padding:36px 20px;border-radius:14px}
+  .cta-box h3{font-size:20px}
+}
+@media(max-width:480px){
+  .hero h1{font-size:21px}
+  .dtbl{margin-left:-16px;margin-right:-16px;border-radius:0}
+  thead th,tbody td{padding:8px 10px;font-size:12px}
+}
+
+
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· AEC-Q100 가이드</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn active">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="guide-semiconductor-cost.html" class="">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html" class="">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html" class="">📦 패키지 가이드</a>
+        <a href="guide-osat.html" class="">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html" class="active">🚗 AEC-Q100 가이드</a>
+        <a href="news-archive.html" class="">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+      <div class="auth-tip">
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+      </div>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<!-- 모바일 드로어 -->
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link " href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link " href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link " href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link " href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link active" href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link " href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🚗 Resource Guide · Automotive</div>
+    <h1>AEC-Q100 완전 가이드</h1>
+    <p class="hero-desc">차량용 집적회로의 국제 표준 신뢰성 인증.<br>Grade 0~4 등급부터 PPAP 프로세스까지 실무자 관점에서 정리.</p>
+    <div class="hero-chips"><span class="hero-chip">📅 2026년 기준</span><span class="hero-chip">⏱ 읽기 약 8분</span><span class="hero-chip">🔧 실무 체크리스트 포함</span></div>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc-bar">
+  <div class="toc-inner">
+    <a class="toc-link" href="#sec-what">AEC-Q란?</a>
+    <a class="toc-link" href="#sec-family">Q-series</a>
+    <a class="toc-link" href="#sec-grade">등급 Grade 0~4</a>
+    <a class="toc-link" href="#sec-test">테스트 항목</a>
+    <a class="toc-link" href="#sec-process">인증 프로세스</a>
+    <a class="toc-link" href="#sec-ppap">PPAP</a>
+    <a class="toc-link" href="#sec-iatf">IATF 16949</a>
+    <a class="toc-link" href="#sec-cost">비용·기간</a>
+  </div>
+</div>
+
+<div class="page-wrap">
+<div class="content">
+
+
+<!-- 1. AEC란 -->
+<div class="section" id="sec-what">
+  <h2>AEC-Q란 무엇인가?</h2>
+  <p class="section-lead">AEC(Automotive Electronics Council)에서 제정한 자동차용 전자부품의 신뢰성 시험 표준입니다.</p>
+  <p><strong>AEC(Automotive Electronics Council)</strong>는 1993년 Chrysler · Ford · GM의 미국 3대 완성차 업체가 공동 설립한 컨소시엄입니다. 자동차에 쓰이는 전자부품이 극한 환경(온도·진동·습도·EMC)에서도 안정적으로 동작하도록 <strong>공통된 신뢰성 시험 기준</strong>을 만들어 왔습니다.</p>
+  <p>차량용 반도체 공급업체는 고객 완성차 업체에 납품하려면 해당 제품이 이 AEC-Q 인증을 통과했다는 <strong>Qualification Report</strong>를 제공해야 합니다.</p>
+  <div class="callout callout-r">
+    <h4>⚠ AEC-Q는 법적 의무가 아니지만 사실상 필수</h4>
+    <p>AEC-Q 인증이 법으로 강제되는 것은 아니지만, 완성차 OEM · Tier 1 업체가 AEC-Q 인증 부품만 채택합니다. 인증 없이는 사실상 차량용 시장 진입이 불가능합니다.</p>
+  </div>
+</div>
+
+<!-- 2. Q-series -->
+<div class="section" id="sec-family">
+  <h2>AEC-Q 패밀리 — 부품 종류별 표준</h2>
+  <p class="section-lead">부품 유형에 따라 다른 표준을 적용합니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>표준</th><th>대상 부품</th><th>주요 예시</th></tr></thead>
+      <tbody>
+        <tr><td><strong>AEC-Q100</strong></td><td>Integrated Circuit (IC)</td><td>MCU, SoC, PMIC, ADC, 센서 IC</td></tr>
+        <tr><td><strong>AEC-Q101</strong></td><td>Discrete Semiconductor</td><td>트랜지스터, 다이오드, MOSFET, IGBT</td></tr>
+        <tr><td><strong>AEC-Q102</strong></td><td>Optoelectronic (LED)</td><td>자동차 LED 조명, 광센서</td></tr>
+        <tr><td><strong>AEC-Q103</strong></td><td>MEMS Sensor</td><td>가속도계, 자이로, 마이크로폰</td></tr>
+        <tr><td><strong>AEC-Q104</strong></td><td>Multichip Module (MCM)</td><td>멀티칩 패키지, SiP</td></tr>
+        <tr><td><strong>AEC-Q200</strong></td><td>Passive Component</td><td>저항, 커패시터, 인덕터, 크리스탈</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-k">
+    <h4>💡 가장 많이 쓰이는 건 AEC-Q100</h4>
+    <p>이 가이드는 주로 <strong>AEC-Q100 (IC용)</strong>을 다룹니다. ChipCalc의 원가 계산기는 AEC-Q100 기반 Die 원가를 계산합니다.</p>
+  </div>
+</div>
+
+<!-- AD -->
+<div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7222222201"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<!-- 3. Grade -->
+<div class="section" id="sec-grade">
+  <h2>AEC-Q100 Grade 0~4 — 작동 온도 등급</h2>
+  <p class="section-lead">차량 내 부품 위치에 따라 요구되는 온도 범위가 다르며, 이게 Grade를 결정합니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>Grade</th><th>작동 온도 범위</th><th>차량 내 위치</th><th>예시 칩</th></tr></thead>
+      <tbody>
+        <tr><td><strong style="color:#c0392b">Grade 0</strong></td><td class="num">-40°C ~ +150°C</td><td>엔진/파워트레인 옆</td><td>엔진 ECU MCU, 트랜스미션 제어 IC</td></tr>
+        <tr><td><strong style="color:#f25a00">Grade 1</strong></td><td class="num">-40°C ~ +125°C</td><td>엔진룸 (보드 장착)</td><td>Powertrain MCU, 파워 IC</td></tr>
+        <tr><td><strong>Grade 2</strong></td><td class="num">-40°C ~ +105°C</td><td>실내 가혹 부위</td><td>Body ECU, ADAS SoC</td></tr>
+        <tr><td><strong>Grade 3</strong></td><td class="num">-40°C ~ +85°C</td><td>실내 표준</td><td>인포테인먼트 SoC, Gateway</td></tr>
+        <tr><td><strong style="color:#1a8c58">Grade 4</strong></td><td class="num">0°C ~ +70°C</td><td>일반 (소비자급과 유사)</td><td>일부 인포테인먼트 부품</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-o">
+    <h4>⚠ Grade가 높을수록 단가는 올라갑니다</h4>
+    <p>Grade 0은 Grade 3에 비해 보통 <strong>1.5~3배 이상</strong> 단가가 비쌉니다. Die 설계 변경, 별도 테스트, 고온 패키지 필요 등 추가 비용이 들어가기 때문입니다.</p>
+  </div>
+</div>
+
+<!-- 4. Test -->
+<div class="section" id="sec-test">
+  <h2>AEC-Q100 주요 테스트 항목</h2>
+  <p class="section-lead">전기적·환경적·기계적 스트레스 시험을 모두 통과해야 합니다.</p>
+  <h3>Group A — 가속 환경 스트레스</h3>
+  <ul>
+    <li><strong>HTOL (High Temperature Operating Life)</strong> — 고온 1000시간 동작</li>
+    <li><strong>HTSL (High Temperature Storage Life)</strong> — 고온 보관 1000시간</li>
+    <li><strong>TC (Temperature Cycling)</strong> — 급격한 온도 변화 1000 cycle</li>
+    <li><strong>THB (Temperature Humidity Bias)</strong> — 85°C/85% RH, 1000시간</li>
+  </ul>
+  <h3>Group B — 가속 수명</h3>
+  <ul>
+    <li><strong>HAST (Highly Accelerated Stress Test)</strong> — 130°C/85% RH</li>
+    <li><strong>AC (Autoclave)</strong> — 121°C 고압 포화 증기</li>
+  </ul>
+  <h3>Group C — 패키지 무결성</h3>
+  <ul>
+    <li><strong>PC (Pre-Conditioning)</strong> — MSL 시뮬레이션</li>
+    <li><strong>Solderability</strong> — 납땜성</li>
+    <li><strong>PD (Physical Dimensions)</strong> — 외형 치수</li>
+  </ul>
+  <h3>Group D~E — 전기적/기계적 특성</h3>
+  <ul>
+    <li><strong>ESD (Electrostatic Discharge)</strong> — HBM ±2kV, CDM ±500V</li>
+    <li><strong>Latch-Up</strong> — 래치업 내성</li>
+    <li><strong>EMC</strong> — 전자기 적합성</li>
+    <li><strong>기계적 충격·진동</strong> — 자동차 환경 모사</li>
+  </ul>
+</div>
+
+<!-- 5. Process -->
+<div class="section" id="sec-process">
+  <h2>인증 획득 프로세스</h2>
+  <p class="section-lead">계획부터 최종 보고서 제출까지 보통 6~12개월 소요됩니다.</p>
+  <ol>
+    <li><strong>Design for Automotive</strong> — 설계 단계부터 AEC-Q100 고려 (온도 마진, ESD 보호)</li>
+    <li><strong>Wafer/Package 준비</strong> — 인증용 샘플 3 lot 이상 생산</li>
+    <li><strong>Test Plan 작성</strong> — AEC-Q100 Rev-H 기준 시험 항목 확정</li>
+    <li><strong>Stress Test 수행</strong> — 외부 공인 시험소 또는 사내 시험소</li>
+    <li><strong>결과 분석 · 실패 시 재설계</strong> — Root cause 분석, DOE 반영</li>
+    <li><strong>Qualification Report 작성</strong> — 고객사 제출용 최종 보고서</li>
+    <li><strong>Production Part Approval (PPAP)</strong> — 완성차 OEM 승인</li>
+  </ol>
+</div>
+
+<!-- 6. PPAP -->
+<div class="section" id="sec-ppap">
+  <h2>PPAP — 양산 부품 승인 프로세스</h2>
+  <p class="section-lead">AEC-Q100 인증 이후 실제 고객사 양산 승인까지의 마지막 관문입니다.</p>
+  <p>PPAP(Production Part Approval Process)는 자동차 산업에서 공급업체가 양산 부품을 납품하기 전 완성차 OEM에 제출해야 하는 표준 승인 프로세스입니다. <strong>18개의 표준 문서</strong>를 제출해야 하며, 가장 엄격한 Level 4~5에서는 수개월이 걸립니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>PPAP Level</th><th>제출 문서 범위</th><th>일반적 사용</th></tr></thead>
+      <tbody>
+        <tr><td>Level 1</td><td>Warrant만 제출</td><td>저위험 변경</td></tr>
+        <tr><td>Level 2</td><td>Warrant + 샘플 + 제한적 데이터</td><td>경미한 변경</td></tr>
+        <tr><td><strong>Level 3 (기본)</strong></td><td>Warrant + 샘플 + 전체 데이터</td><td><strong>대부분의 신규 부품</strong></td></tr>
+        <tr><td>Level 4</td><td>고객 지정 문서</td><td>중요 부품</td></tr>
+        <tr><td>Level 5</td><td>전체 현장 검증 포함</td><td>고위험·신기술 부품</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- AD -->
+<div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7222222202"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+<!-- 7. IATF -->
+<div class="section" id="sec-iatf">
+  <h2>IATF 16949 — 품질 경영 시스템</h2>
+  <p class="section-lead">AEC-Q100이 '제품' 인증이라면, IATF 16949는 '회사 전체' 품질 시스템 인증입니다.</p>
+  <p><strong>IATF 16949</strong>(International Automotive Task Force)는 ISO 9001을 기반으로 자동차 산업에 특화한 품질경영시스템(QMS) 표준입니다. 차량용 반도체를 공급하는 회사는 기본적으로 이 인증을 보유하고 있어야 고객사와 계약이 가능합니다.</p>
+  <div class="callout callout-g">
+    <h4>✅ 실무 체크</h4>
+    <p>완성차 OEM/Tier 1이 공급업체를 선정할 때 기본 요구사항: ① <strong>IATF 16949 인증 보유</strong> (회사) ② <strong>AEC-Q100 통과</strong> (제품) ③ <strong>PPAP 제출</strong> (부품별). 이 세 가지가 차량용 반도체 진입의 "3종 세트"입니다.</p>
+  </div>
+</div>
+
+<!-- 8. Cost -->
+<div class="section" id="sec-cost">
+  <h2>인증 비용과 소요 기간</h2>
+  <p class="section-lead">처음 AEC-Q100 획득에는 최소 6개월, 수만 달러~수십만 달러의 비용이 듭니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>항목</th><th>소요 기간</th><th>대략 비용</th></tr></thead>
+      <tbody>
+        <tr><td>설계 변경 (자동차급)</td><td>2~6개월</td><td>Die 재설계 비용에 포함</td></tr>
+        <tr><td>샘플 준비 (3 lot)</td><td>2~4개월</td><td>웨이퍼 · 패키지 비용</td></tr>
+        <tr><td>외부 공인 시험</td><td>3~6개월</td><td>$20,000 ~ $100,000</td></tr>
+        <tr><td>시험 실패 시 재시험</td><td>3~6개월 추가</td><td>추가 $20,000 이상</td></tr>
+        <tr><td>PPAP 승인 (고객별)</td><td>2~6개월</td><td>문서 · 감사 비용</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout callout-r">
+    <h4>💰 한 번 인증받은 부품은 가격이 유지됩니다</h4>
+    <p>AEC-Q100 인증 비용이 크기 때문에 차량용 반도체는 <strong>7~15년 장기 공급</strong>이 전제됩니다. 이게 차량용 반도체가 소비자용보다 <strong>프리미엄 가격</strong>을 유지할 수 있는 주요 이유입니다.</p>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-box">
+  <h3>차량용 반도체 원가를 정확히 계산하고 싶다면?</h3>
+  <p>AEC-Q100 가산비를 포함한 원가 계산을 ChipCalc에서 해보세요.</p>
+  <a class="cta-btn" href="calculator.html">🧮 원가 계산기 →</a>
+  <div class="cta-links">
+    <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a href="semiconductor-packages.html">📦 패키지 가이드</a>
+  </div>
+</div>
+
+
+</div>
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
+</body>
+</html>
