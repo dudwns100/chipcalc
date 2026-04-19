@@ -24,23 +24,8 @@
 <meta name="twitter:description" content="Die 원가·OSAT·판매가 자동 계산 무료 도구">
 
 <!-- Structured Data (JSON-LD) -->
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@type":"WebApplication",
-  "name":"반도체 추정원가 계산기",
-  "alternateName":"Semiconductor Cost Estimator",
-  "description":"차량용 반도체 Die 원가, OSAT, 판매가를 자동으로 계산하는 무료 온라인 도구입니다.",
-  "url":"https://dudwns100.github.io/chipcalc/",
-  "applicationCategory":"BusinessApplication",
-  "operatingSystem":"Web Browser",
-  "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
-  "inLanguage":["ko","en"]
-}
-</script>
 <link rel="stylesheet" href="shared.css">
 <!-- Google Analytics GA4 -->
-<script src="shared-analytics.js"></script>
 <!-- Google AdSense (심사 통과 후 아래 data-ad-client를 실제 값으로 교체) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script> -->
 <style>
@@ -527,6 +512,8 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
 }
 
 </style>
+<script src="shared-analytics.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://dudwns100.github.io/chipcalc/"},{"@type":"ListItem","position":2,"name":"계산기"}]},{"@type":"SoftwareApplication","name":"반도체 원가 계산기","url":"https://dudwns100.github.io/chipcalc/calculator.html","description":"Die 원가 · OSAT · 판매가를 자동 계산하는 무료 도구.","applicationCategory":"BusinessApplication","operatingSystem":"Web Browser","inLanguage":["ko","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"ChipCalc"}}]}</script>
 </head>
 <body>
 
@@ -567,12 +554,12 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
-        <div class="auth-tip-title">🔒 최소한의 개인정보만 사용</div>
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리 — ChipCalc에 전달 안 됨</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼을 누른 계산 결과만 저장됨</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS 보호)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>광고 쿠키 관련 내용은 Privacy 페이지 참고</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
       </div>
     </div>
 
@@ -618,17 +605,16 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   <div class="ccard collapsed" id="cc-search">
     <div class="ccard-hd" onclick="toggleCard('cc-search')">
       <div class="ccard-hd-l"><div class="ccard-icon ci-purple" style="background:var(--purple-t);color:var(--purple)">🔍</div><div class="ccard-title" data-i="search-sec">반도체 제품 검색</div></div>
-      <div class="ccard-hd-r"><span class="ccard-sum" id="sum-search">로컬 빠른 추정</span><button class="cbtn" onclick="event.stopPropagation();toggleCard('cc-search')">+</button></div>
+      <div class="ccard-hd-r"><span class="ccard-sum" id="sum-search">AI 기반 정보 조회</span><button class="cbtn" onclick="event.stopPropagation();toggleCard('cc-search')">+</button></div>
     </div>
     <div class="ccard-body">
       <div class="fg">
         <div class="field">
           <div class="fl">제품명 또는 부품번호 입력</div>
           <div style="display:flex;gap:7px">
-            <input type="text" id="searchInput" placeholder="예: STM32F103, TLE9278, QFN-48, 40nm..." style="flex:1" onkeydown="if(event.key==='Enter')doSearch()">
-            <button onclick="doSearch()" style="height:34px;padding:0 14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r);font-family:var(--font);font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.15s" onmouseover="this.style.background='#5a36a8'" onmouseout="this.style.background='var(--purple)'">분석</button>
+            <input type="text" id="searchInput" placeholder="예: STM32F103, TI TPS54360, NXP LPC1768..." style="flex:1" onkeydown="if(event.key==='Enter')doSearch()">
+            <button onclick="doSearch()" style="height:34px;padding:0 14px;background:var(--purple);color:#fff;border:none;border-radius:var(--r);font-family:var(--font);font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:background 0.15s" onmouseover="this.style.background='#5a36a8'" onmouseout="this.style.background='var(--purple)'">검색</button>
           </div>
-          <div style="margin-top:6px;font-size:10.5px;color:var(--l4)">브라우저 안에서 제조사, 패키지, 공정 키워드를 빠르게 추정합니다. 자세한 사양은 참고 링크로 확인하세요.</div>
         </div>
         <div id="searchResult" style="display:none"></div>
       </div>
@@ -1547,7 +1533,7 @@ function addPinRow(){
 
 function mkT(v,h,s){return '<input type="text" value="'+esc(v)+'" class="si" oninput="'+h+'" style="'+(s||'')+'">';}
 function mkN(v,h){return '<input type="number" value="'+(v||0)+'" step="0.005" min="0" class="si si-r" oninput="'+h+'">';}
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');}
 function nN(v){var n=parseFloat(v);return isNaN(n)||n===0?null:n;}
 
 /* ──────── DROPDOWNS ──────── */
@@ -1825,133 +1811,42 @@ function fmtKrw(v,fx){return '₩'+Math.round((v||0)*fx).toLocaleString('ko-KR')
 
 /* ──────── PRODUCT SEARCH ──────── */
 var lastSearchData = null;
-var SEARCH_PREFIX_RULES = [
-  {re:/^(STM32|STM8)/, manufacturer:'STMicroelectronics', category:'Auto MCU (Body)', description:'STM32/STM8 계열 MCU로 추정됩니다.'},
-  {re:/^(TLE|BTS|BTN|SPC)/, manufacturer:'Infineon', category:'Auto SBC', description:'Infineon 차량용 전원/시스템 계열로 추정됩니다.'},
-  {re:/^(TPS|LM|SN|DRV|TMS)/, manufacturer:'Texas Instruments', category:'Auto DCDC', description:'Texas Instruments 전원 또는 아날로그 계열일 가능성이 높습니다.'},
-  {re:/^(LPC|FS|S32|MPC)/, manufacturer:'NXP Semiconductors', category:'Auto MCU (Body)', description:'NXP MCU/프로세서 계열로 추정됩니다.'},
-  {re:/^(RH|R7F|ISL)/, manufacturer:'Renesas Electronics', category:'Auto MCU (Body)', description:'Renesas MCU 또는 전원 계열일 가능성이 높습니다.'},
-  {re:/^(TC|AURIX|TDA)/, manufacturer:'Infineon', category:'Auto MCU (Powertrain)', description:'AURIX 또는 차량용 제어 계열로 추정됩니다.'},
-  {re:/^(NCV|NCP|FAN)/, manufacturer:'ON Semiconductor (onsemi)', category:'Auto PMIC', description:'onsemi 전원/자동차용 포트폴리오로 추정됩니다.'},
-  {re:/^(SJA|TJA)/, manufacturer:'NXP Semiconductors', category:'Auto CAN Transceiver', description:'차량용 네트워크/CAN 계열 부품으로 추정됩니다.'},
-  {re:/^(MCP|PIC)/, manufacturer:'Microchip Technology', category:'Auto MCU (Body)', description:'Microchip MCU 또는 인터페이스 계열로 추정됩니다.'}
-];
-var SEARCH_CATEGORY_RULES = [
-  {re:/\bMCU\b|MICROCONTROLLER/i, category:'Auto MCU (Body)'},
-  {re:/\bPMIC\b|POWER\s*MANAGEMENT/i, category:'Auto PMIC'},
-  {re:/\bDCDC\b|BUCK|BOOST/i, category:'Auto DCDC'},
-  {re:/\bCAN\b/i, category:'Auto CAN Transceiver'},
-  {re:/\bLIN\b/i, category:'Auto LIN Transceiver'},
-  {re:/EEPROM/i, category:'Auto EEPROM'},
-  {re:/NOR\s*FLASH|QSPI/i, category:'Auto NOR Flash'},
-  {re:/GATE\s*DRIVER/i, category:'Auto Gate Driver'},
-  {re:/MOSFET/i, category:'Auto Power MOSFET'},
-  {re:/CURRENT\s*SENSOR/i, category:'Auto Current Sensor'},
-  {re:/PRESSURE\s*SENSOR/i, category:'Auto Pressure Sensor'},
-  {re:/TEMP\s*SENSOR/i, category:'Auto Temp Sensor'},
-  {re:/RADAR|77GHZ/i, category:'Auto Radar (77GHz)'},
-  {re:/LIDAR/i, category:'Auto LiDAR IC'},
-  {re:/ETH(ERNET)?\s*SWITCH/i, category:'Auto Eth Switch'}
-];
 
-function buildSearchLinks(query){
-  var q = encodeURIComponent(query);
-  return [
-    {label:'Google', url:'https://www.google.com/search?q='+q+'+datasheet'},
-    {label:'Octopart', url:'https://octopart.com/search?q='+q},
-    {label:'Google News', url:'https://www.google.com/search?q='+q+'+semiconductor'}
-  ];
-}
-
-function findSearchRule(query){
-  for(var i=0;i<SEARCH_PREFIX_RULES.length;i++){
-    if(SEARCH_PREFIX_RULES[i].re.test(query)) return SEARCH_PREFIX_RULES[i];
-  }
-  return null;
-}
-
-function inferCategory(query){
-  for(var i=0;i<SEARCH_CATEGORY_RULES.length;i++){
-    if(SEARCH_CATEGORY_RULES[i].re.test(query)) return SEARCH_CATEGORY_RULES[i].category;
-  }
-  return '';
-}
-
-function inferPackage(query){
-  var m = query.match(/\b(FC-?BGA|BGA|LQFP|QFP|QFN|DFN|SOIC|SOP|SSOP|TSOP|TSSOP|SOT-?23|TO-?220|TO-?247|WLCSP)\b/i);
-  return m ? m[1].toUpperCase().replace('FCBGA','FC-BGA') : '';
-}
-
-function inferNode(query){
-  var m = query.match(/(\d+(?:\.\d+)?)\s*(nm|um|μm)\b/i);
-  if(!m) return '';
-  return m[1] + m[2].toLowerCase().replace('um','μm');
-}
-
-function inferDieSize(query){
-  var m = query.match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)\s*mm?/i);
-  return m ? (m[1] + 'x' + m[2]) : '';
-}
-
-function inferPinCount(query){
-  var m = query.match(/(\d+)\s*pin\b/i);
-  return m ? m[1] : '';
-}
-
-function inferWaferSize(query){
-  var m = query.match(/\b(6|8|12)\s*(inch|in|인치)\b/i);
-  return m ? m[1] + '인치' : '';
-}
-
-function inferProductInfoLocally(query){
-  var normalized = String(query || '').trim();
-  var upper = normalized.toUpperCase().replace(/[\s_-]+/g,'');
-  var prefixRule = findSearchRule(upper);
-  var info = {
-    found:false,
-    productName: normalized,
-    manufacturer: prefixRule ? prefixRule.manufacturer : '',
-    category: inferCategory(normalized),
-    process: inferNode(normalized),
-    packageType: inferPackage(normalized),
-    pinCount: inferPinCount(normalized),
-    dieSize: inferDieSize(normalized),
-    waferSize: inferWaferSize(normalized),
-    description: prefixRule ? prefixRule.description : '',
-    keySpecs: '',
-    note: '브라우저 내 규칙 기반 추정 결과입니다. 저장 전 datasheet 확인을 권장합니다.',
-    links: buildSearchLinks(normalized)
-  };
-
-  if(!info.category && prefixRule) info.category = prefixRule.category;
-  if(info.category === 'Auto DCDC' && /\bDRV\b/i.test(normalized)) info.category = 'Auto Motor Driver';
-  if(!info.description && info.category) info.description = info.category + ' 계열로 보입니다.';
-
-  info.found = !!(info.manufacturer || info.category || info.process || info.packageType || info.pinCount || info.dieSize || info.waferSize);
-  if(!info.found){
-    info.message = '자동 추정 가능한 제조사/패키지/공정 키워드를 찾지 못했습니다. 아래 링크로 datasheet를 먼저 확인해보세요.';
-  }
-  return info;
-}
-
-function doSearch(){
+async function doSearch(){
   var query = document.getElementById('searchInput').value.trim();
   if(!query) return;
   var box = document.getElementById('searchResult');
   box.style.display = 'block';
-  box.innerHTML = '<div class="sr-loading"><div class="sr-loading-dot"></div><div class="sr-loading-dot"></div><div class="sr-loading-dot"></div><span style="margin-left:4px">브라우저에서 키워드를 분석중...</span></div>';
-  var info = inferProductInfoLocally(query);
-  lastSearchData = info.found ? info : null;
-  renderSearchResult(info, query);
+  box.innerHTML = '<div class="sr-loading"><div class="sr-loading-dot"></div><div class="sr-loading-dot"></div><div class="sr-loading-dot"></div><span style="margin-left:4px">AI가 제품 정보를 조회중...</span></div>';
+
+  try {
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:'당신은 반도체 제품 전문가입니다. 사용자가 반도체 제품명이나 부품번호를 입력하면 해당 제품의 기본 정보를 JSON 형식으로만 반환하세요. JSON 외에 다른 텍스트는 절대 포함하지 마세요. 응답 형식: {"found":true,"productName":"정확한 제품명","manufacturer":"제조사","category":"제품군(MCU/Driver IC/DCDC/Sensor/CAN IC/PMIC/RF IC/MOSFET/Custom 중 하나)","process":"공정노드(예:180nm,90nm,28nm)","packageType":"패키지 유형","pinCount":"핀 수","dieSize":"추정 Die 크기(mm, 예:3x3 또는 unknown)","waferSize":"웨이퍼 사이즈(6/8/12인치)","description":"한줄 설명","keySpecs":"주요 스펙 2-3가지"} 제품을 찾을 수 없거나 반도체가 아닌 경우: {"found":false,"message":"이유"}',
+        messages:[{role:'user',content:'이 반도체 제품의 정보를 알려주세요: '+query}]
+      })
+    });
+
+    if(!resp.ok) throw new Error('API 오류: '+resp.status);
+    var data = await resp.json();
+    var text = data.content.map(function(c){return c.text||'';}).join('');
+    var clean = text.replace(/```json|```/g,'').trim();
+    var info = JSON.parse(clean);
+    lastSearchData = info;
+    renderSearchResult(info);
+  } catch(e) {
+    box.innerHTML = '<div class="sr-error">⚠ 검색 중 오류가 발생했습니다: '+e.message+'</div>';
+  }
 }
 
-function renderSearchResult(info, query){
+function renderSearchResult(info){
   var box = document.getElementById('searchResult');
   if(!info.found){
-    var fallbackLinks = (info.links || buildSearchLinks(query || '')).map(function(link){
-      return '<a href="'+link.url+'" target="_blank" rel="noopener" style="color:var(--purple);font-weight:600;text-decoration:none">'+esc(link.label)+' ↗</a>';
-    }).join('<span style="color:var(--l4)"> · </span>');
-    box.innerHTML = '<div class="sr-error">ℹ '+esc(info.message||'제품 정보를 찾을 수 없습니다.')+'<div style="margin-top:8px">'+fallbackLinks+'</div></div>';
+    box.innerHTML = '<div class="sr-error">ℹ '+esc(info.message||'제품 정보를 찾을 수 없습니다.')+'</div>';
     return;
   }
   var rows = [
@@ -1964,7 +1859,6 @@ function renderSearchResult(info, query){
     {k:'웨이퍼',     v:info.waferSize},
     {k:'주요 스펙',  v:info.keySpecs},
     {k:'설명',       v:info.description},
-    {k:'메모',       v:info.note},
   ].filter(function(r){return r.v&&r.v!=='unknown'&&r.v!=='N/A';});
 
   var rowsHtml = rows.map(function(r){
@@ -1979,17 +1873,11 @@ function renderSearchResult(info, query){
   if(info.packageType) applyBtns += '<button class="sr-apply-btn" onclick="applySearchVal(\'package\')">패키지 적용</button>';
   if(applyBtns) applyBtns = '<div style="font-size:10px;color:var(--purple);font-weight:600;margin-bottom:6px;letter-spacing:0.04em;text-transform:uppercase">파라미터에 바로 적용</div>'+applyBtns;
 
-  var linksHtml = (info.links || []).map(function(link){
-    return '<a class="sr-apply-btn" href="'+link.url+'" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">'+esc(link.label)+' ↗</a>';
-  }).join('');
-  if(linksHtml) linksHtml = '<div class="sr-apply-row" style="padding-top:8px;margin-top:8px"><div style="font-size:10px;color:var(--l4);width:100%">참고 링크</div>'+linksHtml+'</div>';
-
   box.innerHTML =
     '<div class="sr-box">' +
-      '<div class="sr-header"><div class="sr-product-name">'+esc(info.productName||'검색 결과')+'</div><div class="sr-category">'+esc(info.category||'로컬 추정')+'</div></div>' +
+      '<div class="sr-header"><div class="sr-product-name">'+esc(info.productName||'검색 결과')+'</div><div class="sr-category">'+esc(info.category||'')+'</div></div>' +
       '<div class="sr-body">' + rowsHtml +
         (applyBtns ? '<div class="sr-apply-row">'+applyBtns+'</div>' : '') +
-        linksHtml +
       '</div>' +
     '</div>';
 }
@@ -2276,10 +2164,11 @@ try{
 
 <script>
 /* ══════════════════════════════════════
-   AUTH STATE
-   shared-auth-supabase.js loads later and populates these globals.
+   SUPABASE INIT
 ══════════════════════════════════════ */
-var supa = null;
+var SUPA_URL = 'https://azouxvpthllgczbihppi.supabase.co';
+var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6b3V4dnB0aGxsZ2N6YmlocHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzIzMTcsImV4cCI6MjA5MTY0ODMxN30.NCxy8WXBIyJ0INZkAzlsZMLZurfhCrIF4n_V1aUZQO0';
+var supa = supabase.createClient(SUPA_URL, SUPA_KEY);
 var currentUser = null;
 var allHistoryData = []; // 전체 기록 캐시
 
@@ -2349,7 +2238,42 @@ function buildMakerCategoryDD(){
   });
 }
 
-/* 인증 UI 및 로그인/로그아웃은 shared-auth-supabase.js에서 공통 처리 */
+/* ── 로그인 상태 감지 ── */
+supa.auth.onAuthStateChange(function(event, session){
+  currentUser = session ? session.user : null;
+  updateAuthUI();
+});
+
+function updateAuthUI(){
+  var authBtn = document.getElementById('authBtn');
+  var saveBtn = document.getElementById('saveBtn');
+  var histBtn = document.getElementById('histBtn');
+  if(currentUser){
+    var name = currentUser.user_metadata && currentUser.user_metadata.name
+      ? currentUser.user_metadata.name.split(' ')[0] : '사용자';
+    authBtn.textContent = '👤 ' + name + ' · 로그아웃';
+    authBtn.classList.add('logged');
+    saveBtn.style.display = 'flex';
+    histBtn.style.display = 'flex';
+  } else {
+    authBtn.textContent = '🔐 Google 로그인';
+    authBtn.classList.remove('logged');
+    saveBtn.style.display = 'none';
+    histBtn.style.display = 'none';
+  }
+}
+
+/* ── 로그인 / 로그아웃 ── */
+async function handleAuth(){
+  if(currentUser){
+    await supa.auth.signOut();
+  } else {
+    await supa.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: 'https://dudwns100.github.io/chipcalc/' }
+    });
+  }
+}
 
 /* ══════════════════════════════════════
    저장 모달
@@ -2394,7 +2318,6 @@ async function doSave(){
   if(!maker)      { alert('메이커를 선택해주세요.'); return; }
   if(!category)   { alert('제품군을 선택해주세요.'); return; }
   if(!currentUser){ alert('로그인이 필요합니다.'); return; }
-  if(!supa){ alert('인증 모듈이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.'); return; }
 
   var wp   = parseFloat(document.getElementById('waferPrice').value)||0;
   var dw   = parseFloat(document.getElementById('dieW').value)||0;
@@ -2448,7 +2371,6 @@ async function doSave(){
 ══════════════════════════════════════ */
 async function openHistory(){
   if(!currentUser){ alert('먼저 Google 로그인을 해주세요.'); return; }
-  if(!supa){ alert('인증 모듈이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.'); return; }
   document.getElementById('histPanel').classList.add('open');
   document.getElementById('histOverlay').classList.add('open');
   document.getElementById('histBody').innerHTML='<div class="hist-empty">불러오는 중...</div>';
@@ -2464,14 +2386,9 @@ function closeHistory(){
 }
 
 async function loadHistory(){
-  if(!currentUser || !currentUser.id){
-    document.getElementById('histBody').innerHTML='<div class="hist-empty">로그인이 필요합니다.</div>';
-    return;
-  }
   var result = await supa
     .from('saved_results')
-    .select('id, user_id, product_name, maker, category, process_node, wafer_size, package_type, wafer_price, die_w, die_h, wafer_yield, asm_cost, test_cost, fx_rate, cogs, asp_usd, asp_krw, memo, created_at')
-    .eq('user_id', currentUser.id)
+    .select('*')
     .order('created_at', {ascending:false})
     .limit(200);
 
@@ -2521,7 +2438,7 @@ function filterHistory(){
       ? '<span style="background:var(--blue-t);color:var(--blue);border:1px solid var(--blue-s);border-radius:4px;padding:1px 6px;font-size:9.5px;font-weight:600">'+esc2(r.maker)+'</span>' : '';
     var catBadge = r.category
       ? '<span style="background:var(--orange-t);color:var(--orange);border:1px solid var(--orange-s);border-radius:4px;padding:1px 6px;font-size:9.5px;font-weight:600">'+esc2(r.category)+'</span>' : '';
-    var rJson = encodeURIComponent(JSON.stringify(r));
+    var rJson = JSON.stringify(r).replace(/\\/g,'\\\\').replace(/"/g,'&quot;');
     return '<div class="hist-item">'+
       '<div class="hi-name">'+esc2(r.product_name)+'</div>'+
       '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">'+makerBadge+catBadge+'</div>'+
@@ -2536,7 +2453,7 @@ function filterHistory(){
       '</div>'+
       (r.memo?'<div style="font-size:11px;color:var(--l3);margin-top:5px;padding-top:5px;border-top:1px solid var(--border)">📝 '+esc2(r.memo)+'</div>':'')+
       '<div class="hi-actions">'+
-        '<button class="hi-load" onclick="loadFromHistory(decodeURIComponent(\''+rJson+'\'))">⬇ 계산기에 불러오기</button>'+
+        '<button class="hi-load" onclick=\'loadFromHistory('+rJson+')\'>⬇ 계산기에 불러오기</button>'+
         '<button class="hi-del" onclick="deleteHistory(\''+r.id+'\')">삭제</button>'+
       '</div>'+
     '</div>';
@@ -2553,13 +2470,13 @@ function clearHistFilter(){
 
 function loadFromHistory(r){
   if(typeof r==='string') r=JSON.parse(r);
-  if(r.wafer_price != null) document.getElementById('waferPrice').value=r.wafer_price;
-  if(r.die_w != null)       document.getElementById('dieW').value=r.die_w;
-  if(r.die_h != null)       document.getElementById('dieH').value=r.die_h;
-  if(r.wafer_yield != null) document.getElementById('waferYield').value=r.wafer_yield;
-  if(r.asm_cost != null)    document.getElementById('asmCost').value=r.asm_cost;
-  if(r.test_cost != null)   document.getElementById('testCost').value=r.test_cost;
-  if(r.fx_rate != null)     document.getElementById('fxRate').value=r.fx_rate;
+  if(r.wafer_price) document.getElementById('waferPrice').value=r.wafer_price;
+  if(r.die_w)       document.getElementById('dieW').value=r.die_w;
+  if(r.die_h)       document.getElementById('dieH').value=r.die_h;
+  if(r.wafer_yield) document.getElementById('waferYield').value=r.wafer_yield;
+  if(r.asm_cost)    document.getElementById('asmCost').value=r.asm_cost;
+  if(r.test_cost)   document.getElementById('testCost').value=r.test_cost;
+  if(r.fx_rate)     document.getElementById('fxRate').value=r.fx_rate;
   if(r.process_node){
     var sel=document.getElementById('processNode');
     for(var i=0;i<sel.options.length;i++){
@@ -2570,13 +2487,6 @@ function loadFromHistory(r){
     var ws=r.wafer_size.replace('인치','');
     if(['6','8','12'].includes(ws)) document.getElementById('waferSize').value=ws;
   }
-  if(r.package_type){
-    var pkgSel=document.getElementById('pkgSelect');
-    for(var j=0;j<pkgSel.options.length;j++){
-      if(pkgSel.options[j].text===r.package_type){pkgSel.selectedIndex=j;break;}
-    }
-    onPkgChange();
-  }
   onDieChange(); onSelChange(); calc();
   closeHistory();
   showToast('✅ "'+r.product_name+'" 불러왔습니다!');
@@ -2584,22 +2494,7 @@ function loadFromHistory(r){
 
 async function deleteHistory(id){
   if(!confirm('이 기록을 삭제할까요?')) return;
-  if(!currentUser || !currentUser.id){ alert('로그인이 필요합니다.'); return; }
-  if(!supa){ alert('인증 모듈이 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.'); return; }
-  var result = await supa
-    .from('saved_results')
-    .delete()
-    .eq('id',id)
-    .eq('user_id', currentUser.id)
-    .select('id');
-  if(result.error){
-    alert('삭제 실패: ' + result.error.message);
-    return;
-  }
-  if(!result.data || !result.data.length){
-    alert('삭제할 기록을 찾지 못했습니다. 새로고침 후 다시 시도해주세요.');
-    return;
-  }
+  await supa.from('saved_results').delete().eq('id',id);
   allHistoryData = allHistoryData.filter(function(r){ return r.id!==id; });
   filterHistory();
   showToast('🗑 삭제됐습니다.');

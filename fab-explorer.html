@@ -18,7 +18,6 @@
 <link rel="stylesheet" href="shared.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="shared-analytics.js"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
 
 <style>
@@ -189,6 +188,25 @@ body.dark .chip{background:var(--surface);color:var(--l3)}
 body.dark .chip.on{background:var(--blue);color:#fff}
 body.dark .search-input{background:var(--s2);color:var(--l1)}
 
+/* ─── Leaflet z-index 조정 (topbar/드롭다운이 맨 위로 오도록) ─── */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer { z-index: 1 !important; }
+.leaflet-overlay-pane { z-index: 2 !important; }
+.leaflet-marker-pane { z-index: 3 !important; }
+.leaflet-tooltip-pane { z-index: 4 !important; }
+.leaflet-popup-pane { z-index: 5 !important; }
+.leaflet-top,
+.leaflet-bottom { z-index: 10 !important; }
+.leaflet-control { z-index: 10 !important; }
+
 /* ─── 반응형 ─── */
 @media(max-width:900px){
   .fab-main{grid-template-columns:1fr;padding:14px}
@@ -227,6 +245,8 @@ body.dark .search-input{background:var(--s2);color:var(--l1)}
   .fab-stat-lbl{font-size:9px}
 }
 </style>
+<script src="shared-analytics.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://dudwns100.github.io/chipcalc/"},{"@type":"ListItem","position":2,"name":"Fab Explorer"}]},{"@type":"SoftwareApplication","name":"Global Fab Explorer","url":"https://dudwns100.github.io/chipcalc/fab-explorer.html","description":"전 세계 76개 반도체 팹을 필터링하고 탐색하는 인터랙티브 지도.","applicationCategory":"BusinessApplication","operatingSystem":"Web Browser","inLanguage":["ko","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"ChipCalc"}}]}</script>
 </head>
 <body>
 
@@ -262,10 +282,10 @@ body.dark .search-input{background:var(--s2);color:var(--l1)}
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
-        <div class="auth-tip-title">🔒 최소한의 개인정보만 사용</div>
+        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>광고 쿠키 관련 내용은 Privacy 페이지 참고</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
       </div>
     </div>
     <div class="mode-toggle">
