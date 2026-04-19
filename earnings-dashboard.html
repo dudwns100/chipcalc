@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>차량용 반도체 실적 대시보드 — 주요 8개사 분기 실적 | ChipCalc</title>
+<meta name="description" content="NXP · Infineon · STMicro · Renesas · TI · onsemi · Microchip · ADI 등 차량용 반도체 주요 8개사의 최근 분기 실적과 연간 매출을 한눈에 비교할 수 있는 대시보드.">
+<meta name="keywords" content="반도체 실적, 차량용 반도체 실적, NXP 매출, Infineon 실적, STMicro 실적, Texas Instruments 실적, 차량용 반도체 분기 매출, semiconductor earnings">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="차량용 반도체 실적 대시보드 | ChipCalc">
+<meta property="og:description" content="주요 8개 차량용 반도체 기업의 최근 분기 실적을 한눈에 비교.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/earnings-dashboard.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/earnings-dashboard.html">
+
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://dudwns100.github.io/chipcalc/"},{"@type":"ListItem","position":2,"name":"리소스"},{"@type":"ListItem","position":3,"name":"실적 대시보드"}]},{"@type":"Article","headline":"차량용 반도체 실적 대시보드","description":"주요 8개 차량용 반도체 기업의 최근 분기 실적을 한눈에 비교.","url":"https://dudwns100.github.io/chipcalc/earnings-dashboard.html","inLanguage":"ko","mainEntityOfPage":{"@type":"WebPage","@id":"https://dudwns100.github.io/chipcalc/earnings-dashboard.html"},"publisher":{"@type":"Organization","name":"ChipCalc","url":"https://dudwns100.github.io/chipcalc/"}}]}</script>
+
+<link rel="stylesheet" href="shared.css">
+<script src="shared-analytics.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* HERO — 네이비 (재무 느낌) */
+.hero{padding:40px 28px 34px;color:#fff;position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(135deg,#0a1628 0%,#0d2d5c 40%,#1e40af 75%,#3b82f6 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(100,180,255,0.18) 0%,transparent 55%);pointer-events:none}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.9);margin-bottom:14px}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:10px;color:#fff}
+.hero-desc{font-size:14px;color:rgba(255,255,255,0.80);max-width:580px;margin:0 auto 14px;line-height:1.65}
+.hero-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.hero-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);border-radius:100px;padding:4px 12px;font-size:11.5px;color:rgba(255,255,255,0.88)}
+
+.page-wrap{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
+
+/* 요약 통계 그리드 */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.sum-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.sum-card.c-blue::before{background:linear-gradient(90deg,#3b82f6,#1e40af)}
+.sum-card.c-green::before{background:linear-gradient(90deg,#10b981,#059669)}
+.sum-card.c-orange::before{background:linear-gradient(90deg,#f59e0b,#d97706)}
+.sum-card.c-red::before{background:linear-gradient(90deg,#ef4444,#b91c1c)}
+.sum-lbl{font-size:10.5px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:6px}
+.sum-val{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--l1);line-height:1.1;letter-spacing:-0.02em}
+.sum-sub{font-size:10.5px;color:var(--l3);margin-top:3px}
+
+/* 정렬 컨트롤 */
+.ctrl-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.ctrl-title{font-size:13px;font-weight:700;color:var(--l1)}
+.ctrl-title .cnt{color:var(--blue);font-family:var(--mono);margin-left:6px}
+.sort-chips{display:flex;gap:5px;flex-wrap:wrap}
+.sort-chip{height:28px;padding:0 13px;border-radius:100px;border:1px solid var(--border2);background:var(--surface);font-family:var(--font);font-size:11.5px;font-weight:600;color:var(--l3);cursor:pointer;transition:all 0.15s}
+.sort-chip:hover{border-color:var(--blue);color:var(--blue)}
+.sort-chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* 기업 카드 그리드 */
+.co-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:32px}
+.co-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;box-shadow:var(--sh);transition:all 0.2s}
+.co-card:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+
+.co-hd{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.co-logo{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-0.02em}
+.co-name{flex:1;min-width:0}
+.co-name-txt{font-size:14px;font-weight:800;color:var(--l1);line-height:1.2}
+.co-ticker{font-size:10.5px;color:var(--l3);font-family:var(--mono);margin-top:2px}
+.co-headline{text-align:right;flex-shrink:0}
+.co-rev{font-family:var(--mono);font-size:20px;font-weight:800;color:var(--l1);line-height:1;letter-spacing:-0.02em}
+.co-rev-lbl{font-size:9.5px;color:var(--l4);font-family:var(--mono);margin-top:2px;letter-spacing:0.04em;text-transform:uppercase}
+
+/* 성장률 뱃지 */
+.growth-row{display:flex;gap:10px;margin-bottom:14px}
+.grow-item{flex:1;padding:9px 11px;border-radius:8px;background:var(--s3)}
+.grow-lbl{font-size:9.5px;color:var(--l4);font-weight:700;letter-spacing:0.07em;text-transform:uppercase}
+.grow-val{font-family:var(--mono);font-size:15px;font-weight:800;margin-top:2px;letter-spacing:-0.01em}
+.grow-up{color:#059669}
+.grow-dn{color:#dc2626}
+.grow-flat{color:var(--l3)}
+
+/* Sparkline */
+.spark-box{padding:10px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:12px}
+.spark-hd{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--l4);margin-bottom:6px;font-family:var(--mono);font-weight:600;letter-spacing:0.03em}
+.spark-canvas{width:100%;height:42px;display:block}
+
+/* 세그먼트/자동차 비중 */
+.auto-ratio{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:11.5px}
+.auto-ratio-label{color:var(--l3);min-width:76px}
+.auto-ratio-bar{flex:1;height:8px;background:var(--s3);border-radius:10px;overflow:hidden;position:relative}
+.auto-ratio-fill{height:100%;background:linear-gradient(90deg,#3b82f6,#06b6d4);border-radius:10px;transition:width 0.4s ease}
+.auto-ratio-val{font-family:var(--mono);font-weight:700;color:var(--l1);min-width:42px;text-align:right}
+
+/* 추가 메타 */
+.co-meta{display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11.5px}
+.meta-pair{color:var(--l3)}
+.meta-pair strong{color:var(--l1);font-weight:700;font-family:var(--mono)}
+.co-ir-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:100px;background:var(--blue-t);color:var(--blue);font-size:10.5px;font-weight:700;text-decoration:none;border:1px solid var(--blue-s);transition:all 0.15s;white-space:nowrap}
+.co-ir-btn:hover{background:var(--blue);color:#fff;text-decoration:none}
+
+/* 섹션 타이틀 */
+.sec-title{font-size:18px;font-weight:800;color:var(--l1);margin:32px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);letter-spacing:-0.01em}
+.sec-desc{font-size:12.5px;color:var(--l3);margin-bottom:14px;line-height:1.6}
+
+/* 세그먼트 테이블 */
+.dtbl{overflow-x:auto;border-radius:12px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,0.05);margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--surface)}
+thead th{background:#f5f5f8;padding:10px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--l2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f9f9fb}
+tbody td:first-child{font-weight:700;color:var(--l1)}
+.num{font-family:var(--mono);font-weight:700;color:var(--l1)}
+
+/* IR 일정 */
+.upcoming{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.up-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px}
+.up-date{width:44px;height:44px;border-radius:8px;background:var(--blue-t);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.up-month{font-size:8.5px;font-weight:700;color:var(--blue);letter-spacing:0.05em;text-transform:uppercase}
+.up-day{font-size:16px;font-weight:800;color:var(--blue);line-height:1;font-family:var(--mono)}
+.up-info{flex:1;min-width:0}
+.up-co{font-size:12.5px;font-weight:700;color:var(--l1)}
+.up-ev{font-size:10.5px;color:var(--l3);margin-top:1px}
+
+/* 면책 */
+.disclaimer{background:#fff8f0;border:1px solid #ffd4a8;border-left:4px solid #f59e0b;border-radius:10px;padding:16px 20px;margin-top:24px}
+.disclaimer h4{font-size:12.5px;font-weight:700;color:#7a3a00;margin:0 0 6px}
+.disclaimer p{font-size:12px;color:#7a3a00;line-height:1.65;margin:0}
+.disclaimer p + p{margin-top:6px}
+
+.ad-wrap{margin:24px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 다크모드 */
+body.dark .sum-card,body.dark .co-card,body.dark .up-item{background:var(--surface)}
+body.dark table{background:var(--surface)}
+body.dark thead th{background:var(--s2);color:var(--l4)}
+body.dark tbody tr:hover td{background:var(--s3)}
+body.dark .disclaimer{background:rgba(245,158,11,0.10);border-color:rgba(245,158,11,0.22);border-left-color:#f59e0b}
+body.dark .disclaimer h4,body.dark .disclaimer p{color:#fbbf24}
+
+/* 모바일 */
+@media(max-width:1000px){
+  .summary-grid{grid-template-columns:1fr 1fr}
+  .co-grid{grid-template-columns:1fr}
+  .upcoming{grid-template-columns:1fr 1fr}
+}
+@media(max-width:768px){
+  .hero{padding:30px 18px 26px}
+  .hero h1{font-size:22px}
+  .hero-desc{font-size:13px}
+  .page-wrap{padding:18px 14px 60px}
+  .sum-val{font-size:18px}
+  .co-card{padding:14px 15px}
+  .co-rev{font-size:17px}
+  .growth-row{gap:8px}
+  .grow-val{font-size:13px}
+  .upcoming{grid-template-columns:1fr}
+  .ctrl-bar{flex-direction:column;align-items:stretch}
+  .sort-chips{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch}
+  .sort-chips::-webkit-scrollbar{display:none}
+}
+@media(max-width:480px){
+  .summary-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .sum-card{padding:12px 14px}
+  .sum-val{font-size:16px}
+  .dtbl{margin-left:-14px;margin-right:-14px;border-radius:0}
+  thead th,tbody td{padding:8px 10px;font-size:11.5px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· 실적 대시보드</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn active">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="sic-calculator.html">🔋 SiC 계산기</a>
+        <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html">📦 패키지 가이드</a>
+        <a href="guide-osat.html">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+        <a href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+        <a href="earnings-dashboard.html" class="active">📊 실적 대시보드</a>
+        <a href="glossary.html">📖 용어 사전</a>
+        <a href="news-archive.html">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link" href="sic-calculator.html">🔋 SiC 계산기</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link" href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link" href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link" href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+    <a class="nav-link active" href="earnings-dashboard.html">📊 실적 대시보드</a>
+    <a class="nav-link" href="glossary.html">📖 용어 사전</a>
+    <a class="nav-link" href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">📊 Earnings Snapshot · 2025 Q4 기준</div>
+    <h1>차량용 반도체 실적 대시보드</h1>
+    <p class="hero-desc">주요 8개사의 최근 4분기 매출 추이와 자동차 비중을 한눈에.<br>업계 사이클 이해에 필요한 핵심 수치를 정리했습니다.</p>
+    <div class="hero-chips">
+      <span class="hero-chip">🏢 8개 기업</span>
+      <span class="hero-chip">📅 FY2024~2025</span>
+      <span class="hero-chip">💱 USD 기준</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- 요약 통계 -->
+  <div class="summary-grid">
+    <div class="sum-card c-blue">
+      <div class="sum-lbl">최근 분기 합계</div>
+      <div class="sum-val" id="summ-total">—</div>
+      <div class="sum-sub">8개사 합산 매출 (최근 분기)</div>
+    </div>
+    <div class="sum-card c-green">
+      <div class="sum-lbl">평균 YoY 성장률</div>
+      <div class="sum-val" id="summ-yoy">—</div>
+      <div class="sum-sub">단순 산술 평균</div>
+    </div>
+    <div class="sum-card c-orange">
+      <div class="sum-lbl">최고 성장 기업</div>
+      <div class="sum-val" id="summ-best">—</div>
+      <div class="sum-sub" id="summ-best-val">—</div>
+    </div>
+    <div class="sum-card c-red">
+      <div class="sum-lbl">감소폭 최대</div>
+      <div class="sum-val" id="summ-worst">—</div>
+      <div class="sum-sub" id="summ-worst-val">—</div>
+    </div>
+  </div>
+
+  <!-- 정렬 컨트롤 -->
+  <div class="ctrl-bar">
+    <div class="ctrl-title">기업별 실적<span class="cnt">8개사</span></div>
+    <div class="sort-chips" id="sortChips">
+      <button class="sort-chip on" data-sort="revenue" onclick="setSort('revenue',this)">💰 매출순</button>
+      <button class="sort-chip" data-sort="yoy" onclick="setSort('yoy',this)">📈 YoY 성장순</button>
+      <button class="sort-chip" data-sort="auto" onclick="setSort('auto',this)">🚗 자동차 비중순</button>
+      <button class="sort-chip" data-sort="name" onclick="setSort('name',this)">🔤 이름순</button>
+    </div>
+  </div>
+
+  <!-- 기업 카드 그리드 -->
+  <div class="co-grid" id="coGrid"></div>
+
+  <!-- AD -->
+  <div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7777777701"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+  <!-- 세그먼트 분석 -->
+  <h2 class="sec-title">🎯 자동차 세그먼트 매출 비교</h2>
+  <p class="sec-desc">차량용 반도체 시장 내 주요 기업의 <strong>Automotive 세그먼트 매출</strong>을 비교합니다. 전체 매출에서 차량용 비중이 50% 이상인 기업이 실제 "차량용 반도체 업체"로 분류됩니다.</p>
+  <div class="dtbl">
+    <table>
+      <thead><tr><th>기업</th><th>최근 분기 자동차 매출</th><th>Auto YoY</th><th>Auto 비중</th><th>주요 제품</th></tr></thead>
+      <tbody id="autoSegTable"></tbody>
+    </table>
+  </div>
+
+  <!-- 다가올 IR -->
+  <h2 class="sec-title">📅 다가올 분기 실적 발표</h2>
+  <p class="sec-desc">2026년 1분기 실적은 보통 4월 말 ~ 5월 중에 발표됩니다.</p>
+  <div class="upcoming">
+    <div class="up-item"><div class="up-date"><div class="up-month">APR</div><div class="up-day">22</div></div><div class="up-info"><div class="up-co">Texas Instruments</div><div class="up-ev">Q1 2026 실적 발표</div></div></div>
+    <div class="up-item"><div class="up-date"><div class="up-month">APR</div><div class="up-day">28</div></div><div class="up-info"><div class="up-co">STMicroelectronics</div><div class="up-ev">Q1 2026 실적 발표</div></div></div>
+    <div class="up-item"><div class="up-date"><div class="up-month">APR</div><div class="up-day">30</div></div><div class="up-info"><div class="up-co">NXP Semiconductors</div><div class="up-ev">Q1 2026 실적 발표</div></div></div>
+    <div class="up-item"><div class="up-date"><div class="up-month">MAY</div><div class="up-day">5</div></div><div class="up-info"><div class="up-co">onsemi</div><div class="up-ev">Q1 2026 실적 발표</div></div></div>
+    <div class="up-item"><div class="up-date"><div class="up-month">MAY</div><div class="up-day">6</div></div><div class="up-info"><div class="up-co">Microchip Technology</div><div class="up-ev">Q4 FY2026 실적 발표</div></div></div>
+    <div class="up-item"><div class="up-date"><div class="up-month">MAY</div><div class="up-day">21</div></div><div class="up-info"><div class="up-co">Analog Devices</div><div class="up-ev">Q2 FY2026 실적 발표</div></div></div>
+  </div>
+
+  <!-- 면책 -->
+  <div class="disclaimer">
+    <h4>⚠ 데이터 출처 및 면책 조항</h4>
+    <p>본 페이지의 <strong>NXP · Infineon · Texas Instruments</strong> 데이터는 각 회사의 공식 Q4 2025 실적 보고서 및 IR 자료를 기반으로 합니다. <strong>STMicroelectronics · Renesas · onsemi · Microchip · Analog Devices</strong>의 분기별 수치 중 일부는 공개된 연간 실적과 분기 가이던스·애널리스트 컨센서스를 바탕으로 한 <strong>추정치</strong>이며, 실제 수치와 차이가 있을 수 있습니다.</p>
+    <p>정확한 투자 판단이 필요한 경우 각 기업의 <strong>공식 IR 페이지</strong>와 <strong>SEC/BaFin 공시 자료</strong>를 참고하시기 바랍니다. 본 대시보드는 교육·참고 목적의 정보 제공일 뿐 투자 권유가 아닙니다.</p>
+  </div>
+
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════
+   실적 데이터 (USD 기준, $M = 백만달러)
+   - NXP/TI/Infineon: 공식 IR 데이터
+   - 기타: 공개 연간 실적 및 분기 가이던스 기반 추정치
+═══════════════════════════════════════════════ */
+
+var COMPANIES = [
+  {
+    ticker: 'NXPI',
+    name: 'NXP Semiconductors',
+    country: '네덜란드',
+    logoColor: 'linear-gradient(145deg,#f5a623,#c57100)',
+    logoText: 'NXP',
+    // 4분기 매출 추이 ($M)
+    revenueQ: [2835, 2930, 3250, 3340], // Q1-Q4 2025
+    revenueTTM: 12355,
+    fy2024: 12614,
+    fy2025: 12272,
+    yoy: 7.4,   // Q4 2025 YoY
+    qoq: 2.8,
+    // 자동차 세그먼트
+    autoRevenue: 1876,
+    autoYoY: 4.8,
+    autoShare: 56,
+    products: 'MCU, 레이더 SoC, Gateway, PMIC',
+    irUrl: 'https://investors.nxp.com/financial-information/quarterly-results',
+    source: 'Q4 2025 공식 발표 (2026-02-02)',
+    real: true,
+  },
+  {
+    ticker: 'IFX',
+    name: 'Infineon Technologies',
+    country: '독일',
+    logoColor: 'linear-gradient(145deg,#0071e3,#003a80)',
+    logoText: 'IFX',
+    // €→USD 환산 (1.15 기준)
+    revenueQ: [3862, 4204, 4261, 4534],  // Q2-Q4 FY25 + Q1 FY26 (USD)
+    revenueTTM: 16861,
+    fy2024: 17232,
+    fy2025: 16861,  // FY25 €14.66B
+    yoy: 7.0,
+    qoq: -7.1,
+    autoRevenue: 2094,  // €1,821M 환산
+    autoYoY: -5.0,
+    autoShare: 46,
+    products: 'IGBT/SiC, 차량용 MCU (AURIX), 파워 IC',
+    irUrl: 'https://www.infineon.com/about/investor/reports-presentations/financial-results',
+    source: 'Q1 FY26 공식 발표 (2026-02-03)',
+    real: true,
+  },
+  {
+    ticker: 'TXN',
+    name: 'Texas Instruments',
+    country: '미국',
+    logoColor: 'linear-gradient(145deg,#cc0000,#7a0000)',
+    logoText: 'TI',
+    revenueQ: [3610, 4450, 4740, 4420],  // Q1-Q4 2025
+    revenueTTM: 17220,
+    fy2024: 15641,
+    fy2025: 17220,
+    yoy: 10.0,
+    qoq: -6.8,
+    autoRevenue: 1460,  // ~33% of $4.42B
+    autoYoY: 7.5,
+    autoShare: 33,
+    products: '아날로그, 임베디드 (자동차·산업용 중심)',
+    irUrl: 'https://investor.ti.com/financial-information/quarterly-results',
+    source: 'Q4 2025 공식 발표 (2026-01-27)',
+    real: true,
+  },
+  {
+    ticker: 'STM',
+    name: 'STMicroelectronics',
+    country: '스위스·이탈리아',
+    logoColor: 'linear-gradient(145deg,#0366a6,#013a5e)',
+    logoText: 'STM',
+    revenueQ: [2517, 2770, 3190, 3120],  // FY2025 분기 (추정)
+    revenueTTM: 11597,
+    fy2024: 13269,
+    fy2025: 11597,
+    yoy: -3.5,
+    qoq: -2.2,
+    autoRevenue: 1325,
+    autoYoY: -8.0,
+    autoShare: 42,
+    products: 'SiC MOSFET, 차량용 MCU, MEMS (NXP 인수)',
+    irUrl: 'https://investors.st.com/financial-information/quarterly-results',
+    source: '공개 가이던스 기반 추정',
+    real: false,
+  },
+  {
+    ticker: '6723',
+    name: 'Renesas Electronics',
+    country: '일본',
+    logoColor: 'linear-gradient(145deg,#e4362a,#8a1a12)',
+    logoText: 'RNS',
+    revenueQ: [2130, 2250, 2380, 2420],  // 추정 (¥→USD, 2025)
+    revenueTTM: 9180,
+    fy2024: 9150,
+    fy2025: 9180,
+    yoy: 2.5,
+    qoq: 1.7,
+    autoRevenue: 1210,
+    autoYoY: 3.0,
+    autoShare: 50,
+    products: '차량용 MCU (RH850/RL78), 아날로그, SoC',
+    irUrl: 'https://www.renesas.com/en/about/investor-relations/financial-results',
+    source: '공개 가이던스 기반 추정',
+    real: false,
+  },
+  {
+    ticker: 'ON',
+    name: 'onsemi',
+    country: '미국',
+    logoColor: 'linear-gradient(145deg,#f25a00,#a33c00)',
+    logoText: 'ON',
+    revenueQ: [1450, 1540, 1620, 1700],  // FY2025 추정
+    revenueTTM: 6310,
+    fy2024: 7082,
+    fy2025: 6310,
+    yoy: -2.5,
+    qoq: 4.9,
+    autoRevenue: 884,
+    autoYoY: -6.0,
+    autoShare: 52,
+    products: 'SiC MOSFET, 이미지 센서, 파워 IC',
+    irUrl: 'https://investor.onsemi.com/financials',
+    source: '공개 가이던스 기반 추정',
+    real: false,
+  },
+  {
+    ticker: 'MCHP',
+    name: 'Microchip Technology',
+    country: '미국',
+    logoColor: 'linear-gradient(145deg,#cc5500,#7a3200)',
+    logoText: 'MCHP',
+    revenueQ: [970, 1080, 1130, 1150],  // FY2026 분기 (추정)
+    revenueTTM: 4330,
+    fy2024: 4400,   // FY2025
+    fy2025: 4330,   // FY2026 진행 중
+    yoy: 5.0,
+    qoq: 1.8,
+    autoRevenue: 230,
+    autoYoY: 3.0,
+    autoShare: 20,
+    products: '차량용 MCU (8/16/32bit), CAN/LIN 트랜시버',
+    irUrl: 'https://ir.microchip.com/financial-information/quarterly-results',
+    source: '공개 가이던스 기반 추정',
+    real: false,
+  },
+  {
+    ticker: 'ADI',
+    name: 'Analog Devices',
+    country: '미국',
+    logoColor: 'linear-gradient(145deg,#0055a4,#003872)',
+    logoText: 'ADI',
+    revenueQ: [2280, 2430, 2560, 2700],  // FY2026 분기 (추정)
+    revenueTTM: 9970,
+    fy2024: 9427,
+    fy2025: 9970,
+    yoy: 17.0,
+    qoq: 5.5,
+    autoRevenue: 810,
+    autoYoY: 15.0,
+    autoShare: 30,
+    products: '아날로그/믹스드 시그널, BMS IC, A2B',
+    irUrl: 'https://investor.analog.com/financial-information/quarterly-results',
+    source: '공개 가이던스 기반 추정',
+    real: false,
+  },
+];
+
+/* ═══════════════════════════════════════════════
+   렌더링
+═══════════════════════════════════════════════ */
+
+function fmtCurrency(v, digits) {
+  if(v == null) return '—';
+  if(v >= 1000) return '$' + (v/1000).toFixed(digits ?? 2) + 'B';
+  return '$' + v.toLocaleString() + 'M';
+}
+
+function fmtPct(v, digits) {
+  if(v == null) return '—';
+  var s = v > 0 ? '+' : '';
+  return s + v.toFixed(digits ?? 1) + '%';
+}
+
+function growClass(v) {
+  if(v == null) return 'grow-flat';
+  if(v > 0.5) return 'grow-up';
+  if(v < -0.5) return 'grow-dn';
+  return 'grow-flat';
+}
+
+function renderSummary() {
+  var latestQ = COMPANIES.map(function(c){return c.revenueQ[c.revenueQ.length-1]}).reduce(function(a,b){return a+b},0);
+  var avgYoY = COMPANIES.map(function(c){return c.yoy}).reduce(function(a,b){return a+b},0) / COMPANIES.length;
+  var best = COMPANIES.slice().sort(function(a,b){return b.yoy-a.yoy})[0];
+  var worst = COMPANIES.slice().sort(function(a,b){return a.yoy-b.yoy})[0];
+  
+  document.getElementById('summ-total').textContent = '$' + (latestQ/1000).toFixed(1) + 'B';
+  document.getElementById('summ-yoy').textContent = fmtPct(avgYoY);
+  document.getElementById('summ-yoy').style.color = avgYoY>=0?'#059669':'#dc2626';
+  document.getElementById('summ-best').textContent = best.logoText;
+  document.getElementById('summ-best-val').textContent = fmtPct(best.yoy) + ' · ' + best.name;
+  document.getElementById('summ-worst').textContent = worst.logoText;
+  document.getElementById('summ-worst-val').textContent = fmtPct(worst.yoy) + ' · ' + worst.name;
+}
+
+var currentSort = 'revenue';
+function setSort(key, btn) {
+  currentSort = key;
+  document.querySelectorAll('.sort-chip').forEach(function(c){c.classList.remove('on')});
+  btn.classList.add('on');
+  renderCards();
+}
+
+function sortCompanies() {
+  var arr = COMPANIES.slice();
+  if(currentSort === 'revenue') arr.sort(function(a,b){return b.revenueQ[3]-a.revenueQ[3]});
+  else if(currentSort === 'yoy') arr.sort(function(a,b){return b.yoy-a.yoy});
+  else if(currentSort === 'auto') arr.sort(function(a,b){return b.autoShare-a.autoShare});
+  else if(currentSort === 'name') arr.sort(function(a,b){return a.name.localeCompare(b.name)});
+  return arr;
+}
+
+function renderCards() {
+  var html = sortCompanies().map(function(c, i) {
+    var canvasId = 'spark-' + c.ticker;
+    var latestRev = c.revenueQ[c.revenueQ.length-1];
+    var realBadge = c.real ? '' : '<span style="font-size:9px;color:var(--l4);background:var(--s3);padding:1px 6px;border-radius:4px;margin-left:4px">추정</span>';
+    
+    return '<div class="co-card">'
+      + '<div class="co-hd">'
+        + '<div class="co-logo" style="background:' + c.logoColor + '">' + c.logoText + '</div>'
+        + '<div class="co-name">'
+          + '<div class="co-name-txt">' + c.name + '</div>'
+          + '<div class="co-ticker">' + c.ticker + ' · ' + c.country + '</div>'
+        + '</div>'
+        + '<div class="co-headline">'
+          + '<div class="co-rev">' + fmtCurrency(latestRev) + '</div>'
+          + '<div class="co-rev-lbl">최근 분기 ' + realBadge + '</div>'
+        + '</div>'
+      + '</div>'
+      
+      + '<div class="growth-row">'
+        + '<div class="grow-item">'
+          + '<div class="grow-lbl">YoY 성장률</div>'
+          + '<div class="grow-val ' + growClass(c.yoy) + '">' + fmtPct(c.yoy) + '</div>'
+        + '</div>'
+        + '<div class="grow-item">'
+          + '<div class="grow-lbl">QoQ 변화</div>'
+          + '<div class="grow-val ' + growClass(c.qoq) + '">' + fmtPct(c.qoq) + '</div>'
+        + '</div>'
+      + '</div>'
+      
+      + '<div class="spark-box">'
+        + '<div class="spark-hd"><span>최근 4분기 추이</span><span>Q1 → Q4 2025</span></div>'
+        + '<canvas class="spark-canvas" id="' + canvasId + '"></canvas>'
+      + '</div>'
+      
+      + '<div class="auto-ratio">'
+        + '<span class="auto-ratio-label">🚗 자동차</span>'
+        + '<div class="auto-ratio-bar"><div class="auto-ratio-fill" style="width:' + c.autoShare + '%"></div></div>'
+        + '<span class="auto-ratio-val">' + c.autoShare + '%</span>'
+      + '</div>'
+      
+      + '<div class="co-meta">'
+        + '<div class="meta-pair">FY 매출 <strong>' + fmtCurrency(c.fy2025, 1) + '</strong></div>'
+        + '<div class="meta-pair">자동차 <strong>' + fmtCurrency(c.autoRevenue) + '</strong> <span style="color:' + (c.autoYoY>=0?'#059669':'#dc2626') + ';font-size:10.5px">(' + fmtPct(c.autoYoY) + ')</span></div>'
+        + '<a class="co-ir-btn" href="' + c.irUrl + '" target="_blank" rel="noopener">IR →</a>'
+      + '</div>'
+      
+      + '<div style="font-size:11px;color:var(--l3);margin-top:10px;padding-top:8px;border-top:1px dashed var(--border);line-height:1.55"><strong style="color:var(--l2)">제품</strong>: ' + c.products + '</div>'
+      + '<div style="font-size:10px;color:var(--l4);margin-top:4px;font-style:italic">출처: ' + c.source + '</div>'
+    + '</div>';
+  }).join('');
+  
+  document.getElementById('coGrid').innerHTML = html;
+  
+  // sparkline 그리기
+  setTimeout(function() {
+    COMPANIES.forEach(function(c) {
+      drawSparkline('spark-' + c.ticker, c.revenueQ);
+    });
+  }, 50);
+}
+
+function drawSparkline(canvasId, data) {
+  var canvas = document.getElementById(canvasId);
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.offsetWidth || 300;
+  var h = canvas.offsetHeight || 42;
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.scale(dpr, dpr);
+  
+  var mn = Math.min.apply(null, data);
+  var mx = Math.max.apply(null, data);
+  var pad = 6;
+  
+  var pts = data.map(function(v, i) {
+    var x = pad + (i / (data.length - 1)) * (w - pad * 2);
+    var y = mx === mn ? h/2 : h - pad - ((v - mn) / (mx - mn)) * (h - pad * 2);
+    return {x: x, y: y};
+  });
+  
+  // 그라데이션 배경
+  var gradient = ctx.createLinearGradient(0, 0, 0, h);
+  var trending = data[data.length-1] >= data[0];
+  if(trending) {
+    gradient.addColorStop(0, 'rgba(16,185,129,0.25)');
+    gradient.addColorStop(1, 'rgba(16,185,129,0)');
+  } else {
+    gradient.addColorStop(0, 'rgba(239,68,68,0.22)');
+    gradient.addColorStop(1, 'rgba(239,68,68,0)');
+  }
+  
+  // 영역 채우기
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, h);
+  pts.forEach(function(p){ ctx.lineTo(p.x, p.y); });
+  ctx.lineTo(pts[pts.length-1].x, h);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  
+  // 선 그리기
+  ctx.beginPath();
+  pts.forEach(function(p, i) { i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); });
+  ctx.strokeStyle = trending ? '#10b981' : '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+  
+  // 점 표시
+  pts.forEach(function(p, i) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, i === pts.length-1 ? 3.5 : 2.5, 0, Math.PI*2);
+    ctx.fillStyle = i === pts.length-1 ? (trending ? '#10b981' : '#ef4444') : '#fff';
+    ctx.strokeStyle = trending ? '#10b981' : '#ef4444';
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    if(i !== pts.length-1) ctx.stroke();
+  });
+}
+
+function renderAutoSegment() {
+  var sorted = COMPANIES.slice().sort(function(a,b){return b.autoShare - a.autoShare});
+  var html = sorted.map(function(c) {
+    return '<tr>'
+      + '<td>' + c.name + '</td>'
+      + '<td><span class="num">' + fmtCurrency(c.autoRevenue) + '</span></td>'
+      + '<td style="color:' + (c.autoYoY>=0?'#059669':'#dc2626') + ';font-weight:700">' + fmtPct(c.autoYoY) + '</td>'
+      + '<td><span class="num">' + c.autoShare + '%</span></td>'
+      + '<td style="font-size:11.5px;color:var(--l3)">' + c.products + '</td>'
+    + '</tr>';
+  }).join('');
+  document.getElementById('autoSegTable').innerHTML = html;
+}
+
+/* 초기화 */
+document.addEventListener('DOMContentLoaded', function() {
+  renderSummary();
+  renderCards();
+  renderAutoSegment();
+});
+
+/* 리사이즈 시 sparkline 다시 그리기 */
+window.addEventListener('resize', function() {
+  setTimeout(function() {
+    COMPANIES.forEach(function(c) { drawSparkline('spark-' + c.ticker, c.revenueQ); });
+  }, 150);
+});
+</script>
+
+</body>
+</html>
