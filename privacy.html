@@ -14,8 +14,7 @@
 <meta property="og:locale" content="ko_KR">
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/privacy.html">
 <link rel="stylesheet" href="shared.css">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script src="shared-analytics.js"></script>
 <style>
 :root{--topbar-bg:rgba(255,255,255,0.92)}
 body{font-size:14px;line-height:1.7}
@@ -75,12 +74,12 @@ a:hover{text-decoration:underline}
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
-        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-title">🔒 최소한의 개인정보만 사용</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼 누른 계산 결과만 저장됨</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>광고 쿠키 관련 내용은 Privacy 페이지 참고</span></div>
       </div>
     </div>
     <div class="mode-toggle">
@@ -128,7 +127,7 @@ a:hover{text-decoration:underline}
   <ul>
     <li><strong>Google 로그인 시:</strong> 이름, 이메일 주소 (로그인 식별 목적). 비밀번호는 Google이 관리하며 ChipCalc에 전달되지 않습니다.</li>
     <li><strong>계산 저장 시:</strong> 사용자가 💾 저장 버튼을 직접 누른 계산 결과만 Supabase(클라우드 DB)에 저장됩니다.</li>
-    <li><strong>Google Analytics:</strong> 페이지 조회수, 방문 시간, 브라우저 유형 (익명화). 개인을 특정하지 않습니다.</li>
+    <li><strong>광고 제공 시:</strong> Google을 포함한 제3자 공급업체가 광고 게재를 위해 쿠키를 사용할 수 있습니다.</li>
     <li><strong>localStorage:</strong> 패키지 단가, 언어 설정, 다크모드 설정. 서버로 전송되지 않습니다.</li>
   </ul>
 
@@ -136,18 +135,19 @@ a:hover{text-decoration:underline}
   <ul>
     <li>저장된 계산 기록은 RLS(Row Level Security)로 보호되어 <strong>본인만 조회·삭제 가능</strong>합니다.</li>
     <li>서비스는 HTTPS를 통해 암호화된 연결로 제공됩니다.</li>
-    <li>행동 추적, 광고 타겟팅, 제3자 데이터 판매 없음.</li>
+    <li>로그인 식별과 계산 저장 외 자체 행동 추적은 최소화하며, 제3자 데이터 판매는 하지 않습니다. 광고 쿠키는 Google 정책에 따라 동작할 수 있습니다.</li>
   </ul>
 
-  <h2>3. 쿠키 및 추적 기술</h2>
-  <p>Google Analytics 쿠키(_ga, _gid, _gat)가 익명 방문자 통계에 사용됩니다. 브라우저 설정에서 쿠키를 비활성화하거나 <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics 옵트아웃 도구</a>를 사용할 수 있습니다.</p>
+  <h2>3. 쿠키 및 광고 기술</h2>
+  <p>Google을 포함한 제3자 공급업체는 쿠키를 사용하여 사용자의 이전 방문 기록을 바탕으로 광고를 제공할 수 있습니다. Google의 광고 쿠키를 통해 Google과 파트너는 이 사이트 및 기타 사이트 방문 기록을 기반으로 광고를 게재할 수 있습니다.</p>
+  <p>사용자는 <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ads Settings</a>에서 개인맞춤 광고를 관리하거나, <a href="https://www.aboutads.info" target="_blank" rel="noopener">aboutads.info</a>에서 일부 제3자 광고 쿠키 사용을 거부할 수 있습니다.</p>
 
   <h2>4. 제3자 서비스</h2>
   <ul>
-    <li><strong>Google Analytics</strong> — 방문자 통계 (Google LLC, 미국)</li>
+    <li><strong>Google AdSense</strong> — 광고 제공 및 광고 쿠키 사용 가능성 (Google LLC, 미국)</li>
     <li><strong>Supabase</strong> — 로그인·데이터 저장 (Supabase Inc., 미국) · <a href="https://supabase.com/privacy" target="_blank" rel="noopener">개인정보방침</a></li>
     <li><strong>GitHub Pages</strong> — 웹 호스팅 (GitHub Inc., 미국)</li>
-    <li><strong>Anthropic Claude API</strong> — 반도체 제품 검색 기능. 검색어가 Anthropic 서버로 전송됩니다.</li>
+    <li><strong>Google OAuth</strong> — 로그인 인증 (Google LLC, 미국)</li>
   </ul>
 
   <h2>5. 방침 변경</h2>

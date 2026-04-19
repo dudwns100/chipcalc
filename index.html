@@ -23,8 +23,7 @@
 <meta property="og:title" content="ChipCalc — 차량용 반도체 인텔리전스">
 <meta property="og:url" content="https://dudwns100.github.io/chipcalc/">
 <link rel="stylesheet" href="shared.css">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script src="shared-analytics.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -304,10 +303,10 @@ body.dark .res-platform{background:var(--s2);color:var(--l4)}
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
-        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-title">🔒 최소한의 개인정보만 사용</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>광고 쿠키 관련 내용은 Privacy 페이지 참고</span></div>
       </div>
     </div>
     <div class="mode-toggle">

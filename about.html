@@ -14,8 +14,7 @@
 <meta property="og:locale" content="ko_KR">
 <link rel="canonical" href="https://dudwns100.github.io/chipcalc/about.html">
 <link rel="stylesheet" href="shared.css">
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+<script src="shared-analytics.js"></script>
 <style>
 :root{--topbar-bg:rgba(255,255,255,0.92)}
 body{font-size:14px;line-height:1.7}
@@ -114,12 +113,12 @@ body.dark .contact-box{background:var(--surface)}
     <div class="auth-tip-wrap">
       <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
       <div class="auth-tip">
-        <div class="auth-tip-title">🔒 개인정보 수집 없음</div>
+        <div class="auth-tip-title">🔒 최소한의 개인정보만 사용</div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>이름·이메일만 저장 (로그인 식별용)</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>비밀번호는 Google이 관리</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>저장 버튼 누른 계산 결과만 저장됨</span></div>
         <div class="auth-tip-row"><span class="ati">✅</span><span>내 데이터는 나만 볼 수 있음 (RLS)</span></div>
-        <div class="auth-tip-row"><span class="ati">✅</span><span>행동 추적·광고 타겟팅 없음</span></div>
+        <div class="auth-tip-row"><span class="ati">✅</span><span>광고 쿠키 관련 내용은 Privacy 페이지 참고</span></div>
       </div>
     </div>
     <div class="mode-toggle">
