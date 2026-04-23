@@ -1,0 +1,2632 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChipCalc Portfolio · 반도체 가격 합리성 분석기</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<style>
+  :root {
+    --bg: #fafaf9;
+    --bg-elev: #ffffff;
+    --bg-muted: #f4f4f3;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --text: #1c1917;
+    --text-muted: #57534e;
+    --text-subtle: #78716c;
+    --accent: #0f172a;
+    --accent-light: #1e293b;
+    --brand: #2563eb;
+    --brand-light: #3b82f6;
+
+    --status-danger: #dc2626;
+    --status-danger-bg: #fef2f2;
+    --status-warn: #d97706;
+    --status-warn-bg: #fffbeb;
+    --status-good: #059669;
+    --status-good-bg: #ecfdf5;
+    --status-info: #2563eb;
+    --status-info-bg: #eff6ff;
+
+    --series-aurix2: #ea580c;
+    --series-aurix1: #0891b2;
+    --series-traveo2: #9333ea;
+    --series-other: #64748b;
+
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+    --font-sans: "Pretendard", "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0c0a09;
+    --bg-elev: #1c1917;
+    --bg-muted: #292524;
+    --border: #292524;
+    --border-strong: #44403c;
+    --text: #fafaf9;
+    --text-muted: #a8a29e;
+    --text-subtle: #78716c;
+    --accent: #fafaf9;
+    --accent-light: #e7e5e4;
+    --brand: #60a5fa;
+    --brand-light: #93c5fd;
+
+    --status-danger: #f87171;
+    --status-danger-bg: rgba(220,38,38,0.12);
+    --status-warn: #fbbf24;
+    --status-warn-bg: rgba(217,119,6,0.12);
+    --status-good: #34d399;
+    --status-good-bg: rgba(5,150,105,0.12);
+    --status-info: #60a5fa;
+    --status-info-bg: rgba(37,99,235,0.12);
+
+    --series-aurix2: #fb923c;
+    --series-aurix1: #22d3ee;
+    --series-traveo2: #c084fc;
+    --series-other: #94a3b8;
+
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(37,99,235,0.03) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(234,88,12,0.02) 0%, transparent 40%);
+  }
+
+  [data-theme="dark"] body {
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(96,165,250,0.04) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(251,146,60,0.03) 0%, transparent 40%);
+  }
+
+  /* HEADER */
+  header {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--bg-elev);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+  }
+
+  .brand-text h1 {
+    font-family: "Manrope", var(--font-sans);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .brand-text p {
+    font-size: 11px;
+    color: var(--text-subtle);
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--status-good-bg);
+    color: var(--status-good);
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+
+  .icon-btn, .lang-btn {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .icon-btn:hover, .lang-btn:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+
+  /* LAYOUT */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 18px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* TOP GRID: paste area (left) + controls (right) on PC */
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  @media (max-width: 1000px) {
+    .top-grid { grid-template-columns: 1fr; }
+  }
+
+  .top-grid > .card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 3px;
+    height: 13px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .section-title-row .section-title {
+    margin-bottom: 0;
+  }
+
+  .card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* MODE TABS */
+  .mode-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-muted);
+    padding: 3px;
+    border-radius: 7px;
+    width: fit-content;
+  }
+
+  .mode-tabs:not(.compact) {
+    margin-bottom: 14px;
+  }
+
+  .mode-tabs.compact .mode-tab {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .mode-tab {
+    padding: 7px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    border-radius: 5px;
+    transition: all 0.15s;
+  }
+
+  .mode-tab.active {
+    background: var(--bg-elev);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* INPUT */
+  .input-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .input-row.dual {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 768px) {
+    .input-row.dual { grid-template-columns: 1fr; }
+  }
+
+  .input-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  textarea.paste-area {
+    width: 100%;
+    min-height: 120px;
+    max-height: 200px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    resize: vertical;
+    transition: border-color 0.15s;
+  }
+
+  textarea.paste-area.compact {
+    min-height: 90px;
+    max-height: 140px;
+  }
+
+  textarea.paste-area:focus {
+    outline: none;
+    border-color: var(--brand);
+  }
+
+  textarea.paste-area::placeholder {
+    color: var(--text-subtle);
+    font-family: var(--font-sans);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  button.btn {
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  button.btn:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-muted);
+  }
+
+  button.btn.primary {
+    background: var(--accent);
+    color: var(--bg-elev);
+    border-color: var(--accent);
+  }
+
+  button.btn.primary:hover {
+    background: var(--accent-light);
+  }
+
+  button.btn.ghost {
+    background: transparent;
+    color: var(--text-muted);
+  }
+
+  /* CONTROLS */
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+
+  @media (max-width: 500px) {
+    .controls-grid { grid-template-columns: 1fr; }
+  }
+
+  .control-item .input-label {
+    margin-bottom: 4px;
+  }
+
+  .control-item select,
+  .control-item input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .control-item select:focus,
+  .control-item input[type="number"]:focus {
+    outline: none;
+    border-color: var(--brand);
+  }
+
+  /* STATS DASHBOARD */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 500px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+
+  .stat-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card.highlight {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    color: var(--bg-elev);
+    border-color: var(--accent);
+  }
+
+  .stat-card.highlight .stat-label,
+  .stat-card.highlight .stat-sub {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .stat-value .unit {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 3px;
+  }
+
+  .stat-card.highlight .stat-value .unit {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-subtle);
+    margin-top: 6px;
+  }
+
+  /* CHART */
+  .chart-wrap {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chart-title {
+    font-family: "Manrope", var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .legend-item.disabled {
+    opacity: 0.35;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 440px;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .chart-container { height: 360px; }
+  }
+
+  @media (min-width: 1400px) {
+    .chart-container { height: 480px; }
+  }
+
+  /* CLASSIFICATION TABS */
+  .class-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .class-tab {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .class-tab.active {
+    border-color: var(--border-strong);
+    background: var(--bg-muted);
+    color: var(--text);
+  }
+
+  .class-tab .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .class-tab.danger .dot { background: var(--status-danger); }
+  .class-tab.warn .dot { background: var(--status-warn); }
+  .class-tab.good .dot { background: var(--status-good); }
+  .class-tab.info .dot { background: var(--status-info); }
+
+  .class-tab .count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 6px;
+    background: var(--bg-muted);
+    border-radius: 10px;
+    color: var(--text-subtle);
+  }
+
+  .class-tab.active .count {
+    background: var(--bg-elev);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  th {
+    background: var(--bg-muted);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-subtle);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  th.num, td.num {
+    text-align: right;
+    font-family: var(--font-mono);
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--bg-muted); }
+
+  td .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  .pill.danger { background: var(--status-danger-bg); color: var(--status-danger); }
+  .pill.warn { background: var(--status-warn-bg); color: var(--status-warn); }
+  .pill.good { background: var(--status-good-bg); color: var(--status-good); }
+  .pill.info { background: var(--status-info-bg); color: var(--status-info); }
+
+  .series-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--bg-muted);
+    color: var(--text-muted);
+  }
+
+  .series-tag .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 36px;
+    color: var(--text-subtle);
+    font-size: 13px;
+  }
+
+  /* SIMULATOR */
+  .sim-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    .sim-grid { grid-template-columns: 1fr; }
+  }
+
+  .sim-slider-wrap {
+    padding: 12px 0;
+  }
+
+  .sim-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-muted);
+    outline: none;
+  }
+
+  .sim-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg-elev);
+    box-shadow: var(--shadow);
+  }
+
+  .sim-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg-elev);
+    box-shadow: var(--shadow);
+  }
+
+  .sim-slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-subtle);
+    margin-top: 6px;
+  }
+
+  .sim-value-display {
+    text-align: center;
+  }
+
+  .sim-percent {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--brand);
+  }
+
+  .sim-saving {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 4px;
+  }
+
+  .sim-saving .unit {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 20px 28px;
+    border-top: 1px solid var(--border);
+    color: var(--text-subtle);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  /* UTILS */
+  .hidden { display: none !important; }
+
+  /* PRINT / EXPORT MODE */
+  .export-mode header .header-controls,
+  .export-mode .paste-section,
+  .export-mode .export-bar {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">CC</div>
+    <div class="brand-text">
+      <h1 data-i18n="brandTitle">포트폴리오 가격 합리성 분석기</h1>
+      <p data-i18n="brandSub">ChipCalc Portfolio Analyzer · v1.0</p>
+    </div>
+  </div>
+  <div class="header-controls">
+    <span class="security-badge" title="All processing stays in your browser">
+      🔒 <span data-i18n="secure">브라우저 내 처리</span>
+    </span>
+    <button class="lang-btn" id="langToggle">KO / EN</button>
+    <button class="icon-btn" id="themeToggle" title="Theme">
+      <span id="themeIcon">☀</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- TOP GRID: 입력(좌) + 설정(우) -->
+  <div class="top-grid">
+
+    <!-- INPUT SECTION (LEFT) -->
+    <section class="card paste-section">
+      <div class="section-title-row">
+        <div class="section-title" data-i18n="inputSection">데이터 입력</div>
+        <div class="mode-tabs compact" id="modeTabs">
+          <button class="mode-tab active" data-mode="single" data-i18n="modeSingle">단일</button>
+          <button class="mode-tab" data-mode="compare-time" data-i18n="modeCompareTime">시점</button>
+          <button class="mode-tab" data-mode="compare-supplier" data-i18n="modeCompareSupplier">공급사</button>
+        </div>
+      </div>
+
+      <div class="input-wrap">
+
+        <div class="input-row" id="singleInputRow">
+          <div>
+            <textarea class="paste-area" id="pasteInputA" data-i18n-ph="pastePlaceholder" placeholder="제품명&#9;시리즈&#9;가중치&#9;실구매가&#9;추정원가&#9;연간수량&#10;..."></textarea>
+          </div>
+        </div>
+
+        <div class="input-row dual hidden" id="dualInputRow">
+          <div>
+            <label class="input-label"><span id="labelB1">이전 기간 / 공급사 A</span></label>
+            <textarea class="paste-area compact" id="pasteInputB1" placeholder=""></textarea>
+          </div>
+          <div>
+            <label class="input-label"><span id="labelB2">현재 기간 / 공급사 B</span></label>
+            <textarea class="paste-area compact" id="pasteInputB2" placeholder=""></textarea>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn primary" id="analyzeBtn">
+            <span data-i18n="analyze">분석 시작</span>
+          </button>
+          <button class="btn" id="sampleBtn">
+            <span data-i18n="sample">샘플 데이터</span>
+          </button>
+          <button class="btn ghost" id="clearBtn">
+            <span data-i18n="clear">초기화</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS SECTION (RIGHT) -->
+    <section class="card" id="controlsCard">
+      <div class="section-title" data-i18n="controlSection">분석 설정</div>
+      <div class="controls-grid">
+        <div class="control-item">
+          <label class="input-label" data-i18n="xaxis">X축</label>
+          <select id="xAxisSelect">
+            <option value="weight" data-i18n="xWeight">가중치 복합지표</option>
+            <option value="estCost" data-i18n="xEstCost">추정원가</option>
+            <option value="flash" data-i18n="xFlash">Flash 용량</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="threshold">관리 임계값 (%)</label>
+          <input type="number" id="thresholdInput" value="15" min="5" max="50" step="1" />
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="trendMode">추세선 기준</label>
+          <select id="trendModeSelect">
+            <option value="all" data-i18n="trendAll">전체 통합</option>
+            <option value="series" data-i18n="trendSeries">시리즈별</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="classMode">분류 기준</label>
+          <select id="classModeSelect">
+            <option value="hybrid" data-i18n="classModeHybrid">Hybrid (교차검증) ★</option>
+            <option value="peer" data-i18n="classModePeer">Peer only (동급비교)</option>
+            <option value="cost" data-i18n="classModeCost">Should-cost (원가기반)</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="seriesFilter">시리즈 필터</label>
+          <select id="seriesFilterSelect">
+            <option value="all" data-i18n="filterAll">전체 표시</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="bubbleScale">버블 크기 스케일</label>
+          <select id="bubbleScaleSelect">
+            <option value="sqrt" data-i18n="scaleSqrt">제곱근 (균형)</option>
+            <option value="linear" data-i18n="scaleLinear">선형 (차이 강조)</option>
+            <option value="log" data-i18n="scaleLog">로그 (편차 완화)</option>
+            <option value="fixed" data-i18n="scaleFixed">고정 (모두 동일)</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- STATS -->
+  <section>
+    <div class="section-title" data-i18n="summary">분석 요약</div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="totalProducts">총 제품</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub" id="stat-totalSub" data-i18n="readyToAnalyze">분석 준비 완료</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="rSquared">가격 체계 R²</div>
+        <div class="stat-value" id="stat-r2">—</div>
+        <div class="stat-sub" id="stat-r2Sub">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="manageTarget">관리 대상</div>
+        <div class="stat-value" id="stat-manage">—</div>
+        <div class="stat-sub" id="stat-manageSub">—</div>
+      </div>
+      <div class="stat-card highlight">
+        <div class="stat-label" data-i18n="savingPotential">잠재 인하여력</div>
+        <div class="stat-value" id="stat-saving">—</div>
+        <div class="stat-sub" id="stat-savingSub" data-i18n="yearlyEstimate">추세선 기준 연간 추정</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHART -->
+  <section>
+    <div class="section-title" data-i18n="chartSection">버블 산점도</div>
+    <div class="chart-wrap" id="chartWrap">
+      <div class="chart-header">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="chart-title" id="chartTitle" data-i18n="chartTitle">가격 합리성 분포 (버블 크기 = 연간수량)</div>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <div class="mode-tabs" style="margin-bottom:0;" id="viewTabs">
+              <button class="mode-tab active" data-view="scatter" data-i18n="viewScatter">합리성 산점도</button>
+              <button class="mode-tab" data-view="matrix" data-i18n="viewMatrix">종합 매트릭스</button>
+            </div>
+            <label style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:var(--text-muted); cursor:pointer;" id="costOverlayWrap">
+              <input type="checkbox" id="costOverlayChk" style="accent-color: var(--brand); cursor:pointer;" />
+              <span data-i18n="costOverlay">추정원가 추세선 표시</span>
+            </label>
+          </div>
+        </div>
+        <div class="chart-legend" id="chartLegend"></div>
+      </div>
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div id="matrixInsight" style="margin-top:12px; display:none; padding:12px 14px; background:var(--bg-muted); border-radius:8px; font-size:12px; line-height:1.7; color:var(--text-muted);"></div>
+    </div>
+  </section>
+
+  <!-- CLASSIFICATION -->
+  <section class="card">
+    <div class="section-title" data-i18n="classSection">분류별 제품 상세</div>
+
+    <div class="class-tabs" id="classTabs">
+      <button class="class-tab danger active" data-class="danger">
+        <span class="dot"></span>
+        <span data-i18n="classDanger">관리 대상</span>
+        <span class="count" id="count-danger">0</span>
+      </button>
+      <button class="class-tab warn" data-class="warn">
+        <span class="dot"></span>
+        <span data-i18n="classWarn">주의</span>
+        <span class="count" id="count-warn">0</span>
+      </button>
+      <button class="class-tab good" data-class="good">
+        <span class="dot"></span>
+        <span data-i18n="classGood">합리 구간</span>
+        <span class="count" id="count-good">0</span>
+      </button>
+      <button class="class-tab info" data-class="info">
+        <span class="dot"></span>
+        <span data-i18n="classInfo">저평가</span>
+        <span class="count" id="count-info">0</span>
+      </button>
+    </div>
+
+    <div id="tableContainer">
+      <div class="empty" data-i18n="emptyTable">분석을 실행하면 분류된 제품이 여기에 표시됩니다</div>
+    </div>
+  </section>
+
+  <!-- SIMULATOR -->
+  <section class="card">
+    <div class="section-title" data-i18n="simSection">인하 시나리오 시뮬레이터</div>
+    <div class="sim-grid">
+      <div class="sim-slider-wrap">
+        <label class="input-label" data-i18n="simSlider">관리 대상 제품에 적용할 평균 인하율</label>
+        <input type="range" class="sim-slider" id="simSlider" min="0" max="20" value="5" step="0.5" />
+        <div class="sim-slider-labels">
+          <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span>
+        </div>
+        <p style="margin-top:14px; font-size:12px; color:var(--text-subtle); line-height:1.6;" data-i18n="simDesc">
+          관리 대상 제품들의 가격을 X% 인하했을 때의 연간 절감 효과를 실시간 계산합니다. 협상 목표 설정 및 경영층 보고용 근거 자료로 활용하세요.
+        </p>
+      </div>
+      <div class="sim-value-display">
+        <div class="stat-label" data-i18n="simResult">예상 연간 절감액</div>
+        <div class="sim-percent" id="simPercent">5.0%</div>
+        <div class="sim-saving"><span id="simAmount">—</span> <span class="unit" id="simUnit">KRW</span></div>
+        <div class="stat-sub" id="simDetail" style="margin-top:6px;">—</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPORT -->
+  <section class="card export-bar">
+    <div class="section-title" data-i18n="exportSection">보고서 내보내기</div>
+    <div class="btn-row">
+      <button class="btn primary" id="exportPdfBtn">
+        📄 <span data-i18n="exportPdf">PDF 한 장 리포트</span>
+      </button>
+      <button class="btn" id="exportPngBtn">
+        🖼 <span data-i18n="exportPng">차트 PNG 저장</span>
+      </button>
+      <button class="btn ghost" id="exportCsvBtn">
+        📊 <span data-i18n="exportCsv">분류 결과 CSV</span>
+      </button>
+    </div>
+    <p style="margin-top:12px; font-size:11px; color:var(--text-subtle);" data-i18n="exportNote">
+      * 모든 내보내기는 브라우저에서 직접 생성됩니다. 데이터는 서버로 전송되지 않습니다.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <span data-i18n="footerText">ChipCalc Portfolio Analyzer · 100% 클라이언트 사이드 처리 · 데이터 수집 없음</span>
+</footer>
+
+<script>
+/* =============================================================
+   I18N
+============================================================= */
+const i18n = {
+  ko: {
+    brandTitle: "포트폴리오 가격 합리성 분석기",
+    brandSub: "ChipCalc Portfolio Analyzer · v1.0",
+    secure: "브라우저 내 처리",
+    modeSingle: "단일 분석",
+    modeCompareTime: "시점 비교",
+    modeCompareSupplier: "공급사 비교",
+    inputSection: "데이터 입력",
+    pasteLabel: "엑셀 데이터 붙여넣기 (탭 구분)",
+    pastePlaceholder: "제품명\t시리즈\t가중치\t실구매가\t추정원가\t연간수량\nTC397XP-256F300S BD\tAURIX2\t15.3\t23785\t28317\t1500000\n...",
+    analyze: "분석 시작",
+    sample: "샘플 데이터",
+    clear: "초기화",
+    controlSection: "분석 설정",
+    xaxis: "X축",
+    xWeight: "가중치 복합지표",
+    xEstCost: "추정원가",
+    xFlash: "Flash 용량",
+    threshold: "관리 임계값 (%)",
+    trendMode: "추세선 기준",
+    trendAll: "전체 통합",
+    trendSeries: "시리즈별",
+    classMode: "분류 기준",
+    classModeHybrid: "Hybrid (교차검증) ★",
+    classModePeer: "Peer only (동급비교)",
+    classModeCost: "Should-cost (원가기반)",
+    viewScatter: "합리성 산점도",
+    viewMatrix: "종합 매트릭스",
+    costOverlay: "추정원가 추세선 표시",
+    seriesFilter: "시리즈 필터",
+    filterAll: "전체 표시",
+    bubbleScale: "버블 크기 스케일",
+    scaleSqrt: "제곱근 (균형)",
+    scaleLinear: "선형 (차이 강조)",
+    scaleLog: "로그 (편차 완화)",
+    scaleFixed: "고정 (모두 동일)",
+    summary: "분석 요약",
+    totalProducts: "총 제품",
+    readyToAnalyze: "분석 준비 완료",
+    rSquared: "가격 체계 R²",
+    manageTarget: "관리 대상",
+    savingPotential: "잠재 인하여력",
+    yearlyEstimate: "추세선 기준 연간 추정",
+    chartSection: "버블 산점도",
+    chartTitle: "가격 합리성 분포 (버블 크기 = 연간수량)",
+    classSection: "분류별 제품 상세",
+    classDanger: "관리 대상",
+    classWarn: "주의",
+    classGood: "합리 구간",
+    classInfo: "저평가",
+    emptyTable: "분석을 실행하면 분류된 제품이 여기에 표시됩니다",
+    simSection: "인하 시나리오 시뮬레이터",
+    simSlider: "관리 대상 제품에 적용할 평균 인하율",
+    simDesc: "관리 대상 제품들의 가격을 X% 인하했을 때의 연간 절감 효과를 실시간 계산합니다. 협상 목표 설정 및 경영층 보고용 근거 자료로 활용하세요.",
+    simResult: "예상 연간 절감액",
+    exportSection: "보고서 내보내기",
+    exportPdf: "PDF 한 장 리포트",
+    exportPng: "차트 PNG 저장",
+    exportCsv: "분류 결과 CSV",
+    exportNote: "* 모든 내보내기는 브라우저에서 직접 생성됩니다. 데이터는 서버로 전송되지 않습니다.",
+    footerText: "ChipCalc Portfolio Analyzer · 100% 클라이언트 사이드 처리 · 데이터 수집 없음",
+    colProduct: "제품명", colSeries: "시리즈", colX: "X값", colActual: "실구매가", colTrend: "추세선값",
+    colGap: "편차", colQty: "연간수량", colSavingPotential: "인하여력",
+    labelB1Time: "이전 기간", labelB2Time: "현재 기간",
+    labelB1Sup: "공급사 A", labelB2Sup: "공급사 B",
+    trendExcellent: "우수 (가격 체계 매우 합리적)",
+    trendGood: "양호 (합리적 가격 체계)",
+    trendFair: "보통 (일부 비합리 존재)",
+    trendPoor: "미흡 (체계 재점검 필요)",
+    r2Empty: "데이터 대기 중",
+    totalPerYear: "연간 거래 규모 ₩",
+    managePercent: "전체의",
+    dataCount: "개 제품 합산",
+    chartHint: "버블 크기가 클수록 연간 수량이 많음. 대각선은 추세선, 음영은 합리 구간",
+    exportReportTitle: "반도체 포트폴리오 가격 합리성 분석 리포트",
+    exportGeneratedAt: "생성일시",
+    exportTotal: "총 제품 수",
+    exportManagement: "관리 대상 건수",
+    exportSaving: "잠재 인하여력(연간)",
+    exportR2: "가격 체계 R² 지수"
+  },
+  en: {
+    brandTitle: "Portfolio Price Rationality Analyzer",
+    brandSub: "ChipCalc Portfolio Analyzer · v1.0",
+    secure: "In-browser processing",
+    modeSingle: "Single Analysis",
+    modeCompareTime: "Time Comparison",
+    modeCompareSupplier: "Supplier Comparison",
+    inputSection: "Data Input",
+    pasteLabel: "Paste Excel data (Tab-separated)",
+    pastePlaceholder: "Product\tSeries\tWeight\tActual\tEstimated\tQty\n...",
+    analyze: "Analyze",
+    sample: "Load Sample",
+    clear: "Reset",
+    controlSection: "Analysis Settings",
+    xaxis: "X-axis",
+    xWeight: "Composite Weight",
+    xEstCost: "Estimated Cost",
+    xFlash: "Flash Size",
+    threshold: "Threshold (%)",
+    trendMode: "Trendline Basis",
+    trendAll: "All Combined",
+    trendSeries: "Per Series",
+    classMode: "Classification",
+    classModeHybrid: "Hybrid (cross-check) ★",
+    classModePeer: "Peer only",
+    classModeCost: "Should-cost",
+    viewScatter: "Rationality Scatter",
+    viewMatrix: "Combined Matrix",
+    costOverlay: "Show cost trendline",
+    seriesFilter: "Series Filter",
+    filterAll: "Show All",
+    bubbleScale: "Bubble Size Scale",
+    scaleSqrt: "Square Root (balanced)",
+    scaleLinear: "Linear (emphasize diff)",
+    scaleLog: "Logarithmic (flatten)",
+    scaleFixed: "Fixed (uniform)",
+    summary: "Summary",
+    totalProducts: "Total Products",
+    readyToAnalyze: "Ready to analyze",
+    rSquared: "Pricing R²",
+    manageTarget: "Managed Items",
+    savingPotential: "Saving Potential",
+    yearlyEstimate: "Yearly est. vs trendline",
+    chartSection: "Bubble Scatter",
+    chartTitle: "Price Rationality Distribution (Bubble = Annual Qty)",
+    classSection: "Classification Details",
+    classDanger: "Overpriced",
+    classWarn: "Watch",
+    classGood: "Reasonable",
+    classInfo: "Underpriced",
+    emptyTable: "Run analysis to see classified products",
+    simSection: "Reduction Scenario Simulator",
+    simSlider: "Average reduction rate applied to managed items",
+    simDesc: "Calculates real-time annual savings from reducing prices of managed items by X%. Use as basis for negotiation targets and executive reporting.",
+    simResult: "Estimated Annual Saving",
+    exportSection: "Export Report",
+    exportPdf: "One-page PDF Report",
+    exportPng: "Save Chart as PNG",
+    exportCsv: "Classification CSV",
+    exportNote: "* All exports are generated locally in your browser. No data is sent to any server.",
+    footerText: "ChipCalc Portfolio Analyzer · 100% client-side · No data collection",
+    colProduct: "Product", colSeries: "Series", colX: "X-val", colActual: "Actual",
+    colTrend: "Trendline", colGap: "Gap", colQty: "Qty", colSavingPotential: "Potential",
+    labelB1Time: "Previous Period", labelB2Time: "Current Period",
+    labelB1Sup: "Supplier A", labelB2Sup: "Supplier B",
+    trendExcellent: "Excellent (very rational pricing)",
+    trendGood: "Good (rational pricing)",
+    trendFair: "Fair (some inconsistencies)",
+    trendPoor: "Poor (review required)",
+    r2Empty: "Awaiting data",
+    totalPerYear: "Annual volume ₩",
+    managePercent: "of total",
+    dataCount: "products in scope",
+    chartHint: "Bubble size = annual qty. Diagonal = trendline, shaded = rational band",
+    exportReportTitle: "Semiconductor Portfolio Price Rationality Report",
+    exportGeneratedAt: "Generated",
+    exportTotal: "Total products",
+    exportManagement: "Managed items",
+    exportSaving: "Annual saving potential",
+    exportR2: "Pricing R² index"
+  }
+};
+
+let currentLang = 'ko';
+
+function applyI18n() {
+  const dict = i18n[currentLang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (dict[key]) el.setAttribute('placeholder', dict[key]);
+  });
+  document.documentElement.lang = currentLang;
+  updateCompareModeLabels();
+}
+
+/* =============================================================
+   THEME
+============================================================= */
+function initTheme() {
+  const saved = null;
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const theme = mq.matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeIcon').textContent = theme === 'dark' ? '☾' : '☀';
+  mq.addEventListener('change', e => {
+    const t = e.matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeIcon').textContent = t === 'dark' ? '☾' : '☀';
+    if (lastAnalysis) renderChart(lastAnalysis);
+  });
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'dark' ? '☾' : '☀';
+  if (lastAnalysis) renderChart(lastAnalysis);
+});
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'ko' ? 'en' : 'ko';
+  applyI18n();
+  if (lastAnalysis) {
+    renderStats(lastAnalysis);
+    renderTable(lastAnalysis, currentClass);
+    renderChart(lastAnalysis);
+    updateSimulator();
+  }
+});
+
+/* =============================================================
+   SAMPLE DATA (from Image 3)
+============================================================= */
+const sampleData = [
+  // [name, series, weight, actual, estimated, qty, flash]
+  ["TC397XP-256F300S BD","AURIX2",15.3,23785,28317,1500000,16],
+  ["TC387QP-160F300S AE","AURIX2",9.9,10840,16382,600000,10],
+  ["TC387TP-128F300S AE","AURIX2",7.7,10644,15682,3400000,8],
+  ["TC375TP-96F300W AA","AURIX2",6.5,10611,9723,200000,6],
+  ["TC367DP-64F300S AA","AURIX2",4.4,11345,9050,10000,4],
+  ["TC364DP-64F300W AA","AURIX2",4.4,7705,6866,450000,4],
+  ["TC364DP-64F300F AA","AURIX2",4.4,7205,6866,2200000,4],
+  ["TC277TP-64F200N DC","AURIX1",4.3,8582,11257,1300000,4],
+  ["TC277T-64F200S DB","AURIX1",4.3,12406,11257,100000,4],
+  ["TC277T-64F200N DC","AURIX1",4.3,9726,11257,120000,4],
+  ["TC275TP-64F200N DC","AURIX1",4.3,8532,9372,800000,4],
+  ["TC264D-40F200W BB","AURIX1",2.8,7692,6469,300000,2.5],
+  ["TC264D-40F200N BC","AURIX1",2.8,5765,6469,600000,2.5],
+  ["TC234LP-32F200N AC","AURIX1",1.9,5059,4542,2300000,2],
+  ["TC233SP-32F200N AC","AURIX1",1.9,4405,4144,300000,2],
+  ["TC233S-32F200N AC","AURIX1",1.9,4120,4144,200000,2],
+  ["CYT2B93CACQ0AZEGS","Traveo2",2.0,2884,3459,1000000,2],
+  ["CYT2B95CACQ0AZEGS","Traveo2",2.0,3011,3459,1200000,2],
+  ["CYT2BL3CAAQ0AZEGS","Traveo2",3.1,3667,3865,2288400,4],
+  ["CYT2BL5CAAQ0AZEGS","Traveo2",3.1,4137,3865,20000,4],
+  ["CYT2BL7CAAQ0AZEGS","Traveo2",3.3,4411,5459,600000,4],
+  ["CYT2BL8CAAQ1AZEGS","Traveo2",3.3,4409,6750,5300000,4],
+  ["CYT3BB7CEBQ1AEEGS","Traveo2",3.5,5566,6818,60000,4],
+  ["CYT3BB8CEBQ1AEEGS","Traveo2",3.6,5440,7943,1100000,4],
+  ["CYT3BB6CEBQ1BZSGS","Traveo2",3.6,6898,8998,100000,4],
+  ["CYT4BFBCJDQ0BZEGS","Traveo2",4.4,7664,13656,3300000,4],
+  ["CYT6BJBDHAQ0BZEGS","Traveo2",6.7,13810,19842,100000,4]
+];
+
+function buildSampleTSV() {
+  const header = "제품명\t시리즈\t가중치\t실구매가\t추정원가\t연간수량\tFlash";
+  const rows = sampleData.map(r => r.join("\t"));
+  return header + "\n" + rows.join("\n");
+}
+
+function buildSampleTSVB(shiftPct) {
+  // For compare-time mode: adjust actual prices by shiftPct
+  const header = "제품명\t시리즈\t가중치\t실구매가\t추정원가\t연간수량\tFlash";
+  const rows = sampleData.map(r => {
+    const adjusted = Math.round(r[3] * (1 + shiftPct/100));
+    return [r[0], r[1], r[2], adjusted, r[4], r[5], r[6]].join("\t");
+  });
+  return header + "\n" + rows.join("\n");
+}
+
+/* =============================================================
+   PARSING
+============================================================= */
+function toNum(val) {
+  if (val == null || val === '') return NaN;
+  if (typeof val === 'number') return val;
+  const cleaned = String(val).replace(/[₩$€¥,\s]/g, '').replace(/%$/, '');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? NaN : n;
+}
+
+function detectSeriesFromName(name) {
+  if (!name) return 'Other';
+  const n = String(name).toUpperCase();
+  if (/^TC3[0-9]/.test(n) || n.includes('AURIX2')) return 'AURIX2';
+  if (/^TC2[0-9]/.test(n) || n.includes('AURIX1')) return 'AURIX1';
+  if (/^CYT/.test(n) || n.includes('TRAVEO')) return 'Traveo2';
+  if (/^S32/.test(n)) return 'S32';
+  if (/^RH850/.test(n)) return 'RH850';
+  return 'Other';
+}
+
+function parseTSV(text) {
+  if (!text || !text.trim()) return [];
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 1) return [];
+
+  const headers = lines[0].split('\t').map(h => h.trim());
+  const hMap = {};
+  headers.forEach((h, i) => {
+    const low = h.toLowerCase();
+    if (/제품|모델|품명|part|product|name|mpn/.test(low)) hMap.name = i;
+    else if (/시리즈|series|family|group/.test(low)) hMap.series = i;
+    else if (/가중치|weight|composite|지표|index/.test(low)) hMap.weight = i;
+    else if (/실구매|실가|actual|real|buy|purchas/.test(low)) hMap.actual = i;
+    else if (/추정|예상|estimate|est\.?cost|should/.test(low)) hMap.estimated = i;
+    else if (/수량|물량|qty|quantity|volume|annual/.test(low)) hMap.qty = i;
+    else if (/flash/.test(low)) hMap.flash = i;
+    else if (/공급|supplier|vendor|maker|제조/.test(low)) hMap.supplier = i;
+    else if (/연도|year|period/.test(low)) hMap.period = i;
+  });
+
+  if (hMap.name === undefined) hMap.name = 0;
+  if (hMap.actual === undefined) {
+    for (let i = 0; i < headers.length; i++) {
+      const sample = lines[1]?.split('\t')[i];
+      if (sample && !isNaN(toNum(sample)) && toNum(sample) > 100) {
+        if (hMap.actual === undefined) { hMap.actual = i; continue; }
+      }
+    }
+  }
+
+  const items = [];
+  for (let li = 1; li < lines.length; li++) {
+    const cols = lines[li].split('\t');
+    if (cols.length < 2) continue;
+    const name = cols[hMap.name]?.trim();
+    if (!name) continue;
+    const actual = toNum(cols[hMap.actual]);
+    if (isNaN(actual)) continue;
+
+    const series = hMap.series !== undefined
+      ? (cols[hMap.series]?.trim() || detectSeriesFromName(name))
+      : detectSeriesFromName(name);
+
+    const item = {
+      name,
+      series,
+      weight: hMap.weight !== undefined ? toNum(cols[hMap.weight]) : NaN,
+      actual,
+      estimated: hMap.estimated !== undefined ? toNum(cols[hMap.estimated]) : NaN,
+      qty: hMap.qty !== undefined ? toNum(cols[hMap.qty]) : 1,
+      flash: hMap.flash !== undefined ? toNum(cols[hMap.flash]) : NaN,
+      supplier: hMap.supplier !== undefined ? cols[hMap.supplier]?.trim() : null,
+      period: hMap.period !== undefined ? cols[hMap.period]?.trim() : null
+    };
+    if (isNaN(item.qty) || item.qty < 1) item.qty = 1;
+    items.push(item);
+  }
+  return items;
+}
+
+/* =============================================================
+   STATISTICS
+============================================================= */
+function linearRegression(points) {
+  const valid = points.filter(p => !isNaN(p.x) && !isNaN(p.y));
+  const n = valid.length;
+  if (n < 2) return null;
+
+  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+  valid.forEach(p => {
+    sumX += p.x; sumY += p.y;
+    sumXY += p.x * p.y;
+    sumX2 += p.x * p.x;
+  });
+  const denom = n * sumX2 - sumX * sumX;
+  if (denom === 0) return null;
+
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+  const yMean = sumY / n;
+
+  let ssRes = 0, ssTot = 0;
+  valid.forEach(p => {
+    const yPred = slope * p.x + intercept;
+    ssRes += Math.pow(p.y - yPred, 2);
+    ssTot += Math.pow(p.y - yMean, 2);
+  });
+  const r2 = ssTot === 0 ? 1 : Math.max(0, 1 - ssRes / ssTot);
+
+  return { slope, intercept, r2, n };
+}
+
+/* =============================================================
+   ANALYSIS ENGINE
+   - rawItems: 파싱된 원본 데이터 (필터/분석 설정과 무관, 영구 보관)
+   - lastAnalysis: 마지막 분석 결과 (현재 설정 기준 파생 데이터)
+   설정이 바뀔 때마다 analyze(rawItems) 재실행으로 전체 동기화
+============================================================= */
+let rawItems = [];
+let lastAnalysis = null;
+let currentClass = 'danger';
+let currentMode = 'single';
+let currentView = 'scatter';
+
+function getXField() {
+  return document.getElementById('xAxisSelect').value;
+}
+
+function getXValue(item) {
+  const field = getXField();
+  switch (field) {
+    case 'weight': return item.weight;
+    case 'estCost': return item.estimated;
+    case 'flash': return item.flash;
+    default: return item.weight;
+  }
+}
+
+/* -------------------------------------------------------------
+   Classification helper: peer/cost gap → 4-bucket classification
+------------------------------------------------------------- */
+function classifyItem(peerGap, costGap, threshold, mode) {
+  const hasCost = !isNaN(costGap);
+  const absHigh = threshold;
+  const absMid = threshold / 2;
+
+  if (mode === 'peer') {
+    if (peerGap > absHigh) return 'danger';
+    if (peerGap > absMid) return 'warn';
+    if (peerGap < -absHigh) return 'info';
+    return 'good';
+  }
+  if (mode === 'cost') {
+    if (!hasCost) return 'good';
+    if (costGap > absHigh) return 'danger';
+    if (costGap > absMid) return 'warn';
+    if (costGap < -absHigh) return 'info';
+    return 'good';
+  }
+  // hybrid: cross-verification
+  const peerHigh = peerGap > absHigh;
+  const costHigh = hasCost && costGap > absHigh;
+  const peerLow = peerGap < -absHigh;
+  const costLow = hasCost && costGap < -absHigh;
+  const peerMid = peerGap > absMid && peerGap <= absHigh;
+  const costMid = hasCost && costGap > absMid && costGap <= absHigh;
+
+  if (peerHigh && costHigh) return 'danger';           // 이중 overprice
+  if (peerHigh || costHigh) return 'warn';             // 한쪽만 overprice
+  if (peerMid || costMid) return 'warn';
+  if (peerLow || costLow) return 'info';
+  return 'good';
+}
+
+/* -------------------------------------------------------------
+   Group-wise linear regression (trendMode: 'all' | 'series')
+------------------------------------------------------------- */
+function buildRegressions(data, trendMode, getY) {
+  const out = {};
+  if (trendMode === 'all') {
+    const pts = data.map(i => ({ x: i.x, y: getY(i) })).filter(p => !isNaN(p.y));
+    if (pts.length >= 2) out['_all'] = linearRegression(pts);
+  } else {
+    const bySeries = {};
+    data.forEach(i => {
+      const y = getY(i);
+      if (isNaN(y)) return;
+      (bySeries[i.series] ||= []).push({ x: i.x, y });
+    });
+    Object.keys(bySeries).forEach(s => {
+      if (bySeries[s].length >= 2) out[s] = linearRegression(bySeries[s]);
+    });
+  }
+  return out;
+}
+
+/* -------------------------------------------------------------
+   Main analysis pipeline
+------------------------------------------------------------- */
+function analyze(items) {
+  const threshold = parseFloat(document.getElementById('thresholdInput').value) || 15;
+  const trendMode = document.getElementById('trendModeSelect').value;
+  const seriesFilter = document.getElementById('seriesFilterSelect').value;
+  const classMode = document.getElementById('classModeSelect')?.value || 'hybrid';
+
+  // 1. Map to {x, y} and drop invalid rows
+  let enriched = items.map(item => ({
+    ...item,
+    x: getXValue(item),
+    y: item.actual
+  })).filter(i => !isNaN(i.x) && !isNaN(i.y));
+
+  // 2. Apply series filter at entry so every downstream metric honors it
+  if (seriesFilter !== 'all') {
+    enriched = enriched.filter(i => i.series === seriesFilter);
+  }
+
+  // 3. Build two sets of regressions: actual price vs x, estimated cost vs x
+  const regressions = buildRegressions(enriched, trendMode, i => i.y);
+  const hasEstimated = enriched.some(i => !isNaN(i.estimated));
+  const costRegressions = hasEstimated
+    ? buildRegressions(enriched, trendMode, i => i.estimated)
+    : {};
+
+  // 4. Compute gaps, savings, classification per item
+  enriched.forEach(item => {
+    // Peer gap: distance from peer-benchmark trendline
+    const reg = trendMode === 'all' ? regressions['_all'] : regressions[item.series];
+    if (reg) {
+      item.trendY = reg.slope * item.x + reg.intercept;
+      item.peerGap = item.trendY > 0 ? (item.actual - item.trendY) / item.trendY * 100 : 0;
+      item.peerSaving = Math.max(0, (item.actual - item.trendY) * item.qty);
+    } else {
+      item.trendY = NaN;
+      item.peerGap = 0;
+      item.peerSaving = 0;
+    }
+
+    // Cost gap: distance from should-cost estimate
+    if (!isNaN(item.estimated) && item.estimated > 0) {
+      item.costGap = (item.actual - item.estimated) / item.estimated * 100;
+      item.costSaving = Math.max(0, (item.actual - item.estimated) * item.qty);
+    } else {
+      item.costGap = NaN;
+      item.costSaving = 0;
+    }
+
+    item.classification = classifyItem(item.peerGap, item.costGap, threshold, classMode);
+
+    // Composite saving: depends on classification mode
+    if (classMode === 'cost') item.savingPotential = item.costSaving;
+    else if (classMode === 'hybrid') item.savingPotential = Math.max(item.peerSaving, item.costSaving);
+    else item.savingPotential = item.peerSaving;
+  });
+
+  return {
+    items: enriched,
+    filtered: enriched,        // retained for backward compat with chart code
+    regressions,
+    costRegressions,
+    threshold,
+    trendMode,
+    seriesFilter,
+    classMode,
+    hasEstimated
+  };
+}
+
+/* =============================================================
+   RENDER: STATS
+============================================================= */
+function fmtInt(n) {
+  if (isNaN(n) || n == null) return '—';
+  return new Intl.NumberFormat('ko-KR').format(Math.round(n));
+}
+
+function fmtMoney(n) {
+  if (isNaN(n) || n == null || n === 0) return '0';
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return (n / 1e9).toFixed(2) + '억';
+  if (abs >= 1e7) return (n / 1e7).toFixed(1) + '천만';
+  if (abs >= 1e4) return (n / 1e4).toFixed(1) + '만';
+  return fmtInt(n);
+}
+
+function fmtMoneyEn(n) {
+  if (isNaN(n) || n == null || n === 0) return '0';
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return fmtInt(n);
+}
+
+function renderStats(analysis) {
+  const dict = i18n[currentLang];
+  const items = analysis.items;
+  const total = items.length;
+  const managed = items.filter(i => i.classification === 'danger').length;
+  const totalSaving = items.reduce((s, i) => s + (i.savingPotential || 0), 0);
+  const totalAnnualBuy = items.reduce((s, i) => s + (i.actual * i.qty), 0);
+
+  document.getElementById('stat-total').innerHTML = `${fmtInt(total)}<span class="unit">${currentLang === 'ko' ? '개' : ''}</span>`;
+  document.getElementById('stat-totalSub').textContent =
+    `${currentLang === 'ko' ? '연간 거래 ' : 'Annual '} ₩${currentLang === 'ko' ? fmtMoney(totalAnnualBuy) : fmtMoneyEn(totalAnnualBuy)}`;
+
+  const mainReg = analysis.trendMode === 'all'
+    ? analysis.regressions['_all']
+    : Object.values(analysis.regressions)[0];
+  const r2 = mainReg?.r2;
+  if (r2 != null && !isNaN(r2)) {
+    document.getElementById('stat-r2').innerHTML = `${r2.toFixed(2)}`;
+    let qual = dict.trendPoor;
+    if (r2 >= 0.9) qual = dict.trendExcellent;
+    else if (r2 >= 0.75) qual = dict.trendGood;
+    else if (r2 >= 0.5) qual = dict.trendFair;
+    document.getElementById('stat-r2Sub').textContent = qual;
+  } else {
+    document.getElementById('stat-r2').textContent = '—';
+    document.getElementById('stat-r2Sub').textContent = dict.r2Empty;
+  }
+
+  const pct = total > 0 ? (managed / total * 100).toFixed(0) : 0;
+  document.getElementById('stat-manage').innerHTML = `${managed}<span class="unit">/${total}</span>`;
+  document.getElementById('stat-manageSub').textContent = `${dict.managePercent} ${pct}%`;
+
+  const savingText = currentLang === 'ko'
+    ? `₩${fmtMoney(totalSaving)}`
+    : `₩${fmtMoneyEn(totalSaving)}`;
+  document.getElementById('stat-saving').innerHTML = savingText;
+  document.getElementById('stat-savingSub').textContent = dict.yearlyEstimate;
+}
+
+/* =============================================================
+   RENDER: TABLE
+============================================================= */
+function renderTable(analysis, cls) {
+  const dict = i18n[currentLang];
+  const items = analysis.items.filter(i => i.classification === cls);
+  const container = document.getElementById('tableContainer');
+
+  document.getElementById('count-danger').textContent = analysis.items.filter(i => i.classification === 'danger').length;
+  document.getElementById('count-warn').textContent = analysis.items.filter(i => i.classification === 'warn').length;
+  document.getElementById('count-good').textContent = analysis.items.filter(i => i.classification === 'good').length;
+  document.getElementById('count-info').textContent = analysis.items.filter(i => i.classification === 'info').length;
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="empty">${dict.emptyTable}</div>`;
+    return;
+  }
+
+  items.sort((a, b) => {
+    if (cls === 'danger' || cls === 'warn') return (b.savingPotential || 0) - (a.savingPotential || 0);
+    if (cls === 'info') return (a.peerGap || 0) - (b.peerGap || 0);
+    return (b.qty || 0) - (a.qty || 0);
+  });
+
+  const showCost = analysis.hasEstimated;
+
+  let html = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>${dict.colProduct}</th>
+      <th>${dict.colSeries}</th>
+      <th class="num">${dict.colActual}</th>
+      <th class="num">${currentLang === 'ko' ? '피어 편차' : 'Peer gap'}</th>
+      ${showCost ? `<th class="num">${currentLang === 'ko' ? '원가 편차' : 'Cost gap'}</th>` : ''}
+      <th class="num">${dict.colQty}</th>
+      <th class="num">${dict.colSavingPotential}</th>
+    </tr></thead><tbody>`;
+
+  items.forEach(i => {
+    const peerPillClass = i.peerGap > analysis.threshold ? 'danger' :
+                         i.peerGap > analysis.threshold/2 ? 'warn' :
+                         i.peerGap < -analysis.threshold ? 'info' : 'good';
+    const peerStr = i.peerGap > 0 ? `+${i.peerGap.toFixed(1)}%` : `${i.peerGap.toFixed(1)}%`;
+
+    let costCell = '';
+    if (showCost) {
+      if (isNaN(i.costGap)) {
+        costCell = `<td class="num"><span style="color:var(--text-subtle)">—</span></td>`;
+      } else {
+        const costPillClass = i.costGap > analysis.threshold ? 'danger' :
+                             i.costGap > analysis.threshold/2 ? 'warn' :
+                             i.costGap < -analysis.threshold ? 'info' : 'good';
+        const costStr = i.costGap > 0 ? `+${i.costGap.toFixed(1)}%` : `${i.costGap.toFixed(1)}%`;
+        costCell = `<td class="num"><span class="pill ${costPillClass}">${costStr}</span></td>`;
+      }
+    }
+
+    const savingStr = i.savingPotential > 0
+      ? (currentLang === 'ko' ? `₩${fmtMoney(i.savingPotential)}` : `₩${fmtMoneyEn(i.savingPotential)}`)
+      : '—';
+
+    html += `<tr>
+      <td><strong>${i.name}</strong></td>
+      <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
+      <td class="num">${fmtInt(i.actual)}</td>
+      <td class="num"><span class="pill ${peerPillClass}">${peerStr}</span></td>
+      ${costCell}
+      <td class="num">${fmtInt(i.qty)}</td>
+      <td class="num">${savingStr}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+/* =============================================================
+   CHART
+============================================================= */
+let mainChart = null;
+
+function seriesColor(series) {
+  const theme = document.documentElement.getAttribute('data-theme');
+  const colors = {
+    'AURIX2': getCss('--series-aurix2'),
+    'AURIX1': getCss('--series-aurix1'),
+    'Traveo2': getCss('--series-traveo2'),
+    'Other': getCss('--series-other')
+  };
+  return colors[series] || getCss('--series-other');
+}
+
+function getCss(v) {
+  return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+}
+
+function getBubbleScaleMode() {
+  const el = document.getElementById('bubbleScaleSelect');
+  return el ? el.value : 'sqrt';
+}
+
+function bubbleRadius(qty, maxQty, minQty) {
+  const mode = getBubbleScaleMode();
+  if (mode === 'fixed') return 10;
+  if (!maxQty || maxQty <= 0 || qty <= 0) return 5;
+
+  const ratio = qty / maxQty;
+  const minR = 5, maxR = 36;
+
+  if (mode === 'linear') {
+    return minR + ratio * (maxR - minR);
+  }
+  if (mode === 'log') {
+    const minLog = Math.log(Math.max(minQty || 1, 1));
+    const maxLog = Math.log(maxQty);
+    const curLog = Math.log(qty);
+    const denom = maxLog - minLog;
+    const norm = denom > 0 ? (curLog - minLog) / denom : 0.5;
+    return minR + norm * (maxR - minR);
+  }
+  // default: sqrt
+  return minR + Math.sqrt(ratio) * (maxR - minR);
+}
+
+function getCurrentView() {
+  return currentView;
+}
+
+function renderChart(analysis) {
+  const view = getCurrentView();
+  if (view === 'matrix') {
+    renderMatrixChart(analysis);
+  } else {
+    renderScatterChart(analysis);
+  }
+}
+
+function renderScatterChart(analysis) {
+  const dict = i18n[currentLang];
+  const canvas = document.getElementById('mainChart');
+  const ctx = canvas.getContext('2d');
+  document.getElementById('matrixInsight').style.display = 'none';
+
+  const filtered = analysis.filtered;
+  const seriesGroups = {};
+  filtered.forEach(i => {
+    if (!seriesGroups[i.series]) seriesGroups[i.series] = [];
+    seriesGroups[i.series].push(i);
+  });
+
+  const maxQty = Math.max(...filtered.map(i => i.qty || 1), 1);
+  const minQty = Math.min(...filtered.map(i => i.qty || 1), 1);
+
+  // Bubble datasets (one per series)
+  const bubbleDatasets = Object.keys(seriesGroups).map(s => ({
+    label: s,
+    type: 'bubble',
+    data: seriesGroups[s].map(i => ({
+      x: i.x, y: i.y, r: bubbleRadius(i.qty, maxQty, minQty),
+      raw: i
+    })),
+    backgroundColor: seriesColor(s) + '88',
+    borderColor: seriesColor(s),
+    borderWidth: 1.5
+  }));
+
+  // Trendlines and bands
+  const trendDatasets = [];
+  const bandConfigs = [];        // fed to trendBand plugin
+  const threshold = analysis.threshold;
+  const textColor = getCss('--text-subtle');
+  const showCostTrend = document.getElementById('costOverlayChk')?.checked && analysis.hasEstimated;
+
+  const computeLinePts = (reg, xsArr) => {
+    const xMin = Math.min(...xsArr) * 0.95;
+    const xMax = Math.max(...xsArr) * 1.05;
+    return {
+      points: [
+        { x: xMin, y: reg.slope * xMin + reg.intercept },
+        { x: xMax, y: reg.slope * xMax + reg.intercept }
+      ],
+      range: [xMin, xMax]
+    };
+  };
+
+  if (analysis.trendMode === 'all' && analysis.regressions['_all']) {
+    // Global peer trendline + band
+    const reg = analysis.regressions['_all'];
+    const xs = filtered.map(i => i.x);
+    const { points, range } = computeLinePts(reg, xs);
+
+    trendDatasets.push({
+      label: 'Peer Trendline',
+      type: 'line',
+      data: points,
+      borderColor: textColor,
+      borderWidth: 1.8,
+      borderDash: [6, 4],
+      fill: false, pointRadius: 0, tension: 0, showLine: true
+    });
+
+    bandConfigs.push({
+      regression: reg,
+      xRange: range,
+      fillColor: textColor + '14',
+      strokeColor: textColor + '66'
+    });
+
+    // Optional cost trendline overlay
+    if (showCostTrend && analysis.costRegressions['_all']) {
+      const creg = analysis.costRegressions['_all'];
+      const { points: clp } = computeLinePts(creg, xs);
+      trendDatasets.push({
+        label: 'Should-cost Trendline',
+        type: 'line',
+        data: clp,
+        borderColor: getCss('--brand'),
+        borderWidth: 1.8, borderDash: [2, 3],
+        fill: false, pointRadius: 0, tension: 0, showLine: true
+      });
+    }
+  } else {
+    // Per-series trendlines + per-series bands
+    Object.keys(analysis.regressions).forEach(s => {
+      const reg = analysis.regressions[s];
+      if (!reg) return;
+      const groupItems = filtered.filter(i => i.series === s);
+      if (groupItems.length === 0) return;
+      const xs = groupItems.map(i => i.x);
+      const { points, range } = computeLinePts(reg, xs);
+
+      trendDatasets.push({
+        label: s + ' peer trend',
+        type: 'line',
+        data: points,
+        borderColor: seriesColor(s),
+        borderWidth: 1.5, borderDash: [6, 4],
+        fill: false, pointRadius: 0, tension: 0, showLine: true
+      });
+
+      bandConfigs.push({
+        regression: reg,
+        xRange: range,
+        fillColor: seriesColor(s) + '18',
+        strokeColor: seriesColor(s) + '55'
+      });
+
+      if (showCostTrend && analysis.costRegressions[s]) {
+        const { points: clp } = computeLinePts(analysis.costRegressions[s], xs);
+        trendDatasets.push({
+          label: s + ' should-cost trend',
+          type: 'line',
+          data: clp,
+          borderColor: seriesColor(s),
+          borderWidth: 1.5, borderDash: [2, 3],
+          fill: false, pointRadius: 0, tension: 0, showLine: true
+        });
+      }
+    });
+  }
+
+  if (mainChart) mainChart.destroy();
+
+  const xField = getXField();
+  const xTitle = xField === 'weight' ? dict.xWeight :
+                 xField === 'estCost' ? dict.xEstCost : dict.xFlash;
+
+  mainChart = new Chart(ctx, {
+    data: { datasets: [...trendDatasets, ...bubbleDatasets] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'point' },
+      plugins: {
+        legend: { display: false },
+        trendBand: {
+          enabled: true,
+          threshold,
+          regressions: bandConfigs
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const raw = ctx.raw?.raw;
+              if (!raw) return '';
+              const xLabel = xField === 'weight' ? dict.xWeight :
+                            xField === 'estCost' ? dict.xEstCost : 'Flash';
+              const peerGapStr = raw.peerGap != null ? `${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%` : '—';
+              const costGapStr = !isNaN(raw.costGap) ? `${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%` : '—';
+              return [
+                raw.name,
+                `${dict.colSeries}: ${raw.series}`,
+                `${xLabel}: ${raw.x?.toFixed(1)}`,
+                `${dict.colActual}: ${fmtInt(raw.actual)}`,
+                `Peer gap: ${peerGapStr}`,
+                `Cost gap: ${costGapStr}`,
+                `${dict.colQty}: ${fmtInt(raw.qty)}`
+              ];
+            }
+          },
+          backgroundColor: getCss('--bg-elev'),
+          titleColor: getCss('--text'),
+          bodyColor: getCss('--text'),
+          borderColor: getCss('--border-strong'),
+          borderWidth: 1, padding: 12, displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear', position: 'bottom', display: true,
+          title: { display: true, text: xTitle, color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            display: true, color: getCss('--text-subtle'), font: { size: 11 },
+            callback: function(value) {
+              const n = Number(value);
+              if (isNaN(n)) return value;
+              if (xField === 'estCost') return fmtInt(n);
+              return n % 1 === 0 ? n.toString() : n.toFixed(1);
+            }
+          }
+        },
+        y: {
+          type: 'linear', display: true,
+          title: { display: true, text: dict.colActual, color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            display: true, color: getCss('--text-subtle'), font: { size: 11 },
+            callback: v => fmtInt(v)
+          }
+        }
+      }
+    },
+    plugins: [trendBandPlugin]
+  });
+
+  renderChartLegend(analysis);
+}
+
+// -------------------------------------------------------------
+// Custom Chart.js plugins - drawn directly on canvas
+// (not dataset-based, so they can't desync from data or dataset order)
+// -------------------------------------------------------------
+
+// Trend band plugin: draws ±threshold band around each trendline.
+// Accepts opts.regressions = array of { regression, xRange, fillColor, strokeColor }.
+// Runs in beforeDatasetsDraw so it sits behind data points.
+const trendBandPlugin = {
+  id: 'trendBand',
+  beforeDatasetsDraw(chart, args, opts) {
+    if (!opts?.enabled || !opts.regressions?.length) return;
+    const { ctx, chartArea, scales: { x, y } } = chart;
+    const threshold = opts.threshold || 15;
+    const fUp = 1 + threshold / 100;
+    const fDn = 1 - threshold / 100;
+
+    ctx.save();
+    // Clip to chart area so bands never spill past axes
+    ctx.beginPath();
+    ctx.rect(chartArea.left, chartArea.top, chartArea.width, chartArea.height);
+    ctx.clip();
+
+    opts.regressions.forEach(({ regression, xRange, fillColor, strokeColor }) => {
+      if (!regression) return;
+      const { slope, intercept } = regression;
+      const [xLo, xHi] = xRange;
+      const yCenterLo = slope * xLo + intercept;
+      const yCenterHi = slope * xHi + intercept;
+
+      const pxLo = x.getPixelForValue(xLo);
+      const pxHi = x.getPixelForValue(xHi);
+      const pyUpLo = y.getPixelForValue(yCenterLo * fUp);
+      const pyUpHi = y.getPixelForValue(yCenterHi * fUp);
+      const pyDnLo = y.getPixelForValue(yCenterLo * fDn);
+      const pyDnHi = y.getPixelForValue(yCenterHi * fDn);
+
+      // Filled band polygon
+      ctx.fillStyle = fillColor;
+      ctx.beginPath();
+      ctx.moveTo(pxLo, pyUpLo);
+      ctx.lineTo(pxHi, pyUpHi);
+      ctx.lineTo(pxHi, pyDnHi);
+      ctx.lineTo(pxLo, pyDnLo);
+      ctx.closePath();
+      ctx.fill();
+
+      // Dashed upper/lower threshold lines
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(pxLo, pyUpLo); ctx.lineTo(pxHi, pyUpHi);
+      ctx.moveTo(pxLo, pyDnLo); ctx.lineTo(pxHi, pyDnHi);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    ctx.restore();
+  }
+};
+
+// Quadrant shading plugin for matrix view
+const quadrantShading = {
+  id: 'quadrantShading',
+  beforeDraw(chart, args, opts) {
+    if (!opts || !opts.enabled) return;
+    const { ctx, chartArea, scales: { x, y } } = chart;
+    const threshold = opts.threshold || 15;
+    const xZero = x.getPixelForValue(0);
+    const yZero = y.getPixelForValue(0);
+    const xPos = x.getPixelForValue(threshold);
+    const xNeg = x.getPixelForValue(-threshold);
+    const yPos = y.getPixelForValue(threshold);
+    const yNeg = y.getPixelForValue(-threshold);
+
+    ctx.save();
+    // Q1: critical (top-right of threshold)
+    ctx.fillStyle = opts.dangerColor;
+    ctx.fillRect(xPos, chartArea.top, chartArea.right - xPos, yPos - chartArea.top);
+    // Q3: underpriced (bottom-left of -threshold)
+    ctx.fillStyle = opts.infoColor;
+    ctx.fillRect(chartArea.left, yNeg, xNeg - chartArea.left, chartArea.bottom - yNeg);
+    // Axis lines at 0
+    ctx.strokeStyle = opts.axisColor;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(xZero, chartArea.top); ctx.lineTo(xZero, chartArea.bottom);
+    ctx.moveTo(chartArea.left, yZero); ctx.lineTo(chartArea.right, yZero);
+    ctx.stroke();
+    // Threshold lines
+    ctx.strokeStyle = opts.thresholdColor;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xPos, chartArea.top); ctx.lineTo(xPos, chartArea.bottom);
+    ctx.moveTo(xNeg, chartArea.top); ctx.lineTo(xNeg, chartArea.bottom);
+    ctx.moveTo(chartArea.left, yPos); ctx.lineTo(chartArea.right, yPos);
+    ctx.moveTo(chartArea.left, yNeg); ctx.lineTo(chartArea.right, yNeg);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+};
+
+function renderMatrixChart(analysis) {
+  const dict = i18n[currentLang];
+  const canvas = document.getElementById('mainChart');
+  const ctx = canvas.getContext('2d');
+
+  if (!analysis.hasEstimated) {
+    if (mainChart) { mainChart.destroy(); mainChart = null; }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const insight = document.getElementById('matrixInsight');
+    insight.style.display = 'block';
+    insight.innerHTML = `<strong>⚠ ${currentLang === 'ko' ? '추정원가 데이터가 필요합니다' : 'Estimated cost data required'}</strong><br>${currentLang === 'ko' ? '매트릭스 뷰는 추정원가 컬럼이 있어야 작동합니다. 입력 데이터를 확인하세요.' : 'Matrix view requires the estimated cost column in your data.'}`;
+    return;
+  }
+
+  const filtered = analysis.filtered.filter(i => !isNaN(i.costGap));
+  const threshold = analysis.threshold;
+  const maxQty = Math.max(...filtered.map(i => i.qty || 1), 1);
+  const minQty = Math.min(...filtered.map(i => i.qty || 1), 1);
+
+  // Group by classification for color coding
+  const groups = { danger: [], warn: [], good: [], info: [] };
+  filtered.forEach(i => {
+    (groups[i.classification] || groups.good).push(i);
+  });
+
+  const classColors = {
+    danger: getCss('--status-danger'),
+    warn: getCss('--status-warn'),
+    good: getCss('--status-good'),
+    info: getCss('--status-info')
+  };
+
+  const classLabels = {
+    danger: currentLang === 'ko' ? '이중 overprice' : 'Double overpriced',
+    warn: currentLang === 'ko' ? '편측 이상' : 'Single-side alert',
+    good: currentLang === 'ko' ? '합리 구간' : 'Reasonable',
+    info: currentLang === 'ko' ? '저평가' : 'Underpriced'
+  };
+
+  const datasets = Object.keys(groups).filter(k => groups[k].length > 0).map(k => ({
+    label: classLabels[k],
+    type: 'bubble',
+    data: groups[k].map(i => ({
+      x: i.costGap, y: i.peerGap, r: bubbleRadius(i.qty, maxQty, minQty),
+      raw: i
+    })),
+    backgroundColor: classColors[k] + '99',
+    borderColor: classColors[k],
+    borderWidth: 1.5
+  }));
+
+  if (mainChart) mainChart.destroy();
+
+  // Compute axis ranges with "nice" rounded values (10의 배수로 올림)
+  const allXVals = filtered.map(i => i.costGap);
+  const allYVals = filtered.map(i => i.peerGap);
+  const rawXAbs = Math.max(Math.abs(Math.min(...allXVals)), Math.abs(Math.max(...allXVals)), threshold + 10);
+  const rawYAbs = Math.max(Math.abs(Math.min(...allYVals)), Math.abs(Math.max(...allYVals)), threshold + 10);
+
+  // Round up to nearest 10 for clean tick values
+  const niceRoundUp = (x) => {
+    if (x <= 20) return 20;
+    if (x <= 50) return Math.ceil(x / 10) * 10;
+    return Math.ceil(x / 20) * 20;
+  };
+  const xAbs = niceRoundUp(rawXAbs);
+  const yAbs = niceRoundUp(rawYAbs);
+  const xStep = xAbs <= 20 ? 5 : (xAbs <= 50 ? 10 : 20);
+  const yStep = yAbs <= 20 ? 5 : (yAbs <= 50 ? 10 : 20);
+
+  mainChart = new Chart(ctx, {
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'point' },
+      plugins: {
+        legend: { display: false },
+        quadrantShading: {
+          enabled: true,
+          threshold,
+          dangerColor: classColors.danger + '18',
+          infoColor: classColors.info + '18',
+          axisColor: getCss('--text-subtle'),
+          thresholdColor: getCss('--border-strong')
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const raw = ctx.raw?.raw;
+              if (!raw) return '';
+              return [
+                raw.name,
+                `${dict.colSeries}: ${raw.series}`,
+                `Cost gap: ${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%`,
+                `Peer gap: ${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%`,
+                `${dict.colActual}: ${fmtInt(raw.actual)}`,
+                `${dict.colQty}: ${fmtInt(raw.qty)}`
+              ];
+            }
+          },
+          backgroundColor: getCss('--bg-elev'),
+          titleColor: getCss('--text'),
+          bodyColor: getCss('--text'),
+          borderColor: getCss('--border-strong'),
+          borderWidth: 1, padding: 12, displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear', position: 'bottom',
+          min: -xAbs, max: xAbs,
+          title: { display: true, text: (currentLang === 'ko' ? '원가 대비 편차 (%)' : 'Cost deviation (%)'), color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            color: getCss('--text-subtle'),
+            font: { size: 11 },
+            stepSize: xStep,
+            callback: v => Math.round(v) + '%'
+          }
+        },
+        y: {
+          type: 'linear',
+          min: -yAbs, max: yAbs,
+          title: { display: true, text: (currentLang === 'ko' ? '동급 대비 편차 (%)' : 'Peer deviation (%)'), color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            color: getCss('--text-subtle'),
+            font: { size: 11 },
+            stepSize: yStep,
+            callback: v => Math.round(v) + '%'
+          }
+        }
+      }
+    },
+    plugins: [quadrantShading]
+  });
+
+  renderMatrixLegend();
+  renderMatrixInsight(analysis);
+}
+
+function renderMatrixLegend() {
+  const classColors = {
+    danger: getCss('--status-danger'),
+    warn: getCss('--status-warn'),
+    good: getCss('--status-good'),
+    info: getCss('--status-info')
+  };
+  const labels = {
+    ko: { danger: '이중 overprice', warn: '편측 이상', good: '합리 구간', info: '저평가' },
+    en: { danger: 'Double overpriced', warn: 'Single-side', good: 'Reasonable', info: 'Underpriced' }
+  };
+  const dict = labels[currentLang];
+  const html = ['danger','warn','good','info'].map(k =>
+    `<span class="legend-item"><span class="legend-dot" style="background:${classColors[k]}"></span>${dict[k]}</span>`
+  ).join('');
+  document.getElementById('chartLegend').innerHTML = html;
+}
+
+function renderMatrixInsight(analysis) {
+  const insight = document.getElementById('matrixInsight');
+  insight.style.display = 'block';
+  const items = analysis.filtered.filter(i => !isNaN(i.costGap));
+  const threshold = analysis.threshold;
+
+  const q1 = items.filter(i => i.costGap > threshold && i.peerGap > threshold);
+  const q2 = items.filter(i => i.costGap <= threshold && i.peerGap > threshold);
+  const q4 = items.filter(i => i.costGap > threshold && i.peerGap <= threshold);
+  const q3 = items.filter(i => i.costGap < -threshold && i.peerGap < -threshold);
+
+  const q1Saving = q1.reduce((s, i) => s + Math.max(i.peerSaving, i.costSaving), 0);
+  const savingStr = currentLang === 'ko' ? `₩${fmtMoney(q1Saving)}` : `₩${fmtMoneyEn(q1Saving)}`;
+
+  if (currentLang === 'ko') {
+    insight.innerHTML = `
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+        <div><strong style="color:${getCss('--status-danger')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 인하여력</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
+        <div><strong style="color:${getCss('--status-info')};">🔵 좌하단 (${q3.length}개)</strong><br>이중 저평가 · <b>인상 방어 우선</b></div>
+      </div>
+    `;
+  } else {
+    insight.innerHTML = `
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+        <div><strong style="color:${getCss('--status-danger')};">🔴 Top-right (${q1.length})</strong><br>Double overpriced · <b>highest priority</b><br>Annual ${savingStr} potential</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 Top (${q2.length})</strong><br>Peer-expensive only · series outlier</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 Right (${q4.length})</strong><br>Cost-expensive only · margin review</div>
+        <div><strong style="color:${getCss('--status-info')};">🔵 Bottom-left (${q3.length})</strong><br>Double underpriced · <b>defend against increase</b></div>
+      </div>
+    `;
+  }
+}
+
+function renderChartLegend(analysis) {
+  const allSeries = [...new Set(analysis.items.map(i => i.series))];
+  const legendHtml = allSeries.map(s => {
+    return `<span class="legend-item" data-series="${s}">
+      <span class="legend-dot" style="background:${seriesColor(s)}"></span>
+      ${s}
+    </span>`;
+  }).join('');
+  document.getElementById('chartLegend').innerHTML = legendHtml;
+}
+
+/* =============================================================
+   SIMULATOR
+============================================================= */
+function updateSimulator() {
+  const slider = document.getElementById('simSlider');
+  const pct = parseFloat(slider.value);
+  document.getElementById('simPercent').textContent = pct.toFixed(1) + '%';
+
+  if (!lastAnalysis) {
+    document.getElementById('simAmount').textContent = '—';
+    document.getElementById('simDetail').textContent = '—';
+    return;
+  }
+
+  const managed = lastAnalysis.items.filter(i => i.classification === 'danger');
+  const totalAnnual = managed.reduce((s, i) => s + (i.actual * i.qty), 0);
+  const saving = totalAnnual * (pct / 100);
+
+  const dict = i18n[currentLang];
+  document.getElementById('simAmount').textContent = currentLang === 'ko'
+    ? `₩${fmtMoney(saving)}`
+    : `₩${fmtMoneyEn(saving)}`;
+  document.getElementById('simUnit').textContent = 'KRW';
+  document.getElementById('simDetail').textContent =
+    `${managed.length} ${dict.dataCount} · ${dict.totalPerYear}${currentLang === 'ko' ? fmtMoney(totalAnnual) : fmtMoneyEn(totalAnnual)}`;
+}
+
+document.getElementById('simSlider').addEventListener('input', updateSimulator);
+
+/* =============================================================
+   SERIES FILTER UPDATE
+============================================================= */
+function updateSeriesFilterOptions(items) {
+  const sel = document.getElementById('seriesFilterSelect');
+  const cur = sel.value;
+  const serieses = [...new Set(items.map(i => i.series))];
+  sel.innerHTML = `<option value="all">${i18n[currentLang].filterAll}</option>`;
+  serieses.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  });
+  if ([...sel.options].find(o => o.value === cur)) sel.value = cur;
+}
+
+/* =============================================================
+   COMPARE MODES (label swapping only; analysis logic shared)
+============================================================= */
+function updateCompareModeLabels() {
+  const dict = i18n[currentLang];
+  if (currentMode === 'compare-time') {
+    document.getElementById('labelB1').textContent = dict.labelB1Time;
+    document.getElementById('labelB2').textContent = dict.labelB2Time;
+  } else if (currentMode === 'compare-supplier') {
+    document.getElementById('labelB1').textContent = dict.labelB1Sup;
+    document.getElementById('labelB2').textContent = dict.labelB2Sup;
+  }
+}
+
+/* =============================================================
+   CSV / PNG / PDF EXPORT
+============================================================= */
+function exportPng() {
+  if (!mainChart) return;
+  const url = mainChart.toBase64Image('image/png', 1);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `portfolio-chart-${new Date().toISOString().slice(0,10)}.png`;
+  a.click();
+}
+
+function exportCsv() {
+  if (!lastAnalysis) return;
+  const dict = i18n[currentLang];
+  const headers = [dict.colProduct, dict.colSeries, 'X', dict.colActual, dict.colTrend, 'Peer Gap%', 'Cost Gap%', dict.colQty, dict.colSavingPotential, 'Classification'];
+  const rows = lastAnalysis.items.map(i => [
+    i.name, i.series, i.x?.toFixed(2), i.actual,
+    Math.round(i.trendY||0),
+    i.peerGap?.toFixed(2),
+    isNaN(i.costGap) ? '' : i.costGap.toFixed(2),
+    i.qty, Math.round(i.savingPotential||0), i.classification
+  ]);
+  const csv = '\ufeff' + [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `portfolio-classification-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportPdf() {
+  if (!lastAnalysis) return;
+  const dict = i18n[currentLang];
+  const { jsPDF } = window.jspdf;
+
+  const body = document.body;
+  body.classList.add('export-mode');
+
+  try {
+    await new Promise(r => setTimeout(r, 100));
+    const target = document.querySelector('main');
+    const canvas = await html2canvas(target, {
+      backgroundColor: getCss('--bg'),
+      scale: 2,
+      useCORS: true,
+      logging: false
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW - 14;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    pdf.setFontSize(9);
+    pdf.setTextColor(100);
+    pdf.text(`${dict.exportReportTitle} · ${dict.exportGeneratedAt}: ${new Date().toLocaleString(currentLang === 'ko' ? 'ko-KR' : 'en-US')}`, 7, 8);
+
+    if (imgH < pageH - 20) {
+      pdf.addImage(imgData, 'PNG', 7, 12, imgW, imgH);
+    } else {
+      let position = 12;
+      let remaining = imgH;
+      let srcY = 0;
+      const pageAvail = pageH - 14;
+      while (remaining > 0) {
+        const segH = Math.min(remaining, pageAvail);
+        pdf.addImage(imgData, 'PNG', 7, position, imgW, imgH, undefined, 'FAST', 0, -srcY);
+        remaining -= pageAvail;
+        srcY += pageAvail;
+        if (remaining > 0) {
+          pdf.addPage();
+          position = 12;
+        }
+      }
+    }
+
+    pdf.save(`portfolio-report-${new Date().toISOString().slice(0,10)}.pdf`);
+  } finally {
+    body.classList.remove('export-mode');
+  }
+}
+
+document.getElementById('exportPngBtn').addEventListener('click', exportPng);
+document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
+
+/* =============================================================
+   RENDER ORCHESTRATION
+============================================================= */
+function renderAll(analysis) {
+  renderStats(analysis);
+  renderChart(analysis);
+  renderTable(analysis, currentClass);
+  updateSimulator();
+}
+
+/* =============================================================
+   EVENT BINDINGS
+============================================================= */
+
+// Analyze button: parse input → store to rawItems → run analyze
+document.getElementById('analyzeBtn').addEventListener('click', () => {
+  let parsed;
+
+  if (currentMode === 'single') {
+    const text = document.getElementById('pasteInputA').value;
+    if (!text.trim()) {
+      alert(currentLang === 'ko' ? '데이터를 붙여넣어 주세요.' : 'Please paste data.');
+      return;
+    }
+    parsed = parseTSV(text);
+  } else {
+    // Compare modes: merge two inputs with tags
+    const textA = document.getElementById('pasteInputB1').value;
+    const textB = document.getElementById('pasteInputB2').value;
+    const itemsA = parseTSV(textA);
+    const itemsB = parseTSV(textB);
+    if (!itemsA.length || !itemsB.length) {
+      alert(currentLang === 'ko' ? '두 입력란 모두에 데이터를 넣어주세요.' : 'Please provide data in both inputs.');
+      return;
+    }
+    const tagA = currentMode === 'compare-time' ? 'PREV' : 'SUP-A';
+    const tagB = currentMode === 'compare-time' ? 'CURR' : 'SUP-B';
+    itemsA.forEach(i => { i.name += ' [' + tagA + ']'; i.series = tagA; });
+    itemsB.forEach(i => { i.name += ' [' + tagB + ']'; i.series = tagB; });
+    parsed = [...itemsA, ...itemsB];
+  }
+
+  if (!parsed || !parsed.length) {
+    alert(currentLang === 'ko' ? '유효한 데이터를 찾을 수 없습니다. 헤더와 탭 구분을 확인하세요.' : 'No valid data found. Check headers and tab separation.');
+    return;
+  }
+
+  // Store to SSOT and run first analysis
+  rawItems = parsed;
+  updateSeriesFilterOptions(rawItems);
+  lastAnalysis = analyze(rawItems);
+  renderAll(lastAnalysis);
+});
+
+document.getElementById('sampleBtn').addEventListener('click', () => {
+  if (currentMode === 'single') {
+    document.getElementById('pasteInputA').value = buildSampleTSV();
+  } else if (currentMode === 'compare-time') {
+    document.getElementById('pasteInputB1').value = buildSampleTSVB(6);
+    document.getElementById('pasteInputB2').value = buildSampleTSVB(0);
+  } else {
+    document.getElementById('pasteInputB1').value = buildSampleTSV();
+    document.getElementById('pasteInputB2').value = buildSampleTSVB(-12);
+  }
+  document.getElementById('analyzeBtn').click();
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('pasteInputA').value = '';
+  document.getElementById('pasteInputB1').value = '';
+  document.getElementById('pasteInputB2').value = '';
+  rawItems = [];
+  lastAnalysis = null;
+  if (mainChart) { mainChart.destroy(); mainChart = null; }
+  ['stat-total','stat-r2','stat-manage','stat-saving'].forEach(id => document.getElementById(id).textContent = '—');
+  ['stat-totalSub','stat-r2Sub','stat-manageSub','stat-savingSub'].forEach(id => document.getElementById(id).textContent = '—');
+  ['count-danger','count-warn','count-good','count-info'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('tableContainer').innerHTML = `<div class="empty">${i18n[currentLang].emptyTable}</div>`;
+  document.getElementById('simAmount').textContent = '—';
+  document.getElementById('simDetail').textContent = '—';
+  document.getElementById('matrixInsight').style.display = 'none';
+});
+
+/* -------------------------------------------------------------
+   Re-run analysis whenever a setting changes.
+   Always uses rawItems (the pristine parsed data) so filters
+   can be toggled back and forth without losing items.
+------------------------------------------------------------- */
+function reanalyze() {
+  if (!rawItems.length) return;
+  lastAnalysis = analyze(rawItems);
+  renderAll(lastAnalysis);
+}
+
+['xAxisSelect','thresholdInput','trendModeSelect','seriesFilterSelect','classModeSelect'].forEach(id => {
+  document.getElementById(id).addEventListener('change', reanalyze);
+});
+
+// Bubble scale change only redraws the chart (no re-analysis needed)
+document.getElementById('bubbleScaleSelect').addEventListener('change', () => {
+  if (lastAnalysis) renderChart(lastAnalysis);
+});
+
+// View tabs (scatter / matrix)
+document.querySelectorAll('#viewTabs .mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#viewTabs .mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentView = tab.dataset.view;
+    document.getElementById('costOverlayWrap').style.display = currentView === 'scatter' ? 'inline-flex' : 'none';
+    if (lastAnalysis) renderChart(lastAnalysis);
+  });
+});
+
+// Cost trendline overlay toggle
+document.getElementById('costOverlayChk').addEventListener('change', () => {
+  if (lastAnalysis) renderChart(lastAnalysis);
+});
+
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentMode = tab.dataset.mode;
+    if (currentMode === 'single') {
+      document.getElementById('singleInputRow').classList.remove('hidden');
+      document.getElementById('dualInputRow').classList.add('hidden');
+    } else {
+      document.getElementById('singleInputRow').classList.add('hidden');
+      document.getElementById('dualInputRow').classList.remove('hidden');
+      updateCompareModeLabels();
+    }
+  });
+});
+
+document.querySelectorAll('.class-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.class-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentClass = tab.dataset.class;
+    if (lastAnalysis) renderTable(lastAnalysis, currentClass);
+  });
+});
+
+/* =============================================================
+   INIT
+============================================================= */
+initTheme();
+applyI18n();
+
+</script>
+</body>
+</html>
