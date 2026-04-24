@@ -305,14 +305,74 @@
 
   .guide-cols-info {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.2fr 1fr;
     gap: 20px;
     padding-top: 12px;
     border-top: 1px dashed var(--border);
   }
 
-  @media (max-width: 800px) {
+  @media (max-width: 900px) {
     .guide-cols-info { grid-template-columns: 1fr; }
+  }
+
+  .guide-example {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .guide-example-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-elev);
+  }
+
+  .guide-example-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    font-family: var(--font-mono);
+  }
+
+  .guide-example-table th {
+    background: var(--bg-muted);
+    padding: 6px 8px;
+    text-align: left;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    color: var(--text);
+  }
+
+  .guide-example-table td {
+    padding: 5px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .guide-example-table tr:last-child td { border-bottom: none; }
+
+  .guide-example-caption {
+    font-size: 11px;
+    color: var(--text-subtle);
+    font-style: italic;
+    text-align: center;
+  }
+
+  .guide-desc {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .guide-desc-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .guide-label {
@@ -334,6 +394,11 @@
   .guide-label.optional {
     background: var(--status-info-bg);
     color: var(--status-info);
+  }
+
+  .guide-label.example {
+    background: var(--status-good-bg);
+    color: var(--status-good);
   }
 
   .guide-list {
@@ -556,10 +621,42 @@
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 10px;
+    flex-wrap: wrap;
   }
 
   .section-title-row .section-title {
     margin-bottom: 0;
+  }
+
+  .input-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .btn-mini {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-mini:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-muted);
+    color: var(--text);
+  }
+
+  .btn-mini.ghost {
+    background: transparent;
   }
 
   .card {
@@ -636,7 +733,9 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 6px;
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 2px;
   }
 
   textarea.paste-area {
@@ -817,6 +916,93 @@
     justify-content: center;
   }
 
+  /* -----------------------------------------------------------
+     Help icon + tooltip (used in control labels, stat labels, etc.)
+     Pure CSS hover tooltip — no JS needed.
+  ----------------------------------------------------------- */
+  .help-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    margin-left: 5px;
+    border-radius: 50%;
+    background: var(--bg-muted);
+    color: var(--text-subtle);
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-sans);
+    cursor: help;
+    position: relative;
+    vertical-align: middle;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .help-icon:hover {
+    background: var(--brand);
+    color: #fff;
+    border-color: var(--brand);
+  }
+
+  .help-icon::before {
+    content: '?';
+    font-size: 10px;
+    line-height: 1;
+  }
+
+  .help-icon::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: var(--bg-elev);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 500;
+    line-height: 1.55;
+    white-space: pre-line;
+    width: max-content;
+    max-width: 280px;
+    text-align: left;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s, visibility 0.15s;
+    z-index: 1000;
+    letter-spacing: -0.005em;
+  }
+
+  /* Triangle pointer */
+  .help-icon[data-tip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* If the tooltip would overflow the left edge, anchor it to the left */
+  .help-icon.tip-left::after {
+    left: 0;
+    transform: translateX(0);
+  }
+
+  .help-icon.tip-right::after {
+    left: auto;
+    right: 0;
+    transform: translateX(0);
+  }
+
+  /* Below-target variant (for icons near the top of the page) */
+  .help-icon.tip-below::after {
+    bottom: auto;
+    top: calc(100% + 8px);
+  }
+
   /* STATS DASHBOARD */
   .stats-grid {
     display: grid;
@@ -848,8 +1034,165 @@
   }
 
   .stat-card.highlight .stat-label,
-  .stat-card.highlight .stat-sub {
+  .stat-card.highlight .stat-sub,
+  .stat-card.highlight .stat-expand-hint {
     color: rgba(255,255,255,0.7);
+  }
+
+  .stat-clickable {
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .stat-clickable:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+  }
+
+  .stat-clickable.highlight:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  }
+
+  .stat-expand-hint {
+    margin-top: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-subtle);
+    letter-spacing: 0.03em;
+  }
+
+  .stat-card.active .stat-expand-hint {
+    transform: rotate(180deg);
+    display: inline-block;
+  }
+
+  /* DRILLDOWN AREA */
+  .stat-drilldown {
+    margin-top: 14px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    animation: drilldownSlide 0.2s ease-out;
+  }
+
+  @keyframes drilldownSlide {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .drilldown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .drilldown-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .drilldown-body {
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .drilldown-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+    background: var(--bg-muted);
+    border-radius: 6px;
+    font-size: 12px;
+  }
+
+  .drilldown-summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .drilldown-summary-item .label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .drilldown-summary-item .value {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .drilldown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .drilldown-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .drilldown-table th {
+    background: var(--bg-muted);
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-subtle);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .drilldown-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .drilldown-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .drilldown-table td.num,
+  .drilldown-table th.num {
+    text-align: right;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .drilldown-table tr.total-row {
+    background: var(--bg-muted);
+    font-weight: 700;
+  }
+
+  .drilldown-table tr.total-row td {
+    border-bottom: none;
+    color: var(--text);
+  }
+
+  .drilldown-empty {
+    text-align: center;
+    padding: 32px;
+    color: var(--text-subtle);
+    font-size: 12px;
   }
 
   .stat-label {
@@ -859,6 +1202,9 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
   }
 
   .stat-value {
@@ -1097,6 +1443,34 @@
     .sim-grid { grid-template-columns: 1fr; }
   }
 
+  .sim-detail-wrap {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .sim-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .sim-detail-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .sim-detail-count {
+    font-size: 11px;
+    color: var(--text-subtle);
+    font-family: var(--font-mono);
+  }
+
   .sim-slider-wrap {
     padding: 12px 0;
   }
@@ -1248,22 +1622,53 @@
       </div>
 
       <div class="guide-cols-info">
-        <div>
-          <div class="guide-label required"><span data-i18n="guideRequiredCols">필수 컬럼</span></div>
-          <ul class="guide-list">
-            <li><strong data-i18n="guideColName">제품명</strong><span data-i18n="guideColNameDesc"> — 식별자</span></li>
-            <li><strong data-i18n="guideColActual">실구매가</strong><span data-i18n="guideColActualDesc"> — 분석 기준값 (Y축)</span></li>
-            <li><strong data-i18n="guideColQty">연간수량</strong><span data-i18n="guideColQtyDesc"> — 인하여력 계산용</span></li>
-            <li><strong data-i18n="guideColX">X축 지표</strong><span data-i18n="guideColXDesc"> — 성능을 대표하는 숫자 컬럼 최소 1개</span></li>
-            <li><strong data-i18n="guideColEstimated">추정원가</strong><span data-i18n="guideColEstimatedDesc"> — Hybrid / Should-cost 분석용 (권장)</span></li>
-          </ul>
+        <!-- LEFT: Real example table -->
+        <div class="guide-example">
+          <div class="guide-label example"><span data-i18n="guideExampleLabel">예시 데이터</span></div>
+          <div class="guide-example-wrap">
+            <table class="guide-example-table">
+              <thead>
+                <tr>
+                  <th data-i18n="guideColName">제품명</th>
+                  <th data-i18n="guideColSeries">시리즈</th>
+                  <th data-i18n="guideExamplePerf">성능지표</th>
+                  <th data-i18n="guideColActual">실구매가</th>
+                  <th data-i18n="guideColEstimated">추정원가</th>
+                  <th data-i18n="guideColQty">연간수량</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>APX-A100-F256</td><td>A-Series</td><td>15.0</td><td>22,500</td><td>26,800</td><td>1,200,000</td></tr>
+                <tr><td>APX-A090-F192</td><td>A-Series</td><td>9.8</td><td>10,500</td><td>15,600</td><td>550,000</td></tr>
+                <tr><td>BPX-B070-M064</td><td>B-Series</td><td>4.3</td><td>8,300</td><td>10,900</td><td>1,200,000</td></tr>
+                <tr><td>CPX-C030-L032</td><td>C-Series</td><td>2.0</td><td>2,800</td><td>3,300</td><td>950,000</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="guide-example-caption" data-i18n="guideExampleCaption">
+            ↑ 엑셀에서 이런 형태로 복사해서 붙여넣기 하세요
+          </p>
         </div>
-        <div>
-          <div class="guide-label optional"><span data-i18n="guideOptionalCols">선택 컬럼</span></div>
-          <ul class="guide-list">
-            <li><strong data-i18n="guideColSeries">시리즈</strong><span data-i18n="guideColSeriesDesc"> — 없으면 제품명에서 자동 추출</span></li>
-            <li><strong data-i18n="guideColExtras">기타 숫자 컬럼</strong><span data-i18n="guideColExtrasDesc"> — 자유롭게 추가 (예: 전류, 전압, Flash 등) → X축에서 선택 가능</span></li>
-          </ul>
+
+        <!-- RIGHT: Column descriptions -->
+        <div class="guide-desc">
+          <div class="guide-desc-block">
+            <div class="guide-label required"><span data-i18n="guideRequiredCols">필수 컬럼</span></div>
+            <ul class="guide-list">
+              <li><strong data-i18n="guideColName">제품명</strong><span data-i18n="guideColNameDesc"> — 식별자</span></li>
+              <li><strong data-i18n="guideColActual">실구매가</strong><span data-i18n="guideColActualDesc"> — 분석 기준값 (Y축)</span></li>
+              <li><strong data-i18n="guideColQty">연간수량</strong><span data-i18n="guideColQtyDesc"> — 인하여력 계산용</span></li>
+              <li><strong data-i18n="guideColX">X축 지표</strong><span data-i18n="guideColXDesc"> — 성능을 대표하는 숫자 컬럼 최소 1개</span></li>
+              <li><strong data-i18n="guideColEstimated">추정원가</strong><span data-i18n="guideColEstimatedDesc"> — Hybrid / Should-cost 분석용 (권장)</span></li>
+            </ul>
+          </div>
+          <div class="guide-desc-block">
+            <div class="guide-label optional"><span data-i18n="guideOptionalCols">선택 컬럼</span></div>
+            <ul class="guide-list">
+              <li><strong data-i18n="guideColSeries">시리즈</strong><span data-i18n="guideColSeriesDesc"> — 없으면 제품명에서 자동 추출</span></li>
+              <li><strong data-i18n="guideColExtras">기타 숫자 컬럼</strong><span data-i18n="guideColExtrasDesc"> — 자유롭게 추가 (예: 전류, 전압, Flash 등) → X축에서 선택 가능</span></li>
+            </ul>
+          </div>
           <div class="guide-tips">
             <p data-i18n="guideTip1">💡 컬럼 순서는 상관없습니다. 헤더 이름으로 자동 인식합니다.</p>
             <p data-i18n="guideTip2">💡 헤더는 한국어/영어 모두 지원 (제품명/Product, 실구매가/Actual 등).</p>
@@ -1281,10 +1686,18 @@
     <section class="card paste-section">
       <div class="section-title-row">
         <div class="section-title" data-i18n="inputSection">데이터 입력</div>
-        <div class="mode-tabs compact" id="modeTabs">
-          <button class="mode-tab active" data-mode="single" data-i18n="modeSingle">단일</button>
-          <button class="mode-tab" data-mode="compare-time" data-i18n="modeCompareTime">시점</button>
-          <button class="mode-tab" data-mode="compare-supplier" data-i18n="modeCompareSupplier">공급사</button>
+        <div class="input-header-actions">
+          <div class="mode-tabs compact" id="modeTabs">
+            <button class="mode-tab active" data-mode="single" data-i18n="modeSingle">단일</button>
+            <button class="mode-tab" data-mode="compare-time" data-i18n="modeCompareTime">시점</button>
+            <button class="mode-tab" data-mode="compare-supplier" data-i18n="modeCompareSupplier">공급사</button>
+          </div>
+          <button class="btn-mini" id="sampleBtn">
+            <span data-i18n="sample">샘플</span>
+          </button>
+          <button class="btn-mini ghost" id="clearBtn">
+            <span data-i18n="clear">초기화</span>
+          </button>
         </div>
       </div>
 
@@ -1307,15 +1720,6 @@
           </div>
         </div>
 
-        <div class="btn-row">
-          <button class="btn" id="sampleBtn">
-            <span data-i18n="sample">샘플 데이터</span>
-          </button>
-          <button class="btn ghost" id="clearBtn">
-            <span data-i18n="clear">초기화</span>
-          </button>
-        </div>
-
         <!-- Live preview of parsed data -->
         <div id="previewContainer" class="preview-container hidden">
           <div class="preview-header">
@@ -1335,24 +1739,36 @@
       <div class="section-title" data-i18n="controlSection">분석 설정</div>
       <div class="controls-grid">
         <div class="control-item">
-          <label class="input-label" data-i18n="xaxis">X축 지표</label>
+          <label class="input-label">
+            <span data-i18n="xaxis">X축 지표</span>
+            <span class="help-icon" data-tip-key="xaxis"></span>
+          </label>
           <select id="xAxisSelect">
             <option value="" data-i18n="xAxisEmpty">데이터를 먼저 입력하세요</option>
           </select>
         </div>
         <div class="control-item">
-          <label class="input-label" data-i18n="threshold">관리 임계값 (%)</label>
+          <label class="input-label">
+            <span data-i18n="threshold">관리 임계값 (%)</span>
+            <span class="help-icon" data-tip-key="threshold"></span>
+          </label>
           <input type="number" id="thresholdInput" value="15" min="5" max="50" step="1" />
         </div>
         <div class="control-item">
-          <label class="input-label" data-i18n="trendMode">추세선 기준</label>
+          <label class="input-label">
+            <span data-i18n="trendMode">추세선 기준</span>
+            <span class="help-icon" data-tip-key="trendMode"></span>
+          </label>
           <select id="trendModeSelect">
             <option value="all" data-i18n="trendAll">전체 통합</option>
             <option value="series" data-i18n="trendSeries">시리즈별</option>
           </select>
         </div>
         <div class="control-item">
-          <label class="input-label" data-i18n="classMode">분류 기준</label>
+          <label class="input-label">
+            <span data-i18n="classMode">분류 기준</span>
+            <span class="help-icon" data-tip-key="classMode"></span>
+          </label>
           <select id="classModeSelect">
             <option value="hybrid" data-i18n="classModeHybrid">Hybrid (교차검증) ★</option>
             <option value="peer" data-i18n="classModePeer">Peer only (동급비교)</option>
@@ -1360,13 +1776,19 @@
           </select>
         </div>
         <div class="control-item">
-          <label class="input-label" data-i18n="seriesFilter">시리즈 필터</label>
+          <label class="input-label">
+            <span data-i18n="seriesFilter">시리즈 필터</span>
+            <span class="help-icon tip-right" data-tip-key="seriesFilter"></span>
+          </label>
           <select id="seriesFilterSelect">
             <option value="all" data-i18n="filterAll">전체 표시</option>
           </select>
         </div>
         <div class="control-item">
-          <label class="input-label" data-i18n="bubbleScale">버블 크기 스케일</label>
+          <label class="input-label">
+            <span data-i18n="bubbleScale">버블 크기 스케일</span>
+            <span class="help-icon tip-right" data-tip-key="bubbleScale"></span>
+          </label>
           <select id="bubbleScaleSelect">
             <option value="sqrt" data-i18n="scaleSqrt">제곱근 (균형)</option>
             <option value="linear" data-i18n="scaleLinear">선형 (차이 강조)</option>
@@ -1399,26 +1821,51 @@
   <section>
     <div class="section-title" data-i18n="summary">분석 요약</div>
     <div class="stats-grid" id="statsGrid">
-      <div class="stat-card">
-        <div class="stat-label" data-i18n="totalProducts">총 제품</div>
+      <div class="stat-card" data-stat-key="total">
+        <div class="stat-label">
+          <span data-i18n="totalProducts">총 제품</span>
+          <span class="help-icon" data-tip-key="totalProducts"></span>
+        </div>
         <div class="stat-value" id="stat-total">—</div>
         <div class="stat-sub" id="stat-totalSub" data-i18n="readyToAnalyze">분석 준비 완료</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label" data-i18n="rSquared">가격 체계 R²</div>
+      <div class="stat-card" data-stat-key="r2">
+        <div class="stat-label">
+          <span data-i18n="rSquared">가격 체계 R²</span>
+          <span class="help-icon" data-tip-key="rSquared"></span>
+        </div>
         <div class="stat-value" id="stat-r2">—</div>
         <div class="stat-sub" id="stat-r2Sub">—</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label" data-i18n="manageTarget">관리 대상</div>
+      <div class="stat-card stat-clickable" data-stat-key="manage" id="manageCard">
+        <div class="stat-label">
+          <span data-i18n="manageTarget">관리 대상</span>
+          <span class="help-icon" data-tip-key="manageTarget"></span>
+        </div>
         <div class="stat-value" id="stat-manage">—</div>
         <div class="stat-sub" id="stat-manageSub">—</div>
+        <div class="stat-expand-hint" data-i18n="clickToExpand">클릭하여 상세 보기 ▼</div>
       </div>
-      <div class="stat-card highlight">
-        <div class="stat-label" data-i18n="savingPotential">잠재 인하여력</div>
+      <div class="stat-card highlight stat-clickable" data-stat-key="saving" id="savingCard">
+        <div class="stat-label">
+          <span data-i18n="savingPotential">잠재 인하여력</span>
+          <span class="help-icon tip-right" data-tip-key="savingPotential"></span>
+        </div>
         <div class="stat-value" id="stat-saving">—</div>
         <div class="stat-sub" id="stat-savingSub" data-i18n="yearlyEstimate">추세선 기준 연간 추정</div>
+        <div class="stat-expand-hint" data-i18n="clickToExpand">클릭하여 상세 보기 ▼</div>
       </div>
+    </div>
+
+    <!-- Drilldown area: shown when a stat card is clicked -->
+    <div id="statDrilldown" class="stat-drilldown hidden">
+      <div class="drilldown-header">
+        <span class="drilldown-title" id="drilldownTitle"></span>
+        <button class="btn-mini ghost" id="drilldownCloseBtn">
+          <span>✕</span>
+        </button>
+      </div>
+      <div class="drilldown-body" id="drilldownBody"></div>
     </div>
   </section>
 
@@ -1483,7 +1930,10 @@
 
   <!-- SIMULATOR -->
   <section class="card">
-    <div class="section-title" data-i18n="simSection">인하 시나리오 시뮬레이터</div>
+    <div class="section-title">
+      <span data-i18n="simSection">인하 시나리오 시뮬레이터</span>
+      <span class="help-icon" data-tip-key="simulator"></span>
+    </div>
     <div class="sim-grid">
       <div class="sim-slider-wrap">
         <label class="input-label" data-i18n="simSlider">관리 대상 제품에 적용할 평균 인하율</label>
@@ -1500,6 +1950,17 @@
         <div class="sim-percent" id="simPercent">5.0%</div>
         <div class="sim-saving"><span id="simAmount">—</span> <span class="unit" id="simUnit">KRW</span></div>
         <div class="stat-sub" id="simDetail" style="margin-top:6px;">—</div>
+      </div>
+    </div>
+
+    <!-- Live detail breakdown -->
+    <div class="sim-detail-wrap" id="simDetailTableWrap">
+      <div class="sim-detail-header">
+        <span class="sim-detail-title" data-i18n="simDetailTitle">제품별 세부 내역</span>
+        <span class="sim-detail-count" id="simDetailCount"></span>
+      </div>
+      <div class="drilldown-body">
+        <table class="drilldown-table" id="simDetailTable"></table>
       </div>
     </div>
   </section>
@@ -1570,13 +2031,36 @@ const i18n = {
     guideTip1: "💡 컬럼 순서는 상관없습니다. 헤더 이름으로 자동 인식합니다.",
     guideTip2: "💡 헤더는 한국어/영어 모두 지원 (제품명/Product, 실구매가/Actual 등).",
     guideTip3: "💡 반도체 외 다른 부품 분석에도 사용 가능합니다.",
+    guideExampleLabel: "예시 데이터",
+    guideExamplePerf: "성능지표",
+    guideExampleCaption: "↑ 엑셀에서 이런 형태로 복사해서 붙여넣기 하세요",
+    clickToExpand: "클릭하여 상세 보기 ▼",
+    clickToCollapse: "클릭하여 접기 ▲",
+    simDetailTitle: "제품별 세부 내역",
+    drilldownManageTitle: "관리 대상 제품 상세",
+    drilldownSavingTitle: "잠재 인하여력 산출 내역",
+
+    // tooltip text for help icons
+    tip_xaxis: "차트의 X축으로 사용할 성능/스펙 지표입니다.\n\n데이터에 포함된 숫자 컬럼들이 자동으로 후보에 나타납니다 (예: 전류, 전압, 가중치, Flash 용량 등).\n\nY축(실구매가)과의 관계를 보기 위한 '성능 대리 지표'로 생각하세요.",
+    tip_threshold: "제품을 '관리 대상'으로 분류하는 편차 기준입니다.\n\n예: 15%로 설정 시, 추세선 대비 +15% 이상 비싼 제품이 '관리 대상'으로 분류됩니다.\n\n일반적으로 10~20% 사이가 적정합니다. 낮을수록 엄격, 높을수록 관대.",
+    tip_trendMode: "가격 합리성 기준선을 어떻게 그을지 결정합니다.\n\n• 전체 통합: 모든 제품을 하나의 추세선으로 비교. 전체 구매 포트폴리오의 일관성 검토용.\n\n• 시리즈별: 각 시리즈마다 별도 추세선. 예: AURIX2와 AURIX1을 각자의 기준으로 비교. 시리즈 내부 일관성 검토용.",
+    tip_classMode: "overprice/저평가를 판정하는 기준입니다.\n\n• Hybrid (권장): 동급비교와 원가비교 두 관점을 교차검증. 둘 다 고가여야 '관리 대상'. 가장 신뢰도 높음.\n\n• Peer only: 유사 제품끼리만 비교. 추정원가 없어도 작동.\n\n• Should-cost: 기술 사양 기반 추정원가 대비만 비교. 공급사 전체가 overprice인 경우를 잡을 때 유용.",
+    tip_seriesFilter: "특정 시리즈만 선택해서 분석할 수 있습니다.\n\n예: 'A-Series'만 선택하면 A-Series 제품만으로 추세선과 통계가 재계산됩니다.\n\n특정 공급사/제품군에 집중한 협상 준비 시 유용.",
+    tip_bubbleScale: "차트에서 버블 크기가 수량을 표현하는 방식을 조정합니다.\n\n• 제곱근 (권장): 시각적으로 균형 잡힌 기본 스케일.\n• 선형: 대량 제품을 크게 강조.\n• 로그: 수량 편차가 극단적일 때 (예: 10,000 vs 5,000,000) 작은 제품도 보이게 완화.\n• 고정: 수량 무관 동일 크기. 가격 패턴만 보고 싶을 때.",
+
+    tip_totalProducts: "현재 분석 범위에 포함된 제품 수와 연간 거래 규모입니다.\n\n시리즈 필터를 적용하면 그 범위에 맞춰 재계산됩니다.",
+    tip_rSquared: "가격 체계의 합리성을 나타내는 통계 지표입니다 (0~1 사이).\n\n• 0.9 이상: 우수 — 매우 일관된 가격 체계\n• 0.75~0.9: 양호 — 합리적 가격 체계\n• 0.5~0.75: 보통 — 일부 비합리 존재\n• 0.5 미만: 미흡 — 가격 체계 재점검 필요\n\n높을수록 '성능에 비례해서 가격이 매겨졌다'는 뜻입니다.",
+    tip_manageTarget: "클릭하면 관리 대상으로 분류된 제품의 상세 목록을 볼 수 있습니다.\n\n각 제품의 추세선 대비 편차와 인하여력을 확인하세요.",
+    tip_savingPotential: "클릭하면 이 금액이 어떻게 산출되었는지 제품별로 상세히 볼 수 있습니다.\n\n산출 방식: 각 관리 대상 제품에 대해 (실구매가 − 추세선값) × 연간수량의 합계.",
+
+    tip_simulator: "관리 대상 제품들을 일괄 X% 인하했을 때 연간 얼마가 절감되는지 실시간으로 계산합니다.\n\n아래 제품별 표에서 슬라이더 조정 시 각 제품의 현재가, 인하 후 가격, 절감액이 즉시 업데이트됩니다.",
     previewTitle: "인식된 데이터",
     miniChartLabel: "실시간 미리보기",
     miniChartHint: "설정을 바꾸면 즉시 반영됩니다",
     xAxisEmpty: "데이터를 먼저 입력하세요",
     xaxis: "X축 지표",
     analyze: "분석 시작",
-    sample: "샘플 데이터",
+    sample: "샘플",
     clear: "초기화",
     controlSection: "분석 설정",
     xaxis: "X축",
@@ -1682,13 +2166,35 @@ const i18n = {
     guideTip1: "💡 Column order doesn't matter — headers are detected by name.",
     guideTip2: "💡 Headers can be Korean or English.",
     guideTip3: "💡 Works for any component category, not just semiconductors.",
+    guideExampleLabel: "Example Data",
+    guideExamplePerf: "Performance",
+    guideExampleCaption: "↑ Copy from Excel in this format and paste",
+    clickToExpand: "Click to expand ▼",
+    clickToCollapse: "Click to collapse ▲",
+    simDetailTitle: "Per-product Breakdown",
+    drilldownManageTitle: "Managed Items Detail",
+    drilldownSavingTitle: "Saving Potential Breakdown",
+
+    tip_xaxis: "The performance/spec metric used as the X-axis.\n\nAll numeric columns in your data appear as candidates (e.g. current, voltage, weight, Flash capacity).\n\nThink of it as the 'performance proxy' to correlate with actual price.",
+    tip_threshold: "Deviation threshold for classifying products as 'managed'.\n\nExample: at 15%, products priced +15% above the trendline are flagged.\n\nTypically 10–20% works well. Lower = stricter, higher = more tolerant.",
+    tip_trendMode: "How to draw the rationality baseline.\n\n• All Combined: one trendline across all products. For overall portfolio consistency.\n\n• Per Series: separate trendline per series. For within-series consistency.",
+    tip_classMode: "Method for flagging overpriced / underpriced items.\n\n• Hybrid (recommended): cross-checks peer comparison AND cost comparison. Most reliable.\n\n• Peer only: peer comparison only. Works even without estimated cost.\n\n• Should-cost: compare only vs. estimated cost. Catches cases where the whole supplier portfolio is overpriced.",
+    tip_seriesFilter: "Analyze only a specific series.\n\nExample: selecting 'A-Series' recalculates trendline and stats using only A-Series products.\n\nUseful when preparing negotiations for a specific supplier or product family.",
+    tip_bubbleScale: "How bubble size represents quantity.\n\n• Square root (recommended): balanced default.\n• Linear: emphasizes high-volume items.\n• Log: flattens extreme ranges so small items stay visible.\n• Fixed: uniform size, focus on pricing pattern only.",
+
+    tip_totalProducts: "Number of products and total annual spend in the current analysis scope.\n\nRecomputes if you apply a series filter.",
+    tip_rSquared: "How rational your pricing structure is (0 to 1).\n\n• 0.9+: Excellent — very consistent\n• 0.75–0.9: Good — rational\n• 0.5–0.75: Fair — some inconsistencies\n• <0.5: Poor — review required\n\nHigher means 'price scales with performance' more faithfully.",
+    tip_manageTarget: "Click to see the detailed list of managed products.\n\nReview each product's deviation from the trendline and its saving potential.",
+    tip_savingPotential: "Click to see how this number was calculated, product by product.\n\nFormula: for each managed item, (actual − trendline) × annual qty, summed.",
+
+    tip_simulator: "Calculates annual savings from applying an X% average reduction to all managed items.\n\nThe per-product table below updates in real time as you move the slider.",
     previewTitle: "Detected Data",
     miniChartLabel: "Live Preview",
     miniChartHint: "Updates instantly as you change settings",
     xAxisEmpty: "Load data first",
     xaxis: "X-axis Metric",
     analyze: "Analyze",
-    sample: "Load Sample",
+    sample: "Sample",
     clear: "Reset",
     controlSection: "Analysis Settings",
     xaxis: "X-axis",
@@ -1771,6 +2277,12 @@ function applyI18n() {
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
     const key = el.getAttribute('data-i18n-ph');
     if (dict[key]) el.setAttribute('placeholder', dict[key]);
+  });
+  // Help-icon tooltips: look up tip_<key> in the dictionary
+  document.querySelectorAll('.help-icon[data-tip-key]').forEach(el => {
+    const key = el.getAttribute('data-tip-key');
+    const tip = dict['tip_' + key];
+    if (tip) el.setAttribute('data-tip', tip);
   });
   document.documentElement.lang = currentLang;
   updateCompareModeLabels();
@@ -3326,9 +3838,14 @@ function updateSimulator() {
   const pct = parseFloat(slider.value);
   document.getElementById('simPercent').textContent = pct.toFixed(1) + '%';
 
+  const detailWrap = document.getElementById('simDetailTableWrap');
+  const countEl = document.getElementById('simDetailCount');
+  const tableEl = document.getElementById('simDetailTable');
+
   if (!lastAnalysis) {
     document.getElementById('simAmount').textContent = '—';
     document.getElementById('simDetail').textContent = '—';
+    if (detailWrap) detailWrap.style.display = 'none';
     return;
   }
 
@@ -3343,9 +3860,189 @@ function updateSimulator() {
   document.getElementById('simUnit').textContent = 'KRW';
   document.getElementById('simDetail').textContent =
     `${managed.length} ${dict.dataCount} · ${dict.totalPerYear}${currentLang === 'ko' ? fmtMoney(totalAnnual) : fmtMoneyEn(totalAnnual)}`;
+
+  // Per-product breakdown table (updates live as slider moves)
+  if (!managed.length) {
+    if (detailWrap) detailWrap.style.display = 'none';
+    return;
+  }
+
+  if (detailWrap) detailWrap.style.display = 'block';
+  countEl.textContent = currentLang === 'ko'
+    ? `총 ${managed.length}개 관리 대상 제품`
+    : `${managed.length} managed products`;
+
+  // Sort by saving potential (descending)
+  const sorted = [...managed].sort((a, b) => {
+    const sa = a.actual * a.qty * (pct / 100);
+    const sb = b.actual * b.qty * (pct / 100);
+    return sb - sa;
+  });
+
+  const headers = currentLang === 'ko'
+    ? ['제품명', '시리즈', '현재가', '인하후가', '수량', '단위절감', '연간절감']
+    : ['Product', 'Series', 'Current', 'Reduced', 'Qty', 'Unit Save', 'Annual Save'];
+
+  let html = `<thead><tr>
+    <th>${headers[0]}</th>
+    <th>${headers[1]}</th>
+    <th class="num">${headers[2]}</th>
+    <th class="num">${headers[3]}</th>
+    <th class="num">${headers[4]}</th>
+    <th class="num">${headers[5]}</th>
+    <th class="num">${headers[6]}</th>
+  </tr></thead><tbody>`;
+
+  let totalSave = 0;
+  sorted.forEach(i => {
+    const reduced = i.actual * (1 - pct / 100);
+    const unitSave = i.actual - reduced;
+    const annualSave = unitSave * i.qty;
+    totalSave += annualSave;
+    html += `<tr>
+      <td><strong>${i.name}</strong></td>
+      <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
+      <td class="num">${fmtInt(i.actual)}</td>
+      <td class="num" style="color:var(--status-good)">${fmtInt(reduced)}</td>
+      <td class="num">${fmtInt(i.qty)}</td>
+      <td class="num">${fmtInt(unitSave)}</td>
+      <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(annualSave) : '₩'+fmtMoneyEn(annualSave)}</strong></td>
+    </tr>`;
+  });
+
+  // Total row
+  html += `<tr class="total-row">
+    <td colspan="6" style="text-align:right">${currentLang === 'ko' ? '합계' : 'Total'}</td>
+    <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSave) : '₩'+fmtMoneyEn(totalSave)}</strong></td>
+  </tr>`;
+  html += '</tbody>';
+
+  tableEl.innerHTML = html;
 }
 
 document.getElementById('simSlider').addEventListener('input', updateSimulator);
+
+/* =============================================================
+   STAT CARD DRILLDOWNS
+   Click a stat card → show detailed breakdown below the stats grid
+============================================================= */
+let currentDrilldown = null;  // 'manage' | 'saving' | null
+
+function renderDrilldown(key) {
+  if (!lastAnalysis) return;
+  const dict = i18n[currentLang];
+  const wrap = document.getElementById('statDrilldown');
+  const titleEl = document.getElementById('drilldownTitle');
+  const bodyEl = document.getElementById('drilldownBody');
+
+  // Highlight the active stat card
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  const card = document.querySelector(`[data-stat-key="${key}"]`);
+  if (card) card.classList.add('active');
+
+  let html = '';
+  let title = '';
+
+  if (key === 'manage' || key === 'saving') {
+    const items = lastAnalysis.items.filter(i => i.classification === 'danger');
+    const totalAnnualBuy = items.reduce((s, i) => s + (i.actual * i.qty), 0);
+    const totalSaving = items.reduce((s, i) => s + (i.savingPotential || 0), 0);
+
+    title = key === 'manage' ? dict.drilldownManageTitle : dict.drilldownSavingTitle;
+
+    // Summary bar
+    html += `<div class="drilldown-summary">
+      <div class="drilldown-summary-item">
+        <span class="label">${currentLang === 'ko' ? '제품 수' : 'Products'}</span>
+        <span class="value">${items.length}</span>
+      </div>
+      <div class="drilldown-summary-item">
+        <span class="label">${currentLang === 'ko' ? '연간 거래액' : 'Annual spend'}</span>
+        <span class="value">${currentLang === 'ko' ? '₩'+fmtMoney(totalAnnualBuy) : '₩'+fmtMoneyEn(totalAnnualBuy)}</span>
+      </div>
+      <div class="drilldown-summary-item">
+        <span class="label">${currentLang === 'ko' ? '총 인하여력' : 'Total potential'}</span>
+        <span class="value" style="color:var(--status-good)">${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</span>
+      </div>
+    </div>`;
+
+    if (!items.length) {
+      html += `<div class="drilldown-empty">${currentLang === 'ko' ? '관리 대상 제품이 없습니다. 현재 설정 기준으로는 모든 제품이 합리 구간입니다.' : 'No managed items under current settings.'}</div>`;
+      wrap.classList.remove('hidden');
+      titleEl.textContent = title;
+      bodyEl.innerHTML = html;
+      return;
+    }
+
+    // Sort by saving potential desc
+    const sorted = [...items].sort((a, b) => (b.savingPotential || 0) - (a.savingPotential || 0));
+
+    const headers = currentLang === 'ko'
+      ? ['제품명', '시리즈', '실구매가', '추세선값', '편차', '수량', '인하여력']
+      : ['Product', 'Series', 'Actual', 'Trendline', 'Gap', 'Qty', 'Potential'];
+
+    html += `<table class="drilldown-table">
+      <thead><tr>
+        <th>${headers[0]}</th>
+        <th>${headers[1]}</th>
+        <th class="num">${headers[2]}</th>
+        <th class="num">${headers[3]}</th>
+        <th class="num">${headers[4]}</th>
+        <th class="num">${headers[5]}</th>
+        <th class="num">${headers[6]}</th>
+      </tr></thead><tbody>`;
+
+    sorted.forEach(i => {
+      const gap = i.peerGap;
+      const gapStr = gap > 0 ? `+${gap.toFixed(1)}%` : `${gap.toFixed(1)}%`;
+      html += `<tr>
+        <td><strong>${i.name}</strong></td>
+        <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
+        <td class="num">${fmtInt(i.actual)}</td>
+        <td class="num" style="color:var(--text-subtle)">${fmtInt(i.trendY)}</td>
+        <td class="num"><span class="pill danger">${gapStr}</span></td>
+        <td class="num">${fmtInt(i.qty)}</td>
+        <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(i.savingPotential||0) : '₩'+fmtMoneyEn(i.savingPotential||0)}</strong></td>
+      </tr>`;
+    });
+
+    html += `<tr class="total-row">
+      <td colspan="6" style="text-align:right">${currentLang === 'ko' ? '합계' : 'Total'}</td>
+      <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</strong></td>
+    </tr>`;
+    html += '</tbody></table>';
+  }
+
+  titleEl.textContent = title;
+  bodyEl.innerHTML = html;
+  wrap.classList.remove('hidden');
+  currentDrilldown = key;
+}
+
+function closeDrilldown() {
+  const wrap = document.getElementById('statDrilldown');
+  wrap.classList.add('hidden');
+  document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+  currentDrilldown = null;
+}
+
+// Click on clickable stat cards
+document.querySelectorAll('.stat-clickable').forEach(card => {
+  card.addEventListener('click', () => {
+    const key = card.getAttribute('data-stat-key');
+    if (currentDrilldown === key) {
+      closeDrilldown();  // toggle off
+    } else {
+      renderDrilldown(key);
+    }
+  });
+});
+
+// Close button
+document.getElementById('drilldownCloseBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  closeDrilldown();
+});
 
 /* =============================================================
    SERIES FILTER UPDATE
@@ -3544,7 +4241,9 @@ function renderAll(analysis) {
   renderChart(analysis);
   renderTable(analysis, currentClass);
   updateSimulator();
-  renderMiniChart(analysis);  // mirror on the mini preview too
+  renderMiniChart(analysis);
+  // If a drilldown is currently open, refresh it with new data
+  if (currentDrilldown) renderDrilldown(currentDrilldown);
 }
 
 /* =============================================================
@@ -3662,9 +4361,7 @@ function renderPreview(text) {
     warningsDiv.classList.add('hidden');
   }
 
-  // Build preview table — show first 5 rows with role badges
-  const MAX_ROWS = 5;
-  const showRows = items.slice(0, MAX_ROWS);
+  // Build preview table — show ALL rows (scroll to reveal)
   const reservedByIndex = {};
   Object.entries(meta.reservedMap).forEach(([role, headerName]) => {
     const idx = meta.headers.indexOf(headerName);
@@ -3697,9 +4394,9 @@ function renderPreview(text) {
   });
   thead += '</tr></thead>';
 
-  // Need to reconstruct from raw text to show all cells including ignored ones
+  // Reconstruct rows from raw text to include ALL cells (including ignored columns)
   const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
-  const rawRows = lines.slice(1, MAX_ROWS + 1).map(l => l.split('\t'));
+  const rawRows = lines.slice(1).map(l => l.split('\t'));
 
   let tbody = '<tbody>';
   rawRows.forEach(cells => {
@@ -3709,9 +4406,6 @@ function renderPreview(text) {
     });
     tbody += '</tr>';
   });
-  if (items.length > MAX_ROWS) {
-    tbody += `<tr class="preview-more"><td colspan="${meta.headers.length}">…${currentLang === 'ko' ? ` 외 ${items.length - MAX_ROWS}개 행` : ` and ${items.length - MAX_ROWS} more rows`}</td></tr>`;
-  }
   tbody += '</tbody>';
 
   table.innerHTML = thead + tbody;
@@ -3763,6 +4457,7 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   if (mainChart) { mainChart.destroy(); mainChart = null; }
   if (miniChart) { miniChart.destroy(); miniChart = null; }
   clearMiniChart(currentLang === 'ko' ? '데이터를 입력하면 여기에 미리보기가 나타납니다' : 'Paste data to see a preview here');
+  closeDrilldown();
   ['stat-total','stat-r2','stat-manage','stat-saving'].forEach(id => document.getElementById(id).textContent = '—');
   ['stat-totalSub','stat-r2Sub','stat-manageSub','stat-savingSub'].forEach(id => document.getElementById(id).textContent = '—');
   ['count-danger','count-warn','count-good','count-info'].forEach(id => document.getElementById(id).textContent = '0');
