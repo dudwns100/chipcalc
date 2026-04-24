@@ -209,6 +209,302 @@
     gap: 16px;
   }
 
+  /* GUIDE CARD */
+  .guide-card {
+    background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-muted) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .guide-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .guide-icon {
+    font-size: 18px;
+  }
+
+  .guide-toggle {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+
+  .guide-body {
+    margin-top: 14px;
+    overflow: hidden;
+    max-height: 800px;
+    transition: max-height 0.25s ease, margin-top 0.25s ease, opacity 0.2s ease;
+  }
+
+  .guide-body.folded {
+    max-height: 0;
+    margin-top: 0;
+    opacity: 0;
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 800px) {
+    .guide-grid { grid-template-columns: 1fr; }
+  }
+
+  .guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .guide-step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg-elev);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .guide-step-text strong {
+    display: block;
+    font-size: 12.5px;
+    margin-bottom: 2px;
+  }
+
+  .guide-step-text p {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .guide-cols-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+
+  @media (max-width: 800px) {
+    .guide-cols-info { grid-template-columns: 1fr; }
+  }
+
+  .guide-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .guide-label.required {
+    background: var(--status-danger-bg);
+    color: var(--status-danger);
+  }
+
+  .guide-label.optional {
+    background: var(--status-info-bg);
+    color: var(--status-info);
+  }
+
+  .guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .guide-list li {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .guide-list li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .guide-list li span {
+    color: var(--text-muted);
+  }
+
+  .guide-tips {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .guide-tips p {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 3px;
+  }
+
+  /* PREVIEW TABLE */
+  .preview-container {
+    margin-top: 14px;
+    padding: 12px;
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .preview-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .preview-summary {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .preview-warnings {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .preview-note {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+
+  .preview-note.error {
+    background: var(--status-danger-bg);
+    color: var(--status-danger);
+  }
+
+  .preview-note.warn {
+    background: var(--status-warn-bg);
+    color: var(--status-warn);
+  }
+
+  .preview-note.info {
+    background: var(--status-info-bg);
+    color: var(--status-info);
+  }
+
+  .preview-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-elev);
+  }
+
+  .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  .preview-table th {
+    background: var(--bg-muted);
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .preview-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .preview-table tr:last-child td { border-bottom: none; }
+
+  .preview-table .col-header {
+    font-weight: 700;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+
+  .preview-table .col-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: var(--font-sans);
+  }
+
+  .col-badge.reserved {
+    background: var(--status-info-bg);
+    color: var(--status-info);
+  }
+
+  .col-badge.extra {
+    background: var(--status-good-bg);
+    color: var(--status-good);
+  }
+
+  .col-badge.ignored {
+    background: var(--bg-muted);
+    color: var(--text-subtle);
+    text-decoration: line-through;
+  }
+
+  .preview-more td {
+    text-align: center;
+    color: var(--text-subtle);
+    font-style: italic;
+    padding: 8px;
+  }
+
   /* TOP GRID: paste area (left) + controls (right) on PC */
   .top-grid {
     display: grid;
@@ -338,8 +634,8 @@
 
   textarea.paste-area {
     width: 100%;
-    min-height: 120px;
-    max-height: 200px;
+    min-height: 160px;
+    max-height: 240px;
     padding: 10px 12px;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
@@ -839,6 +1135,69 @@
 
 <main>
 
+  <!-- GETTING STARTED GUIDE -->
+  <section class="guide-card" id="guideCard">
+    <div class="guide-header">
+      <div class="guide-title">
+        <span class="guide-icon">📖</span>
+        <span data-i18n="guideTitle">처음 사용하는 분을 위한 가이드</span>
+      </div>
+      <button class="icon-btn guide-toggle" id="guideToggle" title="접기/펼치기">
+        <span id="guideToggleIcon">▲</span>
+      </button>
+    </div>
+    <div class="guide-body" id="guideBody">
+      <div class="guide-grid">
+        <div class="guide-step">
+          <div class="guide-step-num">1</div>
+          <div class="guide-step-text">
+            <strong data-i18n="guideStep1Title">엑셀에서 복사</strong>
+            <p data-i18n="guideStep1Desc">헤더 행을 포함하여 분석할 제품 목록을 Ctrl+C로 복사합니다.</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">2</div>
+          <div class="guide-step-text">
+            <strong data-i18n="guideStep2Title">붙여넣기</strong>
+            <p data-i18n="guideStep2Desc">아래 입력 박스에 Ctrl+V로 붙여넣으면 자동으로 미리보기 표가 나타납니다.</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">3</div>
+          <div class="guide-step-text">
+            <strong data-i18n="guideStep3Title">분석 시작</strong>
+            <p data-i18n="guideStep3Desc">미리보기 확인 후 "분석 시작"을 누르면 차트와 통계가 자동 생성됩니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-cols-info">
+        <div>
+          <div class="guide-label required"><span data-i18n="guideRequiredCols">필수 컬럼</span></div>
+          <ul class="guide-list">
+            <li><strong data-i18n="guideColName">제품명</strong><span data-i18n="guideColNameDesc"> — 식별자</span></li>
+            <li><strong data-i18n="guideColActual">실구매가</strong><span data-i18n="guideColActualDesc"> — 분석 기준값 (Y축)</span></li>
+            <li><strong data-i18n="guideColQty">연간수량</strong><span data-i18n="guideColQtyDesc"> — 인하여력 계산용</span></li>
+            <li><strong data-i18n="guideColX">X축 지표</strong><span data-i18n="guideColXDesc"> — 성능을 대표하는 숫자 컬럼 최소 1개</span></li>
+            <li><strong data-i18n="guideColEstimated">추정원가</strong><span data-i18n="guideColEstimatedDesc"> — Hybrid / Should-cost 분석용 (권장)</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="guide-label optional"><span data-i18n="guideOptionalCols">선택 컬럼</span></div>
+          <ul class="guide-list">
+            <li><strong data-i18n="guideColSeries">시리즈</strong><span data-i18n="guideColSeriesDesc"> — 없으면 제품명에서 자동 추출</span></li>
+            <li><strong data-i18n="guideColExtras">기타 숫자 컬럼</strong><span data-i18n="guideColExtrasDesc"> — 자유롭게 추가 (예: 전류, 전압, Flash 등) → X축에서 선택 가능</span></li>
+          </ul>
+          <div class="guide-tips">
+            <p data-i18n="guideTip1">💡 컬럼 순서는 상관없습니다. 헤더 이름으로 자동 인식합니다.</p>
+            <p data-i18n="guideTip2">💡 헤더는 한국어/영어 모두 지원 (제품명/Product, 실구매가/Actual 등).</p>
+            <p data-i18n="guideTip3">💡 반도체 외 다른 부품 분석에도 사용 가능합니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- TOP GRID: 입력(좌) + 설정(우) -->
   <div class="top-grid">
 
@@ -883,6 +1242,18 @@
             <span data-i18n="clear">초기화</span>
           </button>
         </div>
+
+        <!-- Live preview of parsed data -->
+        <div id="previewContainer" class="preview-container hidden">
+          <div class="preview-header">
+            <span class="preview-title" data-i18n="previewTitle">인식된 데이터</span>
+            <span class="preview-summary" id="previewSummary"></span>
+          </div>
+          <div id="previewWarnings" class="preview-warnings hidden"></div>
+          <div class="preview-table-wrap">
+            <table class="preview-table" id="previewTable"></table>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -891,11 +1262,9 @@
       <div class="section-title" data-i18n="controlSection">분석 설정</div>
       <div class="controls-grid">
         <div class="control-item">
-          <label class="input-label" data-i18n="xaxis">X축</label>
+          <label class="input-label" data-i18n="xaxis">X축 지표</label>
           <select id="xAxisSelect">
-            <option value="weight" data-i18n="xWeight">가중치 복합지표</option>
-            <option value="estCost" data-i18n="xEstCost">추정원가</option>
-            <option value="flash" data-i18n="xFlash">Flash 용량</option>
+            <option value="" data-i18n="xAxisEmpty">데이터를 먼저 입력하세요</option>
           </select>
         </div>
         <div class="control-item">
@@ -1085,7 +1454,36 @@ const i18n = {
     modeCompareSupplier: "공급사 비교",
     inputSection: "데이터 입력",
     pasteLabel: "엑셀 데이터 붙여넣기 (탭 구분)",
-    pastePlaceholder: "제품명\t시리즈\t가중치\t실구매가\t추정원가\t연간수량\nTC397XP-256F300S BD\tAURIX2\t15.3\t23785\t28317\t1500000\n...",
+    pastePlaceholder: "엑셀에서 헤더 포함하여 복사한 뒤 여기에 Ctrl+V로 붙여넣기\n\n예시:\n제품명\t시리즈\t성능지표\t실구매가\t추정원가\t연간수량\nAPX-A100-F256\tA-Series\t15.0\t22500\t26800\t1200000",
+    guideTitle: "처음 사용하는 분을 위한 가이드",
+    guideStep1Title: "엑셀에서 복사",
+    guideStep1Desc: "헤더 행을 포함하여 분석할 제품 목록을 Ctrl+C로 복사합니다.",
+    guideStep2Title: "붙여넣기",
+    guideStep2Desc: "아래 입력 박스에 Ctrl+V로 붙여넣으면 자동으로 미리보기 표가 나타납니다.",
+    guideStep3Title: "분석 시작",
+    guideStep3Desc: "미리보기 확인 후 \"분석 시작\"을 누르면 차트와 통계가 자동 생성됩니다.",
+    guideRequiredCols: "필수 컬럼",
+    guideOptionalCols: "선택 컬럼",
+    guideColName: "제품명",
+    guideColNameDesc: " — 식별자",
+    guideColActual: "실구매가",
+    guideColActualDesc: " — 분석 기준값 (Y축)",
+    guideColQty: "연간수량",
+    guideColQtyDesc: " — 인하여력 계산용",
+    guideColX: "X축 지표",
+    guideColXDesc: " — 성능을 대표하는 숫자 컬럼 최소 1개 (예: 전류, 전압, 가중치 등)",
+    guideColEstimated: "추정원가",
+    guideColEstimatedDesc: " — Hybrid / Should-cost 분석용 (권장)",
+    guideColSeries: "시리즈",
+    guideColSeriesDesc: " — 없으면 제품명에서 자동 추출",
+    guideColExtras: "기타 숫자 컬럼",
+    guideColExtrasDesc: " — 자유롭게 추가 → X축에서 선택 가능",
+    guideTip1: "💡 컬럼 순서는 상관없습니다. 헤더 이름으로 자동 인식합니다.",
+    guideTip2: "💡 헤더는 한국어/영어 모두 지원 (제품명/Product, 실구매가/Actual 등).",
+    guideTip3: "💡 반도체 외 다른 부품 분석에도 사용 가능합니다.",
+    previewTitle: "인식된 데이터",
+    xAxisEmpty: "데이터를 먼저 입력하세요",
+    xaxis: "X축 지표",
     analyze: "분석 시작",
     sample: "샘플 데이터",
     clear: "초기화",
@@ -1166,7 +1564,36 @@ const i18n = {
     modeCompareSupplier: "Supplier Comparison",
     inputSection: "Data Input",
     pasteLabel: "Paste Excel data (Tab-separated)",
-    pastePlaceholder: "Product\tSeries\tWeight\tActual\tEstimated\tQty\n...",
+    pastePlaceholder: "Copy data (including header row) from Excel and paste here with Ctrl+V\n\nExample:\nProduct\tSeries\tPerformance\tActual\tEstimated\tQty\nAPX-A100-F256\tA-Series\t15.0\t22500\t26800\t1200000",
+    guideTitle: "Getting Started",
+    guideStep1Title: "Copy from Excel",
+    guideStep1Desc: "Select your product rows including the header and copy with Ctrl+C.",
+    guideStep2Title: "Paste",
+    guideStep2Desc: "Paste into the input box below with Ctrl+V. A preview table appears automatically.",
+    guideStep3Title: "Analyze",
+    guideStep3Desc: "Review the preview, then click \"Analyze\" to generate charts and stats.",
+    guideRequiredCols: "Required Columns",
+    guideOptionalCols: "Optional Columns",
+    guideColName: "Product",
+    guideColNameDesc: " — identifier",
+    guideColActual: "Actual Price",
+    guideColActualDesc: " — analysis baseline (Y-axis)",
+    guideColQty: "Annual Qty",
+    guideColQtyDesc: " — for saving-potential calc",
+    guideColX: "X-axis Metric",
+    guideColXDesc: " — at least one numeric column (e.g. current, voltage, weight)",
+    guideColEstimated: "Estimated Cost",
+    guideColEstimatedDesc: " — for Hybrid / Should-cost analysis (recommended)",
+    guideColSeries: "Series",
+    guideColSeriesDesc: " — auto-extracted from product name if missing",
+    guideColExtras: "Extra Numeric Columns",
+    guideColExtrasDesc: " — any additional numeric columns → selectable as X-axis",
+    guideTip1: "💡 Column order doesn't matter — headers are detected by name.",
+    guideTip2: "💡 Headers can be Korean or English.",
+    guideTip3: "💡 Works for any component category, not just semiconductors.",
+    previewTitle: "Detected Data",
+    xAxisEmpty: "Load data first",
+    xaxis: "X-axis Metric",
     analyze: "Analyze",
     sample: "Load Sample",
     clear: "Reset",
@@ -1269,7 +1696,8 @@ function initTheme() {
     const t = e.matches ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', t);
     document.getElementById('themeIcon').textContent = t === 'dark' ? '☾' : '☀';
-    if (lastAnalysis) renderChart(lastAnalysis);
+    if (rawItems.length) buildSeriesColorMap([...new Set(rawItems.map(i => i.series))]);
+    if (lastAnalysis) { renderStats(lastAnalysis); renderChart(lastAnalysis); renderTable(lastAnalysis, currentClass); }
   });
 }
 
@@ -1278,7 +1706,8 @@ document.getElementById('themeToggle').addEventListener('click', () => {
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   document.getElementById('themeIcon').textContent = next === 'dark' ? '☾' : '☀';
-  if (lastAnalysis) renderChart(lastAnalysis);
+  if (rawItems.length) buildSeriesColorMap([...new Set(rawItems.map(i => i.series))]);
+  if (lastAnalysis) { renderStats(lastAnalysis); renderChart(lastAnalysis); renderTable(lastAnalysis, currentClass); }
 });
 
 document.getElementById('langToggle').addEventListener('click', () => {
@@ -1293,51 +1722,53 @@ document.getElementById('langToggle').addEventListener('click', () => {
 });
 
 /* =============================================================
-   SAMPLE DATA (from Image 3)
+   SAMPLE DATA — generic, fictional semiconductor examples
+   (columns: 제품명, 시리즈, 성능지표, 실구매가, 추정원가, 연간수량)
 ============================================================= */
 const sampleData = [
-  // [name, series, weight, actual, estimated, qty, flash]
-  ["TC397XP-256F300S BD","AURIX2",15.3,23785,28317,1500000,16],
-  ["TC387QP-160F300S AE","AURIX2",9.9,10840,16382,600000,10],
-  ["TC387TP-128F300S AE","AURIX2",7.7,10644,15682,3400000,8],
-  ["TC375TP-96F300W AA","AURIX2",6.5,10611,9723,200000,6],
-  ["TC367DP-64F300S AA","AURIX2",4.4,11345,9050,10000,4],
-  ["TC364DP-64F300W AA","AURIX2",4.4,7705,6866,450000,4],
-  ["TC364DP-64F300F AA","AURIX2",4.4,7205,6866,2200000,4],
-  ["TC277TP-64F200N DC","AURIX1",4.3,8582,11257,1300000,4],
-  ["TC277T-64F200S DB","AURIX1",4.3,12406,11257,100000,4],
-  ["TC277T-64F200N DC","AURIX1",4.3,9726,11257,120000,4],
-  ["TC275TP-64F200N DC","AURIX1",4.3,8532,9372,800000,4],
-  ["TC264D-40F200W BB","AURIX1",2.8,7692,6469,300000,2.5],
-  ["TC264D-40F200N BC","AURIX1",2.8,5765,6469,600000,2.5],
-  ["TC234LP-32F200N AC","AURIX1",1.9,5059,4542,2300000,2],
-  ["TC233SP-32F200N AC","AURIX1",1.9,4405,4144,300000,2],
-  ["TC233S-32F200N AC","AURIX1",1.9,4120,4144,200000,2],
-  ["CYT2B93CACQ0AZEGS","Traveo2",2.0,2884,3459,1000000,2],
-  ["CYT2B95CACQ0AZEGS","Traveo2",2.0,3011,3459,1200000,2],
-  ["CYT2BL3CAAQ0AZEGS","Traveo2",3.1,3667,3865,2288400,4],
-  ["CYT2BL5CAAQ0AZEGS","Traveo2",3.1,4137,3865,20000,4],
-  ["CYT2BL7CAAQ0AZEGS","Traveo2",3.3,4411,5459,600000,4],
-  ["CYT2BL8CAAQ1AZEGS","Traveo2",3.3,4409,6750,5300000,4],
-  ["CYT3BB7CEBQ1AEEGS","Traveo2",3.5,5566,6818,60000,4],
-  ["CYT3BB8CEBQ1AEEGS","Traveo2",3.6,5440,7943,1100000,4],
-  ["CYT3BB6CEBQ1BZSGS","Traveo2",3.6,6898,8998,100000,4],
-  ["CYT4BFBCJDQ0BZEGS","Traveo2",4.4,7664,13656,3300000,4],
-  ["CYT6BJBDHAQ0BZEGS","Traveo2",6.7,13810,19842,100000,4]
+  // High-tier series A — flagship-like
+  ["APX-A100-F256",  "A-Series", 15.0, 22500, 26800, 1200000],
+  ["APX-A090-F192",  "A-Series",  9.8, 10500, 15600,  550000],
+  ["APX-A080-F128",  "A-Series",  7.6, 10200, 14800, 3100000],
+  ["APX-A075-F096",  "A-Series",  6.4, 10100,  9400,  180000],
+  ["APX-A070-F064",  "A-Series",  4.4, 11000,  8800,   12000],
+  ["APX-A065-F064",  "A-Series",  4.4,  7600,  6700,  420000],
+  ["APX-A060-F064",  "A-Series",  4.4,  7100,  6700, 2000000],
+  // Mid-tier series B — volume workhorse
+  ["BPX-B070-M064",  "B-Series",  4.3,  8300, 10900, 1200000],
+  ["BPX-B070-M064H", "B-Series",  4.3, 12000, 10900,   90000],
+  ["BPX-B070-M064L", "B-Series",  4.3,  9400, 10900,  110000],
+  ["BPX-B065-M064",  "B-Series",  4.3,  8200,  9100,  750000],
+  ["BPX-B060-M040",  "B-Series",  2.8,  7500,  6300,  280000],
+  ["BPX-B060-M040L", "B-Series",  2.8,  5600,  6300,  560000],
+  ["BPX-B050-M032",  "B-Series",  1.9,  4900,  4400, 2100000],
+  ["BPX-B045-M032",  "B-Series",  1.9,  4300,  4000,  280000],
+  ["BPX-B045-M032L", "B-Series",  1.9,  4000,  4000,  190000],
+  // Low-tier series C — legacy / entry
+  ["CPX-C030-L032",  "C-Series",  2.0,  2800,  3300,  950000],
+  ["CPX-C030-L032B", "C-Series",  2.0,  2900,  3300, 1150000],
+  ["CPX-C040-L064",  "C-Series",  3.0,  3550,  3700, 2150000],
+  ["CPX-C040-L064B", "C-Series",  3.1,  4000,  3750,   18000],
+  ["CPX-C045-L064",  "C-Series",  3.3,  4300,  5200,  580000],
+  ["CPX-C045-L064B", "C-Series",  3.3,  4300,  6500, 5000000],
+  ["CPX-C050-L064",  "C-Series",  3.5,  5400,  6500,   55000],
+  ["CPX-C050-L064B", "C-Series",  3.6,  5300,  7600, 1050000],
+  ["CPX-C050-L064C", "C-Series",  3.6,  6700,  8700,   95000],
+  ["CPX-C055-L128",  "C-Series",  4.4,  7500, 13100, 3100000],
+  ["CPX-C060-L128",  "C-Series",  6.6, 13400, 19000,   95000]
 ];
 
 function buildSampleTSV() {
-  const header = "제품명\t시리즈\t가중치\t실구매가\t추정원가\t연간수량\tFlash";
+  const header = "제품명\t시리즈\t성능지표\t실구매가\t추정원가\t연간수량";
   const rows = sampleData.map(r => r.join("\t"));
   return header + "\n" + rows.join("\n");
 }
 
 function buildSampleTSVB(shiftPct) {
-  // For compare-time mode: adjust actual prices by shiftPct
-  const header = "제품명\t시리즈\t가중치\t실구매가\t추정원가\t연간수량\tFlash";
+  const header = "제품명\t시리즈\t성능지표\t실구매가\t추정원가\t연간수량";
   const rows = sampleData.map(r => {
     const adjusted = Math.round(r[3] * (1 + shiftPct/100));
-    return [r[0], r[1], r[2], adjusted, r[4], r[5], r[6]].join("\t");
+    return [r[0], r[1], r[2], adjusted, r[4], r[5]].join("\t");
   });
   return header + "\n" + rows.join("\n");
 }
@@ -1353,75 +1784,212 @@ function toNum(val) {
   return isNaN(n) ? NaN : n;
 }
 
+/**
+ * Fallback when the input data has no 'series' column.
+ * Strategy (no hardcoded product families):
+ *  1. If the name contains a '-', use the prefix before the first '-'
+ *     (e.g. "ABC-XYZ123-256F" → "ABC")
+ *  2. Otherwise take the first alpha block (e.g. "XYZ123..." → "XYZ")
+ *  3. Fall back to "Unclassified" only if nothing usable is found
+ * The user is always free to provide their own 'series' column and
+ * this function will not be called.
+ */
 function detectSeriesFromName(name) {
-  if (!name) return 'Other';
-  const n = String(name).toUpperCase();
-  if (/^TC3[0-9]/.test(n) || n.includes('AURIX2')) return 'AURIX2';
-  if (/^TC2[0-9]/.test(n) || n.includes('AURIX1')) return 'AURIX1';
-  if (/^CYT/.test(n) || n.includes('TRAVEO')) return 'Traveo2';
-  if (/^S32/.test(n)) return 'S32';
-  if (/^RH850/.test(n)) return 'RH850';
-  return 'Other';
+  if (!name) return 'Unclassified';
+  const s = String(name).trim();
+
+  // Try dash-split prefix first
+  if (s.includes('-')) {
+    const prefix = s.split('-')[0].trim();
+    if (prefix.length >= 2 && prefix.length <= 12) return prefix.toUpperCase();
+  }
+
+  // Otherwise, first alpha block
+  const alphaMatch = s.match(/^[A-Za-z]+/);
+  if (alphaMatch && alphaMatch[0].length >= 2) return alphaMatch[0].toUpperCase();
+
+  return 'Unclassified';
+}
+
+/* =============================================================
+   PARSING
+   ---------------------------------------------------------------
+   Returns { items, meta } where
+     items[i] = {
+       name, series, actual, estimated, qty,          // core fields
+       extras: { [header]: number }                    // user-defined numeric cols
+     }
+     meta = {
+       headers, reservedMap,                           // diagnostics
+       extraNumericCols: [header],                     // feeds the X-axis picker
+       warnings: [string]                              // shown to user
+     }
+============================================================= */
+
+// Reserved columns that get their own slot in the item object.
+// Any numeric column NOT matching these becomes an "extra" and is
+// eligible to be used as the X-axis metric.
+const RESERVED_PATTERNS = {
+  name:      /제품|모델|품명|part|product|mpn|model/i,
+  series:    /시리즈|계열|series|family|group/i,
+  actual:    /실구매|실가|구매가|actual|real price|buy price|purchas/i,
+  estimated: /추정|예상|estimate|should.?cost|target.?cost/i,
+  qty:       /수량|물량|qty|quantity|volume|annual/i,
+  supplier:  /공급|공급사|supplier|vendor|maker|제조사/i,
+  period:    /연도|year|period|기간/i
+};
+
+function detectHeaderRole(headerText) {
+  const low = (headerText || '').toLowerCase().trim();
+  if (!low) return null;
+  for (const [role, pattern] of Object.entries(RESERVED_PATTERNS)) {
+    if (pattern.test(low)) return role;
+  }
+  return null;  // unclassified → becomes an extra numeric candidate
+}
+
+function isNumericColumn(rows, colIdx) {
+  let hits = 0, tries = 0;
+  for (const r of rows) {
+    const v = r[colIdx];
+    if (v == null || v === '') continue;
+    tries++;
+    if (!isNaN(toNum(v))) hits++;
+    if (tries >= 5) break;
+  }
+  return tries > 0 && hits / tries >= 0.6;
 }
 
 function parseTSV(text) {
-  if (!text || !text.trim()) return [];
+  const meta = { headers: [], reservedMap: {}, extraNumericCols: [], warnings: [] };
+  if (!text || !text.trim()) return { items: [], meta };
+
   const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
-  if (lines.length < 1) return [];
+  if (lines.length < 2) {
+    meta.warnings.push('데이터가 부족합니다. 헤더 행 포함 최소 2줄 이상 필요합니다.');
+    return { items: [], meta };
+  }
 
   const headers = lines[0].split('\t').map(h => h.trim());
-  const hMap = {};
+  meta.headers = headers;
+
+  // Role detection for each header
+  const roleMap = {};
   headers.forEach((h, i) => {
-    const low = h.toLowerCase();
-    if (/제품|모델|품명|part|product|name|mpn/.test(low)) hMap.name = i;
-    else if (/시리즈|series|family|group/.test(low)) hMap.series = i;
-    else if (/가중치|weight|composite|지표|index/.test(low)) hMap.weight = i;
-    else if (/실구매|실가|actual|real|buy|purchas/.test(low)) hMap.actual = i;
-    else if (/추정|예상|estimate|est\.?cost|should/.test(low)) hMap.estimated = i;
-    else if (/수량|물량|qty|quantity|volume|annual/.test(low)) hMap.qty = i;
-    else if (/flash/.test(low)) hMap.flash = i;
-    else if (/공급|supplier|vendor|maker|제조/.test(low)) hMap.supplier = i;
-    else if (/연도|year|period/.test(low)) hMap.period = i;
+    const role = detectHeaderRole(h);
+    if (role && roleMap[role] === undefined) {
+      roleMap[role] = i;
+      meta.reservedMap[role] = h;
+    }
   });
 
-  if (hMap.name === undefined) hMap.name = 0;
-  if (hMap.actual === undefined) {
-    for (let i = 0; i < headers.length; i++) {
-      const sample = lines[1]?.split('\t')[i];
-      if (sample && !isNaN(toNum(sample)) && toNum(sample) > 100) {
-        if (hMap.actual === undefined) { hMap.actual = i; continue; }
-      }
+  // Data rows (as array of cells)
+  const dataRows = lines.slice(1).map(l => l.split('\t'));
+
+  // Extra numeric columns: headers that are NOT reserved AND look numeric
+  const reservedIndices = new Set(Object.values(roleMap));
+  const extras = [];
+  headers.forEach((h, i) => {
+    if (reservedIndices.has(i)) return;
+    if (!h) return;
+    if (isNumericColumn(dataRows, i)) {
+      extras.push({ header: h, index: i });
+    }
+  });
+  meta.extraNumericCols = extras.map(e => e.header);
+
+  // Auto-guess 'actual' / 'name' if not explicitly matched
+  if (roleMap.name === undefined) {
+    roleMap.name = 0;
+    meta.warnings.push(`제품명 컬럼을 찾지 못해 첫 번째 컬럼(${headers[0]})을 제품명으로 사용합니다.`);
+  }
+  if (roleMap.actual === undefined) {
+    // Heuristic: highest-mean numeric column that isn't qty/estimated
+    let bestIdx = -1, bestMean = 0;
+    headers.forEach((h, i) => {
+      if (i === roleMap.name || i === roleMap.qty || i === roleMap.estimated) return;
+      if (!isNumericColumn(dataRows, i)) return;
+      const vals = dataRows.map(r => toNum(r[i])).filter(v => !isNaN(v));
+      if (!vals.length) return;
+      const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+      if (mean > bestMean) { bestMean = mean; bestIdx = i; }
+    });
+    if (bestIdx !== -1) {
+      roleMap.actual = bestIdx;
+      meta.warnings.push(`실구매가 컬럼을 찾지 못해 "${headers[bestIdx]}"를 실구매가로 추정했습니다.`);
     }
   }
 
+  // Build items
   const items = [];
-  for (let li = 1; li < lines.length; li++) {
-    const cols = lines[li].split('\t');
+  for (const cols of dataRows) {
     if (cols.length < 2) continue;
-    const name = cols[hMap.name]?.trim();
+    const name = cols[roleMap.name]?.trim();
     if (!name) continue;
-    const actual = toNum(cols[hMap.actual]);
+
+    const actual = roleMap.actual !== undefined ? toNum(cols[roleMap.actual]) : NaN;
     if (isNaN(actual)) continue;
 
-    const series = hMap.series !== undefined
-      ? (cols[hMap.series]?.trim() || detectSeriesFromName(name))
+    const series = roleMap.series !== undefined
+      ? (cols[roleMap.series]?.trim() || detectSeriesFromName(name))
       : detectSeriesFromName(name);
+
+    // Gather extras (user-defined numeric columns)
+    const extrasObj = {};
+    extras.forEach(({ header, index }) => {
+      const v = toNum(cols[index]);
+      if (!isNaN(v)) extrasObj[header] = v;
+    });
 
     const item = {
       name,
       series,
-      weight: hMap.weight !== undefined ? toNum(cols[hMap.weight]) : NaN,
       actual,
-      estimated: hMap.estimated !== undefined ? toNum(cols[hMap.estimated]) : NaN,
-      qty: hMap.qty !== undefined ? toNum(cols[hMap.qty]) : 1,
-      flash: hMap.flash !== undefined ? toNum(cols[hMap.flash]) : NaN,
-      supplier: hMap.supplier !== undefined ? cols[hMap.supplier]?.trim() : null,
-      period: hMap.period !== undefined ? cols[hMap.period]?.trim() : null
+      estimated: roleMap.estimated !== undefined ? toNum(cols[roleMap.estimated]) : NaN,
+      qty: roleMap.qty !== undefined ? toNum(cols[roleMap.qty]) : NaN,
+      supplier: roleMap.supplier !== undefined ? cols[roleMap.supplier]?.trim() : null,
+      period: roleMap.period !== undefined ? cols[roleMap.period]?.trim() : null,
+      extras: extrasObj
     };
     if (isNaN(item.qty) || item.qty < 1) item.qty = 1;
     items.push(item);
   }
-  return items;
+
+  return { items, meta };
+}
+
+/* =============================================================
+   VALIDATION: Check required columns for analysis
+============================================================= */
+function validateItems(items, meta) {
+  const errors = [];
+  const recommendations = [];
+
+  if (!items.length) {
+    errors.push('유효한 데이터 행이 없습니다.');
+    return { errors, recommendations };
+  }
+
+  // Required: name, actual, qty, and at least one X-axis candidate
+  const hasName = items.every(i => i.name);
+  const hasActual = items.some(i => !isNaN(i.actual));
+  const hasQty = items.some(i => !isNaN(i.qty) && i.qty > 0);
+
+  if (!hasName) errors.push('제품명 컬럼이 필요합니다.');
+  if (!hasActual) errors.push('실구매가 컬럼이 필요합니다 (분석의 기준값).');
+  if (!hasQty) recommendations.push('연간수량 컬럼이 없으면 인하여력 계산이 수량=1 기준으로 수행됩니다.');
+
+  // X-axis candidate: at least one numeric extra column
+  if (!meta.extraNumericCols.length) {
+    errors.push('X축 지표가 필요합니다. 숫자 컬럼 최소 1개 이상 포함해주세요 (예: 가중치, 전류, 전압, Flash 등).');
+  }
+
+  // Recommended: estimated cost (for hybrid/should-cost mode)
+  if (!items.some(i => !isNaN(i.estimated))) {
+    recommendations.push('추정원가 컬럼이 없어 Hybrid/Should-cost 분석 모드는 비활성됩니다. Peer 비교만 수행됩니다.');
+  }
+
+  return { errors, recommendations };
 }
 
 /* =============================================================
@@ -1468,18 +2036,66 @@ let currentClass = 'danger';
 let currentMode = 'single';
 let currentView = 'scatter';
 
-function getXField() {
-  return document.getElementById('xAxisSelect').value;
+/* =============================================================
+   DYNAMIC X-AXIS SETUP
+   Populates the X-axis <select> based on the extra numeric
+   columns detected in the uploaded data. Estimated cost is
+   offered as a bonus option if present.
+============================================================= */
+function populateXAxisOptions(meta, items) {
+  const sel = document.getElementById('xAxisSelect');
+  const previousValue = sel.value;
+  sel.innerHTML = '';
+
+  const options = [];
+  // User-defined numeric columns come first
+  meta.extraNumericCols.forEach(col => options.push({ value: col, label: col }));
+  // Estimated cost as optional X-axis
+  if (items.some(i => !isNaN(i.estimated))) {
+    options.push({
+      value: 'estimated',
+      label: currentLang === 'ko' ? '추정원가' : 'Estimated cost'
+    });
+  }
+
+  if (!options.length) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = currentLang === 'ko' ? 'X축 지표 없음' : 'No X-axis metric';
+    sel.appendChild(opt);
+    sel.disabled = true;
+    return;
+  }
+
+  sel.disabled = false;
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.value;
+    opt.textContent = o.label;
+    sel.appendChild(opt);
+  });
+
+  // Preserve previous selection if still valid, else default to first
+  if (options.some(o => o.value === previousValue)) {
+    sel.value = previousValue;
+  } else {
+    sel.value = options[0].value;
+  }
 }
 
 function getXValue(item) {
   const field = getXField();
-  switch (field) {
-    case 'weight': return item.weight;
-    case 'estCost': return item.estimated;
-    case 'flash': return item.flash;
-    default: return item.weight;
-  }
+  if (!field) return NaN;
+  if (field === 'estimated') return item.estimated;
+  // All other X-axis choices come from the extras bag
+  return item.extras?.[field] ?? NaN;
+}
+
+function getXLabel() {
+  const field = getXField();
+  if (!field) return '';
+  if (field === 'estimated') return currentLang === 'ko' ? '추정원가' : 'Estimated cost';
+  return field;  // the header name chosen by the user
 }
 
 /* -------------------------------------------------------------
@@ -1756,15 +2372,70 @@ function renderTable(analysis, cls) {
 ============================================================= */
 let mainChart = null;
 
+/**
+ * Dynamic series color palette.
+ * First 10 colors are hand-picked to be visually distinct and work on
+ * both light and dark themes. Additional series get HSL-based colors
+ * derived from a stable hash of the series name, so re-analysis with
+ * the same data always produces the same colors.
+ */
+const SERIES_PALETTE_LIGHT = [
+  '#ea580c', // orange
+  '#0891b2', // cyan
+  '#9333ea', // purple
+  '#16a34a', // green
+  '#dc2626', // red
+  '#ca8a04', // amber
+  '#0284c7', // sky
+  '#db2777', // pink
+  '#65a30d', // lime
+  '#7c3aed'  // violet
+];
+const SERIES_PALETTE_DARK = [
+  '#fb923c', '#22d3ee', '#c084fc', '#4ade80', '#f87171',
+  '#fbbf24', '#38bdf8', '#f472b6', '#a3e635', '#a78bfa'
+];
+
+// Runtime cache: { seriesName → color } — kept fresh per rawItems load
+let seriesColorMap = {};
+
+function hashString(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h) + str.charCodeAt(i);
+    h |= 0; // to 32-bit int
+  }
+  return Math.abs(h);
+}
+
+/** Assign colors to all distinct series once, stably */
+function buildSeriesColorMap(seriesList) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const palette = isDark ? SERIES_PALETTE_DARK : SERIES_PALETTE_LIGHT;
+  const map = {};
+  seriesList.forEach((s, idx) => {
+    if (idx < palette.length) {
+      map[s] = palette[idx];
+    } else {
+      // Overflow: derive a stable HSL color from the name
+      const hue = hashString(s) % 360;
+      const sat = isDark ? 70 : 55;
+      const lum = isDark ? 65 : 50;
+      map[s] = `hsl(${hue}, ${sat}%, ${lum}%)`;
+    }
+  });
+  seriesColorMap = map;
+  return map;
+}
+
 function seriesColor(series) {
-  const theme = document.documentElement.getAttribute('data-theme');
-  const colors = {
-    'AURIX2': getCss('--series-aurix2'),
-    'AURIX1': getCss('--series-aurix1'),
-    'Traveo2': getCss('--series-traveo2'),
-    'Other': getCss('--series-other')
-  };
-  return colors[series] || getCss('--series-other');
+  if (!seriesColorMap[series]) {
+    // Called before map was built: compute on the fly (stable hash)
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const hue = hashString(series) % 360;
+    return `hsl(${hue}, ${isDark ? 70 : 55}%, ${isDark ? 65 : 50}%)`;
+  }
+  return seriesColorMap[series];
 }
 
 function getCss(v) {
@@ -1938,9 +2609,7 @@ function renderScatterChart(analysis) {
 
   if (mainChart) mainChart.destroy();
 
-  const xField = getXField();
-  const xTitle = xField === 'weight' ? dict.xWeight :
-                 xField === 'estCost' ? dict.xEstCost : dict.xFlash;
+  const xTitle = getXLabel();
 
   mainChart = new Chart(ctx, {
     data: { datasets: [...trendDatasets, ...bubbleDatasets] },
@@ -1960,14 +2629,12 @@ function renderScatterChart(analysis) {
             label: (ctx) => {
               const raw = ctx.raw?.raw;
               if (!raw) return '';
-              const xLabel = xField === 'weight' ? dict.xWeight :
-                            xField === 'estCost' ? dict.xEstCost : 'Flash';
               const peerGapStr = raw.peerGap != null ? `${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%` : '—';
               const costGapStr = !isNaN(raw.costGap) ? `${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%` : '—';
               return [
                 raw.name,
                 `${dict.colSeries}: ${raw.series}`,
-                `${xLabel}: ${raw.x?.toFixed(1)}`,
+                `${xTitle}: ${raw.x?.toFixed(2)}`,
                 `${dict.colActual}: ${fmtInt(raw.actual)}`,
                 `Peer gap: ${peerGapStr}`,
                 `Cost gap: ${costGapStr}`,
@@ -1992,7 +2659,8 @@ function renderScatterChart(analysis) {
             callback: function(value) {
               const n = Number(value);
               if (isNaN(n)) return value;
-              if (xField === 'estCost') return fmtInt(n);
+              // Use comma formatting for large values (e.g. estimated cost)
+              if (Math.abs(n) >= 1000) return fmtInt(n);
               return n % 1 === 0 ? n.toString() : n.toFixed(1);
             }
           }
@@ -2491,9 +3159,9 @@ function renderAll(analysis) {
    EVENT BINDINGS
 ============================================================= */
 
-// Analyze button: parse input → store to rawItems → run analyze
+// Analyze button: parse input → validate → run analysis
 document.getElementById('analyzeBtn').addEventListener('click', () => {
-  let parsed;
+  let parsed, mergedMeta;
 
   if (currentMode === 'single') {
     const text = document.getElementById('pasteInputA').value;
@@ -2501,13 +3169,14 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
       alert(currentLang === 'ko' ? '데이터를 붙여넣어 주세요.' : 'Please paste data.');
       return;
     }
-    parsed = parseTSV(text);
+    const { items, meta } = parseTSV(text);
+    parsed = items;
+    mergedMeta = meta;
   } else {
-    // Compare modes: merge two inputs with tags
     const textA = document.getElementById('pasteInputB1').value;
     const textB = document.getElementById('pasteInputB2').value;
-    const itemsA = parseTSV(textA);
-    const itemsB = parseTSV(textB);
+    const { items: itemsA, meta: metaA } = parseTSV(textA);
+    const { items: itemsB, meta: metaB } = parseTSV(textB);
     if (!itemsA.length || !itemsB.length) {
       alert(currentLang === 'ko' ? '두 입력란 모두에 데이터를 넣어주세요.' : 'Please provide data in both inputs.');
       return;
@@ -2517,18 +3186,161 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
     itemsA.forEach(i => { i.name += ' [' + tagA + ']'; i.series = tagA; });
     itemsB.forEach(i => { i.name += ' [' + tagB + ']'; i.series = tagB; });
     parsed = [...itemsA, ...itemsB];
+    // Merge extra-col lists (intersection = cols present in both)
+    const colsA = new Set(metaA.extraNumericCols);
+    const shared = metaB.extraNumericCols.filter(c => colsA.has(c));
+    mergedMeta = { ...metaA, extraNumericCols: shared, warnings: [...metaA.warnings, ...metaB.warnings] };
   }
 
-  if (!parsed || !parsed.length) {
-    alert(currentLang === 'ko' ? '유효한 데이터를 찾을 수 없습니다. 헤더와 탭 구분을 확인하세요.' : 'No valid data found. Check headers and tab separation.');
+  // Validation
+  const validation = validateItems(parsed, mergedMeta);
+  if (validation.errors.length) {
+    alert(
+      (currentLang === 'ko' ? '분석을 진행할 수 없습니다:\n\n' : 'Cannot proceed with analysis:\n\n')
+      + validation.errors.map(e => '• ' + e).join('\n')
+    );
     return;
   }
 
-  // Store to SSOT and run first analysis
+  // Store to SSOT
   rawItems = parsed;
+  const distinctSeries = [...new Set(rawItems.map(i => i.series))];
+  buildSeriesColorMap(distinctSeries);
+
+  // Populate dynamic controls
+  populateXAxisOptions(mergedMeta, rawItems);
   updateSeriesFilterOptions(rawItems);
+
+  // Run analysis
   lastAnalysis = analyze(rawItems);
   renderAll(lastAnalysis);
+
+  // Show any non-fatal warnings as a brief notice
+  if (mergedMeta.warnings.length || validation.recommendations.length) {
+    const msgs = [...mergedMeta.warnings, ...validation.recommendations];
+    console.info('[Portfolio Analyzer]', msgs.join(' / '));
+  }
+});
+
+/* =============================================================
+   LIVE PREVIEW (paste → parse → show preview table)
+============================================================= */
+function renderPreview(text) {
+  const container = document.getElementById('previewContainer');
+  const summary = document.getElementById('previewSummary');
+  const warningsDiv = document.getElementById('previewWarnings');
+  const table = document.getElementById('previewTable');
+
+  if (!text || !text.trim()) {
+    container.classList.add('hidden');
+    return;
+  }
+
+  const { items, meta } = parseTSV(text);
+  if (!items.length && !meta.headers.length) {
+    container.classList.add('hidden');
+    return;
+  }
+
+  const validation = validateItems(items, meta);
+  container.classList.remove('hidden');
+
+  // Summary
+  const extraStr = meta.extraNumericCols.length
+    ? (currentLang === 'ko'
+        ? `X축 후보: ${meta.extraNumericCols.join(', ')}`
+        : `X-axis candidates: ${meta.extraNumericCols.join(', ')}`)
+    : (currentLang === 'ko' ? '⚠ X축 후보 없음' : '⚠ No X-axis candidates');
+  const rowStr = currentLang === 'ko' ? `${items.length}개 제품 인식` : `${items.length} products detected`;
+  summary.textContent = `${rowStr} · ${extraStr}`;
+
+  // Warnings + recommendations
+  const allNotes = [
+    ...validation.errors.map(m => ({ type: 'error', text: m })),
+    ...meta.warnings.map(m => ({ type: 'warn', text: m })),
+    ...validation.recommendations.map(m => ({ type: 'info', text: m }))
+  ];
+  if (allNotes.length) {
+    warningsDiv.classList.remove('hidden');
+    warningsDiv.innerHTML = allNotes.map(n => {
+      const icon = n.type === 'error' ? '🔴' : n.type === 'warn' ? '🟡' : 'ℹ️';
+      return `<div class="preview-note ${n.type}">${icon} ${n.text}</div>`;
+    }).join('');
+  } else {
+    warningsDiv.classList.add('hidden');
+  }
+
+  // Build preview table — show first 5 rows with role badges
+  const MAX_ROWS = 5;
+  const showRows = items.slice(0, MAX_ROWS);
+  const reservedByIndex = {};
+  Object.entries(meta.reservedMap).forEach(([role, headerName]) => {
+    const idx = meta.headers.indexOf(headerName);
+    if (idx !== -1) reservedByIndex[idx] = role;
+  });
+  const extraSet = new Set(meta.extraNumericCols);
+
+  const roleLabels = {
+    name: '제품명', series: '시리즈', actual: '실구매가',
+    estimated: '추정원가', qty: '수량', supplier: '공급사', period: '기간'
+  };
+  const roleLabelsEn = {
+    name: 'Product', series: 'Series', actual: 'Actual',
+    estimated: 'Estimated', qty: 'Qty', supplier: 'Supplier', period: 'Period'
+  };
+  const labels = currentLang === 'ko' ? roleLabels : roleLabelsEn;
+
+  let thead = '<thead><tr>';
+  meta.headers.forEach((h, i) => {
+    const role = reservedByIndex[i];
+    let badge = '';
+    if (role) {
+      badge = `<span class="col-badge reserved">${labels[role] || role}</span>`;
+    } else if (extraSet.has(h)) {
+      badge = `<span class="col-badge extra">${currentLang === 'ko' ? '숫자' : 'numeric'}</span>`;
+    } else {
+      badge = `<span class="col-badge ignored">${currentLang === 'ko' ? '미사용' : 'ignored'}</span>`;
+    }
+    thead += `<th><div class="col-header">${h}</div>${badge}</th>`;
+  });
+  thead += '</tr></thead>';
+
+  // Need to reconstruct from raw text to show all cells including ignored ones
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+  const rawRows = lines.slice(1, MAX_ROWS + 1).map(l => l.split('\t'));
+
+  let tbody = '<tbody>';
+  rawRows.forEach(cells => {
+    tbody += '<tr>';
+    meta.headers.forEach((h, i) => {
+      tbody += `<td>${(cells[i] ?? '').toString().trim()}</td>`;
+    });
+    tbody += '</tr>';
+  });
+  if (items.length > MAX_ROWS) {
+    tbody += `<tr class="preview-more"><td colspan="${meta.headers.length}">…${currentLang === 'ko' ? ` 외 ${items.length - MAX_ROWS}개 행` : ` and ${items.length - MAX_ROWS} more rows`}</td></tr>`;
+  }
+  tbody += '</tbody>';
+
+  table.innerHTML = thead + tbody;
+}
+
+// Debounced input listener on all paste areas
+let previewTimer;
+function schedulePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => {
+    const text = currentMode === 'single'
+      ? document.getElementById('pasteInputA').value
+      : (document.getElementById('pasteInputB1').value
+         + '\n' + document.getElementById('pasteInputB2').value.split('\n').slice(1).join('\n'));
+    renderPreview(text);
+  }, 200);
+}
+
+['pasteInputA', 'pasteInputB1', 'pasteInputB2'].forEach(id => {
+  document.getElementById(id).addEventListener('input', schedulePreview);
+  document.getElementById(id).addEventListener('paste', () => setTimeout(schedulePreview, 20));
 });
 
 document.getElementById('sampleBtn').addEventListener('click', () => {
@@ -2548,8 +3360,10 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   document.getElementById('pasteInputA').value = '';
   document.getElementById('pasteInputB1').value = '';
   document.getElementById('pasteInputB2').value = '';
+  document.getElementById('previewContainer').classList.add('hidden');
   rawItems = [];
   lastAnalysis = null;
+  seriesColorMap = {};
   if (mainChart) { mainChart.destroy(); mainChart = null; }
   ['stat-total','stat-r2','stat-manage','stat-saving'].forEach(id => document.getElementById(id).textContent = '—');
   ['stat-totalSub','stat-r2Sub','stat-manageSub','stat-savingSub'].forEach(id => document.getElementById(id).textContent = '—');
@@ -2619,6 +3433,14 @@ document.querySelectorAll('.class-tab').forEach(tab => {
     currentClass = tab.dataset.class;
     if (lastAnalysis) renderTable(lastAnalysis, currentClass);
   });
+});
+
+// Guide section toggle (fold/unfold)
+document.getElementById('guideToggle').addEventListener('click', () => {
+  const body = document.getElementById('guideBody');
+  const icon = document.getElementById('guideToggleIcon');
+  const isFolded = body.classList.toggle('folded');
+  icon.textContent = isFolded ? '▼' : '▲';
 });
 
 /* =============================================================
