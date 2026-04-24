@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>차량용 MCU 카탈로그 — 37개 품목 DB | ChipCalc</title>
+<meta name="description" content="Infineon AURIX / TRAVEO, NXP S32K / S32R / MPC 등 차량용 MCU 37개의 공정·패키지·스펙을 한 곳에서 검색. 클릭 한 번으로 원가 계산기로 연동.">
+<meta name="keywords" content="차량용 MCU, AURIX 데이터베이스, TRAVEO, S32K, NXP MCU, automotive MCU catalog, semiconductor database">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="차량용 MCU 카탈로그 | ChipCalc">
+<meta property="og:description" content="37개 차량용 MCU의 공정·패키지·스펙을 한 곳에 정리한 DB.">
+<meta property="og:url" content="https://dudwns100.github.io/chipcalc/mcu-catalog.html">
+<meta property="og:locale" content="ko_KR">
+<link rel="canonical" href="https://dudwns100.github.io/chipcalc/mcu-catalog.html">
+
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://dudwns100.github.io/chipcalc/"},{"@type":"ListItem","position":2,"name":"리소스"},{"@type":"ListItem","position":3,"name":"MCU 카탈로그"}]},{"@type":"Dataset","name":"차량용 MCU 카탈로그","description":"Infineon·NXP·Cypress 차량용 MCU 37개 품목 데이터베이스","url":"https://dudwns100.github.io/chipcalc/mcu-catalog.html","inLanguage":"ko","creator":{"@type":"Organization","name":"ChipCalc"}}]}</script>
+
+<link rel="stylesheet" href="shared.css">
+<script src="shared-analytics.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px;line-height:1.65;-webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden}
+
+/* HERO */
+.hero{padding:40px 28px 32px;color:#fff;position:relative;overflow:hidden;text-align:center;
+  background:linear-gradient(135deg,#0a1628 0%,#0d2d5c 40%,#1e40af 75%,#3b82f6 100%)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(100,180,255,0.18) 0%,transparent 55%);pointer-events:none}
+.hero-inner{max-width:780px;margin:0 auto;position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.28);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;font-family:var(--mono);color:rgba(255,255,255,0.9);margin-bottom:14px}
+.hero h1{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1.15;margin-bottom:10px;color:#fff}
+.hero-desc{font-size:14px;color:rgba(255,255,255,0.82);max-width:600px;margin:0 auto 14px;line-height:1.65}
+.hero-chips{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
+.hero-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.20);border-radius:100px;padding:4px 12px;font-size:11.5px;color:rgba(255,255,255,0.88)}
+
+.page-wrap{max-width:1260px;margin:0 auto;padding:22px 20px 80px}
+
+/* 상단 검색·필터 sticky */
+.toolbar{position:sticky;top:var(--topbar-h);z-index:80;background:var(--bg);padding:14px 0 12px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.search-row{display:flex;gap:10px;margin-bottom:10px}
+.search-box{
+  flex:1;height:44px;padding:0 16px 0 44px;
+  border:1.5px solid var(--border2);border-radius:10px;
+  background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6b70' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") no-repeat 14px center;
+  font-family:var(--font);font-size:14px;color:var(--l1);outline:none;
+  transition:border-color 0.15s,box-shadow 0.15s;
+}
+.search-box:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,0.08)}
+
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-group{display:flex;gap:4px;padding:3px 6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;align-items:center}
+.filter-group-label{font-size:10px;color:var(--l4);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0 4px}
+.filter-chip{height:24px;padding:0 11px;border-radius:100px;border:1px solid transparent;background:transparent;font-family:var(--font);font-size:11px;font-weight:600;color:var(--l3);cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.filter-chip:hover{color:var(--blue)}
+.filter-chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.chip-reset{background:none;border:none;color:var(--blue);font-size:11.5px;font-weight:600;cursor:pointer;margin-left:auto;padding:0 8px;font-family:var(--font)}
+.result-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11.5px;color:var(--l4)}
+
+/* 카드 그리드 */
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+
+.prod-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--sh);overflow:hidden;
+  transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;
+  display:flex;flex-direction:column;
+}
+.prod-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--blue-s)}
+
+.pc-hd{padding:14px 16px 10px;border-bottom:1px solid var(--border);position:relative}
+.pc-maker-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.pc-maker{font-size:10px;font-weight:800;color:var(--l4);letter-spacing:0.09em;text-transform:uppercase;font-family:var(--mono)}
+.pc-badges{display:flex;gap:4px;flex-wrap:wrap}
+.pc-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:0.05em;text-transform:uppercase}
+.badge-asil-d{background:#fee2e2;color:#991b1b}
+.badge-asil-b{background:#dbeafe;color:#1e40af}
+.badge-asil-qm{background:#f3f4f6;color:#4b5563}
+.badge-hsm{background:#e0e7ff;color:#3730a3}
+body.dark .badge-asil-d{background:rgba(239,68,68,0.18);color:#fca5a5}
+body.dark .badge-asil-b{background:rgba(59,130,246,0.18);color:#93c5fd}
+body.dark .badge-asil-qm{background:rgba(107,114,128,0.18);color:#cbd5e1}
+body.dark .badge-hsm{background:rgba(99,102,241,0.18);color:#a5b4fc}
+.pc-pn{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--l1);letter-spacing:-0.01em;line-height:1.2;word-break:break-all}
+.pc-series{font-size:11.5px;color:var(--l3);margin-top:3px;display:flex;gap:5px;align-items:center}
+.pc-series-dot{width:7px;height:7px;border-radius:2px;background:var(--blue);flex-shrink:0}
+
+/* 스펙 그리드 */
+.pc-specs{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;border-bottom:1px solid var(--border);font-size:11.5px}
+.pc-spec-lbl{color:var(--l4);font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.pc-spec-val{font-family:var(--mono);font-weight:700;color:var(--l1);margin-top:1px;font-size:12.5px}
+.pc-spec-val.small{font-size:11px}
+
+.pc-ft{padding:10px 16px 12px;margin-top:auto;display:flex;gap:8px;align-items:center}
+.btn-calc{
+  flex:1;height:34px;padding:0 14px;
+  background:var(--blue);color:#fff;border:none;border-radius:8px;
+  font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  text-decoration:none;transition:background 0.15s;
+}
+.btn-calc:hover{background:#0059b3;text-decoration:none}
+.btn-detail{
+  height:34px;padding:0 11px;
+  background:var(--s3);color:var(--l2);border:1px solid var(--border);border-radius:8px;
+  font-family:var(--font);font-size:11.5px;font-weight:600;cursor:pointer;
+  transition:all 0.15s;
+}
+.btn-detail:hover{background:var(--blue-t);color:var(--blue);border-color:var(--blue-s)}
+
+/* 로딩·빈 상태 */
+.loading,.empty{text-align:center;padding:60px 20px;color:var(--l4);font-size:13px}
+.loading-spinner{display:inline-block;width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-icon{font-size:36px;margin-bottom:10px;opacity:0.4}
+
+/* 모달 (상세보기) */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal.open{display:flex}
+.modal-card{background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.4);max-width:640px;width:100%;max-height:90vh;overflow-y:auto}
+.modal-hd{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-title{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--l1);line-height:1.25;word-break:break-all}
+.modal-close{width:30px;height:30px;border:none;background:var(--s3);border-radius:50%;cursor:pointer;font-size:16px;color:var(--l3);flex-shrink:0}
+.modal-close:hover{background:var(--s2)}
+.modal-body{padding:18px 22px}
+.modal-section{margin-bottom:16px}
+.modal-section-title{font-size:11px;color:var(--l4);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;font-size:12.5px}
+.modal-grid .pc-spec-lbl{font-size:10.5px}
+.modal-grid .pc-spec-val{font-size:13px}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.modal-note{padding:12px 14px;background:var(--blue-t);border:1px solid var(--blue-s);border-radius:8px;font-size:11.5px;color:var(--l2);line-height:1.6;margin-top:14px}
+.modal-note strong{color:var(--l1)}
+body.dark .modal-note{background:rgba(0,113,227,0.12);border-color:rgba(0,113,227,0.25)}
+
+/* 카테고리 탭 (확장 대비) */
+.cat-tabs{display:flex;gap:8px;overflow-x:auto;padding:0 0 10px;margin-bottom:14px;-webkit-overflow-scrolling:touch}
+.cat-tabs::-webkit-scrollbar{display:none}
+.cat-tab{padding:9px 16px;border:1px solid var(--border);background:var(--surface);border-radius:100px;font-size:12.5px;font-weight:600;color:var(--l3);cursor:pointer;white-space:nowrap;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+.cat-tab:hover{border-color:var(--blue);color:var(--blue)}
+.cat-tab.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.cat-tab.disabled{opacity:0.4;cursor:not-allowed}
+.cat-tab .cnt{font-family:var(--mono);font-size:10.5px;padding:1px 7px;background:rgba(0,0,0,0.08);border-radius:100px}
+.cat-tab.on .cnt{background:rgba(255,255,255,0.25)}
+.cat-tab.disabled .cnt{background:rgba(0,0,0,0.04)}
+
+.ad-wrap{margin:20px 0;padding:4px 0;text-align:center;min-height:90px}
+.ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+
+/* 다크모드 */
+body.dark .prod-card,body.dark .modal-card,body.dark .cat-tab,body.dark .filter-group,body.dark .toolbar{background:var(--surface)}
+body.dark .toolbar{background:var(--bg)}
+body.dark .search-box{background-color:var(--s2)}
+
+/* 모바일 */
+@media(max-width:768px){
+  .hero{padding:28px 18px 24px}
+  .hero h1{font-size:22px}
+  .hero-desc{font-size:13px}
+  .page-wrap{padding:16px 14px 60px}
+  .prod-grid{grid-template-columns:1fr;gap:10px}
+  .pc-specs{grid-template-columns:1fr 1fr;gap:7px 12px}
+  .modal-grid{grid-template-columns:1fr}
+  .filter-group{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-l">
+    <a class="app-icon" href="index.html">IC</a>
+    <div>
+      <a class="app-name" href="index.html">ChipCalc</a>
+      <span class="app-sub">· MCU 카탈로그</span>
+    </div>
+  </div>
+  <nav class="nav-center">
+    <a class="nav-link" href="index.html">🏠 홈</a>
+    <a class="nav-link" href="calculator.html">🧮 계산기</a>
+    <a class="nav-link active" href="mcu-catalog.html">📇 카탈로그</a>
+    <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+    <div class="nav-resources">
+      <button class="nav-resources-btn">📚 리소스 <span class="caret">▾</span></button>
+      <div class="nav-dropdown">
+        <a href="sic-calculator.html">🔋 SiC 계산기</a>
+        <a href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+        <a href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+        <a href="semiconductor-packages.html">📦 패키지 가이드</a>
+        <a href="guide-osat.html">🔧 OSAT 가이드</a>
+        <a href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+        <a href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+        <a href="earnings-dashboard.html">📊 실적 대시보드</a>
+        <a href="fab-timeline.html">🏗️ 팹 타임라인</a>
+        <a href="glossary.html">📖 용어 사전</a>
+        <a href="news-archive.html">📰 뉴스 아카이브</a>
+      </div>
+    </div>
+  </nav>
+  <div class="topbar-r">
+    <div class="auth-tip-wrap">
+      <button class="auth-btn" id="authBtn" onclick="handleAuth()"><span class="auth-icon">🔐</span><span class="auth-text"></span></button>
+    </div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-light" onclick="setMode('light')">☀</button>
+      <button class="mode-btn" id="btn-dark" onclick="setMode('dark')">☾</button>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-ko" onclick="setLang('ko')">KO</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <span class="ver">v0.9</span>
+    <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()" aria-label="메뉴"><span></span><span></span><span></span></button>
+  </div>
+</div>
+
+<nav class="nav-drawer" id="navDrawer">
+  <a class="nav-link" href="index.html">🏠 홈</a>
+  <a class="nav-link" href="calculator.html">🧮 계산기</a>
+  <a class="nav-link active" href="mcu-catalog.html">📇 카탈로그</a>
+  <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
+  <div class="nav-drawer-section">
+    <div class="nav-drawer-section-label">리소스</div>
+    <a class="nav-link" href="sic-calculator.html">🔋 SiC 계산기</a>
+    <a class="nav-link" href="guide-semiconductor-cost.html">💰 원가 가이드</a>
+    <a class="nav-link" href="guide-chips-per-wafer.html">📐 DPW 가이드</a>
+    <a class="nav-link" href="semiconductor-packages.html">📦 패키지 가이드</a>
+    <a class="nav-link" href="guide-osat.html">🔧 OSAT 가이드</a>
+    <a class="nav-link" href="guide-aec-q100.html">🚗 AEC-Q100 가이드</a>
+    <a class="nav-link" href="ev-vs-ice-semiconductor.html">⚡ EV vs ICE 비교</a>
+    <a class="nav-link" href="earnings-dashboard.html">📊 실적 대시보드</a>
+    <a class="nav-link" href="fab-timeline.html">🏗️ 팹 타임라인</a>
+    <a class="nav-link" href="glossary.html">📖 용어 사전</a>
+    <a class="nav-link" href="news-archive.html">📰 뉴스 아카이브</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">📇 Automotive Semiconductor Catalog</div>
+    <h1>차량용 반도체 카탈로그</h1>
+    <p class="hero-desc">파트 넘버·공정·패키지·스펙을 한 곳에서 검색.<br>원하는 제품을 클릭하면 원가 계산기가 자동 실행됩니다.</p>
+    <div class="hero-chips">
+      <span class="hero-chip">🏢 3개 메이커</span>
+      <span class="hero-chip">📦 8개 시리즈</span>
+      <span class="hero-chip">🔢 37개 품목</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- 카테고리 탭 -->
+  <div class="cat-tabs" id="catTabs"></div>
+
+  <!-- 검색·필터 툴바 -->
+  <div class="toolbar">
+    <div class="search-row">
+      <input type="text" class="search-box" id="searchInput" placeholder="Part Number, 시리즈, 메이커로 검색 (예: TC397, S32K, TRAVEO...)" oninput="applyFilter()">
+    </div>
+
+    <div class="filter-row" id="filterRow">
+      <div class="filter-group">
+        <span class="filter-group-label">메이커</span>
+        <button class="filter-chip on" data-type="maker" data-val="all" onclick="setFilter('maker','all',this)">전체</button>
+        <button class="filter-chip" data-type="maker" data-val="Infineon" onclick="setFilter('maker','Infineon',this)">Infineon</button>
+        <button class="filter-chip" data-type="maker" data-val="NXP" onclick="setFilter('maker','NXP',this)">NXP</button>
+        <button class="filter-chip" data-type="maker" data-val="Cypress(Infineon)" onclick="setFilter('maker','Cypress(Infineon)',this)">Cypress</button>
+      </div>
+      <div class="filter-group">
+        <span class="filter-group-label">노드</span>
+        <button class="filter-chip on" data-type="node" data-val="all" onclick="setFilter('node','all',this)">전체</button>
+        <button class="filter-chip" data-type="node" data-val="16" onclick="setFilter('node','16',this)">16nm</button>
+        <button class="filter-chip" data-type="node" data-val="40" onclick="setFilter('node','40',this)">40nm</button>
+        <button class="filter-chip" data-type="node" data-val="55" onclick="setFilter('node','55',this)">55nm</button>
+        <button class="filter-chip" data-type="node" data-val="65" onclick="setFilter('node','65',this)">65nm</button>
+        <button class="filter-chip" data-type="node" data-val="90" onclick="setFilter('node','90',this)">90nm</button>
+        <button class="filter-chip" data-type="node" data-val="180" onclick="setFilter('node','180',this)">180nm</button>
+      </div>
+      <div class="filter-group">
+        <span class="filter-group-label">ASIL</span>
+        <button class="filter-chip on" data-type="asil" data-val="all" onclick="setFilter('asil','all',this)">전체</button>
+        <button class="filter-chip" data-type="asil" data-val="D" onclick="setFilter('asil','D',this)">ASIL-D</button>
+        <button class="filter-chip" data-type="asil" data-val="B" onclick="setFilter('asil','B',this)">ASIL-B</button>
+        <button class="filter-chip" data-type="asil" data-val="QM" onclick="setFilter('asil','QM',this)">QM</button>
+      </div>
+      <button class="chip-reset" onclick="resetFilters()">↺ 초기화</button>
+    </div>
+
+    <div class="result-meta">
+      <span id="resultCount">로딩 중…</span>
+      <span style="font-size:10.5px">공정 시세 기준 · 실제 가격은 협상 필요</span>
+    </div>
+  </div>
+
+  <!-- 제품 그리드 -->
+  <div id="productsContainer">
+    <div class="loading"><div class="loading-spinner"></div><div>제품 정보를 불러오는 중…</div></div>
+  </div>
+
+  <!-- AD -->
+  <div class="ad-wrap"><ins class="adsbygoogle" style="display:block;text-align:center" data-ad-layout="in-article" data-ad-format="fluid" data-ad-client="ca-pub-8001568484522021" data-ad-slot="7999999901"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
+
+</div>
+
+<!-- 상세 모달 -->
+<div class="modal" id="detailModal" onclick="if(event.target===this)closeDetailModal()">
+  <div class="modal-card">
+    <div class="modal-hd">
+      <div>
+        <div style="font-size:10.5px;color:var(--l4);font-weight:700;letter-spacing:0.07em;text-transform:uppercase;margin-bottom:3px" id="modal-maker-series">—</div>
+        <div class="modal-title" id="modal-title">—</div>
+      </div>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-ft">
+      <button class="btn-detail" onclick="closeDetailModal()">닫기</button>
+      <a class="btn-calc" id="modal-calc-link" href="calculator.html">🧮 원가 계산기로 →</a>
+    </div>
+  </div>
+</div>
+
+<footer></footer>
+
+<script src="shared-footer.js"></script>
+<script src="shared-styles.js"></script>
+<script src="shared-auth-supabase.js"></script>
+
+<script>
+/* ═══════════════════════════════════════════════
+   Supabase에서 제품 불러오기
+═══════════════════════════════════════════════ */
+var SUPABASE_URL = 'https://azouxvpthllgczbihppi.supabase.co';
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6b3V4dnB0aGxsZ2N6YmlocHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzIzMTcsImV4cCI6MjA5MTY0ODMxN30.NCxy8WXBIyJ0INZkAzlsZMLZurfhCrIF4n_V1aUZQO0';
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+var ALL_PRODUCTS = [];
+var ALL_CATEGORIES = [];
+var CURRENT_CATEGORY = 'mcu';
+var filters = { maker:'all', node:'all', asil:'all', search:'' };
+
+async function loadCategories() {
+  var {data, error} = await sb
+    .from('product_categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order');
+  if(error){console.error(error); return []}
+  return data || [];
+}
+
+async function loadProducts() {
+  var {data, error} = await sb
+    .from('products')
+    .select('*, product_series(series_name, series_code, typical_application)')
+    .eq('is_active', true)
+    .order('maker')
+    .order('node_nm', {ascending: false});
+  if(error){console.error(error); return []}
+  return data || [];
+}
+
+function renderCategoryTabs() {
+  // 각 카테고리별 제품 수 계산 (현재는 MCU만 데이터 있음)
+  var counts = {};
+  ALL_PRODUCTS.forEach(function(p){
+    // category_id → slug 연결 필요. 현재 모두 mcu
+  });
+  var mcuCount = ALL_PRODUCTS.length;
+
+  var html = ALL_CATEGORIES.map(function(c){
+    var isActive = c.slug === CURRENT_CATEGORY;
+    var cnt = c.slug === 'mcu' ? mcuCount : 0;
+    var isDisabled = c.slug !== 'mcu';  // 현재는 MCU만 활성
+    var cls = 'cat-tab' + (isActive ? ' on' : '') + (isDisabled ? ' disabled' : '');
+    var onClick = isDisabled ? '' : ' onclick="switchCategory(\'' + c.slug + '\')"';
+    return '<button class="' + cls + '"' + onClick + '>' + c.icon + ' ' + c.name_ko
+      + '<span class="cnt">' + cnt + '</span></button>';
+  }).join('');
+  document.getElementById('catTabs').innerHTML = html;
+}
+
+function switchCategory(slug) {
+  CURRENT_CATEGORY = slug;
+  renderCategoryTabs();
+  applyFilter();
+}
+
+function setFilter(type, val, btn) {
+  filters[type] = val;
+  // 같은 그룹의 다른 chip 비활성화
+  var group = btn.parentElement;
+  group.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('on')});
+  btn.classList.add('on');
+  applyFilter();
+}
+
+function resetFilters() {
+  filters = { maker:'all', node:'all', asil:'all', search:'' };
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.filter-chip').forEach(function(c){
+    if(c.dataset.val === 'all') c.classList.add('on');
+    else c.classList.remove('on');
+  });
+  applyFilter();
+}
+
+function applyFilter() {
+  filters.search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+
+  var filtered = ALL_PRODUCTS.filter(function(p){
+    if(filters.maker !== 'all' && p.maker !== filters.maker) return false;
+    if(filters.node !== 'all' && p.node_nm != filters.node) return false;
+    if(filters.asil !== 'all' && p.asil_level !== filters.asil) return false;
+    if(filters.search){
+      var hay = [
+        p.part_number, p.full_part_number, p.maker, p.grade, p.package_type,
+        p.product_series && p.product_series.series_name,
+        p.product_series && p.product_series.series_code,
+        p.typical_use
+      ].filter(Boolean).join(' ').toLowerCase();
+      if(hay.indexOf(filters.search) < 0) return false;
+    }
+    return true;
+  });
+
+  document.getElementById('resultCount').textContent = filtered.length + ' / ' + ALL_PRODUCTS.length + '개 제품';
+  renderProducts(filtered);
+}
+
+function renderProducts(list) {
+  var ct = document.getElementById('productsContainer');
+  if(list.length === 0){
+    ct.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>검색 조건에 맞는 제품이 없습니다.<br><span style="font-size:11px;color:var(--l4)">다른 조건으로 시도해보세요.</span></div>';
+    return;
+  }
+
+  // 시리즈별 정렬 후 한 번에 렌더
+  var html = '<div class="prod-grid">' + list.map(cardHtml).join('') + '</div>';
+  ct.innerHTML = html;
+}
+
+function cardHtml(p){
+  var asilCls = p.asil_level === 'D' ? 'badge-asil-d' : (p.asil_level === 'B' ? 'badge-asil-b' : 'badge-asil-qm');
+  var badges = '<span class="pc-badge ' + asilCls + '">ASIL-' + (p.asil_level || 'QM') + '</span>'
+    + (p.hsm ? '<span class="pc-badge badge-hsm">HSM</span>' : '');
+
+  var seriesName = p.product_series ? p.product_series.series_name : '—';
+  var flashMb = p.flash_mb >= 1 ? p.flash_mb + 'MB' : Math.round(p.flash_mb * 1024) + 'KB';
+
+  // URL 파라미터로 계산기 연동
+  var calcUrl = 'calculator.html?part=' + encodeURIComponent(p.part_number);
+
+  return '<div class="prod-card">'
+    + '<div class="pc-hd">'
+      + '<div class="pc-maker-row"><span class="pc-maker">' + p.maker + '</span><div class="pc-badges">' + badges + '</div></div>'
+      + '<div class="pc-pn">' + p.part_number + '</div>'
+      + '<div class="pc-series"><span class="pc-series-dot"></span>' + seriesName + ' · ' + (p.grade || '-') + '</div>'
+    + '</div>'
+    + '<div class="pc-specs">'
+      + '<div><div class="pc-spec-lbl">공정</div><div class="pc-spec-val">' + p.node_nm + 'nm / ' + p.wafer_size_inch + '″</div></div>'
+      + '<div><div class="pc-spec-lbl">패키지</div><div class="pc-spec-val small">' + (p.package_type || '—') + '</div></div>'
+      + '<div><div class="pc-spec-lbl">코어</div><div class="pc-spec-val">' + p.core_count + '× ' + (p.core_arch || '') + '</div></div>'
+      + '<div><div class="pc-spec-lbl">속도</div><div class="pc-spec-val">' + p.freq_mhz + ' MHz</div></div>'
+      + '<div><div class="pc-spec-lbl">Flash</div><div class="pc-spec-val">' + flashMb + '</div></div>'
+      + '<div><div class="pc-spec-lbl">웨이퍼 $</div><div class="pc-spec-val">$' + (p.wafer_price_usd || 0).toLocaleString() + '</div></div>'
+    + '</div>'
+    + '<div class="pc-ft">'
+      + '<button class="btn-detail" onclick="openDetail(\'' + p.id + '\')">상세</button>'
+      + '<a class="btn-calc" href="' + calcUrl + '">🧮 원가 계산</a>'
+    + '</div>'
+  + '</div>';
+}
+
+/* ───── 상세 모달 ───── */
+function openDetail(id){
+  var p = ALL_PRODUCTS.find(function(x){return x.id === id});
+  if(!p) return;
+
+  document.getElementById('modal-maker-series').textContent = p.maker + ' · ' + (p.product_series && p.product_series.series_name);
+  document.getElementById('modal-title').textContent = p.full_part_number || p.part_number;
+  document.getElementById('modal-calc-link').href = 'calculator.html?part=' + encodeURIComponent(p.part_number);
+
+  var flashMb = p.flash_mb >= 1 ? p.flash_mb + ' MB' : Math.round(p.flash_mb * 1024) + ' KB';
+  var ramMb = p.ram_mb >= 1 ? p.ram_mb + ' MB' : Math.round(p.ram_mb * 1024) + ' KB';
+
+  var body = '<div class="modal-section">'
+    + '<div class="modal-section-title">기본 정보</div>'
+    + '<div class="modal-grid">'
+      + '<div><div class="pc-spec-lbl">시리즈</div><div class="pc-spec-val">' + (p.product_series && p.product_series.series_name) + '</div></div>'
+      + '<div><div class="pc-spec-lbl">등급</div><div class="pc-spec-val">' + (p.grade || '—') + '</div></div>'
+      + '<div><div class="pc-spec-lbl">주 용도</div><div class="pc-spec-val small">' + (p.typical_use || '—') + '</div></div>'
+      + '<div><div class="pc-spec-lbl">ASIL / HSM</div><div class="pc-spec-val">ASIL-' + (p.asil_level || 'QM') + (p.hsm ? ' + HSM' : '') + '</div></div>'
+    + '</div></div>'
+    + '<div class="modal-section">'
+    + '<div class="modal-section-title">MCU 스펙</div>'
+    + '<div class="modal-grid">'
+      + '<div><div class="pc-spec-lbl">코어</div><div class="pc-spec-val">' + p.core_count + '× ' + (p.core_arch || '-') + '</div></div>'
+      + '<div><div class="pc-spec-lbl">주파수</div><div class="pc-spec-val">' + p.freq_mhz + ' MHz</div></div>'
+      + '<div><div class="pc-spec-lbl">Flash</div><div class="pc-spec-val">' + flashMb + '</div></div>'
+      + '<div><div class="pc-spec-lbl">RAM</div><div class="pc-spec-val">' + ramMb + '</div></div>'
+    + '</div></div>'
+    + '<div class="modal-section">'
+    + '<div class="modal-section-title">공정 & 웨이퍼 (업계 시세)</div>'
+    + '<div class="modal-grid">'
+      + '<div><div class="pc-spec-lbl">공정 노드</div><div class="pc-spec-val">' + p.node_nm + ' nm</div></div>'
+      + '<div><div class="pc-spec-lbl">웨이퍼 사이즈</div><div class="pc-spec-val">' + p.wafer_size_inch + " inch</div></div>"
+      + '<div><div class="pc-spec-lbl">웨이퍼 장당 시세</div><div class="pc-spec-val">$' + (p.wafer_price_usd || 0).toLocaleString() + '</div></div>'
+      + '<div><div class="pc-spec-lbl">웨이퍼 수율</div><div class="pc-spec-val">' + (p.wafer_yield_pct || 90) + '%</div></div>'
+    + '</div></div>'
+    + '<div class="modal-section">'
+    + '<div class="modal-section-title">패키지 & 테스트 (업계 시세)</div>'
+    + '<div class="modal-grid">'
+      + '<div><div class="pc-spec-lbl">패키지 타입</div><div class="pc-spec-val small">' + (p.package_type || '—') + '</div></div>'
+      + '<div><div class="pc-spec-lbl">핀 수</div><div class="pc-spec-val">' + (p.package_pin_count || '—') + '</div></div>'
+      + '<div><div class="pc-spec-lbl">패키지 비용</div><div class="pc-spec-val">$' + (p.package_cost_usd || 0).toFixed(3) + '/unit</div></div>'
+      + '<div><div class="pc-spec-lbl">테스트 비용</div><div class="pc-spec-val">$' + (p.test_cost_usd || 0).toFixed(3) + '/unit</div></div>'
+    + '</div></div>'
+    + '<div class="modal-note">'
+    + '<strong>📝 참고</strong><br>'
+    + '웨이퍼 단가·패키지·테스트 비용은 공개된 업계 시세로 저장돼 있습니다. 실제 거래가는 계약 조건에 따라 다르며, '
+    + '<strong>Die 사이즈는 DB에 저장되지 않음</strong>(협상 민감 정보). 계산기에서 직접 입력해주세요.'
+    + '</div>';
+
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeDetailModal(){
+  document.getElementById('detailModal').classList.remove('open');
+}
+
+// ESC 키로 모달 닫기
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeDetailModal();
+});
+
+/* ───── 초기화 ───── */
+(async function init(){
+  try {
+    var [cats, prods] = await Promise.all([loadCategories(), loadProducts()]);
+    ALL_CATEGORIES = cats;
+    ALL_PRODUCTS = prods;
+    renderCategoryTabs();
+    applyFilter();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('productsContainer').innerHTML =
+      '<div class="empty"><div class="empty-icon">⚠️</div>데이터를 불러오지 못했습니다.<br><span style="font-size:11px">잠시 후 다시 시도해주세요.</span></div>';
+  }
+})();
+</script>
+
+</body>
+</html>
