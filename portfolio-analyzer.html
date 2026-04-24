@@ -1,0 +1,3862 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChipCalc Portfolio · 반도체 가격 합리성 분석기</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+<style>
+  :root {
+    --bg: #fafaf9;
+    --bg-elev: #ffffff;
+    --bg-muted: #f4f4f3;
+    --border: #e7e5e4;
+    --border-strong: #d6d3d1;
+    --text: #1c1917;
+    --text-muted: #57534e;
+    --text-subtle: #78716c;
+    --accent: #0f172a;
+    --accent-light: #1e293b;
+    --brand: #2563eb;
+    --brand-light: #3b82f6;
+
+    --status-danger: #dc2626;
+    --status-danger-bg: #fef2f2;
+    --status-warn: #d97706;
+    --status-warn-bg: #fffbeb;
+    --status-good: #059669;
+    --status-good-bg: #ecfdf5;
+    --status-info: #2563eb;
+    --status-info-bg: #eff6ff;
+
+    --series-aurix2: #ea580c;
+    --series-aurix1: #0891b2;
+    --series-traveo2: #9333ea;
+    --series-other: #64748b;
+
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+
+    --font-sans: "Pretendard", "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Consolas, monospace;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0c0a09;
+    --bg-elev: #1c1917;
+    --bg-muted: #292524;
+    --border: #292524;
+    --border-strong: #44403c;
+    --text: #fafaf9;
+    --text-muted: #a8a29e;
+    --text-subtle: #78716c;
+    --accent: #fafaf9;
+    --accent-light: #e7e5e4;
+    --brand: #60a5fa;
+    --brand-light: #93c5fd;
+
+    --status-danger: #f87171;
+    --status-danger-bg: rgba(220,38,38,0.12);
+    --status-warn: #fbbf24;
+    --status-warn-bg: rgba(217,119,6,0.12);
+    --status-good: #34d399;
+    --status-good-bg: rgba(5,150,105,0.12);
+    --status-info: #60a5fa;
+    --status-info-bg: rgba(37,99,235,0.12);
+
+    --series-aurix2: #fb923c;
+    --series-aurix1: #22d3ee;
+    --series-traveo2: #c084fc;
+    --series-other: #94a3b8;
+
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(37,99,235,0.03) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(234,88,12,0.02) 0%, transparent 40%);
+  }
+
+  [data-theme="dark"] body {
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(96,165,250,0.04) 0%, transparent 40%),
+      radial-gradient(circle at 100% 100%, rgba(251,146,60,0.03) 0%, transparent 40%);
+  }
+
+  /* HEADER */
+  header {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-elev);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: var(--bg-elev);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+  }
+
+  .brand-text h1 {
+    font-family: "Manrope", var(--font-sans);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .brand-text p {
+    font-size: 11px;
+    color: var(--text-subtle);
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--status-good-bg);
+    color: var(--status-good);
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid transparent;
+  }
+
+  .icon-btn, .lang-btn {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .icon-btn:hover, .lang-btn:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+  }
+
+  /* LAYOUT */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 18px 24px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* GUIDE CARD */
+  .guide-card {
+    background: linear-gradient(135deg, var(--bg-elev) 0%, var(--bg-muted) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .guide-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .guide-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .guide-icon {
+    font-size: 18px;
+  }
+
+  .guide-toggle {
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+
+  .guide-body {
+    margin-top: 14px;
+    overflow: hidden;
+    max-height: 800px;
+    transition: max-height 0.25s ease, margin-top 0.25s ease, opacity 0.2s ease;
+  }
+
+  .guide-body.folded {
+    max-height: 0;
+    margin-top: 0;
+    opacity: 0;
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 800px) {
+    .guide-grid { grid-template-columns: 1fr; }
+  }
+
+  .guide-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .guide-step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg-elev);
+    display: grid;
+    place-items: center;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .guide-step-text strong {
+    display: block;
+    font-size: 12.5px;
+    margin-bottom: 2px;
+  }
+
+  .guide-step-text p {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .guide-cols-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+
+  @media (max-width: 800px) {
+    .guide-cols-info { grid-template-columns: 1fr; }
+  }
+
+  .guide-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .guide-label.required {
+    background: var(--status-danger-bg);
+    color: var(--status-danger);
+  }
+
+  .guide-label.optional {
+    background: var(--status-info-bg);
+    color: var(--status-info);
+  }
+
+  .guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .guide-list li {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .guide-list li strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .guide-list li span {
+    color: var(--text-muted);
+  }
+
+  .guide-tips {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .guide-tips p {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 3px;
+  }
+
+  /* PREVIEW TABLE */
+  .preview-container {
+    margin-top: 14px;
+    padding: 12px;
+    background: var(--bg-muted);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .preview-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .preview-summary {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .preview-warnings {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .preview-note {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+
+  .preview-note.error {
+    background: var(--status-danger-bg);
+    color: var(--status-danger);
+  }
+
+  .preview-note.warn {
+    background: var(--status-warn-bg);
+    color: var(--status-warn);
+  }
+
+  .preview-note.info {
+    background: var(--status-info-bg);
+    color: var(--status-info);
+  }
+
+  .preview-table-wrap {
+    overflow: auto;
+    max-height: 200px;  /* about 5 rows + header, scroll for more */
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-elev);
+  }
+
+  .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+
+  .preview-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .preview-table th {
+    background: var(--bg-muted);
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .preview-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .preview-table tr:last-child td { border-bottom: none; }
+
+  .preview-table .col-header {
+    font-weight: 700;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 11px;
+    margin-bottom: 3px;
+  }
+
+  .preview-table .col-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-family: var(--font-sans);
+  }
+
+  .col-badge.reserved {
+    background: var(--status-info-bg);
+    color: var(--status-info);
+  }
+
+  .col-badge.extra {
+    background: var(--status-good-bg);
+    color: var(--status-good);
+  }
+
+  .col-badge.ignored {
+    background: var(--bg-muted);
+    color: var(--text-subtle);
+    text-decoration: line-through;
+  }
+
+  .preview-more td {
+    text-align: center;
+    color: var(--text-subtle);
+    font-style: italic;
+    padding: 8px;
+  }
+
+  /* TOP GRID: paste area (left) + controls (right) on PC */
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  @media (max-width: 1000px) {
+    .top-grid { grid-template-columns: 1fr; }
+  }
+
+  .top-grid > .card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .section-title::before {
+    content: '';
+    width: 3px;
+    height: 13px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+
+  .section-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .section-title-row .section-title {
+    margin-bottom: 0;
+  }
+
+  .card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* MODE TABS */
+  .mode-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-muted);
+    padding: 3px;
+    border-radius: 7px;
+    width: fit-content;
+  }
+
+  .mode-tabs:not(.compact) {
+    margin-bottom: 14px;
+  }
+
+  .mode-tabs.compact .mode-tab {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .mode-tab {
+    padding: 7px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    border-radius: 5px;
+    transition: all 0.15s;
+  }
+
+  .mode-tab.active {
+    background: var(--bg-elev);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* INPUT */
+  .input-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .input-row.dual {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  @media (max-width: 768px) {
+    .input-row.dual { grid-template-columns: 1fr; }
+  }
+
+  .input-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  textarea.paste-area {
+    width: 100%;
+    min-height: 160px;
+    max-height: 240px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.55;
+    resize: vertical;
+    transition: border-color 0.15s;
+  }
+
+  textarea.paste-area.compact {
+    min-height: 90px;
+    max-height: 140px;
+  }
+
+  textarea.paste-area:focus {
+    outline: none;
+    border-color: var(--brand);
+  }
+
+  textarea.paste-area::placeholder {
+    color: var(--text-subtle);
+    font-family: var(--font-sans);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  button.btn {
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  button.btn:hover {
+    border-color: var(--border-strong);
+    background: var(--bg-muted);
+  }
+
+  button.btn.primary {
+    background: var(--accent);
+    color: var(--bg-elev);
+    border-color: var(--accent);
+  }
+
+  button.btn.primary:hover {
+    background: var(--accent-light);
+  }
+
+  button.btn.ghost {
+    background: transparent;
+    color: var(--text-muted);
+  }
+
+  /* CONTROLS */
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+  }
+
+  @media (max-width: 500px) {
+    .controls-grid { grid-template-columns: 1fr; }
+  }
+
+  .control-item .input-label {
+    margin-bottom: 4px;
+  }
+
+  .control-item select,
+  .control-item input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .control-item select:focus,
+  .control-item input[type="number"]:focus {
+    outline: none;
+    border-color: var(--brand);
+  }
+
+  /* CONTROLS FOOTER: mini preview chart + analyze button */
+  .controls-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .mini-chart-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+  }
+
+  .mini-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  .mini-chart-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-subtle);
+  }
+
+  .mini-chart-hint {
+    font-size: 10px;
+    color: var(--text-subtle);
+    font-family: var(--font-mono);
+  }
+
+  .mini-chart-container {
+    position: relative;
+    height: 160px;
+    width: 100%;
+  }
+
+  .mini-chart-container.empty {
+    display: grid;
+    place-items: center;
+    color: var(--text-subtle);
+    font-size: 11px;
+    background-image:
+      linear-gradient(45deg, var(--bg-muted) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--bg-muted) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--bg-muted) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--bg-muted) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+    border-radius: 4px;
+  }
+
+  .btn-lg {
+    width: 100%;
+    padding: 11px 16px;
+    font-size: 13.5px;
+    font-weight: 700;
+    justify-content: center;
+  }
+
+  /* STATS DASHBOARD */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 900px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 500px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+
+  .stat-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card.highlight {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    color: var(--bg-elev);
+    border-color: var(--accent);
+  }
+
+  .stat-card.highlight .stat-label,
+  .stat-card.highlight .stat-sub {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .stat-value .unit {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-left: 3px;
+  }
+
+  .stat-card.highlight .stat-value .unit {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-subtle);
+    margin-top: 6px;
+  }
+
+  /* CHART */
+  .chart-wrap {
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chart-title {
+    font-family: "Manrope", var(--font-sans);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .legend-item.disabled {
+    opacity: 0.35;
+  }
+
+  .chart-container {
+    position: relative;
+    height: 440px;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .chart-container { height: 360px; }
+  }
+
+  @media (min-width: 1400px) {
+    .chart-container { height: 480px; }
+  }
+
+  /* CLASSIFICATION TABS */
+  .class-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .class-tab {
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    background: var(--bg-elev);
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .class-tab.active {
+    border-color: var(--border-strong);
+    background: var(--bg-muted);
+    color: var(--text);
+  }
+
+  .class-tab .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .class-tab.danger .dot { background: var(--status-danger); }
+  .class-tab.warn .dot { background: var(--status-warn); }
+  .class-tab.good .dot { background: var(--status-good); }
+  .class-tab.info .dot { background: var(--status-info); }
+
+  .class-tab .count {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 6px;
+    background: var(--bg-muted);
+    border-radius: 10px;
+    color: var(--text-subtle);
+  }
+
+  .class-tab.active .count {
+    background: var(--bg-elev);
+  }
+
+  /* TABLE */
+  .table-wrap {
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  th {
+    background: var(--bg-muted);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-subtle);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  th.num, td.num {
+    text-align: right;
+    font-family: var(--font-mono);
+  }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--bg-muted); }
+
+  td .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+  }
+
+  .pill.danger { background: var(--status-danger-bg); color: var(--status-danger); }
+  .pill.warn { background: var(--status-warn-bg); color: var(--status-warn); }
+  .pill.good { background: var(--status-good-bg); color: var(--status-good); }
+  .pill.info { background: var(--status-info-bg); color: var(--status-info); }
+
+  .series-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--bg-muted);
+    color: var(--text-muted);
+  }
+
+  .series-tag .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 36px;
+    color: var(--text-subtle);
+    font-size: 13px;
+  }
+
+  /* SIMULATOR */
+  .sim-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+
+  @media (max-width: 768px) {
+    .sim-grid { grid-template-columns: 1fr; }
+  }
+
+  .sim-slider-wrap {
+    padding: 12px 0;
+  }
+
+  .sim-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg-muted);
+    outline: none;
+  }
+
+  .sim-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg-elev);
+    box-shadow: var(--shadow);
+  }
+
+  .sim-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 3px solid var(--bg-elev);
+    box-shadow: var(--shadow);
+  }
+
+  .sim-slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--text-subtle);
+    margin-top: 6px;
+  }
+
+  .sim-value-display {
+    text-align: center;
+  }
+
+  .sim-percent {
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--brand);
+  }
+
+  .sim-saving {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 4px;
+  }
+
+  .sim-saving .unit {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 20px 28px;
+    border-top: 1px solid var(--border);
+    color: var(--text-subtle);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  /* UTILS */
+  .hidden { display: none !important; }
+
+  /* PRINT / EXPORT MODE */
+  .export-mode header .header-controls,
+  .export-mode .paste-section,
+  .export-mode .export-bar {
+    display: none !important;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">CC</div>
+    <div class="brand-text">
+      <h1 data-i18n="brandTitle">포트폴리오 가격 합리성 분석기</h1>
+      <p data-i18n="brandSub">ChipCalc Portfolio Analyzer · v1.0</p>
+    </div>
+  </div>
+  <div class="header-controls">
+    <span class="security-badge" title="All processing stays in your browser">
+      🔒 <span data-i18n="secure">브라우저 내 처리</span>
+    </span>
+    <button class="lang-btn" id="langToggle">KO / EN</button>
+    <button class="icon-btn" id="themeToggle" title="Theme">
+      <span id="themeIcon">☀</span>
+    </button>
+  </div>
+</header>
+
+<main>
+
+  <!-- GETTING STARTED GUIDE -->
+  <section class="guide-card" id="guideCard">
+    <div class="guide-header">
+      <div class="guide-title">
+        <span class="guide-icon">📖</span>
+        <span data-i18n="guideTitle">처음 사용하는 분을 위한 가이드</span>
+      </div>
+      <button class="icon-btn guide-toggle" id="guideToggle" title="접기/펼치기">
+        <span id="guideToggleIcon">▲</span>
+      </button>
+    </div>
+    <div class="guide-body" id="guideBody">
+      <div class="guide-grid">
+        <div class="guide-step">
+          <div class="guide-step-num">1</div>
+          <div class="guide-step-text">
+            <strong data-i18n="guideStep1Title">엑셀에서 복사</strong>
+            <p data-i18n="guideStep1Desc">헤더 행을 포함하여 분석할 제품 목록을 Ctrl+C로 복사합니다.</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">2</div>
+          <div class="guide-step-text">
+            <strong data-i18n="guideStep2Title">붙여넣기</strong>
+            <p data-i18n="guideStep2Desc">아래 입력 박스에 Ctrl+V로 붙여넣으면 자동으로 미리보기 표가 나타납니다.</p>
+          </div>
+        </div>
+        <div class="guide-step">
+          <div class="guide-step-num">3</div>
+          <div class="guide-step-text">
+            <strong data-i18n="guideStep3Title">분석 시작</strong>
+            <p data-i18n="guideStep3Desc">미리보기 확인 후 "분석 시작"을 누르면 차트와 통계가 자동 생성됩니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-cols-info">
+        <div>
+          <div class="guide-label required"><span data-i18n="guideRequiredCols">필수 컬럼</span></div>
+          <ul class="guide-list">
+            <li><strong data-i18n="guideColName">제품명</strong><span data-i18n="guideColNameDesc"> — 식별자</span></li>
+            <li><strong data-i18n="guideColActual">실구매가</strong><span data-i18n="guideColActualDesc"> — 분석 기준값 (Y축)</span></li>
+            <li><strong data-i18n="guideColQty">연간수량</strong><span data-i18n="guideColQtyDesc"> — 인하여력 계산용</span></li>
+            <li><strong data-i18n="guideColX">X축 지표</strong><span data-i18n="guideColXDesc"> — 성능을 대표하는 숫자 컬럼 최소 1개</span></li>
+            <li><strong data-i18n="guideColEstimated">추정원가</strong><span data-i18n="guideColEstimatedDesc"> — Hybrid / Should-cost 분석용 (권장)</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="guide-label optional"><span data-i18n="guideOptionalCols">선택 컬럼</span></div>
+          <ul class="guide-list">
+            <li><strong data-i18n="guideColSeries">시리즈</strong><span data-i18n="guideColSeriesDesc"> — 없으면 제품명에서 자동 추출</span></li>
+            <li><strong data-i18n="guideColExtras">기타 숫자 컬럼</strong><span data-i18n="guideColExtrasDesc"> — 자유롭게 추가 (예: 전류, 전압, Flash 등) → X축에서 선택 가능</span></li>
+          </ul>
+          <div class="guide-tips">
+            <p data-i18n="guideTip1">💡 컬럼 순서는 상관없습니다. 헤더 이름으로 자동 인식합니다.</p>
+            <p data-i18n="guideTip2">💡 헤더는 한국어/영어 모두 지원 (제품명/Product, 실구매가/Actual 등).</p>
+            <p data-i18n="guideTip3">💡 반도체 외 다른 부품 분석에도 사용 가능합니다.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOP GRID: 입력(좌) + 설정(우) -->
+  <div class="top-grid">
+
+    <!-- INPUT SECTION (LEFT) -->
+    <section class="card paste-section">
+      <div class="section-title-row">
+        <div class="section-title" data-i18n="inputSection">데이터 입력</div>
+        <div class="mode-tabs compact" id="modeTabs">
+          <button class="mode-tab active" data-mode="single" data-i18n="modeSingle">단일</button>
+          <button class="mode-tab" data-mode="compare-time" data-i18n="modeCompareTime">시점</button>
+          <button class="mode-tab" data-mode="compare-supplier" data-i18n="modeCompareSupplier">공급사</button>
+        </div>
+      </div>
+
+      <div class="input-wrap">
+
+        <div class="input-row" id="singleInputRow">
+          <div>
+            <textarea class="paste-area" id="pasteInputA" data-i18n-ph="pastePlaceholder" placeholder="제품명&#9;시리즈&#9;가중치&#9;실구매가&#9;추정원가&#9;연간수량&#10;..."></textarea>
+          </div>
+        </div>
+
+        <div class="input-row dual hidden" id="dualInputRow">
+          <div>
+            <label class="input-label"><span id="labelB1">이전 기간 / 공급사 A</span></label>
+            <textarea class="paste-area compact" id="pasteInputB1" placeholder=""></textarea>
+          </div>
+          <div>
+            <label class="input-label"><span id="labelB2">현재 기간 / 공급사 B</span></label>
+            <textarea class="paste-area compact" id="pasteInputB2" placeholder=""></textarea>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn" id="sampleBtn">
+            <span data-i18n="sample">샘플 데이터</span>
+          </button>
+          <button class="btn ghost" id="clearBtn">
+            <span data-i18n="clear">초기화</span>
+          </button>
+        </div>
+
+        <!-- Live preview of parsed data -->
+        <div id="previewContainer" class="preview-container hidden">
+          <div class="preview-header">
+            <span class="preview-title" data-i18n="previewTitle">인식된 데이터</span>
+            <span class="preview-summary" id="previewSummary"></span>
+          </div>
+          <div id="previewWarnings" class="preview-warnings hidden"></div>
+          <div class="preview-table-wrap">
+            <table class="preview-table" id="previewTable"></table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTROLS SECTION (RIGHT) -->
+    <section class="card" id="controlsCard">
+      <div class="section-title" data-i18n="controlSection">분석 설정</div>
+      <div class="controls-grid">
+        <div class="control-item">
+          <label class="input-label" data-i18n="xaxis">X축 지표</label>
+          <select id="xAxisSelect">
+            <option value="" data-i18n="xAxisEmpty">데이터를 먼저 입력하세요</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="threshold">관리 임계값 (%)</label>
+          <input type="number" id="thresholdInput" value="15" min="5" max="50" step="1" />
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="trendMode">추세선 기준</label>
+          <select id="trendModeSelect">
+            <option value="all" data-i18n="trendAll">전체 통합</option>
+            <option value="series" data-i18n="trendSeries">시리즈별</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="classMode">분류 기준</label>
+          <select id="classModeSelect">
+            <option value="hybrid" data-i18n="classModeHybrid">Hybrid (교차검증) ★</option>
+            <option value="peer" data-i18n="classModePeer">Peer only (동급비교)</option>
+            <option value="cost" data-i18n="classModeCost">Should-cost (원가기반)</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="seriesFilter">시리즈 필터</label>
+          <select id="seriesFilterSelect">
+            <option value="all" data-i18n="filterAll">전체 표시</option>
+          </select>
+        </div>
+        <div class="control-item">
+          <label class="input-label" data-i18n="bubbleScale">버블 크기 스케일</label>
+          <select id="bubbleScaleSelect">
+            <option value="sqrt" data-i18n="scaleSqrt">제곱근 (균형)</option>
+            <option value="linear" data-i18n="scaleLinear">선형 (차이 강조)</option>
+            <option value="log" data-i18n="scaleLog">로그 (편차 완화)</option>
+            <option value="fixed" data-i18n="scaleFixed">고정 (모두 동일)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Mini preview chart + analyze button -->
+      <div class="controls-footer">
+        <div class="mini-chart-wrap" id="miniChartWrap">
+          <div class="mini-chart-header">
+            <span class="mini-chart-label" data-i18n="miniChartLabel">실시간 미리보기</span>
+            <span class="mini-chart-hint" id="miniChartHint" data-i18n="miniChartHint">데이터를 입력하면 현재 설정 기준 예상 차트가 나타납니다</span>
+          </div>
+          <div class="mini-chart-container">
+            <canvas id="miniChart"></canvas>
+          </div>
+        </div>
+        <button class="btn primary btn-lg" id="analyzeBtn">
+          <span data-i18n="analyze">분석 시작</span>
+        </button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- STATS -->
+  <section>
+    <div class="section-title" data-i18n="summary">분석 요약</div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="totalProducts">총 제품</div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub" id="stat-totalSub" data-i18n="readyToAnalyze">분석 준비 완료</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="rSquared">가격 체계 R²</div>
+        <div class="stat-value" id="stat-r2">—</div>
+        <div class="stat-sub" id="stat-r2Sub">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="manageTarget">관리 대상</div>
+        <div class="stat-value" id="stat-manage">—</div>
+        <div class="stat-sub" id="stat-manageSub">—</div>
+      </div>
+      <div class="stat-card highlight">
+        <div class="stat-label" data-i18n="savingPotential">잠재 인하여력</div>
+        <div class="stat-value" id="stat-saving">—</div>
+        <div class="stat-sub" id="stat-savingSub" data-i18n="yearlyEstimate">추세선 기준 연간 추정</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHART -->
+  <section>
+    <div class="section-title" data-i18n="chartSection">버블 산점도</div>
+    <div class="chart-wrap" id="chartWrap">
+      <div class="chart-header">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <div class="chart-title" id="chartTitle" data-i18n="chartTitle">가격 합리성 분포 (버블 크기 = 연간수량)</div>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <div class="mode-tabs" style="margin-bottom:0;" id="viewTabs">
+              <button class="mode-tab active" data-view="scatter" data-i18n="viewScatter">합리성 산점도</button>
+              <button class="mode-tab" data-view="matrix" data-i18n="viewMatrix">종합 매트릭스</button>
+            </div>
+            <label style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:var(--text-muted); cursor:pointer;" id="costOverlayWrap">
+              <input type="checkbox" id="costOverlayChk" style="accent-color: var(--brand); cursor:pointer;" />
+              <span data-i18n="costOverlay">추정원가 추세선 표시</span>
+            </label>
+          </div>
+        </div>
+        <div class="chart-legend" id="chartLegend"></div>
+      </div>
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div id="matrixInsight" style="margin-top:12px; display:none; padding:12px 14px; background:var(--bg-muted); border-radius:8px; font-size:12px; line-height:1.7; color:var(--text-muted);"></div>
+    </div>
+  </section>
+
+  <!-- CLASSIFICATION -->
+  <section class="card">
+    <div class="section-title" data-i18n="classSection">분류별 제품 상세</div>
+
+    <div class="class-tabs" id="classTabs">
+      <button class="class-tab danger active" data-class="danger">
+        <span class="dot"></span>
+        <span data-i18n="classDanger">관리 대상</span>
+        <span class="count" id="count-danger">0</span>
+      </button>
+      <button class="class-tab warn" data-class="warn">
+        <span class="dot"></span>
+        <span data-i18n="classWarn">주의</span>
+        <span class="count" id="count-warn">0</span>
+      </button>
+      <button class="class-tab good" data-class="good">
+        <span class="dot"></span>
+        <span data-i18n="classGood">합리 구간</span>
+        <span class="count" id="count-good">0</span>
+      </button>
+      <button class="class-tab info" data-class="info">
+        <span class="dot"></span>
+        <span data-i18n="classInfo">저평가</span>
+        <span class="count" id="count-info">0</span>
+      </button>
+    </div>
+
+    <div id="tableContainer">
+      <div class="empty" data-i18n="emptyTable">분석을 실행하면 분류된 제품이 여기에 표시됩니다</div>
+    </div>
+  </section>
+
+  <!-- SIMULATOR -->
+  <section class="card">
+    <div class="section-title" data-i18n="simSection">인하 시나리오 시뮬레이터</div>
+    <div class="sim-grid">
+      <div class="sim-slider-wrap">
+        <label class="input-label" data-i18n="simSlider">관리 대상 제품에 적용할 평균 인하율</label>
+        <input type="range" class="sim-slider" id="simSlider" min="0" max="20" value="5" step="0.5" />
+        <div class="sim-slider-labels">
+          <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span>
+        </div>
+        <p style="margin-top:14px; font-size:12px; color:var(--text-subtle); line-height:1.6;" data-i18n="simDesc">
+          관리 대상 제품들의 가격을 X% 인하했을 때의 연간 절감 효과를 실시간 계산합니다. 협상 목표 설정 및 경영층 보고용 근거 자료로 활용하세요.
+        </p>
+      </div>
+      <div class="sim-value-display">
+        <div class="stat-label" data-i18n="simResult">예상 연간 절감액</div>
+        <div class="sim-percent" id="simPercent">5.0%</div>
+        <div class="sim-saving"><span id="simAmount">—</span> <span class="unit" id="simUnit">KRW</span></div>
+        <div class="stat-sub" id="simDetail" style="margin-top:6px;">—</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPORT -->
+  <section class="card export-bar">
+    <div class="section-title" data-i18n="exportSection">보고서 내보내기</div>
+    <div class="btn-row">
+      <button class="btn primary" id="exportPdfBtn">
+        📄 <span data-i18n="exportPdf">PDF 한 장 리포트</span>
+      </button>
+      <button class="btn" id="exportPngBtn">
+        🖼 <span data-i18n="exportPng">차트 PNG 저장</span>
+      </button>
+      <button class="btn ghost" id="exportCsvBtn">
+        📊 <span data-i18n="exportCsv">분류 결과 CSV</span>
+      </button>
+    </div>
+    <p style="margin-top:12px; font-size:11px; color:var(--text-subtle);" data-i18n="exportNote">
+      * 모든 내보내기는 브라우저에서 직접 생성됩니다. 데이터는 서버로 전송되지 않습니다.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <span data-i18n="footerText">ChipCalc Portfolio Analyzer · 100% 클라이언트 사이드 처리 · 데이터 수집 없음</span>
+</footer>
+
+<script>
+/* =============================================================
+   I18N
+============================================================= */
+const i18n = {
+  ko: {
+    brandTitle: "포트폴리오 가격 합리성 분석기",
+    brandSub: "ChipCalc Portfolio Analyzer · v1.0",
+    secure: "브라우저 내 처리",
+    modeSingle: "단일 분석",
+    modeCompareTime: "시점 비교",
+    modeCompareSupplier: "공급사 비교",
+    inputSection: "데이터 입력",
+    pasteLabel: "엑셀 데이터 붙여넣기 (탭 구분)",
+    pastePlaceholder: "엑셀에서 헤더 포함하여 복사한 뒤 여기에 Ctrl+V로 붙여넣기\n\n예시:\n제품명\t시리즈\t성능지표\t실구매가\t추정원가\t연간수량\nAPX-A100-F256\tA-Series\t15.0\t22500\t26800\t1200000",
+    guideTitle: "처음 사용하는 분을 위한 가이드",
+    guideStep1Title: "엑셀에서 복사",
+    guideStep1Desc: "헤더 행을 포함하여 분석할 제품 목록을 Ctrl+C로 복사합니다.",
+    guideStep2Title: "붙여넣기",
+    guideStep2Desc: "아래 입력 박스에 Ctrl+V로 붙여넣으면 자동으로 미리보기 표가 나타납니다.",
+    guideStep3Title: "분석 시작",
+    guideStep3Desc: "미리보기 확인 후 \"분석 시작\"을 누르면 차트와 통계가 자동 생성됩니다.",
+    guideRequiredCols: "필수 컬럼",
+    guideOptionalCols: "선택 컬럼",
+    guideColName: "제품명",
+    guideColNameDesc: " — 식별자",
+    guideColActual: "실구매가",
+    guideColActualDesc: " — 분석 기준값 (Y축)",
+    guideColQty: "연간수량",
+    guideColQtyDesc: " — 인하여력 계산용",
+    guideColX: "X축 지표",
+    guideColXDesc: " — 성능을 대표하는 숫자 컬럼 최소 1개 (예: 전류, 전압, 가중치 등)",
+    guideColEstimated: "추정원가",
+    guideColEstimatedDesc: " — Hybrid / Should-cost 분석용 (권장)",
+    guideColSeries: "시리즈",
+    guideColSeriesDesc: " — 없으면 제품명에서 자동 추출",
+    guideColExtras: "기타 숫자 컬럼",
+    guideColExtrasDesc: " — 자유롭게 추가 → X축에서 선택 가능",
+    guideTip1: "💡 컬럼 순서는 상관없습니다. 헤더 이름으로 자동 인식합니다.",
+    guideTip2: "💡 헤더는 한국어/영어 모두 지원 (제품명/Product, 실구매가/Actual 등).",
+    guideTip3: "💡 반도체 외 다른 부품 분석에도 사용 가능합니다.",
+    previewTitle: "인식된 데이터",
+    miniChartLabel: "실시간 미리보기",
+    miniChartHint: "설정을 바꾸면 즉시 반영됩니다",
+    xAxisEmpty: "데이터를 먼저 입력하세요",
+    xaxis: "X축 지표",
+    analyze: "분석 시작",
+    sample: "샘플 데이터",
+    clear: "초기화",
+    controlSection: "분석 설정",
+    xaxis: "X축",
+    xWeight: "가중치 복합지표",
+    xEstCost: "추정원가",
+    xFlash: "Flash 용량",
+    threshold: "관리 임계값 (%)",
+    trendMode: "추세선 기준",
+    trendAll: "전체 통합",
+    trendSeries: "시리즈별",
+    classMode: "분류 기준",
+    classModeHybrid: "Hybrid (교차검증) ★",
+    classModePeer: "Peer only (동급비교)",
+    classModeCost: "Should-cost (원가기반)",
+    viewScatter: "합리성 산점도",
+    viewMatrix: "종합 매트릭스",
+    costOverlay: "추정원가 추세선 표시",
+    seriesFilter: "시리즈 필터",
+    filterAll: "전체 표시",
+    bubbleScale: "버블 크기 스케일",
+    scaleSqrt: "제곱근 (균형)",
+    scaleLinear: "선형 (차이 강조)",
+    scaleLog: "로그 (편차 완화)",
+    scaleFixed: "고정 (모두 동일)",
+    summary: "분석 요약",
+    totalProducts: "총 제품",
+    readyToAnalyze: "분석 준비 완료",
+    rSquared: "가격 체계 R²",
+    manageTarget: "관리 대상",
+    savingPotential: "잠재 인하여력",
+    yearlyEstimate: "추세선 기준 연간 추정",
+    chartSection: "버블 산점도",
+    chartTitle: "가격 합리성 분포 (버블 크기 = 연간수량)",
+    classSection: "분류별 제품 상세",
+    classDanger: "관리 대상",
+    classWarn: "주의",
+    classGood: "합리 구간",
+    classInfo: "저평가",
+    emptyTable: "분석을 실행하면 분류된 제품이 여기에 표시됩니다",
+    simSection: "인하 시나리오 시뮬레이터",
+    simSlider: "관리 대상 제품에 적용할 평균 인하율",
+    simDesc: "관리 대상 제품들의 가격을 X% 인하했을 때의 연간 절감 효과를 실시간 계산합니다. 협상 목표 설정 및 경영층 보고용 근거 자료로 활용하세요.",
+    simResult: "예상 연간 절감액",
+    exportSection: "보고서 내보내기",
+    exportPdf: "PDF 한 장 리포트",
+    exportPng: "차트 PNG 저장",
+    exportCsv: "분류 결과 CSV",
+    exportNote: "* 모든 내보내기는 브라우저에서 직접 생성됩니다. 데이터는 서버로 전송되지 않습니다.",
+    footerText: "ChipCalc Portfolio Analyzer · 100% 클라이언트 사이드 처리 · 데이터 수집 없음",
+    colProduct: "제품명", colSeries: "시리즈", colX: "X값", colActual: "실구매가", colTrend: "추세선값",
+    colGap: "편차", colQty: "연간수량", colSavingPotential: "인하여력",
+    labelB1Time: "이전 기간", labelB2Time: "현재 기간",
+    labelB1Sup: "공급사 A", labelB2Sup: "공급사 B",
+    trendExcellent: "우수 (가격 체계 매우 합리적)",
+    trendGood: "양호 (합리적 가격 체계)",
+    trendFair: "보통 (일부 비합리 존재)",
+    trendPoor: "미흡 (체계 재점검 필요)",
+    r2Empty: "데이터 대기 중",
+    totalPerYear: "연간 거래 규모 ₩",
+    managePercent: "전체의",
+    dataCount: "개 제품 합산",
+    chartHint: "버블 크기가 클수록 연간 수량이 많음. 대각선은 추세선, 음영은 합리 구간",
+    exportReportTitle: "반도체 포트폴리오 가격 합리성 분석 리포트",
+    exportGeneratedAt: "생성일시",
+    exportTotal: "총 제품 수",
+    exportManagement: "관리 대상 건수",
+    exportSaving: "잠재 인하여력(연간)",
+    exportR2: "가격 체계 R² 지수"
+  },
+  en: {
+    brandTitle: "Portfolio Price Rationality Analyzer",
+    brandSub: "ChipCalc Portfolio Analyzer · v1.0",
+    secure: "In-browser processing",
+    modeSingle: "Single Analysis",
+    modeCompareTime: "Time Comparison",
+    modeCompareSupplier: "Supplier Comparison",
+    inputSection: "Data Input",
+    pasteLabel: "Paste Excel data (Tab-separated)",
+    pastePlaceholder: "Copy data (including header row) from Excel and paste here with Ctrl+V\n\nExample:\nProduct\tSeries\tPerformance\tActual\tEstimated\tQty\nAPX-A100-F256\tA-Series\t15.0\t22500\t26800\t1200000",
+    guideTitle: "Getting Started",
+    guideStep1Title: "Copy from Excel",
+    guideStep1Desc: "Select your product rows including the header and copy with Ctrl+C.",
+    guideStep2Title: "Paste",
+    guideStep2Desc: "Paste into the input box below with Ctrl+V. A preview table appears automatically.",
+    guideStep3Title: "Analyze",
+    guideStep3Desc: "Review the preview, then click \"Analyze\" to generate charts and stats.",
+    guideRequiredCols: "Required Columns",
+    guideOptionalCols: "Optional Columns",
+    guideColName: "Product",
+    guideColNameDesc: " — identifier",
+    guideColActual: "Actual Price",
+    guideColActualDesc: " — analysis baseline (Y-axis)",
+    guideColQty: "Annual Qty",
+    guideColQtyDesc: " — for saving-potential calc",
+    guideColX: "X-axis Metric",
+    guideColXDesc: " — at least one numeric column (e.g. current, voltage, weight)",
+    guideColEstimated: "Estimated Cost",
+    guideColEstimatedDesc: " — for Hybrid / Should-cost analysis (recommended)",
+    guideColSeries: "Series",
+    guideColSeriesDesc: " — auto-extracted from product name if missing",
+    guideColExtras: "Extra Numeric Columns",
+    guideColExtrasDesc: " — any additional numeric columns → selectable as X-axis",
+    guideTip1: "💡 Column order doesn't matter — headers are detected by name.",
+    guideTip2: "💡 Headers can be Korean or English.",
+    guideTip3: "💡 Works for any component category, not just semiconductors.",
+    previewTitle: "Detected Data",
+    miniChartLabel: "Live Preview",
+    miniChartHint: "Updates instantly as you change settings",
+    xAxisEmpty: "Load data first",
+    xaxis: "X-axis Metric",
+    analyze: "Analyze",
+    sample: "Load Sample",
+    clear: "Reset",
+    controlSection: "Analysis Settings",
+    xaxis: "X-axis",
+    xWeight: "Composite Weight",
+    xEstCost: "Estimated Cost",
+    xFlash: "Flash Size",
+    threshold: "Threshold (%)",
+    trendMode: "Trendline Basis",
+    trendAll: "All Combined",
+    trendSeries: "Per Series",
+    classMode: "Classification",
+    classModeHybrid: "Hybrid (cross-check) ★",
+    classModePeer: "Peer only",
+    classModeCost: "Should-cost",
+    viewScatter: "Rationality Scatter",
+    viewMatrix: "Combined Matrix",
+    costOverlay: "Show cost trendline",
+    seriesFilter: "Series Filter",
+    filterAll: "Show All",
+    bubbleScale: "Bubble Size Scale",
+    scaleSqrt: "Square Root (balanced)",
+    scaleLinear: "Linear (emphasize diff)",
+    scaleLog: "Logarithmic (flatten)",
+    scaleFixed: "Fixed (uniform)",
+    summary: "Summary",
+    totalProducts: "Total Products",
+    readyToAnalyze: "Ready to analyze",
+    rSquared: "Pricing R²",
+    manageTarget: "Managed Items",
+    savingPotential: "Saving Potential",
+    yearlyEstimate: "Yearly est. vs trendline",
+    chartSection: "Bubble Scatter",
+    chartTitle: "Price Rationality Distribution (Bubble = Annual Qty)",
+    classSection: "Classification Details",
+    classDanger: "Overpriced",
+    classWarn: "Watch",
+    classGood: "Reasonable",
+    classInfo: "Underpriced",
+    emptyTable: "Run analysis to see classified products",
+    simSection: "Reduction Scenario Simulator",
+    simSlider: "Average reduction rate applied to managed items",
+    simDesc: "Calculates real-time annual savings from reducing prices of managed items by X%. Use as basis for negotiation targets and executive reporting.",
+    simResult: "Estimated Annual Saving",
+    exportSection: "Export Report",
+    exportPdf: "One-page PDF Report",
+    exportPng: "Save Chart as PNG",
+    exportCsv: "Classification CSV",
+    exportNote: "* All exports are generated locally in your browser. No data is sent to any server.",
+    footerText: "ChipCalc Portfolio Analyzer · 100% client-side · No data collection",
+    colProduct: "Product", colSeries: "Series", colX: "X-val", colActual: "Actual",
+    colTrend: "Trendline", colGap: "Gap", colQty: "Qty", colSavingPotential: "Potential",
+    labelB1Time: "Previous Period", labelB2Time: "Current Period",
+    labelB1Sup: "Supplier A", labelB2Sup: "Supplier B",
+    trendExcellent: "Excellent (very rational pricing)",
+    trendGood: "Good (rational pricing)",
+    trendFair: "Fair (some inconsistencies)",
+    trendPoor: "Poor (review required)",
+    r2Empty: "Awaiting data",
+    totalPerYear: "Annual volume ₩",
+    managePercent: "of total",
+    dataCount: "products in scope",
+    chartHint: "Bubble size = annual qty. Diagonal = trendline, shaded = rational band",
+    exportReportTitle: "Semiconductor Portfolio Price Rationality Report",
+    exportGeneratedAt: "Generated",
+    exportTotal: "Total products",
+    exportManagement: "Managed items",
+    exportSaving: "Annual saving potential",
+    exportR2: "Pricing R² index"
+  }
+};
+
+let currentLang = 'ko';
+
+function applyI18n() {
+  const dict = i18n[currentLang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (dict[key]) el.setAttribute('placeholder', dict[key]);
+  });
+  document.documentElement.lang = currentLang;
+  updateCompareModeLabels();
+}
+
+/* =============================================================
+   THEME
+============================================================= */
+function initTheme() {
+  const saved = null;
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  const theme = mq.matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeIcon').textContent = theme === 'dark' ? '☾' : '☀';
+  mq.addEventListener('change', e => {
+    const t = e.matches ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('themeIcon').textContent = t === 'dark' ? '☾' : '☀';
+    if (rawItems.length) buildSeriesColorMap([...new Set(rawItems.map(i => i.series))]);
+    if (lastAnalysis) { renderStats(lastAnalysis); renderChart(lastAnalysis); renderTable(lastAnalysis, currentClass); }
+  });
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').textContent = next === 'dark' ? '☾' : '☀';
+  if (rawItems.length) buildSeriesColorMap([...new Set(rawItems.map(i => i.series))]);
+  if (lastAnalysis) { renderStats(lastAnalysis); renderChart(lastAnalysis); renderTable(lastAnalysis, currentClass); }
+});
+
+document.getElementById('langToggle').addEventListener('click', () => {
+  currentLang = currentLang === 'ko' ? 'en' : 'ko';
+  applyI18n();
+  if (lastAnalysis) {
+    renderStats(lastAnalysis);
+    renderTable(lastAnalysis, currentClass);
+    renderChart(lastAnalysis);
+    updateSimulator();
+  }
+});
+
+/* =============================================================
+   SAMPLE DATA — generic, fictional semiconductor examples
+   (columns: 제품명, 시리즈, 성능지표, 실구매가, 추정원가, 연간수량)
+============================================================= */
+const sampleData = [
+  // High-tier series A — flagship-like
+  ["APX-A100-F256",  "A-Series", 15.0, 22500, 26800, 1200000],
+  ["APX-A090-F192",  "A-Series",  9.8, 10500, 15600,  550000],
+  ["APX-A080-F128",  "A-Series",  7.6, 10200, 14800, 3100000],
+  ["APX-A075-F096",  "A-Series",  6.4, 10100,  9400,  180000],
+  ["APX-A070-F064",  "A-Series",  4.4, 11000,  8800,   12000],
+  ["APX-A065-F064",  "A-Series",  4.4,  7600,  6700,  420000],
+  ["APX-A060-F064",  "A-Series",  4.4,  7100,  6700, 2000000],
+  // Mid-tier series B — volume workhorse
+  ["BPX-B070-M064",  "B-Series",  4.3,  8300, 10900, 1200000],
+  ["BPX-B070-M064H", "B-Series",  4.3, 12000, 10900,   90000],
+  ["BPX-B070-M064L", "B-Series",  4.3,  9400, 10900,  110000],
+  ["BPX-B065-M064",  "B-Series",  4.3,  8200,  9100,  750000],
+  ["BPX-B060-M040",  "B-Series",  2.8,  7500,  6300,  280000],
+  ["BPX-B060-M040L", "B-Series",  2.8,  5600,  6300,  560000],
+  ["BPX-B050-M032",  "B-Series",  1.9,  4900,  4400, 2100000],
+  ["BPX-B045-M032",  "B-Series",  1.9,  4300,  4000,  280000],
+  ["BPX-B045-M032L", "B-Series",  1.9,  4000,  4000,  190000],
+  // Low-tier series C — legacy / entry
+  ["CPX-C030-L032",  "C-Series",  2.0,  2800,  3300,  950000],
+  ["CPX-C030-L032B", "C-Series",  2.0,  2900,  3300, 1150000],
+  ["CPX-C040-L064",  "C-Series",  3.0,  3550,  3700, 2150000],
+  ["CPX-C040-L064B", "C-Series",  3.1,  4000,  3750,   18000],
+  ["CPX-C045-L064",  "C-Series",  3.3,  4300,  5200,  580000],
+  ["CPX-C045-L064B", "C-Series",  3.3,  4300,  6500, 5000000],
+  ["CPX-C050-L064",  "C-Series",  3.5,  5400,  6500,   55000],
+  ["CPX-C050-L064B", "C-Series",  3.6,  5300,  7600, 1050000],
+  ["CPX-C050-L064C", "C-Series",  3.6,  6700,  8700,   95000],
+  ["CPX-C055-L128",  "C-Series",  4.4,  7500, 13100, 3100000],
+  ["CPX-C060-L128",  "C-Series",  6.6, 13400, 19000,   95000]
+];
+
+function buildSampleTSV() {
+  const header = "제품명\t시리즈\t성능지표\t실구매가\t추정원가\t연간수량";
+  const rows = sampleData.map(r => r.join("\t"));
+  return header + "\n" + rows.join("\n");
+}
+
+function buildSampleTSVB(shiftPct) {
+  const header = "제품명\t시리즈\t성능지표\t실구매가\t추정원가\t연간수량";
+  const rows = sampleData.map(r => {
+    const adjusted = Math.round(r[3] * (1 + shiftPct/100));
+    return [r[0], r[1], r[2], adjusted, r[4], r[5]].join("\t");
+  });
+  return header + "\n" + rows.join("\n");
+}
+
+/* =============================================================
+   PARSING
+============================================================= */
+function toNum(val) {
+  if (val == null || val === '') return NaN;
+  if (typeof val === 'number') return val;
+  const cleaned = String(val).replace(/[₩$€¥,\s]/g, '').replace(/%$/, '');
+  const n = parseFloat(cleaned);
+  return isNaN(n) ? NaN : n;
+}
+
+/**
+ * Fallback when the input data has no 'series' column.
+ * Strategy (no hardcoded product families):
+ *  1. If the name contains a '-', use the prefix before the first '-'
+ *     (e.g. "ABC-XYZ123-256F" → "ABC")
+ *  2. Otherwise take the first alpha block (e.g. "XYZ123..." → "XYZ")
+ *  3. Fall back to "Unclassified" only if nothing usable is found
+ * The user is always free to provide their own 'series' column and
+ * this function will not be called.
+ */
+function detectSeriesFromName(name) {
+  if (!name) return 'Unclassified';
+  const s = String(name).trim();
+
+  // Try dash-split prefix first
+  if (s.includes('-')) {
+    const prefix = s.split('-')[0].trim();
+    if (prefix.length >= 2 && prefix.length <= 12) return prefix.toUpperCase();
+  }
+
+  // Otherwise, first alpha block
+  const alphaMatch = s.match(/^[A-Za-z]+/);
+  if (alphaMatch && alphaMatch[0].length >= 2) return alphaMatch[0].toUpperCase();
+
+  return 'Unclassified';
+}
+
+/* =============================================================
+   PARSING
+   ---------------------------------------------------------------
+   Returns { items, meta } where
+     items[i] = {
+       name, series, actual, estimated, qty,          // core fields
+       extras: { [header]: number }                    // user-defined numeric cols
+     }
+     meta = {
+       headers, reservedMap,                           // diagnostics
+       extraNumericCols: [header],                     // feeds the X-axis picker
+       warnings: [string]                              // shown to user
+     }
+============================================================= */
+
+// Reserved columns that get their own slot in the item object.
+// Any numeric column NOT matching these becomes an "extra" and is
+// eligible to be used as the X-axis metric.
+const RESERVED_PATTERNS = {
+  name:      /제품|모델|품명|part|product|mpn|model/i,
+  series:    /시리즈|계열|series|family|group/i,
+  actual:    /실구매|실가|구매가|actual|real price|buy price|purchas/i,
+  estimated: /추정|예상|estimate|should.?cost|target.?cost/i,
+  qty:       /수량|물량|qty|quantity|volume|annual/i,
+  supplier:  /공급|공급사|supplier|vendor|maker|제조사/i,
+  period:    /연도|year|period|기간/i
+};
+
+function detectHeaderRole(headerText) {
+  const low = (headerText || '').toLowerCase().trim();
+  if (!low) return null;
+  for (const [role, pattern] of Object.entries(RESERVED_PATTERNS)) {
+    if (pattern.test(low)) return role;
+  }
+  return null;  // unclassified → becomes an extra numeric candidate
+}
+
+function isNumericColumn(rows, colIdx) {
+  let hits = 0, tries = 0;
+  for (const r of rows) {
+    const v = r[colIdx];
+    if (v == null || v === '') continue;
+    tries++;
+    if (!isNaN(toNum(v))) hits++;
+    if (tries >= 5) break;
+  }
+  return tries > 0 && hits / tries >= 0.6;
+}
+
+function parseTSV(text) {
+  const meta = { headers: [], reservedMap: {}, extraNumericCols: [], warnings: [] };
+  if (!text || !text.trim()) return { items: [], meta };
+
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) {
+    meta.warnings.push('데이터가 부족합니다. 헤더 행 포함 최소 2줄 이상 필요합니다.');
+    return { items: [], meta };
+  }
+
+  const headers = lines[0].split('\t').map(h => h.trim());
+  meta.headers = headers;
+
+  // Role detection for each header
+  const roleMap = {};
+  headers.forEach((h, i) => {
+    const role = detectHeaderRole(h);
+    if (role && roleMap[role] === undefined) {
+      roleMap[role] = i;
+      meta.reservedMap[role] = h;
+    }
+  });
+
+  // Data rows (as array of cells)
+  const dataRows = lines.slice(1).map(l => l.split('\t'));
+
+  // Extra numeric columns: headers that are NOT reserved AND look numeric
+  const reservedIndices = new Set(Object.values(roleMap));
+  const extras = [];
+  headers.forEach((h, i) => {
+    if (reservedIndices.has(i)) return;
+    if (!h) return;
+    if (isNumericColumn(dataRows, i)) {
+      extras.push({ header: h, index: i });
+    }
+  });
+  meta.extraNumericCols = extras.map(e => e.header);
+
+  // Auto-guess 'actual' / 'name' if not explicitly matched
+  if (roleMap.name === undefined) {
+    roleMap.name = 0;
+    meta.warnings.push(`제품명 컬럼을 찾지 못해 첫 번째 컬럼(${headers[0]})을 제품명으로 사용합니다.`);
+  }
+  if (roleMap.actual === undefined) {
+    // Heuristic: highest-mean numeric column that isn't qty/estimated
+    let bestIdx = -1, bestMean = 0;
+    headers.forEach((h, i) => {
+      if (i === roleMap.name || i === roleMap.qty || i === roleMap.estimated) return;
+      if (!isNumericColumn(dataRows, i)) return;
+      const vals = dataRows.map(r => toNum(r[i])).filter(v => !isNaN(v));
+      if (!vals.length) return;
+      const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
+      if (mean > bestMean) { bestMean = mean; bestIdx = i; }
+    });
+    if (bestIdx !== -1) {
+      roleMap.actual = bestIdx;
+      meta.warnings.push(`실구매가 컬럼을 찾지 못해 "${headers[bestIdx]}"를 실구매가로 추정했습니다.`);
+    }
+  }
+
+  // Build items
+  const items = [];
+  for (const cols of dataRows) {
+    if (cols.length < 2) continue;
+    const name = cols[roleMap.name]?.trim();
+    if (!name) continue;
+
+    const actual = roleMap.actual !== undefined ? toNum(cols[roleMap.actual]) : NaN;
+    if (isNaN(actual)) continue;
+
+    const series = roleMap.series !== undefined
+      ? (cols[roleMap.series]?.trim() || detectSeriesFromName(name))
+      : detectSeriesFromName(name);
+
+    // Gather extras (user-defined numeric columns)
+    const extrasObj = {};
+    extras.forEach(({ header, index }) => {
+      const v = toNum(cols[index]);
+      if (!isNaN(v)) extrasObj[header] = v;
+    });
+
+    const item = {
+      name,
+      series,
+      actual,
+      estimated: roleMap.estimated !== undefined ? toNum(cols[roleMap.estimated]) : NaN,
+      qty: roleMap.qty !== undefined ? toNum(cols[roleMap.qty]) : NaN,
+      supplier: roleMap.supplier !== undefined ? cols[roleMap.supplier]?.trim() : null,
+      period: roleMap.period !== undefined ? cols[roleMap.period]?.trim() : null,
+      extras: extrasObj
+    };
+    if (isNaN(item.qty) || item.qty < 1) item.qty = 1;
+    items.push(item);
+  }
+
+  return { items, meta };
+}
+
+/* =============================================================
+   VALIDATION: Check required columns for analysis
+============================================================= */
+function validateItems(items, meta) {
+  const errors = [];
+  const recommendations = [];
+
+  if (!items.length) {
+    errors.push('유효한 데이터 행이 없습니다.');
+    return { errors, recommendations };
+  }
+
+  // Required: name, actual, qty, and at least one X-axis candidate
+  const hasName = items.every(i => i.name);
+  const hasActual = items.some(i => !isNaN(i.actual));
+  const hasQty = items.some(i => !isNaN(i.qty) && i.qty > 0);
+
+  if (!hasName) errors.push('제품명 컬럼이 필요합니다.');
+  if (!hasActual) errors.push('실구매가 컬럼이 필요합니다 (분석의 기준값).');
+  if (!hasQty) recommendations.push('연간수량 컬럼이 없으면 인하여력 계산이 수량=1 기준으로 수행됩니다.');
+
+  // X-axis candidate: at least one numeric extra column
+  if (!meta.extraNumericCols.length) {
+    errors.push('X축 지표가 필요합니다. 숫자 컬럼 최소 1개 이상 포함해주세요 (예: 가중치, 전류, 전압, Flash 등).');
+  }
+
+  // Recommended: estimated cost (for hybrid/should-cost mode)
+  if (!items.some(i => !isNaN(i.estimated))) {
+    recommendations.push('추정원가 컬럼이 없어 Hybrid/Should-cost 분석 모드는 비활성됩니다. Peer 비교만 수행됩니다.');
+  }
+
+  return { errors, recommendations };
+}
+
+/* =============================================================
+   STATISTICS
+============================================================= */
+function linearRegression(points) {
+  const valid = points.filter(p => !isNaN(p.x) && !isNaN(p.y));
+  const n = valid.length;
+  if (n < 2) return null;
+
+  let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+  valid.forEach(p => {
+    sumX += p.x; sumY += p.y;
+    sumXY += p.x * p.y;
+    sumX2 += p.x * p.x;
+  });
+  const denom = n * sumX2 - sumX * sumX;
+  if (denom === 0) return null;
+
+  const slope = (n * sumXY - sumX * sumY) / denom;
+  const intercept = (sumY - slope * sumX) / n;
+  const yMean = sumY / n;
+
+  let ssRes = 0, ssTot = 0;
+  valid.forEach(p => {
+    const yPred = slope * p.x + intercept;
+    ssRes += Math.pow(p.y - yPred, 2);
+    ssTot += Math.pow(p.y - yMean, 2);
+  });
+  const r2 = ssTot === 0 ? 1 : Math.max(0, 1 - ssRes / ssTot);
+
+  return { slope, intercept, r2, n };
+}
+
+/* =============================================================
+   ANALYSIS ENGINE
+   - rawItems: 파싱된 원본 데이터 (필터/분석 설정과 무관, 영구 보관)
+   - lastAnalysis: 마지막 분석 결과 (현재 설정 기준 파생 데이터)
+   설정이 바뀔 때마다 analyze(rawItems) 재실행으로 전체 동기화
+============================================================= */
+let rawItems = [];
+let lastAnalysis = null;
+let currentClass = 'danger';
+let currentMode = 'single';
+let currentView = 'scatter';
+
+/* =============================================================
+   DYNAMIC X-AXIS SETUP
+   Populates the X-axis <select> based on the extra numeric
+   columns detected in the uploaded data. Estimated cost is
+   offered as a bonus option if present.
+============================================================= */
+function populateXAxisOptions(meta, items) {
+  const sel = document.getElementById('xAxisSelect');
+  const previousValue = sel.value;
+  sel.innerHTML = '';
+
+  const options = [];
+  // User-defined numeric columns come first
+  meta.extraNumericCols.forEach(col => options.push({ value: col, label: col }));
+  // Estimated cost as optional X-axis
+  if (items.some(i => !isNaN(i.estimated))) {
+    options.push({
+      value: 'estimated',
+      label: currentLang === 'ko' ? '추정원가' : 'Estimated cost'
+    });
+  }
+
+  if (!options.length) {
+    const opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = currentLang === 'ko' ? 'X축 지표 없음' : 'No X-axis metric';
+    sel.appendChild(opt);
+    sel.disabled = true;
+    return;
+  }
+
+  sel.disabled = false;
+  options.forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.value;
+    opt.textContent = o.label;
+    sel.appendChild(opt);
+  });
+
+  // Preserve previous selection if still valid, else default to first
+  if (options.some(o => o.value === previousValue)) {
+    sel.value = previousValue;
+  } else {
+    sel.value = options[0].value;
+  }
+}
+
+/* -------------------------------------------------------------
+   X-axis field accessors
+   getXField() is called many times by analyze/render code, so it
+   must be defensive: if the <select>'s value is somehow empty
+   (e.g. right after innerHTML refresh), fall back to the first
+   non-empty option so downstream code never sees an empty string.
+------------------------------------------------------------- */
+function getXField() {
+  const el = document.getElementById('xAxisSelect');
+  if (!el) return '';
+  if (el.value) return el.value;
+  for (const opt of el.options) {
+    if (opt.value) return opt.value;
+  }
+  return '';
+}
+
+function getXValue(item) {
+  const field = getXField();
+  if (!field) return NaN;
+  if (field === 'estimated') return item.estimated;
+  // All other X-axis choices come from the extras bag
+  return item.extras?.[field] ?? NaN;
+}
+
+function getXLabel() {
+  const field = getXField();
+  if (!field) return '';
+  if (field === 'estimated') return currentLang === 'ko' ? '추정원가' : 'Estimated cost';
+  return field;  // the header name chosen by the user
+}
+
+/* -------------------------------------------------------------
+   Classification helper: peer/cost gap → 4-bucket classification
+------------------------------------------------------------- */
+function classifyItem(peerGap, costGap, threshold, mode) {
+  const hasCost = !isNaN(costGap);
+  const absHigh = threshold;
+  const absMid = threshold / 2;
+
+  if (mode === 'peer') {
+    if (peerGap > absHigh) return 'danger';
+    if (peerGap > absMid) return 'warn';
+    if (peerGap < -absHigh) return 'info';
+    return 'good';
+  }
+  if (mode === 'cost') {
+    if (!hasCost) return 'good';
+    if (costGap > absHigh) return 'danger';
+    if (costGap > absMid) return 'warn';
+    if (costGap < -absHigh) return 'info';
+    return 'good';
+  }
+  // hybrid: cross-verification
+  const peerHigh = peerGap > absHigh;
+  const costHigh = hasCost && costGap > absHigh;
+  const peerLow = peerGap < -absHigh;
+  const costLow = hasCost && costGap < -absHigh;
+  const peerMid = peerGap > absMid && peerGap <= absHigh;
+  const costMid = hasCost && costGap > absMid && costGap <= absHigh;
+
+  if (peerHigh && costHigh) return 'danger';           // 이중 overprice
+  if (peerHigh || costHigh) return 'warn';             // 한쪽만 overprice
+  if (peerMid || costMid) return 'warn';
+  if (peerLow || costLow) return 'info';
+  return 'good';
+}
+
+/* -------------------------------------------------------------
+   Group-wise linear regression (trendMode: 'all' | 'series')
+------------------------------------------------------------- */
+function buildRegressions(data, trendMode, getY) {
+  const out = {};
+  if (trendMode === 'all') {
+    const pts = data.map(i => ({ x: i.x, y: getY(i) })).filter(p => !isNaN(p.y));
+    if (pts.length >= 2) out['_all'] = linearRegression(pts);
+  } else {
+    const bySeries = {};
+    data.forEach(i => {
+      const y = getY(i);
+      if (isNaN(y)) return;
+      (bySeries[i.series] ||= []).push({ x: i.x, y });
+    });
+    Object.keys(bySeries).forEach(s => {
+      if (bySeries[s].length >= 2) out[s] = linearRegression(bySeries[s]);
+    });
+  }
+  return out;
+}
+
+/* -------------------------------------------------------------
+   Main analysis pipeline
+------------------------------------------------------------- */
+function analyze(items) {
+  const threshold = parseFloat(document.getElementById('thresholdInput').value) || 15;
+  const trendMode = document.getElementById('trendModeSelect').value;
+  const seriesFilter = document.getElementById('seriesFilterSelect').value;
+  const classMode = document.getElementById('classModeSelect')?.value || 'hybrid';
+
+  // 1. Map to {x, y} and drop invalid rows
+  let enriched = items.map(item => ({
+    ...item,
+    x: getXValue(item),
+    y: item.actual
+  })).filter(i => !isNaN(i.x) && !isNaN(i.y));
+
+  // 2. Apply series filter at entry so every downstream metric honors it
+  if (seriesFilter !== 'all') {
+    enriched = enriched.filter(i => i.series === seriesFilter);
+  }
+
+  // 3. Build two sets of regressions: actual price vs x, estimated cost vs x
+  const regressions = buildRegressions(enriched, trendMode, i => i.y);
+  const hasEstimated = enriched.some(i => !isNaN(i.estimated));
+  const costRegressions = hasEstimated
+    ? buildRegressions(enriched, trendMode, i => i.estimated)
+    : {};
+
+  // 4. Compute gaps, savings, classification per item
+  enriched.forEach(item => {
+    // Peer gap: distance from peer-benchmark trendline
+    const reg = trendMode === 'all' ? regressions['_all'] : regressions[item.series];
+    if (reg) {
+      item.trendY = reg.slope * item.x + reg.intercept;
+      item.peerGap = item.trendY > 0 ? (item.actual - item.trendY) / item.trendY * 100 : 0;
+      item.peerSaving = Math.max(0, (item.actual - item.trendY) * item.qty);
+    } else {
+      item.trendY = NaN;
+      item.peerGap = 0;
+      item.peerSaving = 0;
+    }
+
+    // Cost gap: distance from should-cost estimate
+    if (!isNaN(item.estimated) && item.estimated > 0) {
+      item.costGap = (item.actual - item.estimated) / item.estimated * 100;
+      item.costSaving = Math.max(0, (item.actual - item.estimated) * item.qty);
+    } else {
+      item.costGap = NaN;
+      item.costSaving = 0;
+    }
+
+    item.classification = classifyItem(item.peerGap, item.costGap, threshold, classMode);
+
+    // Composite saving: depends on classification mode
+    if (classMode === 'cost') item.savingPotential = item.costSaving;
+    else if (classMode === 'hybrid') item.savingPotential = Math.max(item.peerSaving, item.costSaving);
+    else item.savingPotential = item.peerSaving;
+  });
+
+  return {
+    items: enriched,
+    filtered: enriched,        // retained for backward compat with chart code
+    regressions,
+    costRegressions,
+    threshold,
+    trendMode,
+    seriesFilter,
+    classMode,
+    hasEstimated
+  };
+}
+
+/* =============================================================
+   RENDER: STATS
+============================================================= */
+function fmtInt(n) {
+  if (isNaN(n) || n == null) return '—';
+  return new Intl.NumberFormat('ko-KR').format(Math.round(n));
+}
+
+function fmtMoney(n) {
+  if (isNaN(n) || n == null || n === 0) return '0';
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return (n / 1e9).toFixed(2) + '억';
+  if (abs >= 1e7) return (n / 1e7).toFixed(1) + '천만';
+  if (abs >= 1e4) return (n / 1e4).toFixed(1) + '만';
+  return fmtInt(n);
+}
+
+function fmtMoneyEn(n) {
+  if (isNaN(n) || n == null || n === 0) return '0';
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (abs >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (abs >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return fmtInt(n);
+}
+
+function renderStats(analysis) {
+  const dict = i18n[currentLang];
+  const items = analysis.items;
+  const total = items.length;
+  const managed = items.filter(i => i.classification === 'danger').length;
+  const totalSaving = items.reduce((s, i) => s + (i.savingPotential || 0), 0);
+  const totalAnnualBuy = items.reduce((s, i) => s + (i.actual * i.qty), 0);
+
+  document.getElementById('stat-total').innerHTML = `${fmtInt(total)}<span class="unit">${currentLang === 'ko' ? '개' : ''}</span>`;
+  document.getElementById('stat-totalSub').textContent =
+    `${currentLang === 'ko' ? '연간 거래 ' : 'Annual '} ₩${currentLang === 'ko' ? fmtMoney(totalAnnualBuy) : fmtMoneyEn(totalAnnualBuy)}`;
+
+  const mainReg = analysis.trendMode === 'all'
+    ? analysis.regressions['_all']
+    : Object.values(analysis.regressions)[0];
+  const r2 = mainReg?.r2;
+  if (r2 != null && !isNaN(r2)) {
+    document.getElementById('stat-r2').innerHTML = `${r2.toFixed(2)}`;
+    let qual = dict.trendPoor;
+    if (r2 >= 0.9) qual = dict.trendExcellent;
+    else if (r2 >= 0.75) qual = dict.trendGood;
+    else if (r2 >= 0.5) qual = dict.trendFair;
+    document.getElementById('stat-r2Sub').textContent = qual;
+  } else {
+    document.getElementById('stat-r2').textContent = '—';
+    document.getElementById('stat-r2Sub').textContent = dict.r2Empty;
+  }
+
+  const pct = total > 0 ? (managed / total * 100).toFixed(0) : 0;
+  document.getElementById('stat-manage').innerHTML = `${managed}<span class="unit">/${total}</span>`;
+  document.getElementById('stat-manageSub').textContent = `${dict.managePercent} ${pct}%`;
+
+  const savingText = currentLang === 'ko'
+    ? `₩${fmtMoney(totalSaving)}`
+    : `₩${fmtMoneyEn(totalSaving)}`;
+  document.getElementById('stat-saving').innerHTML = savingText;
+  document.getElementById('stat-savingSub').textContent = dict.yearlyEstimate;
+}
+
+/* =============================================================
+   RENDER: TABLE
+============================================================= */
+function renderTable(analysis, cls) {
+  const dict = i18n[currentLang];
+  const items = analysis.items.filter(i => i.classification === cls);
+  const container = document.getElementById('tableContainer');
+
+  document.getElementById('count-danger').textContent = analysis.items.filter(i => i.classification === 'danger').length;
+  document.getElementById('count-warn').textContent = analysis.items.filter(i => i.classification === 'warn').length;
+  document.getElementById('count-good').textContent = analysis.items.filter(i => i.classification === 'good').length;
+  document.getElementById('count-info').textContent = analysis.items.filter(i => i.classification === 'info').length;
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="empty">${dict.emptyTable}</div>`;
+    return;
+  }
+
+  items.sort((a, b) => {
+    if (cls === 'danger' || cls === 'warn') return (b.savingPotential || 0) - (a.savingPotential || 0);
+    if (cls === 'info') return (a.peerGap || 0) - (b.peerGap || 0);
+    return (b.qty || 0) - (a.qty || 0);
+  });
+
+  const showCost = analysis.hasEstimated;
+
+  let html = `<div class="table-wrap"><table>
+    <thead><tr>
+      <th>${dict.colProduct}</th>
+      <th>${dict.colSeries}</th>
+      <th class="num">${dict.colActual}</th>
+      <th class="num">${currentLang === 'ko' ? '피어 편차' : 'Peer gap'}</th>
+      ${showCost ? `<th class="num">${currentLang === 'ko' ? '원가 편차' : 'Cost gap'}</th>` : ''}
+      <th class="num">${dict.colQty}</th>
+      <th class="num">${dict.colSavingPotential}</th>
+    </tr></thead><tbody>`;
+
+  items.forEach(i => {
+    const peerPillClass = i.peerGap > analysis.threshold ? 'danger' :
+                         i.peerGap > analysis.threshold/2 ? 'warn' :
+                         i.peerGap < -analysis.threshold ? 'info' : 'good';
+    const peerStr = i.peerGap > 0 ? `+${i.peerGap.toFixed(1)}%` : `${i.peerGap.toFixed(1)}%`;
+
+    let costCell = '';
+    if (showCost) {
+      if (isNaN(i.costGap)) {
+        costCell = `<td class="num"><span style="color:var(--text-subtle)">—</span></td>`;
+      } else {
+        const costPillClass = i.costGap > analysis.threshold ? 'danger' :
+                             i.costGap > analysis.threshold/2 ? 'warn' :
+                             i.costGap < -analysis.threshold ? 'info' : 'good';
+        const costStr = i.costGap > 0 ? `+${i.costGap.toFixed(1)}%` : `${i.costGap.toFixed(1)}%`;
+        costCell = `<td class="num"><span class="pill ${costPillClass}">${costStr}</span></td>`;
+      }
+    }
+
+    const savingStr = i.savingPotential > 0
+      ? (currentLang === 'ko' ? `₩${fmtMoney(i.savingPotential)}` : `₩${fmtMoneyEn(i.savingPotential)}`)
+      : '—';
+
+    html += `<tr>
+      <td><strong>${i.name}</strong></td>
+      <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
+      <td class="num">${fmtInt(i.actual)}</td>
+      <td class="num"><span class="pill ${peerPillClass}">${peerStr}</span></td>
+      ${costCell}
+      <td class="num">${fmtInt(i.qty)}</td>
+      <td class="num">${savingStr}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+/* =============================================================
+   CHART
+============================================================= */
+let mainChart = null;
+let miniChart = null;
+
+/**
+ * Dynamic series color palette.
+ * First 10 colors are hand-picked to be visually distinct and work on
+ * both light and dark themes. Additional series get HSL-based colors
+ * derived from a stable hash of the series name, so re-analysis with
+ * the same data always produces the same colors.
+ */
+const SERIES_PALETTE_LIGHT = [
+  '#ea580c', // orange
+  '#0891b2', // cyan
+  '#9333ea', // purple
+  '#16a34a', // green
+  '#dc2626', // red
+  '#ca8a04', // amber
+  '#0284c7', // sky
+  '#db2777', // pink
+  '#65a30d', // lime
+  '#7c3aed'  // violet
+];
+const SERIES_PALETTE_DARK = [
+  '#fb923c', '#22d3ee', '#c084fc', '#4ade80', '#f87171',
+  '#fbbf24', '#38bdf8', '#f472b6', '#a3e635', '#a78bfa'
+];
+
+// Runtime cache: { seriesName → color } — kept fresh per rawItems load
+let seriesColorMap = {};
+
+function hashString(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h) + str.charCodeAt(i);
+    h |= 0; // to 32-bit int
+  }
+  return Math.abs(h);
+}
+
+/** Assign colors to all distinct series once, stably */
+function buildSeriesColorMap(seriesList) {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const palette = isDark ? SERIES_PALETTE_DARK : SERIES_PALETTE_LIGHT;
+  const map = {};
+  seriesList.forEach((s, idx) => {
+    if (idx < palette.length) {
+      map[s] = palette[idx];
+    } else {
+      // Overflow: derive a stable HSL color from the name
+      const hue = hashString(s) % 360;
+      const sat = isDark ? 70 : 55;
+      const lum = isDark ? 65 : 50;
+      map[s] = `hsl(${hue}, ${sat}%, ${lum}%)`;
+    }
+  });
+  seriesColorMap = map;
+  return map;
+}
+
+function seriesColor(series) {
+  if (!seriesColorMap[series]) {
+    // Called before map was built: compute on the fly (stable hash)
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const hue = hashString(series) % 360;
+    return `hsl(${hue}, ${isDark ? 70 : 55}%, ${isDark ? 65 : 50}%)`;
+  }
+  return seriesColorMap[series];
+}
+
+function getCss(v) {
+  return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+}
+
+function getBubbleScaleMode() {
+  const el = document.getElementById('bubbleScaleSelect');
+  return el ? el.value : 'sqrt';
+}
+
+function bubbleRadius(qty, maxQty, minQty) {
+  const mode = getBubbleScaleMode();
+  if (mode === 'fixed') return 10;
+  if (!maxQty || maxQty <= 0 || qty <= 0) return 5;
+
+  const ratio = qty / maxQty;
+  const minR = 5, maxR = 36;
+
+  if (mode === 'linear') {
+    return minR + ratio * (maxR - minR);
+  }
+  if (mode === 'log') {
+    const minLog = Math.log(Math.max(minQty || 1, 1));
+    const maxLog = Math.log(maxQty);
+    const curLog = Math.log(qty);
+    const denom = maxLog - minLog;
+    const norm = denom > 0 ? (curLog - minLog) / denom : 0.5;
+    return minR + norm * (maxR - minR);
+  }
+  // default: sqrt
+  return minR + Math.sqrt(ratio) * (maxR - minR);
+}
+
+function getCurrentView() {
+  return currentView;
+}
+
+function renderChart(analysis) {
+  const view = getCurrentView();
+  if (view === 'matrix') {
+    renderMatrixChart(analysis);
+  } else {
+    renderScatterChart(analysis);
+  }
+}
+
+function renderScatterChart(analysis) {
+  const dict = i18n[currentLang];
+  const canvas = document.getElementById('mainChart');
+  const ctx = canvas.getContext('2d');
+  document.getElementById('matrixInsight').style.display = 'none';
+
+  const filtered = analysis.filtered;
+  const seriesGroups = {};
+  filtered.forEach(i => {
+    if (!seriesGroups[i.series]) seriesGroups[i.series] = [];
+    seriesGroups[i.series].push(i);
+  });
+
+  const maxQty = Math.max(...filtered.map(i => i.qty || 1), 1);
+  const minQty = Math.min(...filtered.map(i => i.qty || 1), 1);
+
+  // Bubble datasets (one per series)
+  const bubbleDatasets = Object.keys(seriesGroups).map(s => ({
+    label: s,
+    type: 'bubble',
+    data: seriesGroups[s].map(i => ({
+      x: i.x, y: i.y, r: bubbleRadius(i.qty, maxQty, minQty),
+      raw: i
+    })),
+    backgroundColor: seriesColor(s) + '88',
+    borderColor: seriesColor(s),
+    borderWidth: 1.5
+  }));
+
+  // Trendlines and bands
+  const trendDatasets = [];
+  const bandConfigs = [];        // fed to trendBand plugin
+  const threshold = analysis.threshold;
+  const textColor = getCss('--text-subtle');
+  const showCostTrend = document.getElementById('costOverlayChk')?.checked && analysis.hasEstimated;
+
+  const computeLinePts = (reg, xsArr) => {
+    const xMin = Math.min(...xsArr) * 0.95;
+    const xMax = Math.max(...xsArr) * 1.05;
+    return {
+      points: [
+        { x: xMin, y: reg.slope * xMin + reg.intercept },
+        { x: xMax, y: reg.slope * xMax + reg.intercept }
+      ],
+      range: [xMin, xMax]
+    };
+  };
+
+  if (analysis.trendMode === 'all' && analysis.regressions['_all']) {
+    // Global peer trendline + band
+    const reg = analysis.regressions['_all'];
+    const xs = filtered.map(i => i.x);
+    const { points, range } = computeLinePts(reg, xs);
+
+    trendDatasets.push({
+      label: 'Peer Trendline',
+      type: 'line',
+      data: points,
+      borderColor: textColor,
+      borderWidth: 1.8,
+      borderDash: [6, 4],
+      fill: false, pointRadius: 0, tension: 0, showLine: true
+    });
+
+    bandConfigs.push({
+      regression: reg,
+      xRange: range,
+      fillColor: textColor + '14',
+      strokeColor: textColor + '66'
+    });
+
+    // Optional cost trendline overlay
+    if (showCostTrend && analysis.costRegressions['_all']) {
+      const creg = analysis.costRegressions['_all'];
+      const { points: clp } = computeLinePts(creg, xs);
+      trendDatasets.push({
+        label: 'Should-cost Trendline',
+        type: 'line',
+        data: clp,
+        borderColor: getCss('--brand'),
+        borderWidth: 1.8, borderDash: [2, 3],
+        fill: false, pointRadius: 0, tension: 0, showLine: true
+      });
+    }
+  } else {
+    // Per-series trendlines + per-series bands
+    Object.keys(analysis.regressions).forEach(s => {
+      const reg = analysis.regressions[s];
+      if (!reg) return;
+      const groupItems = filtered.filter(i => i.series === s);
+      if (groupItems.length === 0) return;
+      const xs = groupItems.map(i => i.x);
+      const { points, range } = computeLinePts(reg, xs);
+
+      trendDatasets.push({
+        label: s + ' peer trend',
+        type: 'line',
+        data: points,
+        borderColor: seriesColor(s),
+        borderWidth: 1.5, borderDash: [6, 4],
+        fill: false, pointRadius: 0, tension: 0, showLine: true
+      });
+
+      bandConfigs.push({
+        regression: reg,
+        xRange: range,
+        fillColor: seriesColor(s) + '18',
+        strokeColor: seriesColor(s) + '55'
+      });
+
+      if (showCostTrend && analysis.costRegressions[s]) {
+        const { points: clp } = computeLinePts(analysis.costRegressions[s], xs);
+        trendDatasets.push({
+          label: s + ' should-cost trend',
+          type: 'line',
+          data: clp,
+          borderColor: seriesColor(s),
+          borderWidth: 1.5, borderDash: [2, 3],
+          fill: false, pointRadius: 0, tension: 0, showLine: true
+        });
+      }
+    });
+  }
+
+  if (mainChart) mainChart.destroy();
+
+  const xTitle = getXLabel();
+
+  mainChart = new Chart(ctx, {
+    data: { datasets: [...trendDatasets, ...bubbleDatasets] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'point' },
+      plugins: {
+        legend: { display: false },
+        trendBand: {
+          enabled: true,
+          threshold,
+          regressions: bandConfigs
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const raw = ctx.raw?.raw;
+              if (!raw) return '';
+              const peerGapStr = raw.peerGap != null ? `${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%` : '—';
+              const costGapStr = !isNaN(raw.costGap) ? `${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%` : '—';
+              return [
+                raw.name,
+                `${dict.colSeries}: ${raw.series}`,
+                `${xTitle}: ${raw.x?.toFixed(2)}`,
+                `${dict.colActual}: ${fmtInt(raw.actual)}`,
+                `Peer gap: ${peerGapStr}`,
+                `Cost gap: ${costGapStr}`,
+                `${dict.colQty}: ${fmtInt(raw.qty)}`
+              ];
+            }
+          },
+          backgroundColor: getCss('--bg-elev'),
+          titleColor: getCss('--text'),
+          bodyColor: getCss('--text'),
+          borderColor: getCss('--border-strong'),
+          borderWidth: 1, padding: 12, displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear', position: 'bottom', display: true,
+          title: { display: true, text: xTitle, color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            display: true, color: getCss('--text-subtle'), font: { size: 11 },
+            callback: function(value) {
+              const n = Number(value);
+              if (isNaN(n)) return value;
+              // Use comma formatting for large values (e.g. estimated cost)
+              if (Math.abs(n) >= 1000) return fmtInt(n);
+              return n % 1 === 0 ? n.toString() : n.toFixed(1);
+            }
+          }
+        },
+        y: {
+          type: 'linear', display: true,
+          title: { display: true, text: dict.colActual, color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            display: true, color: getCss('--text-subtle'), font: { size: 11 },
+            callback: v => fmtInt(v)
+          }
+        }
+      }
+    },
+    plugins: [trendBandPlugin]
+  });
+
+  renderChartLegend(analysis);
+}
+
+/* -------------------------------------------------------------
+   MINI CHART (settings preview)
+   A compact scatter chart that lives in the controls card so the
+   user can see how their settings affect the analysis BEFORE
+   running it. After analysis is run, it mirrors the main result.
+------------------------------------------------------------- */
+function clearMiniChart(hintText) {
+  if (miniChart) { miniChart.destroy(); miniChart = null; }
+  const container = document.querySelector('.mini-chart-container');
+  if (container) {
+    container.classList.add('empty');
+    container.innerHTML = `<span>${hintText || ''}</span>`;
+  }
+}
+
+function renderMiniChart(analysis) {
+  const container = document.querySelector('.mini-chart-container');
+  if (!container) return;
+
+  // Restore canvas if we previously replaced it with a placeholder
+  container.classList.remove('empty');
+  if (!container.querySelector('canvas')) {
+    container.innerHTML = '<canvas id="miniChart"></canvas>';
+  }
+  const canvas = container.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+
+  if (miniChart) { miniChart.destroy(); miniChart = null; }
+
+  if (!analysis || !analysis.filtered?.length) {
+    clearMiniChart(currentLang === 'ko' ? '데이터 없음' : 'No data');
+    return;
+  }
+
+  const filtered = analysis.filtered;
+  const seriesGroups = {};
+  filtered.forEach(i => {
+    (seriesGroups[i.series] ||= []).push(i);
+  });
+  const maxQty = Math.max(...filtered.map(i => i.qty || 1), 1);
+  const minQty = Math.min(...filtered.map(i => i.qty || 1), 1);
+
+  // Slightly smaller bubbles for the mini view
+  const miniRadius = (qty) => {
+    const r = bubbleRadius(qty, maxQty, minQty);
+    return Math.max(3, r * 0.55);
+  };
+
+  const bubbleDatasets = Object.keys(seriesGroups).map(s => ({
+    label: s,
+    type: 'bubble',
+    data: seriesGroups[s].map(i => ({
+      x: i.x, y: i.y, r: miniRadius(i.qty),
+      raw: i
+    })),
+    backgroundColor: seriesColor(s) + '88',
+    borderColor: seriesColor(s),
+    borderWidth: 1
+  }));
+
+  // Trendlines (one per-regression)
+  const trendDatasets = [];
+  const bandConfigs = [];
+  const threshold = analysis.threshold;
+  const textColor = getCss('--text-subtle');
+
+  const linePts = (reg, xs) => {
+    const xMin = Math.min(...xs) * 0.95;
+    const xMax = Math.max(...xs) * 1.05;
+    return {
+      points: [
+        { x: xMin, y: reg.slope * xMin + reg.intercept },
+        { x: xMax, y: reg.slope * xMax + reg.intercept }
+      ],
+      range: [xMin, xMax]
+    };
+  };
+
+  if (analysis.trendMode === 'all' && analysis.regressions['_all']) {
+    const reg = analysis.regressions['_all'];
+    const { points, range } = linePts(reg, filtered.map(i => i.x));
+    trendDatasets.push({
+      type: 'line', data: points,
+      borderColor: textColor, borderWidth: 1.2, borderDash: [4, 3],
+      fill: false, pointRadius: 0, tension: 0, showLine: true
+    });
+    bandConfigs.push({
+      regression: reg, xRange: range,
+      fillColor: textColor + '14', strokeColor: textColor + '44'
+    });
+  } else {
+    Object.keys(analysis.regressions).forEach(s => {
+      const reg = analysis.regressions[s];
+      if (!reg) return;
+      const group = filtered.filter(i => i.series === s);
+      if (!group.length) return;
+      const { points, range } = linePts(reg, group.map(i => i.x));
+      trendDatasets.push({
+        type: 'line', data: points,
+        borderColor: seriesColor(s), borderWidth: 1.2, borderDash: [4, 3],
+        fill: false, pointRadius: 0, tension: 0, showLine: true
+      });
+      bandConfigs.push({
+        regression: reg, xRange: range,
+        fillColor: seriesColor(s) + '18', strokeColor: seriesColor(s) + '44'
+      });
+    });
+  }
+
+  miniChart = new Chart(ctx, {
+    data: { datasets: [...trendDatasets, ...bubbleDatasets] },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'point' },
+      animation: false,  // snappier for live updates
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: false },  // keep mini chart clean
+        trendBand: {
+          enabled: true,
+          threshold,
+          regressions: bandConfigs
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear', position: 'bottom',
+          title: { display: false },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: { color: getCss('--text-subtle'), font: { size: 9 }, maxTicksLimit: 5 }
+        },
+        y: {
+          type: 'linear',
+          title: { display: false },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            color: getCss('--text-subtle'), font: { size: 9 }, maxTicksLimit: 5,
+            callback: v => fmtInt(v)
+          }
+        }
+      }
+    },
+    plugins: [trendBandPlugin]
+  });
+}
+
+/* -------------------------------------------------------------
+   Quick preview analysis from textarea state.
+   Runs without requiring the user to press "분석 시작".
+   Returns the analysis object (or null if data is incomplete).
+------------------------------------------------------------- */
+function tryPreviewAnalysis() {
+  // Only run if we have text in the active input area
+  let parsed = null, meta = null;
+  if (currentMode === 'single') {
+    const text = document.getElementById('pasteInputA').value;
+    if (!text.trim()) return null;
+    const r = parseTSV(text);
+    parsed = r.items; meta = r.meta;
+  } else {
+    const textA = document.getElementById('pasteInputB1').value;
+    const textB = document.getElementById('pasteInputB2').value;
+    if (!textA.trim() || !textB.trim()) return null;
+    const rA = parseTSV(textA);
+    const rB = parseTSV(textB);
+    if (!rA.items.length || !rB.items.length) return null;
+    const tagA = currentMode === 'compare-time' ? 'PREV' : 'SUP-A';
+    const tagB = currentMode === 'compare-time' ? 'CURR' : 'SUP-B';
+    rA.items.forEach(i => { i.name += ' [' + tagA + ']'; i.series = tagA; });
+    rB.items.forEach(i => { i.name += ' [' + tagB + ']'; i.series = tagB; });
+    parsed = [...rA.items, ...rB.items];
+    const colsA = new Set(rA.meta.extraNumericCols);
+    const shared = rB.meta.extraNumericCols.filter(c => colsA.has(c));
+    meta = { ...rA.meta, extraNumericCols: shared };
+  }
+
+  if (!parsed || !parsed.length) return null;
+  const validation = validateItems(parsed, meta);
+  if (validation.errors.length) return null;
+
+  // Stash as if it were the real data (for color map & options)
+  const needsBootstrap = !rawItems.length;
+  if (needsBootstrap) {
+    rawItems = parsed;
+    buildSeriesColorMap([...new Set(parsed.map(i => i.series))]);
+    populateXAxisOptions(meta, parsed);
+    updateSeriesFilterOptions(parsed);
+  }
+
+  return analyze(parsed);
+}
+
+// Debounced mini-chart refresh
+let miniChartTimer;
+function scheduleMiniChartUpdate() {
+  clearTimeout(miniChartTimer);
+  miniChartTimer = setTimeout(() => {
+    // If real analysis exists, mirror it. Otherwise try preview.
+    if (lastAnalysis) {
+      renderMiniChart(lastAnalysis);
+    } else {
+      const preview = tryPreviewAnalysis();
+      if (preview) renderMiniChart(preview);
+      else clearMiniChart(
+        currentLang === 'ko'
+          ? '데이터를 입력하면 여기에 미리보기가 나타납니다'
+          : 'Paste data to see a preview here'
+      );
+    }
+  }, 180);
+}
+
+// -------------------------------------------------------------
+// Custom Chart.js plugins - drawn directly on canvas
+// (not dataset-based, so they can't desync from data or dataset order)
+// -------------------------------------------------------------
+
+// Trend band plugin: draws ±threshold band around each trendline.
+// Accepts opts.regressions = array of { regression, xRange, fillColor, strokeColor }.
+// Runs in beforeDatasetsDraw so it sits behind data points.
+const trendBandPlugin = {
+  id: 'trendBand',
+  beforeDatasetsDraw(chart, args, opts) {
+    if (!opts?.enabled || !opts.regressions?.length) return;
+    const { ctx, chartArea, scales: { x, y } } = chart;
+    const threshold = opts.threshold || 15;
+    const fUp = 1 + threshold / 100;
+    const fDn = 1 - threshold / 100;
+
+    ctx.save();
+    // Clip to chart area so bands never spill past axes
+    ctx.beginPath();
+    ctx.rect(chartArea.left, chartArea.top, chartArea.width, chartArea.height);
+    ctx.clip();
+
+    opts.regressions.forEach(({ regression, xRange, fillColor, strokeColor }) => {
+      if (!regression) return;
+      const { slope, intercept } = regression;
+      const [xLo, xHi] = xRange;
+      const yCenterLo = slope * xLo + intercept;
+      const yCenterHi = slope * xHi + intercept;
+
+      const pxLo = x.getPixelForValue(xLo);
+      const pxHi = x.getPixelForValue(xHi);
+      const pyUpLo = y.getPixelForValue(yCenterLo * fUp);
+      const pyUpHi = y.getPixelForValue(yCenterHi * fUp);
+      const pyDnLo = y.getPixelForValue(yCenterLo * fDn);
+      const pyDnHi = y.getPixelForValue(yCenterHi * fDn);
+
+      // Filled band polygon
+      ctx.fillStyle = fillColor;
+      ctx.beginPath();
+      ctx.moveTo(pxLo, pyUpLo);
+      ctx.lineTo(pxHi, pyUpHi);
+      ctx.lineTo(pxHi, pyDnHi);
+      ctx.lineTo(pxLo, pyDnLo);
+      ctx.closePath();
+      ctx.fill();
+
+      // Dashed upper/lower threshold lines
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(pxLo, pyUpLo); ctx.lineTo(pxHi, pyUpHi);
+      ctx.moveTo(pxLo, pyDnLo); ctx.lineTo(pxHi, pyDnHi);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+
+    ctx.restore();
+  }
+};
+
+// Quadrant shading plugin for matrix view
+const quadrantShading = {
+  id: 'quadrantShading',
+  beforeDraw(chart, args, opts) {
+    if (!opts || !opts.enabled) return;
+    const { ctx, chartArea, scales: { x, y } } = chart;
+    const threshold = opts.threshold || 15;
+    const xZero = x.getPixelForValue(0);
+    const yZero = y.getPixelForValue(0);
+    const xPos = x.getPixelForValue(threshold);
+    const xNeg = x.getPixelForValue(-threshold);
+    const yPos = y.getPixelForValue(threshold);
+    const yNeg = y.getPixelForValue(-threshold);
+
+    ctx.save();
+    // Q1: critical (top-right of threshold)
+    ctx.fillStyle = opts.dangerColor;
+    ctx.fillRect(xPos, chartArea.top, chartArea.right - xPos, yPos - chartArea.top);
+    // Q3: underpriced (bottom-left of -threshold)
+    ctx.fillStyle = opts.infoColor;
+    ctx.fillRect(chartArea.left, yNeg, xNeg - chartArea.left, chartArea.bottom - yNeg);
+    // Axis lines at 0
+    ctx.strokeStyle = opts.axisColor;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(xZero, chartArea.top); ctx.lineTo(xZero, chartArea.bottom);
+    ctx.moveTo(chartArea.left, yZero); ctx.lineTo(chartArea.right, yZero);
+    ctx.stroke();
+    // Threshold lines
+    ctx.strokeStyle = opts.thresholdColor;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xPos, chartArea.top); ctx.lineTo(xPos, chartArea.bottom);
+    ctx.moveTo(xNeg, chartArea.top); ctx.lineTo(xNeg, chartArea.bottom);
+    ctx.moveTo(chartArea.left, yPos); ctx.lineTo(chartArea.right, yPos);
+    ctx.moveTo(chartArea.left, yNeg); ctx.lineTo(chartArea.right, yNeg);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+};
+
+function renderMatrixChart(analysis) {
+  const dict = i18n[currentLang];
+  const canvas = document.getElementById('mainChart');
+  const ctx = canvas.getContext('2d');
+
+  if (!analysis.hasEstimated) {
+    if (mainChart) { mainChart.destroy(); mainChart = null; }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const insight = document.getElementById('matrixInsight');
+    insight.style.display = 'block';
+    insight.innerHTML = `<strong>⚠ ${currentLang === 'ko' ? '추정원가 데이터가 필요합니다' : 'Estimated cost data required'}</strong><br>${currentLang === 'ko' ? '매트릭스 뷰는 추정원가 컬럼이 있어야 작동합니다. 입력 데이터를 확인하세요.' : 'Matrix view requires the estimated cost column in your data.'}`;
+    return;
+  }
+
+  const filtered = analysis.filtered.filter(i => !isNaN(i.costGap));
+  const threshold = analysis.threshold;
+  const maxQty = Math.max(...filtered.map(i => i.qty || 1), 1);
+  const minQty = Math.min(...filtered.map(i => i.qty || 1), 1);
+
+  // Group by classification for color coding
+  const groups = { danger: [], warn: [], good: [], info: [] };
+  filtered.forEach(i => {
+    (groups[i.classification] || groups.good).push(i);
+  });
+
+  const classColors = {
+    danger: getCss('--status-danger'),
+    warn: getCss('--status-warn'),
+    good: getCss('--status-good'),
+    info: getCss('--status-info')
+  };
+
+  const classLabels = {
+    danger: currentLang === 'ko' ? '이중 overprice' : 'Double overpriced',
+    warn: currentLang === 'ko' ? '편측 이상' : 'Single-side alert',
+    good: currentLang === 'ko' ? '합리 구간' : 'Reasonable',
+    info: currentLang === 'ko' ? '저평가' : 'Underpriced'
+  };
+
+  const datasets = Object.keys(groups).filter(k => groups[k].length > 0).map(k => ({
+    label: classLabels[k],
+    type: 'bubble',
+    data: groups[k].map(i => ({
+      x: i.costGap, y: i.peerGap, r: bubbleRadius(i.qty, maxQty, minQty),
+      raw: i
+    })),
+    backgroundColor: classColors[k] + '99',
+    borderColor: classColors[k],
+    borderWidth: 1.5
+  }));
+
+  if (mainChart) mainChart.destroy();
+
+  // Compute axis ranges with "nice" rounded values (10의 배수로 올림)
+  const allXVals = filtered.map(i => i.costGap);
+  const allYVals = filtered.map(i => i.peerGap);
+  const rawXAbs = Math.max(Math.abs(Math.min(...allXVals)), Math.abs(Math.max(...allXVals)), threshold + 10);
+  const rawYAbs = Math.max(Math.abs(Math.min(...allYVals)), Math.abs(Math.max(...allYVals)), threshold + 10);
+
+  // Round up to nearest 10 for clean tick values
+  const niceRoundUp = (x) => {
+    if (x <= 20) return 20;
+    if (x <= 50) return Math.ceil(x / 10) * 10;
+    return Math.ceil(x / 20) * 20;
+  };
+  const xAbs = niceRoundUp(rawXAbs);
+  const yAbs = niceRoundUp(rawYAbs);
+  const xStep = xAbs <= 20 ? 5 : (xAbs <= 50 ? 10 : 20);
+  const yStep = yAbs <= 20 ? 5 : (yAbs <= 50 ? 10 : 20);
+
+  mainChart = new Chart(ctx, {
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'point' },
+      plugins: {
+        legend: { display: false },
+        quadrantShading: {
+          enabled: true,
+          threshold,
+          dangerColor: classColors.danger + '18',
+          infoColor: classColors.info + '18',
+          axisColor: getCss('--text-subtle'),
+          thresholdColor: getCss('--border-strong')
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const raw = ctx.raw?.raw;
+              if (!raw) return '';
+              return [
+                raw.name,
+                `${dict.colSeries}: ${raw.series}`,
+                `Cost gap: ${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%`,
+                `Peer gap: ${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%`,
+                `${dict.colActual}: ${fmtInt(raw.actual)}`,
+                `${dict.colQty}: ${fmtInt(raw.qty)}`
+              ];
+            }
+          },
+          backgroundColor: getCss('--bg-elev'),
+          titleColor: getCss('--text'),
+          bodyColor: getCss('--text'),
+          borderColor: getCss('--border-strong'),
+          borderWidth: 1, padding: 12, displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear', position: 'bottom',
+          min: -xAbs, max: xAbs,
+          title: { display: true, text: (currentLang === 'ko' ? '원가 대비 편차 (%)' : 'Cost deviation (%)'), color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            color: getCss('--text-subtle'),
+            font: { size: 11 },
+            stepSize: xStep,
+            callback: v => Math.round(v) + '%'
+          }
+        },
+        y: {
+          type: 'linear',
+          min: -yAbs, max: yAbs,
+          title: { display: true, text: (currentLang === 'ko' ? '동급 대비 편차 (%)' : 'Peer deviation (%)'), color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          grid: { color: getCss('--border'), drawOnChartArea: true },
+          ticks: {
+            color: getCss('--text-subtle'),
+            font: { size: 11 },
+            stepSize: yStep,
+            callback: v => Math.round(v) + '%'
+          }
+        }
+      }
+    },
+    plugins: [quadrantShading]
+  });
+
+  renderMatrixLegend();
+  renderMatrixInsight(analysis);
+}
+
+function renderMatrixLegend() {
+  const classColors = {
+    danger: getCss('--status-danger'),
+    warn: getCss('--status-warn'),
+    good: getCss('--status-good'),
+    info: getCss('--status-info')
+  };
+  const labels = {
+    ko: { danger: '이중 overprice', warn: '편측 이상', good: '합리 구간', info: '저평가' },
+    en: { danger: 'Double overpriced', warn: 'Single-side', good: 'Reasonable', info: 'Underpriced' }
+  };
+  const dict = labels[currentLang];
+  const html = ['danger','warn','good','info'].map(k =>
+    `<span class="legend-item"><span class="legend-dot" style="background:${classColors[k]}"></span>${dict[k]}</span>`
+  ).join('');
+  document.getElementById('chartLegend').innerHTML = html;
+}
+
+function renderMatrixInsight(analysis) {
+  const insight = document.getElementById('matrixInsight');
+  insight.style.display = 'block';
+  const items = analysis.filtered.filter(i => !isNaN(i.costGap));
+  const threshold = analysis.threshold;
+
+  const q1 = items.filter(i => i.costGap > threshold && i.peerGap > threshold);
+  const q2 = items.filter(i => i.costGap <= threshold && i.peerGap > threshold);
+  const q4 = items.filter(i => i.costGap > threshold && i.peerGap <= threshold);
+  const q3 = items.filter(i => i.costGap < -threshold && i.peerGap < -threshold);
+
+  const q1Saving = q1.reduce((s, i) => s + Math.max(i.peerSaving, i.costSaving), 0);
+  const savingStr = currentLang === 'ko' ? `₩${fmtMoney(q1Saving)}` : `₩${fmtMoneyEn(q1Saving)}`;
+
+  if (currentLang === 'ko') {
+    insight.innerHTML = `
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+        <div><strong style="color:${getCss('--status-danger')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 인하여력</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
+        <div><strong style="color:${getCss('--status-info')};">🔵 좌하단 (${q3.length}개)</strong><br>이중 저평가 · <b>인상 방어 우선</b></div>
+      </div>
+    `;
+  } else {
+    insight.innerHTML = `
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
+        <div><strong style="color:${getCss('--status-danger')};">🔴 Top-right (${q1.length})</strong><br>Double overpriced · <b>highest priority</b><br>Annual ${savingStr} potential</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 Top (${q2.length})</strong><br>Peer-expensive only · series outlier</div>
+        <div><strong style="color:${getCss('--status-warn')};">🟡 Right (${q4.length})</strong><br>Cost-expensive only · margin review</div>
+        <div><strong style="color:${getCss('--status-info')};">🔵 Bottom-left (${q3.length})</strong><br>Double underpriced · <b>defend against increase</b></div>
+      </div>
+    `;
+  }
+}
+
+function renderChartLegend(analysis) {
+  const allSeries = [...new Set(analysis.items.map(i => i.series))];
+  const legendHtml = allSeries.map(s => {
+    return `<span class="legend-item" data-series="${s}">
+      <span class="legend-dot" style="background:${seriesColor(s)}"></span>
+      ${s}
+    </span>`;
+  }).join('');
+  document.getElementById('chartLegend').innerHTML = legendHtml;
+}
+
+/* =============================================================
+   SIMULATOR
+============================================================= */
+function updateSimulator() {
+  const slider = document.getElementById('simSlider');
+  const pct = parseFloat(slider.value);
+  document.getElementById('simPercent').textContent = pct.toFixed(1) + '%';
+
+  if (!lastAnalysis) {
+    document.getElementById('simAmount').textContent = '—';
+    document.getElementById('simDetail').textContent = '—';
+    return;
+  }
+
+  const managed = lastAnalysis.items.filter(i => i.classification === 'danger');
+  const totalAnnual = managed.reduce((s, i) => s + (i.actual * i.qty), 0);
+  const saving = totalAnnual * (pct / 100);
+
+  const dict = i18n[currentLang];
+  document.getElementById('simAmount').textContent = currentLang === 'ko'
+    ? `₩${fmtMoney(saving)}`
+    : `₩${fmtMoneyEn(saving)}`;
+  document.getElementById('simUnit').textContent = 'KRW';
+  document.getElementById('simDetail').textContent =
+    `${managed.length} ${dict.dataCount} · ${dict.totalPerYear}${currentLang === 'ko' ? fmtMoney(totalAnnual) : fmtMoneyEn(totalAnnual)}`;
+}
+
+document.getElementById('simSlider').addEventListener('input', updateSimulator);
+
+/* =============================================================
+   SERIES FILTER UPDATE
+============================================================= */
+function updateSeriesFilterOptions(items) {
+  const sel = document.getElementById('seriesFilterSelect');
+  const cur = sel.value;
+  const serieses = [...new Set(items.map(i => i.series))];
+  sel.innerHTML = `<option value="all">${i18n[currentLang].filterAll}</option>`;
+  serieses.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  });
+  if ([...sel.options].find(o => o.value === cur)) sel.value = cur;
+}
+
+/* =============================================================
+   COMPARE MODES (label swapping only; analysis logic shared)
+============================================================= */
+function updateCompareModeLabels() {
+  const dict = i18n[currentLang];
+  if (currentMode === 'compare-time') {
+    document.getElementById('labelB1').textContent = dict.labelB1Time;
+    document.getElementById('labelB2').textContent = dict.labelB2Time;
+  } else if (currentMode === 'compare-supplier') {
+    document.getElementById('labelB1').textContent = dict.labelB1Sup;
+    document.getElementById('labelB2').textContent = dict.labelB2Sup;
+  }
+}
+
+/* =============================================================
+   CSV / PNG / PDF EXPORT
+============================================================= */
+/**
+ * Export the chart as a PNG with a forced light theme so the file
+ * looks presentable regardless of the user's current display mode.
+ * Strategy:
+ *   1. Remember current theme
+ *   2. If dark, switch to light → rebuild color map → re-render chart
+ *   3. Grab the rendered image, composite over white background
+ *   4. Restore the original theme
+ */
+function exportPng() {
+  if (!mainChart) return;
+
+  const html = document.documentElement;
+  const originalTheme = html.getAttribute('data-theme');
+  const needsSwitch = originalTheme === 'dark';
+
+  const doExport = () => {
+    // Get the chart canvas
+    const chartCanvas = mainChart.canvas;
+    // Composite over white so transparent backgrounds become white
+    const out = document.createElement('canvas');
+    out.width = chartCanvas.width;
+    out.height = chartCanvas.height;
+    const ctx = out.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, out.width, out.height);
+    ctx.drawImage(chartCanvas, 0, 0);
+
+    const url = out.toDataURL('image/png', 1);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `portfolio-chart-${new Date().toISOString().slice(0,10)}.png`;
+    a.click();
+  };
+
+  if (needsSwitch && lastAnalysis) {
+    // Switch to light, rebuild palette, re-render, export, then restore
+    html.setAttribute('data-theme', 'light');
+    const distinctSeries = [...new Set((rawItems || []).map(i => i.series))];
+    buildSeriesColorMap(distinctSeries);
+    renderChart(lastAnalysis);
+
+    // Chart.js needs one animation frame to render into canvas
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        doExport();
+        // Restore original theme
+        html.setAttribute('data-theme', originalTheme);
+        buildSeriesColorMap(distinctSeries);
+        renderChart(lastAnalysis);
+      });
+    });
+  } else {
+    doExport();
+  }
+}
+
+function exportCsv() {
+  if (!lastAnalysis) return;
+  const dict = i18n[currentLang];
+  const headers = [dict.colProduct, dict.colSeries, 'X', dict.colActual, dict.colTrend, 'Peer Gap%', 'Cost Gap%', dict.colQty, dict.colSavingPotential, 'Classification'];
+  const rows = lastAnalysis.items.map(i => [
+    i.name, i.series, i.x?.toFixed(2), i.actual,
+    Math.round(i.trendY||0),
+    i.peerGap?.toFixed(2),
+    isNaN(i.costGap) ? '' : i.costGap.toFixed(2),
+    i.qty, Math.round(i.savingPotential||0), i.classification
+  ]);
+  const csv = '\ufeff' + [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `portfolio-classification-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function exportPdf() {
+  if (!lastAnalysis) return;
+  const dict = i18n[currentLang];
+  const { jsPDF } = window.jspdf;
+
+  const htmlEl = document.documentElement;
+  const body = document.body;
+  const originalTheme = htmlEl.getAttribute('data-theme');
+  const needsSwitch = originalTheme === 'dark';
+
+  // Switch to light for export if currently dark
+  if (needsSwitch) {
+    htmlEl.setAttribute('data-theme', 'light');
+    const distinctSeries = [...new Set((rawItems || []).map(i => i.series))];
+    buildSeriesColorMap(distinctSeries);
+    renderChart(lastAnalysis);
+  }
+
+  body.classList.add('export-mode');
+
+  try {
+    // Give the browser time to apply the theme switch & re-render
+    await new Promise(r => setTimeout(r, needsSwitch ? 300 : 100));
+    const target = document.querySelector('main');
+    const canvas = await html2canvas(target, {
+      backgroundColor: '#ffffff',  // force white background regardless of theme
+      scale: 2,
+      useCORS: true,
+      logging: false
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const imgW = pageW - 14;
+    const imgH = (canvas.height * imgW) / canvas.width;
+
+    pdf.setFontSize(9);
+    pdf.setTextColor(100);
+    pdf.text(`${dict.exportReportTitle} · ${dict.exportGeneratedAt}: ${new Date().toLocaleString(currentLang === 'ko' ? 'ko-KR' : 'en-US')}`, 7, 8);
+
+    if (imgH < pageH - 20) {
+      pdf.addImage(imgData, 'PNG', 7, 12, imgW, imgH);
+    } else {
+      let position = 12;
+      let remaining = imgH;
+      let srcY = 0;
+      const pageAvail = pageH - 14;
+      while (remaining > 0) {
+        pdf.addImage(imgData, 'PNG', 7, position, imgW, imgH, undefined, 'FAST', 0, -srcY);
+        remaining -= pageAvail;
+        srcY += pageAvail;
+        if (remaining > 0) {
+          pdf.addPage();
+          position = 12;
+        }
+      }
+    }
+
+    pdf.save(`portfolio-report-${new Date().toISOString().slice(0,10)}.pdf`);
+  } finally {
+    body.classList.remove('export-mode');
+    // Restore theme
+    if (needsSwitch) {
+      htmlEl.setAttribute('data-theme', originalTheme);
+      const distinctSeries = [...new Set((rawItems || []).map(i => i.series))];
+      buildSeriesColorMap(distinctSeries);
+      renderChart(lastAnalysis);
+    }
+  }
+}
+
+document.getElementById('exportPngBtn').addEventListener('click', exportPng);
+document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
+
+/* =============================================================
+   RENDER ORCHESTRATION
+============================================================= */
+function renderAll(analysis) {
+  renderStats(analysis);
+  renderChart(analysis);
+  renderTable(analysis, currentClass);
+  updateSimulator();
+  renderMiniChart(analysis);  // mirror on the mini preview too
+}
+
+/* =============================================================
+   EVENT BINDINGS
+============================================================= */
+
+// Analyze button: parse input → validate → run analysis
+document.getElementById('analyzeBtn').addEventListener('click', () => {
+  let parsed, mergedMeta;
+
+  if (currentMode === 'single') {
+    const text = document.getElementById('pasteInputA').value;
+    if (!text.trim()) {
+      alert(currentLang === 'ko' ? '데이터를 붙여넣어 주세요.' : 'Please paste data.');
+      return;
+    }
+    const { items, meta } = parseTSV(text);
+    parsed = items;
+    mergedMeta = meta;
+  } else {
+    const textA = document.getElementById('pasteInputB1').value;
+    const textB = document.getElementById('pasteInputB2').value;
+    const { items: itemsA, meta: metaA } = parseTSV(textA);
+    const { items: itemsB, meta: metaB } = parseTSV(textB);
+    if (!itemsA.length || !itemsB.length) {
+      alert(currentLang === 'ko' ? '두 입력란 모두에 데이터를 넣어주세요.' : 'Please provide data in both inputs.');
+      return;
+    }
+    const tagA = currentMode === 'compare-time' ? 'PREV' : 'SUP-A';
+    const tagB = currentMode === 'compare-time' ? 'CURR' : 'SUP-B';
+    itemsA.forEach(i => { i.name += ' [' + tagA + ']'; i.series = tagA; });
+    itemsB.forEach(i => { i.name += ' [' + tagB + ']'; i.series = tagB; });
+    parsed = [...itemsA, ...itemsB];
+    // Merge extra-col lists (intersection = cols present in both)
+    const colsA = new Set(metaA.extraNumericCols);
+    const shared = metaB.extraNumericCols.filter(c => colsA.has(c));
+    mergedMeta = { ...metaA, extraNumericCols: shared, warnings: [...metaA.warnings, ...metaB.warnings] };
+  }
+
+  // Validation
+  const validation = validateItems(parsed, mergedMeta);
+  if (validation.errors.length) {
+    alert(
+      (currentLang === 'ko' ? '분석을 진행할 수 없습니다:\n\n' : 'Cannot proceed with analysis:\n\n')
+      + validation.errors.map(e => '• ' + e).join('\n')
+    );
+    return;
+  }
+
+  // Store to SSOT
+  rawItems = parsed;
+  const distinctSeries = [...new Set(rawItems.map(i => i.series))];
+  buildSeriesColorMap(distinctSeries);
+
+  // Populate dynamic controls
+  populateXAxisOptions(mergedMeta, rawItems);
+  updateSeriesFilterOptions(rawItems);
+
+  // Run analysis
+  lastAnalysis = analyze(rawItems);
+  renderAll(lastAnalysis);
+
+  // Show any non-fatal warnings as a brief notice
+  if (mergedMeta.warnings.length || validation.recommendations.length) {
+    const msgs = [...mergedMeta.warnings, ...validation.recommendations];
+    console.info('[Portfolio Analyzer]', msgs.join(' / '));
+  }
+});
+
+/* =============================================================
+   LIVE PREVIEW (paste → parse → show preview table)
+============================================================= */
+function renderPreview(text) {
+  const container = document.getElementById('previewContainer');
+  const summary = document.getElementById('previewSummary');
+  const warningsDiv = document.getElementById('previewWarnings');
+  const table = document.getElementById('previewTable');
+
+  if (!text || !text.trim()) {
+    container.classList.add('hidden');
+    return;
+  }
+
+  const { items, meta } = parseTSV(text);
+  if (!items.length && !meta.headers.length) {
+    container.classList.add('hidden');
+    return;
+  }
+
+  const validation = validateItems(items, meta);
+  container.classList.remove('hidden');
+
+  // Summary
+  const extraStr = meta.extraNumericCols.length
+    ? (currentLang === 'ko'
+        ? `X축 후보: ${meta.extraNumericCols.join(', ')}`
+        : `X-axis candidates: ${meta.extraNumericCols.join(', ')}`)
+    : (currentLang === 'ko' ? '⚠ X축 후보 없음' : '⚠ No X-axis candidates');
+  const rowStr = currentLang === 'ko' ? `${items.length}개 제품 인식` : `${items.length} products detected`;
+  summary.textContent = `${rowStr} · ${extraStr}`;
+
+  // Warnings + recommendations
+  const allNotes = [
+    ...validation.errors.map(m => ({ type: 'error', text: m })),
+    ...meta.warnings.map(m => ({ type: 'warn', text: m })),
+    ...validation.recommendations.map(m => ({ type: 'info', text: m }))
+  ];
+  if (allNotes.length) {
+    warningsDiv.classList.remove('hidden');
+    warningsDiv.innerHTML = allNotes.map(n => {
+      const icon = n.type === 'error' ? '🔴' : n.type === 'warn' ? '🟡' : 'ℹ️';
+      return `<div class="preview-note ${n.type}">${icon} ${n.text}</div>`;
+    }).join('');
+  } else {
+    warningsDiv.classList.add('hidden');
+  }
+
+  // Build preview table — show first 5 rows with role badges
+  const MAX_ROWS = 5;
+  const showRows = items.slice(0, MAX_ROWS);
+  const reservedByIndex = {};
+  Object.entries(meta.reservedMap).forEach(([role, headerName]) => {
+    const idx = meta.headers.indexOf(headerName);
+    if (idx !== -1) reservedByIndex[idx] = role;
+  });
+  const extraSet = new Set(meta.extraNumericCols);
+
+  const roleLabels = {
+    name: '제품명', series: '시리즈', actual: '실구매가',
+    estimated: '추정원가', qty: '수량', supplier: '공급사', period: '기간'
+  };
+  const roleLabelsEn = {
+    name: 'Product', series: 'Series', actual: 'Actual',
+    estimated: 'Estimated', qty: 'Qty', supplier: 'Supplier', period: 'Period'
+  };
+  const labels = currentLang === 'ko' ? roleLabels : roleLabelsEn;
+
+  let thead = '<thead><tr>';
+  meta.headers.forEach((h, i) => {
+    const role = reservedByIndex[i];
+    let badge = '';
+    if (role) {
+      badge = `<span class="col-badge reserved">${labels[role] || role}</span>`;
+    } else if (extraSet.has(h)) {
+      badge = `<span class="col-badge extra">${currentLang === 'ko' ? '숫자' : 'numeric'}</span>`;
+    } else {
+      badge = `<span class="col-badge ignored">${currentLang === 'ko' ? '미사용' : 'ignored'}</span>`;
+    }
+    thead += `<th><div class="col-header">${h}</div>${badge}</th>`;
+  });
+  thead += '</tr></thead>';
+
+  // Need to reconstruct from raw text to show all cells including ignored ones
+  const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
+  const rawRows = lines.slice(1, MAX_ROWS + 1).map(l => l.split('\t'));
+
+  let tbody = '<tbody>';
+  rawRows.forEach(cells => {
+    tbody += '<tr>';
+    meta.headers.forEach((h, i) => {
+      tbody += `<td>${(cells[i] ?? '').toString().trim()}</td>`;
+    });
+    tbody += '</tr>';
+  });
+  if (items.length > MAX_ROWS) {
+    tbody += `<tr class="preview-more"><td colspan="${meta.headers.length}">…${currentLang === 'ko' ? ` 외 ${items.length - MAX_ROWS}개 행` : ` and ${items.length - MAX_ROWS} more rows`}</td></tr>`;
+  }
+  tbody += '</tbody>';
+
+  table.innerHTML = thead + tbody;
+}
+
+// Debounced input listener on all paste areas
+let previewTimer;
+function schedulePreview() {
+  clearTimeout(previewTimer);
+  previewTimer = setTimeout(() => {
+    const text = currentMode === 'single'
+      ? document.getElementById('pasteInputA').value
+      : (document.getElementById('pasteInputB1').value
+         + '\n' + document.getElementById('pasteInputB2').value.split('\n').slice(1).join('\n'));
+    renderPreview(text);
+    // Also refresh the mini preview chart whenever the user's data changes
+    scheduleMiniChartUpdate();
+  }, 200);
+}
+
+['pasteInputA', 'pasteInputB1', 'pasteInputB2'].forEach(id => {
+  document.getElementById(id).addEventListener('input', schedulePreview);
+  document.getElementById(id).addEventListener('paste', () => setTimeout(schedulePreview, 20));
+});
+
+document.getElementById('sampleBtn').addEventListener('click', () => {
+  if (currentMode === 'single') {
+    document.getElementById('pasteInputA').value = buildSampleTSV();
+  } else if (currentMode === 'compare-time') {
+    document.getElementById('pasteInputB1').value = buildSampleTSVB(6);
+    document.getElementById('pasteInputB2').value = buildSampleTSVB(0);
+  } else {
+    document.getElementById('pasteInputB1').value = buildSampleTSV();
+    document.getElementById('pasteInputB2').value = buildSampleTSVB(-12);
+  }
+  // Show preview table immediately, then run analysis
+  schedulePreview();
+  document.getElementById('analyzeBtn').click();
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('pasteInputA').value = '';
+  document.getElementById('pasteInputB1').value = '';
+  document.getElementById('pasteInputB2').value = '';
+  document.getElementById('previewContainer').classList.add('hidden');
+  rawItems = [];
+  lastAnalysis = null;
+  seriesColorMap = {};
+  if (mainChart) { mainChart.destroy(); mainChart = null; }
+  if (miniChart) { miniChart.destroy(); miniChart = null; }
+  clearMiniChart(currentLang === 'ko' ? '데이터를 입력하면 여기에 미리보기가 나타납니다' : 'Paste data to see a preview here');
+  ['stat-total','stat-r2','stat-manage','stat-saving'].forEach(id => document.getElementById(id).textContent = '—');
+  ['stat-totalSub','stat-r2Sub','stat-manageSub','stat-savingSub'].forEach(id => document.getElementById(id).textContent = '—');
+  ['count-danger','count-warn','count-good','count-info'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('tableContainer').innerHTML = `<div class="empty">${i18n[currentLang].emptyTable}</div>`;
+  document.getElementById('simAmount').textContent = '—';
+  document.getElementById('simDetail').textContent = '—';
+  document.getElementById('matrixInsight').style.display = 'none';
+});
+
+/* -------------------------------------------------------------
+   Re-run analysis whenever a setting changes.
+   Always uses rawItems (the pristine parsed data) so filters
+   can be toggled back and forth without losing items.
+------------------------------------------------------------- */
+function reanalyze() {
+  if (!rawItems.length) {
+    // No real data yet → just refresh the mini preview chart
+    scheduleMiniChartUpdate();
+    return;
+  }
+  lastAnalysis = analyze(rawItems);
+  renderAll(lastAnalysis);
+}
+
+['xAxisSelect','thresholdInput','trendModeSelect','seriesFilterSelect','classModeSelect'].forEach(id => {
+  document.getElementById(id).addEventListener('change', reanalyze);
+});
+
+// Bubble scale: only redraw chart + mini
+document.getElementById('bubbleScaleSelect').addEventListener('change', () => {
+  if (lastAnalysis) {
+    renderChart(lastAnalysis);
+    renderMiniChart(lastAnalysis);
+  } else {
+    scheduleMiniChartUpdate();
+  }
+});
+
+// View tabs (scatter / matrix)
+document.querySelectorAll('#viewTabs .mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#viewTabs .mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentView = tab.dataset.view;
+    document.getElementById('costOverlayWrap').style.display = currentView === 'scatter' ? 'inline-flex' : 'none';
+    if (lastAnalysis) renderChart(lastAnalysis);
+  });
+});
+
+// Cost trendline overlay toggle
+document.getElementById('costOverlayChk').addEventListener('change', () => {
+  if (lastAnalysis) renderChart(lastAnalysis);
+});
+
+document.querySelectorAll('.mode-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentMode = tab.dataset.mode;
+    if (currentMode === 'single') {
+      document.getElementById('singleInputRow').classList.remove('hidden');
+      document.getElementById('dualInputRow').classList.add('hidden');
+    } else {
+      document.getElementById('singleInputRow').classList.add('hidden');
+      document.getElementById('dualInputRow').classList.remove('hidden');
+      updateCompareModeLabels();
+    }
+  });
+});
+
+document.querySelectorAll('.class-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.class-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentClass = tab.dataset.class;
+    if (lastAnalysis) renderTable(lastAnalysis, currentClass);
+  });
+});
+
+// Guide section toggle (fold/unfold)
+document.getElementById('guideToggle').addEventListener('click', () => {
+  const body = document.getElementById('guideBody');
+  const icon = document.getElementById('guideToggleIcon');
+  const isFolded = body.classList.toggle('folded');
+  icon.textContent = isFolded ? '▼' : '▲';
+});
+
+/* =============================================================
+   INIT
+============================================================= */
+initTheme();
+applyI18n();
+clearMiniChart(currentLang === 'ko' ? '데이터를 입력하면 여기에 미리보기가 나타납니다' : 'Paste data to see a preview here');
+
+</script>
+</body>
+</html>
