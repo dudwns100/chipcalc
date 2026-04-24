@@ -1024,8 +1024,11 @@
     border-radius: var(--radius);
     padding: 14px 16px;
     position: relative;
-    overflow: hidden;
+    overflow: visible;  /* allow tooltips to escape */
   }
+
+  /* Scatter/matrix bubble charts inside stats should still clip */
+  .stats-grid { overflow: visible; }
 
   .stat-card.highlight {
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
@@ -1062,9 +1065,13 @@
     letter-spacing: 0.03em;
   }
 
-  .stat-card.active .stat-expand-hint {
-    transform: rotate(180deg);
-    display: inline-block;
+  /* Active state: text is swapped via JS, no CSS rotation (prevents flipping) */
+  .stat-card.active {
+    border-color: var(--brand);
+  }
+
+  .stat-card.highlight.active {
+    box-shadow: 0 0 0 2px var(--brand-light) inset;
   }
 
   /* DRILLDOWN AREA */
@@ -1194,6 +1201,56 @@
     color: var(--text-subtle);
     font-size: 12px;
   }
+
+  /* Formula banner shown above drilldown / simulator tables */
+  .formula-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    margin-bottom: 10px;
+    background: var(--status-info-bg);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: var(--status-info);
+  }
+
+  .formula-banner .formula-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: var(--status-info);
+    color: var(--bg-elev);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 11px;
+    font-style: italic;
+  }
+
+  .formula-banner code {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--status-info);
+    background: transparent;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* Small sub-value shown under a main number (e.g. reduction %) */
+  .sub-percent {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--status-good);
+    margin-top: 1px;
+    letter-spacing: -0.01em;
+  }
+
+  .pill.danger + .sub-percent { color: var(--status-danger); }
 
   .stat-label {
     font-size: 11px;
@@ -2880,8 +2937,10 @@ function renderStats(analysis) {
   const dict = i18n[currentLang];
   const items = analysis.items;
   const total = items.length;
-  const managed = items.filter(i => i.classification === 'danger').length;
-  const totalSaving = items.reduce((s, i) => s + (i.savingPotential || 0), 0);
+  const managedItems = items.filter(i => i.classification === 'danger');
+  const managed = managedItems.length;
+  // Match drilldown: saving potential is only for managed (danger) items
+  const totalSaving = managedItems.reduce((s, i) => s + (i.savingPotential || 0), 0);
   const totalAnnualBuy = items.reduce((s, i) => s + (i.actual * i.qty), 0);
 
   document.getElementById('stat-total').innerHTML = `${fmtInt(total)}<span class="unit">${currentLang === 'ko' ? '개' : ''}</span>`;
@@ -3340,14 +3399,27 @@ function renderMiniChart(analysis) {
   }
 
   const filtered = analysis.filtered;
+
+  // Read simulator slider to shift managed items downward on the chart
+  const simSliderEl = document.getElementById('simSlider');
+  const simPct = simSliderEl ? parseFloat(simSliderEl.value) : 0;
+  const appliesReduction = simPct > 0 && lastAnalysis;  // only visualize when analysis committed
+
   const seriesGroups = {};
+  const ghostData = [];   // pre-reduction positions for danger items (shown as dashed circles)
+
   filtered.forEach(i => {
-    (seriesGroups[i.series] ||= []).push(i);
+    const isManaged = i.classification === 'danger';
+    const shiftedY = (appliesReduction && isManaged) ? i.y * (1 - simPct / 100) : i.y;
+    (seriesGroups[i.series] ||= []).push({ ...i, y: shiftedY, _isShifted: appliesReduction && isManaged });
+    if (appliesReduction && isManaged) {
+      ghostData.push({ x: i.x, y: i.y, qty: i.qty, series: i.series });
+    }
   });
+
   const maxQty = Math.max(...filtered.map(i => i.qty || 1), 1);
   const minQty = Math.min(...filtered.map(i => i.qty || 1), 1);
 
-  // Slightly smaller bubbles for the mini view
   const miniRadius = (qty) => {
     const r = bubbleRadius(qty, maxQty, minQty);
     return Math.max(3, r * 0.55);
@@ -3364,6 +3436,19 @@ function renderMiniChart(analysis) {
     borderColor: seriesColor(s),
     borderWidth: 1
   }));
+
+  // Ghost dataset: dashed outline circles at original positions
+  if (ghostData.length) {
+    bubbleDatasets.push({
+      label: '_ghost',
+      type: 'bubble',
+      data: ghostData.map(g => ({ x: g.x, y: g.y, r: miniRadius(g.qty) })),
+      backgroundColor: 'transparent',
+      borderColor: getCss('--status-danger') + '88',
+      borderWidth: 1,
+      borderDash: [3, 3]
+    });
+  }
 
   // Trendlines (one per-regression)
   const trendDatasets = [];
@@ -3450,6 +3535,20 @@ function renderMiniChart(analysis) {
     },
     plugins: [trendBandPlugin]
   });
+
+  // Update the hint text to reflect simulator state
+  const hintEl = document.getElementById('miniChartHint');
+  if (hintEl) {
+    if (appliesReduction) {
+      hintEl.textContent = currentLang === 'ko'
+        ? `🎯 시뮬레이션 반영: 관리 대상 ${simPct.toFixed(1)}% 인하 (점선 = 인하 전)`
+        : `🎯 Simulating: managed items reduced by ${simPct.toFixed(1)}% (dashed = before)`;
+      hintEl.style.color = 'var(--status-good)';
+    } else {
+      hintEl.textContent = i18n[currentLang].miniChartHint;
+      hintEl.style.color = '';
+    }
+  }
 }
 
 /* -------------------------------------------------------------
@@ -3840,7 +3939,6 @@ function updateSimulator() {
 
   const detailWrap = document.getElementById('simDetailTableWrap');
   const countEl = document.getElementById('simDetailCount');
-  const tableEl = document.getElementById('simDetailTable');
 
   if (!lastAnalysis) {
     document.getElementById('simAmount').textContent = '—';
@@ -3879,6 +3977,12 @@ function updateSimulator() {
     return sb - sa;
   });
 
+  // Write formula banner + table HTML to the wrapper's body div
+  const bodyDiv = detailWrap.querySelector('.drilldown-body');
+  const formulaBanner = currentLang === 'ko'
+    ? `<div class="formula-banner"><span class="formula-icon">ƒ</span><code>연간절감 = (현재가 × ${pct.toFixed(1)}%) × 연간수량</code></div>`
+    : `<div class="formula-banner"><span class="formula-icon">ƒ</span><code>Annual Save = (Current × ${pct.toFixed(1)}%) × Qty</code></div>`;
+
   const headers = currentLang === 'ko'
     ? ['제품명', '시리즈', '현재가', '인하후가', '수량', '단위절감', '연간절감']
     : ['Product', 'Series', 'Current', 'Reduced', 'Qty', 'Unit Save', 'Annual Save'];
@@ -3899,34 +4003,55 @@ function updateSimulator() {
     const unitSave = i.actual - reduced;
     const annualSave = unitSave * i.qty;
     totalSave += annualSave;
+    const pctStr = pct > 0 ? `−${pct.toFixed(1)}%` : '0%';
+    const rowFormula = currentLang === 'ko'
+      ? `${fmtInt(unitSave)} × ${fmtInt(i.qty)} = ${fmtInt(annualSave)}`
+      : `${fmtInt(unitSave)} × ${fmtInt(i.qty)} = ${fmtInt(annualSave)}`;
     html += `<tr>
       <td><strong>${i.name}</strong></td>
       <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
       <td class="num">${fmtInt(i.actual)}</td>
       <td class="num" style="color:var(--status-good)">${fmtInt(reduced)}</td>
       <td class="num">${fmtInt(i.qty)}</td>
-      <td class="num">${fmtInt(unitSave)}</td>
-      <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(annualSave) : '₩'+fmtMoneyEn(annualSave)}</strong></td>
+      <td class="num"><strong>${fmtInt(unitSave)}</strong><span class="sub-percent">${pctStr}</span></td>
+      <td class="num" title="${rowFormula}"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(annualSave) : '₩'+fmtMoneyEn(annualSave)}</strong></td>
     </tr>`;
   });
 
   // Total row
   html += `<tr class="total-row">
-    <td colspan="6" style="text-align:right">${currentLang === 'ko' ? '합계' : 'Total'}</td>
+    <td colspan="6" style="text-align:right">${currentLang === 'ko' ? `합계 (${sorted.length}개 제품)` : `Total (${sorted.length} products)`}</td>
     <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSave) : '₩'+fmtMoneyEn(totalSave)}</strong></td>
   </tr>`;
   html += '</tbody>';
 
-  tableEl.innerHTML = html;
+  // Render banner + table together (so formula appears above table)
+  bodyDiv.innerHTML = formulaBanner + '<table class="drilldown-table">' + html + '</table>';
 }
 
-document.getElementById('simSlider').addEventListener('input', updateSimulator);
+document.getElementById('simSlider').addEventListener('input', () => {
+  updateSimulator();
+  if (lastAnalysis) renderMiniChart(lastAnalysis);
+});
 
 /* =============================================================
    STAT CARD DRILLDOWNS
    Click a stat card → show detailed breakdown below the stats grid
 ============================================================= */
 let currentDrilldown = null;  // 'manage' | 'saving' | null
+
+function updateExpandHintTexts() {
+  const dict = i18n[currentLang];
+  document.querySelectorAll('.stat-clickable').forEach(card => {
+    const hint = card.querySelector('.stat-expand-hint');
+    if (!hint) return;
+    if (card.classList.contains('active')) {
+      hint.textContent = dict.clickToCollapse || '클릭하여 접기 ▲';
+    } else {
+      hint.textContent = dict.clickToExpand || '클릭하여 상세 보기 ▼';
+    }
+  });
+}
 
 function renderDrilldown(key) {
   if (!lastAnalysis) return;
@@ -3939,6 +4064,7 @@ function renderDrilldown(key) {
   document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
   const card = document.querySelector(`[data-stat-key="${key}"]`);
   if (card) card.classList.add('active');
+  updateExpandHintTexts();
 
   let html = '';
   let title = '';
@@ -3978,8 +4104,17 @@ function renderDrilldown(key) {
     const sorted = [...items].sort((a, b) => (b.savingPotential || 0) - (a.savingPotential || 0));
 
     const headers = currentLang === 'ko'
-      ? ['제품명', '시리즈', '실구매가', '추세선값', '편차', '수량', '인하여력']
-      : ['Product', 'Series', 'Actual', 'Trendline', 'Gap', 'Qty', 'Potential'];
+      ? ['제품명', '시리즈', '실구매가', '추세선값', '단가차이', '수량', '인하여력']
+      : ['Product', 'Series', 'Actual', 'Trendline', 'Unit Δ', 'Qty', 'Potential'];
+
+    const formulaTipKo = '인하여력 = (실구매가 − 추세선값) × 연간수량';
+    const formulaTipEn = 'Potential = (Actual − Trendline) × Annual Qty';
+    const formulaTip = currentLang === 'ko' ? formulaTipKo : formulaTipEn;
+
+    html += `<div class="formula-banner">
+      <span class="formula-icon">ƒ</span>
+      <code>${formulaTip}</code>
+    </div>`;
 
     html += `<table class="drilldown-table">
       <thead><tr>
@@ -3995,19 +4130,24 @@ function renderDrilldown(key) {
     sorted.forEach(i => {
       const gap = i.peerGap;
       const gapStr = gap > 0 ? `+${gap.toFixed(1)}%` : `${gap.toFixed(1)}%`;
+      const unitDiff = i.actual - (i.trendY || 0);
+      const rowFormula = currentLang === 'ko'
+        ? `(${fmtInt(i.actual)} − ${fmtInt(i.trendY)}) × ${fmtInt(i.qty)} = ${fmtInt(i.savingPotential||0)}`
+        : `(${fmtInt(i.actual)} − ${fmtInt(i.trendY)}) × ${fmtInt(i.qty)} = ${fmtInt(i.savingPotential||0)}`;
+
       html += `<tr>
         <td><strong>${i.name}</strong></td>
         <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
         <td class="num">${fmtInt(i.actual)}</td>
         <td class="num" style="color:var(--text-subtle)">${fmtInt(i.trendY)}</td>
-        <td class="num"><span class="pill danger">${gapStr}</span></td>
+        <td class="num" title="${gapStr}"><strong>+${fmtInt(unitDiff)}</strong><span class="sub-percent">${gapStr}</span></td>
         <td class="num">${fmtInt(i.qty)}</td>
-        <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(i.savingPotential||0) : '₩'+fmtMoneyEn(i.savingPotential||0)}</strong></td>
+        <td class="num" title="${rowFormula}"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(i.savingPotential||0) : '₩'+fmtMoneyEn(i.savingPotential||0)}</strong></td>
       </tr>`;
     });
 
     html += `<tr class="total-row">
-      <td colspan="6" style="text-align:right">${currentLang === 'ko' ? '합계' : 'Total'}</td>
+      <td colspan="6" style="text-align:right">${currentLang === 'ko' ? `합계 (${sorted.length}개 제품 연간)` : `Total (${sorted.length} products / year)`}</td>
       <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</strong></td>
     </tr>`;
     html += '</tbody></table>';
@@ -4024,6 +4164,7 @@ function closeDrilldown() {
   wrap.classList.add('hidden');
   document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
   currentDrilldown = null;
+  updateExpandHintTexts();
 }
 
 // Click on clickable stat cards
