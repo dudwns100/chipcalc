@@ -511,6 +511,145 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
   margin-bottom: 4px;
 }
 
+/* ─── 시장 참조 버튼 + Percentile 피드백 ─── */
+.ref-btn{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:2px 9px;height:20px;
+  background:var(--blue-t);border:1px solid var(--blue-s);
+  color:var(--blue);
+  border-radius:100px;
+  font-size:10.5px;font-weight:700;
+  cursor:pointer;font-family:var(--font);
+  transition:all 0.15s;
+}
+.ref-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+body.dark .ref-btn{background:rgba(0,113,227,0.15);border-color:rgba(0,113,227,0.3);color:#5fb5ff}
+
+/* Percentile 게이지 (입력값이 시장 분포 어디인지) */
+.pctl-bar{
+  margin-top:4px;
+  font-size:10.5px;
+  color:var(--l3);
+  display:flex;align-items:center;gap:6px;
+  line-height:1.3;
+}
+.pctl-track{
+  flex:1;height:6px;background:var(--s3);border-radius:3px;
+  position:relative;overflow:hidden;
+}
+.pctl-track::before{
+  content:'';position:absolute;left:25%;right:25%;top:0;bottom:0;
+  background:var(--green-t);
+}
+.pctl-marker{
+  position:absolute;top:-2px;width:4px;height:10px;
+  background:#0071e3;border-radius:2px;
+  transform:translateX(-50%);
+  transition:left 0.25s ease;
+  box-shadow:0 0 0 2px rgba(0,113,227,0.18);
+}
+.pctl-marker.warn{background:#dc2626;box-shadow:0 0 0 2px rgba(220,38,38,0.20)}
+.pctl-marker.good{background:#10b981;box-shadow:0 0 0 2px rgba(16,185,129,0.20)}
+.pctl-text{
+  font-family:var(--mono);font-weight:600;
+  white-space:nowrap;
+  font-size:10px;
+}
+.pctl-text.warn{color:#dc2626}
+.pctl-text.good{color:#10b981}
+.pctl-text.flat{color:var(--l4)}
+
+/* ─── 시장 참조 모달 ─── */
+.ref-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);
+  z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(4px);
+}
+.ref-modal.open{display:flex}
+.ref-card{
+  background:var(--surface);border-radius:14px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  max-width:680px;width:100%;max-height:90vh;overflow-y:auto;
+}
+.ref-hd{
+  padding:16px 22px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+}
+.ref-title{font-size:14px;font-weight:800;color:var(--l1);display:flex;align-items:center;gap:8px}
+.ref-title-icon{font-size:18px}
+.ref-close{
+  width:28px;height:28px;border:none;background:var(--s3);border-radius:50%;
+  cursor:pointer;font-size:14px;color:var(--l3);
+}
+.ref-close:hover{background:var(--s2)}
+
+.ref-body{padding:16px 22px}
+.ref-filters{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:10px 12px;background:var(--s3);border-radius:8px;
+  margin-bottom:14px;font-size:11.5px;
+}
+.ref-filter-chip{
+  padding:3px 11px;border:1px solid var(--border2);background:var(--surface);
+  border-radius:100px;font-size:11px;font-weight:600;color:var(--l3);
+  cursor:pointer;font-family:var(--font);transition:all 0.15s;
+}
+.ref-filter-chip:hover{border-color:var(--blue);color:var(--blue)}
+.ref-filter-chip.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+.ref-stat-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;
+}
+.ref-stat{
+  padding:10px 12px;background:var(--s3);border-radius:8px;text-align:center;
+  border:1px solid var(--border);
+}
+.ref-stat-lbl{font-size:9.5px;color:var(--l4);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px}
+.ref-stat-val{font-family:var(--mono);font-size:16px;font-weight:800;color:var(--l1);letter-spacing:-0.02em}
+.ref-stat.median{background:var(--blue-t);border-color:var(--blue-s)}
+.ref-stat.median .ref-stat-val{color:var(--blue)}
+
+.ref-list{
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;
+  max-height:280px;overflow-y:auto;
+}
+.ref-list-item{
+  padding:8px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;font-size:12px;
+}
+.ref-list-item:last-child{border-bottom:none}
+.ref-list-item:hover{background:var(--s3)}
+.ref-list-pn{
+  flex:1;font-family:var(--mono);font-weight:700;color:var(--l1);
+  font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ref-list-meta{font-size:10.5px;color:var(--l3);font-family:var(--mono)}
+.ref-list-val{font-family:var(--mono);font-weight:800;color:var(--l1);font-size:12.5px;min-width:60px;text-align:right}
+.ref-apply-btn{
+  padding:3px 10px;background:var(--blue);color:#fff;border:none;border-radius:6px;
+  font-size:10.5px;font-weight:700;cursor:pointer;font-family:var(--font);
+}
+.ref-apply-btn:hover{background:#0059b3}
+.ref-empty{padding:30px 20px;text-align:center;color:var(--l4);font-size:12.5px}
+
+.ref-actions{
+  padding:14px 22px;border-top:1px solid var(--border);
+  display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;
+}
+.ref-action-btn{
+  padding:8px 16px;background:var(--s3);color:var(--l1);
+  border:1px solid var(--border);border-radius:8px;
+  font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);
+  transition:all 0.15s;
+}
+.ref-action-btn:hover{background:var(--blue-t);color:var(--blue);border-color:var(--blue-s)}
+.ref-action-btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ref-action-btn.primary:hover{background:#0059b3}
+
+@media(max-width:600px){
+  .ref-stat-grid{grid-template-columns:1fr 1fr 1fr}
+  .ref-stat-val{font-size:14px}
+}
 </style>
 <script src="shared-analytics.js"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"홈","item":"https://dudwns100.github.io/chipcalc/"},{"@type":"ListItem","position":2,"name":"계산기"}]},{"@type":"SoftwareApplication","name":"반도체 원가 계산기","url":"https://dudwns100.github.io/chipcalc/calculator.html","description":"Die 원가 · OSAT · 판매가를 자동 계산하는 무료 도구.","applicationCategory":"BusinessApplication","operatingSystem":"Web Browser","inLanguage":["ko","en"],"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"ChipCalc"}}]}</script>
@@ -659,8 +798,12 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
           <div class="matrix-wrap" id="priceMatrix"></div>
         </div>
         <div class="field">
-          <div class="fl" data-i="fl-wprice">적용 웨이퍼 가격 (USD/장) — 직접 수정 가능</div>
-          <div class="iw"><input type="number" id="waferPrice" value="0" step="100" oninput="calc()"><span class="iu">$</span></div>
+          <div class="fl" data-i="fl-wprice" style="display:flex;align-items:center;justify-content:space-between">
+            <span>적용 웨이퍼 가격 (USD/장) — 직접 수정 가능</span>
+            <button class="ref-btn" onclick="openRefModal('wafer')" title="시장 참조">📊 시장 참조</button>
+          </div>
+          <div class="iw"><input type="number" id="waferPrice" value="0" step="100" oninput="calc();updatePctl('wafer')"><span class="iu">$</span></div>
+          <div class="pctl-bar" id="pctl-wafer" style="display:none"></div>
         </div>
       </div>
     </div>
@@ -679,7 +822,14 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
           <div class="field"><div class="fl" data-i="fl-dieArea">Die 면적 (자동)</div><input type="text" id="dieAreaDisp" value="49.0 mm²" readonly></div>
         </div>
         <div class="fr fr2">
-          <div class="field"><div class="fl" data-i="fl-yield">Wafer Yield (%)</div><div class="iw"><input type="number" id="waferYield" value="90" step="1" max="100" min="1" oninput="calc()"><span class="iu">%</span></div></div>
+          <div class="field">
+            <div class="fl" data-i="fl-yield" style="display:flex;align-items:center;justify-content:space-between">
+              <span>Wafer Yield (%)</span>
+              <button class="ref-btn" onclick="openRefModal('yield')" title="시장 참조">📊</button>
+            </div>
+            <div class="iw"><input type="number" id="waferYield" value="90" step="1" max="100" min="1" oninput="calc();updatePctl('yield')"><span class="iu">%</span></div>
+            <div class="pctl-bar" id="pctl-yield" style="display:none"></div>
+          </div>
           <div class="field"><div class="fl" data-i="fl-dieCost">Die 원가 (자동계산)</div><input type="text" id="dieCostDisp" value="$0.000" readonly></div>
         </div>
         <div class="note"><span>ℹ︎</span><span data-i="note-dpw">DPW = π×R²/A − π×D/√(2A) → Wafer Yield → Die 원가 = 웨이퍼가격 ÷ 양품 Die 수</span></div>
@@ -701,8 +851,22 @@ hr.dv{border:none;border-top:1px solid var(--border);margin:3px 0}
         <div><button class="edit-btn" data-i="edit-pkg" onclick="openModal('modal-pkg')">✏ 패키지 편집</button></div>
         <div id="pinBadge" style="display:none"></div>
         <div class="fr fr2">
-          <div class="field"><div class="fl" data-i="fl-asm">어셈블리 ($/unit)</div><div class="iw"><input type="number" id="asmCost" value="0.080" step="0.005" min="0" oninput="calc()"><span class="iu">$</span></div></div>
-          <div class="field"><div class="fl" data-i="fl-test">테스트 ($/unit)</div><div class="iw"><input type="number" id="testCost" value="0.050" step="0.005" min="0" oninput="calc()"><span class="iu">$</span></div></div>
+          <div class="field">
+            <div class="fl" data-i="fl-asm" style="display:flex;align-items:center;justify-content:space-between">
+              <span>어셈블리 ($/unit)</span>
+              <button class="ref-btn" onclick="openRefModal('asm')" title="시장 참조">📊</button>
+            </div>
+            <div class="iw"><input type="number" id="asmCost" value="0.080" step="0.005" min="0" oninput="calc();updatePctl('asm')"><span class="iu">$</span></div>
+            <div class="pctl-bar" id="pctl-asm" style="display:none"></div>
+          </div>
+          <div class="field">
+            <div class="fl" data-i="fl-test" style="display:flex;align-items:center;justify-content:space-between">
+              <span>테스트 ($/unit)</span>
+              <button class="ref-btn" onclick="openRefModal('test')" title="시장 참조">📊</button>
+            </div>
+            <div class="iw"><input type="number" id="testCost" value="0.050" step="0.005" min="0" oninput="calc();updatePctl('test')"><span class="iu">$</span></div>
+            <div class="pctl-bar" id="pctl-test" style="display:none"></div>
+          </div>
         </div>
         <div class="field"><div class="fl" data-i="fl-osat">OSAT 합계 (자동)</div><input type="text" id="osatDisp" value="$0.000" readonly></div>
       </div>
@@ -2694,6 +2858,352 @@ function closeCatalogBanner(){
   var b = document.getElementById('catalog-banner');
   if(b) b.remove();
 }
+
+/* ═══════════════════════════════════════════════
+   📊 시장 참조 시스템
+   - 카탈로그 전체를 캐시 (페이지 진입 시 1회)
+   - 입력값 변경 시 → 같은 노드 + 유사 패키지로 percentile 계산
+   - 입력 필드 아래 게이지 + 모달로 상세 통계
+═══════════════════════════════════════════════ */
+
+var REF_CATALOG = null;   // 전체 제품 목록 캐시
+var REF_LOADING = false;
+var REF_FIELD = null;     // 현재 모달이 보여주는 필드 ('wafer','yield','asm','test')
+var REF_FILTER = { node:'match', pkg:'match' };
+
+// 필드별 메타데이터
+var REF_META = {
+  wafer: {
+    label: '웨이퍼 가격', icon: '🏭', column: 'wafer_price_usd',
+    inputId: 'waferPrice', unit: '$', fmt: function(v){return '$' + Math.round(v).toLocaleString();},
+    helper: '같은 공정 노드의 시장 분포에서 입력값이 어디에 위치하는지 확인하세요. 신제품 견적 검증에 유용합니다.'
+  },
+  yield: {
+    label: 'Wafer Yield', icon: '🎯', column: 'wafer_yield_pct',
+    inputId: 'waferYield', unit: '%', fmt: function(v){return v.toFixed(1) + '%';},
+    helper: '공정 노드별 일반적인 수율 범위입니다. 성숙 공정(legacy)은 95%+, 선단 공정은 80% 내외가 일반적입니다.'
+  },
+  asm: {
+    label: '어셈블리 비용', icon: '📦', column: 'package_cost_usd',
+    inputId: 'asmCost', unit: '$/unit', fmt: function(v){return '$' + v.toFixed(3);},
+    helper: '같은/유사 패키지 타입의 어셈블리 비용 분포입니다. 핀 수가 많고 BGA형일수록 비싸집니다.'
+  },
+  test: {
+    label: '테스트 비용', icon: '🧪', column: 'test_cost_usd',
+    inputId: 'testCost', unit: '$/unit', fmt: function(v){return '$' + v.toFixed(3);},
+    helper: '같은 등급(ASIL·HSM)·핀 수의 테스트 비용 분포입니다. ASIL-D HSM 탑재 제품은 더 비쌉니다.'
+  }
+};
+
+async function loadRefCatalog(){
+  if(REF_CATALOG) return REF_CATALOG;
+  if(REF_LOADING) return null;
+  REF_LOADING = true;
+  try {
+    var client = window.sb;
+    if(!client && window.supabase){
+      client = window.supabase.createClient(
+        'https://azouxvpthllgczbihppi.supabase.co',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6b3V4dnB0aGxsZ2N6YmlocHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzIzMTcsImV4cCI6MjA5MTY0ODMxN30.NCxy8WXBIyJ0INZkAzlsZMLZurfhCrIF4n_V1aUZQO0'
+      );
+    }
+    if(!client){ REF_LOADING = false; return null; }
+
+    var {data, error} = await client
+      .from('products')
+      .select('part_number,maker,node_nm,wafer_size_inch,wafer_price_usd,wafer_yield_pct,package_type,package_pin_count,package_cost_usd,test_cost_usd,asil_level,hsm,product_series(series_name,series_code)')
+      .eq('is_active', true);
+
+    REF_LOADING = false;
+    if(error || !data){ console.warn('카탈로그 로드 실패:', error); return null; }
+    REF_CATALOG = data;
+    return data;
+  } catch(e) {
+    REF_LOADING = false;
+    console.error(e);
+    return null;
+  }
+}
+
+/* 패키지 타입 그룹화 (BGA/QFP/QFN 등) */
+function pkgFamily(pkg){
+  if(!pkg) return null;
+  var p = pkg.toUpperCase();
+  if(p.indexOf('BGA') >= 0) return 'BGA';
+  if(p.indexOf('LQFP') >= 0) return 'LQFP';
+  if(p.indexOf('TQFP') >= 0) return 'TQFP';
+  if(p.indexOf('TEQFP') >= 0) return 'TQFP';
+  if(p.indexOf('HDQFP') >= 0) return 'HDQFP';
+  if(p.indexOf('QFN') >= 0) return 'QFN';
+  if(p.indexOf('QFP') >= 0) return 'QFP';
+  if(p.indexOf('CSP') >= 0) return 'CSP';
+  return p.split('-')[0];
+}
+
+/* 현재 계산기 상태에서 매칭 조건 추출 */
+function getCurrentMatch(){
+  var nodeEl = document.getElementById('processNode');
+  var pkgEl = document.getElementById('pkgSelect');
+  var pinEl = document.getElementById('pinSelect');
+
+  var node = nodeEl ? parseInt(nodeEl.value) : null;
+  // 패키지 select에서 현재 선택된 텍스트
+  var pkgName = '';
+  if(pkgEl && pkgEl.selectedIndex >= 0){
+    pkgName = pkgEl.options[pkgEl.selectedIndex].text || '';
+  }
+  var pkgFam = pkgFamily(pkgName);
+
+  var pin = null;
+  if(pinEl && pinEl.value){
+    var m = pinEl.options[pinEl.selectedIndex].text.match(/\d+/);
+    if(m) pin = parseInt(m[0]);
+  }
+
+  return { node: node, pkgFamily: pkgFam, pin: pin };
+}
+
+/* 현재 입력 조건과 매칭되는 카탈로그 제품들 */
+function filterMatchingProducts(field){
+  if(!REF_CATALOG) return [];
+  var match = getCurrentMatch();
+  var meta = REF_META[field];
+  var col = meta.column;
+
+  return REF_CATALOG.filter(function(p){
+    if(p[col] == null) return false;
+    if(REF_FILTER.node === 'match' && match.node && p.node_nm !== match.node) return false;
+    if(REF_FILTER.pkg === 'match' && match.pkgFamily){
+      if(pkgFamily(p.package_type) !== match.pkgFamily) return false;
+    }
+    return true;
+  });
+}
+
+/* 통계 계산 (min/p25/median/p75/max) */
+function computeStats(values){
+  if(!values.length) return null;
+  var sorted = values.slice().sort(function(a,b){return a-b});
+  var n = sorted.length;
+  var pct = function(p){
+    var idx = (n - 1) * p / 100;
+    var lo = Math.floor(idx), hi = Math.ceil(idx);
+    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  };
+  return {
+    min: sorted[0], max: sorted[n-1],
+    median: pct(50), p25: pct(25), p75: pct(75),
+    count: n
+  };
+}
+
+/* 입력값이 분포에서 어느 percentile인지 */
+function valueToPercentile(val, values){
+  if(!values || !values.length) return null;
+  var sorted = values.slice().sort(function(a,b){return a-b});
+  var idx = sorted.findIndex(function(x){return x >= val});
+  if(idx < 0) return 100;
+  if(idx === 0 && val < sorted[0]) return 0;
+  return Math.round(idx / sorted.length * 100);
+}
+
+/* ───── Percentile 게이지 업데이트 ───── */
+async function updatePctl(field){
+  var el = document.getElementById('pctl-' + field);
+  if(!el) return;
+
+  if(!REF_CATALOG){
+    await loadRefCatalog();
+    if(!REF_CATALOG) return;
+  }
+
+  var meta = REF_META[field];
+  var input = document.getElementById(meta.inputId);
+  if(!input) return;
+  var val = parseFloat(input.value);
+  if(isNaN(val) || val <= 0){ el.style.display = 'none'; return; }
+
+  // 매칭 모드는 게이지 단순화: 같은 노드만으로 시작
+  var matched = REF_CATALOG.filter(function(p){
+    if(p[meta.column] == null) return false;
+    var match = getCurrentMatch();
+    if(match.node && p.node_nm !== match.node) return false;
+    return true;
+  });
+
+  // 같은 노드가 부족하면 전체 사용
+  var sample = matched.length >= 3 ? matched : REF_CATALOG.filter(function(p){return p[meta.column] != null});
+  var values = sample.map(function(p){return parseFloat(p[meta.column])});
+  var stats = computeStats(values);
+  if(!stats){ el.style.display = 'none'; return; }
+
+  var pctl = valueToPercentile(val, values);
+  // pctl 0~100 위치 (P25~P75 사이가 "초록존")
+  var rangeMin = stats.min, rangeMax = stats.max;
+  var rangeSpan = rangeMax - rangeMin || 1;
+  var pos = Math.max(0, Math.min(100, (val - rangeMin) / rangeSpan * 100));
+
+  // 톤 결정
+  var tone = 'flat';
+  var msg = '시장 ' + pctl + 'p (' + sample.length + '개 중)';
+  if(field === 'wafer' || field === 'asm' || field === 'test'){
+    // 비용류: 낮을수록 좋음
+    if(pctl <= 25) { tone = 'good'; msg = '✅ 시장 저가 영역 (P' + pctl + ')'; }
+    else if(pctl >= 75) { tone = 'warn'; msg = '⚠️ 시장 고가 영역 (P' + pctl + ')'; }
+    else { msg = '시장 중간대 (P' + pctl + ')'; }
+  } else if(field === 'yield'){
+    // yield: 높을수록 좋음
+    if(pctl <= 25) { tone = 'warn'; msg = '⚠️ 수율 낮음 (P' + pctl + ')'; }
+    else if(pctl >= 75) { tone = 'good'; msg = '✅ 수율 우수 (P' + pctl + ')'; }
+    else { msg = '시장 중간대 (P' + pctl + ')'; }
+  }
+
+  var matchInfo = matched.length >= 3 ? '' : ' · 노드 매칭 부족, 전체 분포 사용';
+  el.innerHTML =
+    '<div class="pctl-track"><div class="pctl-marker ' + tone + '" style="left:' + pos + '%"></div></div>'
+    + '<span class="pctl-text ' + tone + '">' + msg + matchInfo + '</span>';
+  el.style.display = 'flex';
+}
+
+/* ───── 모달 ───── */
+async function openRefModal(field){
+  REF_FIELD = field;
+  var meta = REF_META[field];
+  document.getElementById('ref-title-text').textContent = meta.label + ' 시장 참조';
+  document.getElementById('ref-icon').textContent = meta.icon;
+  document.getElementById('ref-helper').textContent = meta.helper;
+  document.getElementById('refModal').classList.add('open');
+
+  // 카탈로그 로드
+  if(!REF_CATALOG){
+    document.getElementById('ref-list').innerHTML = '<div class="ref-empty">카탈로그를 불러오는 중...</div>';
+    await loadRefCatalog();
+  }
+
+  refreshRefView();
+}
+
+function closeRefModal(){
+  document.getElementById('refModal').classList.remove('open');
+  REF_FIELD = null;
+}
+
+function setRefFilter(key, val, btn){
+  REF_FILTER[key] = val;
+  // 같은 그룹의 다른 chip OFF
+  var group = btn.parentElement;
+  group.querySelectorAll('.ref-filter-chip[data-fk="' + key + '"]').forEach(function(c){
+    c.classList.remove('on');
+  });
+  btn.classList.add('on');
+  refreshRefView();
+}
+
+function refreshRefView(){
+  if(!REF_FIELD || !REF_CATALOG) return;
+  var meta = REF_META[REF_FIELD];
+  var match = getCurrentMatch();
+
+  // 필터 칩 라벨에 현재 매칭값 표시
+  var nm = document.getElementById('rf-node-match');
+  if(nm) nm.textContent = match.node ? '같은 노드 (' + match.node + 'nm)' : '같은 노드';
+  var pm = document.getElementById('rf-pkg-match');
+  if(pm) pm.textContent = match.pkgFamily ? '유사 패키지 (' + match.pkgFamily + ')' : '유사 패키지';
+
+  var matched = filterMatchingProducts(REF_FIELD);
+  var values = matched.map(function(p){return parseFloat(p[meta.column])});
+  var stats = computeStats(values);
+
+  if(!stats){
+    document.getElementById('ref-min').textContent = '—';
+    document.getElementById('ref-median').textContent = '—';
+    document.getElementById('ref-max').textContent = '—';
+    document.getElementById('ref-p25').textContent = '—';
+    document.getElementById('ref-p75').textContent = '—';
+    document.getElementById('ref-count').textContent = '매칭 0개';
+    document.getElementById('ref-list').innerHTML = '<div class="ref-empty">조건에 맞는 제품이 없습니다.<br><span style="font-size:10.5px">필터를 완화하거나 카탈로그에 신규 제품을 등록하세요.</span></div>';
+    return;
+  }
+
+  document.getElementById('ref-min').textContent = meta.fmt(stats.min);
+  document.getElementById('ref-median').textContent = meta.fmt(stats.median);
+  document.getElementById('ref-max').textContent = meta.fmt(stats.max);
+  document.getElementById('ref-p25').textContent = meta.fmt(stats.p25);
+  document.getElementById('ref-p75').textContent = meta.fmt(stats.p75);
+  document.getElementById('ref-count').textContent = '매칭 ' + matched.length + '개';
+
+  // 리스트: 값 오름차순
+  matched.sort(function(a,b){return parseFloat(a[meta.column]) - parseFloat(b[meta.column])});
+  var listHtml = matched.map(function(p){
+    var v = parseFloat(p[meta.column]);
+    var sname = p.product_series ? p.product_series.series_code : '';
+    var metaTxt = (p.maker || '') + ' · ' + (p.node_nm || '?') + 'nm · ' + (p.package_type || '?');
+    return '<div class="ref-list-item">'
+      + '<div style="min-width:0;flex:1">'
+        + '<div class="ref-list-pn">' + p.part_number + '</div>'
+        + '<div class="ref-list-meta">' + metaTxt + '</div>'
+      + '</div>'
+      + '<div class="ref-list-val">' + meta.fmt(v) + '</div>'
+      + '<button class="ref-apply-btn" onclick="applyRefSpecific(' + v + ')">쓰기</button>'
+    + '</div>';
+  }).join('');
+  document.getElementById('ref-list').innerHTML = listHtml;
+}
+
+function applyRefValue(stat){
+  if(!REF_FIELD || !REF_CATALOG) return;
+  var meta = REF_META[REF_FIELD];
+  var matched = filterMatchingProducts(REF_FIELD);
+  var values = matched.map(function(p){return parseFloat(p[meta.column])});
+  var stats = computeStats(values);
+  if(!stats) return;
+
+  var v = stats[stat];
+  applyRefSpecific(v);
+}
+
+function applyRefSpecific(v){
+  if(!REF_FIELD) return;
+  var meta = REF_META[REF_FIELD];
+  var input = document.getElementById(meta.inputId);
+  if(!input) return;
+  // 비용류는 소수점 3자리, yield는 정수, wafer는 정수
+  if(REF_FIELD === 'wafer') input.value = Math.round(v);
+  else if(REF_FIELD === 'yield') input.value = Math.round(v * 10) / 10;
+  else input.value = (Math.round(v * 1000) / 1000).toFixed(3);
+
+  if(typeof calc === 'function') calc();
+  updatePctl(REF_FIELD);
+  closeRefModal();
+}
+
+// ESC 키
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    if(document.getElementById('refModal').classList.contains('open')) closeRefModal();
+  }
+});
+
+/* 페이지 진입 시 카탈로그 미리 로드 (백그라운드) */
+setTimeout(function(){
+  loadRefCatalog().then(function(){
+    // 모든 필드의 percentile 게이지 초기화
+    ['wafer','yield','asm','test'].forEach(function(f){ updatePctl(f); });
+  });
+}, 800);
+
+/* 패키지/노드 변경 시 percentile 재계산 */
+(function hookSelectChanges(){
+  var ids = ['processNode','pkgSelect','pinSelect','waferSize'];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.addEventListener('change', function(){
+      setTimeout(function(){
+        ['wafer','yield','asm','test'].forEach(function(f){ updatePctl(f); });
+      }, 100);
+    });
+  });
+})();
 </script>
 <script src="shared-footer.js"></script>
 <script src="shared-styles.js"></script>
@@ -2705,6 +3215,50 @@ window.onAuthStateChanged = function(event, session) {
 };
 </script>
 <script src="shared-auth-supabase.js"></script>
+
+<!-- 시장 참조 모달 -->
+<div class="ref-modal" id="refModal" onclick="if(event.target===this)closeRefModal()">
+  <div class="ref-card">
+    <div class="ref-hd">
+      <div class="ref-title">
+        <span class="ref-title-icon" id="ref-icon">📊</span>
+        <span id="ref-title-text">시장 참조</span>
+      </div>
+      <button class="ref-close" onclick="closeRefModal()">✕</button>
+    </div>
+    <div class="ref-body">
+      <div id="ref-helper" style="font-size:11.5px;color:var(--l3);margin-bottom:10px;line-height:1.55"></div>
+
+      <div class="ref-filters">
+        <span style="font-size:10px;font-weight:700;color:var(--l4);letter-spacing:0.06em;text-transform:uppercase;align-self:center">필터</span>
+        <button class="ref-filter-chip on" data-fk="node" data-fv="match" onclick="setRefFilter('node','match',this)" id="rf-node-match">현재 노드만</button>
+        <button class="ref-filter-chip" data-fk="node" data-fv="all" onclick="setRefFilter('node','all',this)">모든 노드</button>
+        <span style="width:1px;background:var(--border)"></span>
+        <button class="ref-filter-chip on" data-fk="pkg" data-fv="match" onclick="setRefFilter('pkg','match',this)" id="rf-pkg-match">유사 패키지</button>
+        <button class="ref-filter-chip" data-fk="pkg" data-fv="all" onclick="setRefFilter('pkg','all',this)">모든 패키지</button>
+      </div>
+
+      <div class="ref-stat-grid">
+        <div class="ref-stat"><div class="ref-stat-lbl">최저</div><div class="ref-stat-val" id="ref-min">—</div></div>
+        <div class="ref-stat median"><div class="ref-stat-lbl">중앙값 (P50)</div><div class="ref-stat-val" id="ref-median">—</div></div>
+        <div class="ref-stat"><div class="ref-stat-lbl">최고</div><div class="ref-stat-val" id="ref-max">—</div></div>
+      </div>
+
+      <div style="font-size:10.5px;color:var(--l4);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+        <span id="ref-count">매칭 0개</span>
+        <span style="font-family:var(--mono);font-size:9.5px">P25: <span id="ref-p25">—</span> · P75: <span id="ref-p75">—</span></span>
+      </div>
+
+      <div class="ref-list" id="ref-list"></div>
+    </div>
+    <div class="ref-actions">
+      <button class="ref-action-btn" onclick="applyRefValue('p25')">P25 적용</button>
+      <button class="ref-action-btn primary" onclick="applyRefValue('median')">중앙값 적용</button>
+      <button class="ref-action-btn" onclick="applyRefValue('p75')">P75 적용</button>
+      <button class="ref-action-btn" onclick="closeRefModal()">취소</button>
+    </div>
+  </div>
+</div>
 <footer></footer>
 </body>
 </html>
