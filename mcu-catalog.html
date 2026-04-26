@@ -51,13 +51,28 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px
 }
 .search-box:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,0.08)}
 
-.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.filter-group{display:flex;gap:4px;padding:3px 6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;align-items:center}
-.filter-group-label{font-size:10px;color:var(--l4);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:0 4px}
-.filter-chip{height:24px;padding:0 11px;border-radius:100px;border:1px solid transparent;background:transparent;font-family:var(--font);font-size:11px;font-weight:600;color:var(--l3);cursor:pointer;transition:all 0.15s;white-space:nowrap}
-.filter-chip:hover{color:var(--blue)}
-.filter-chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-.chip-reset{background:none;border:none;color:var(--blue);font-size:11.5px;font-weight:600;cursor:pointer;margin-left:auto;padding:0 8px;font-family:var(--font)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.filter-select-wrap{display:flex;flex-direction:column;gap:2px}
+.filter-label{font-size:9.5px;font-weight:700;color:var(--l4);letter-spacing:0.07em;text-transform:uppercase}
+.filter-select{
+  height:32px;padding:0 28px 0 10px;
+  border:1.5px solid var(--border2);border-radius:7px;
+  background:var(--surface) url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23aeaeb2' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center;
+  font-family:var(--font);font-size:12.5px;color:var(--l1);
+  outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;
+  transition:border-color 0.15s;min-width:100px;
+}
+.filter-select:focus{border-color:var(--blue)}
+.filter-select.active{border-color:var(--blue);background-color:var(--blue-t);color:var(--blue);font-weight:700}
+body.dark .filter-select{background-color:var(--s2);color:var(--l1)}
+body.dark .filter-select.active{background-color:rgba(0,113,227,0.15)}
+.filter-reset{
+  height:32px;padding:0 12px;
+  background:none;border:1.5px solid var(--border2);border-radius:7px;
+  font-family:var(--font);font-size:11.5px;font-weight:600;color:var(--l3);
+  cursor:pointer;transition:all 0.15s;
+}
+.filter-reset:hover{border-color:var(--blue);color:var(--blue)}
 .result-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11.5px;color:var(--l4)}
 
 /* ─── 테이블 뷰 ─── */
@@ -190,7 +205,7 @@ body.dark .modal-note{background:rgba(0,113,227,0.12);border-color:rgba(0,113,22
 .ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
 
 /* 다크모드 */
-body.dark .prod-table-wrap,body.dark .modal-card,body.dark .cat-tab,body.dark .filter-group,body.dark .toolbar{background:var(--surface)}
+body.dark .prod-table-wrap,body.dark .modal-card,body.dark .cat-tab,body.dark .toolbar{background:var(--surface)}
 body.dark .toolbar{background:var(--bg)}
 body.dark .search-box{background-color:var(--s2)}
 
@@ -203,7 +218,6 @@ body.dark .search-box{background-color:var(--s2)}
   .prod-table-wrap{border-radius:0;border-left:none;border-right:none}
   .prod-table thead th,.prod-table tbody td{padding:7px 10px}
   .modal-grid{grid-template-columns:1fr}
-  .filter-group{flex-wrap:wrap}
   .prod-table thead th:nth-child(n+7){display:none}  /* 모바일에서 뒷 컬럼 숨김 */
   .prod-table tbody td:nth-child(n+7){display:none}
 }
@@ -306,31 +320,63 @@ body.dark .search-box{background-color:var(--s2)}
     </div>
 
     <div class="filter-row" id="filterRow">
-      <div class="filter-group">
-        <span class="filter-group-label">메이커</span>
-        <button class="filter-chip on" data-type="maker" data-val="all" onclick="setFilter('maker','all',this)">전체</button>
-        <button class="filter-chip" data-type="maker" data-val="Infineon" onclick="setFilter('maker','Infineon',this)">Infineon</button>
-        <button class="filter-chip" data-type="maker" data-val="NXP" onclick="setFilter('maker','NXP',this)">NXP</button>
-        <button class="filter-chip" data-type="maker" data-val="Cypress(Infineon)" onclick="setFilter('maker','Cypress(Infineon)',this)">Cypress</button>
+      <div class="filter-select-wrap">
+        <div class="filter-label">메이커</div>
+        <select class="filter-select" id="f-maker" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+          <option value="Infineon">Infineon</option>
+          <option value="Cypress(Infineon)">Cypress(Infineon)</option>
+          <option value="NXP">NXP</option>
+        </select>
       </div>
-      <div class="filter-group">
-        <span class="filter-group-label">노드</span>
-        <button class="filter-chip on" data-type="node" data-val="all" onclick="setFilter('node','all',this)">전체</button>
-        <button class="filter-chip" data-type="node" data-val="16" onclick="setFilter('node','16',this)">16nm</button>
-        <button class="filter-chip" data-type="node" data-val="40" onclick="setFilter('node','40',this)">40nm</button>
-        <button class="filter-chip" data-type="node" data-val="55" onclick="setFilter('node','55',this)">55nm</button>
-        <button class="filter-chip" data-type="node" data-val="65" onclick="setFilter('node','65',this)">65nm</button>
-        <button class="filter-chip" data-type="node" data-val="90" onclick="setFilter('node','90',this)">90nm</button>
-        <button class="filter-chip" data-type="node" data-val="180" onclick="setFilter('node','180',this)">180nm</button>
+      <div class="filter-select-wrap">
+        <div class="filter-label">공정 노드</div>
+        <select class="filter-select" id="f-node" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+        </select>
       </div>
-      <div class="filter-group">
-        <span class="filter-group-label">ASIL</span>
-        <button class="filter-chip on" data-type="asil" data-val="all" onclick="setFilter('asil','all',this)">전체</button>
-        <button class="filter-chip" data-type="asil" data-val="D" onclick="setFilter('asil','D',this)">ASIL-D</button>
-        <button class="filter-chip" data-type="asil" data-val="B" onclick="setFilter('asil','B',this)">ASIL-B</button>
-        <button class="filter-chip" data-type="asil" data-val="QM" onclick="setFilter('asil','QM',this)">QM</button>
+      <div class="filter-select-wrap">
+        <div class="filter-label">웨이퍼 사이즈</div>
+        <select class="filter-select" id="f-wafer" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+          <option value="8">8인치</option>
+          <option value="12">12인치</option>
+        </select>
       </div>
-      <button class="chip-reset" onclick="resetFilters()">↺ 초기화</button>
+      <div class="filter-select-wrap">
+        <div class="filter-label">패키지 계열</div>
+        <select class="filter-select" id="f-pkg" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+          <option value="BGA">BGA 계열</option>
+          <option value="LQFP">LQFP</option>
+          <option value="TQFP">TQFP</option>
+          <option value="QFP">HDQFP/TEQFP</option>
+        </select>
+      </div>
+      <div class="filter-select-wrap">
+        <div class="filter-label">ASIL 등급</div>
+        <select class="filter-select" id="f-asil" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+          <option value="D">ASIL-D</option>
+          <option value="B">ASIL-B</option>
+          <option value="QM">QM (비안전)</option>
+        </select>
+      </div>
+      <div class="filter-select-wrap">
+        <div class="filter-label">HSM 보안칩</div>
+        <select class="filter-select" id="f-hsm" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+          <option value="true">탑재</option>
+          <option value="false">미탑재</option>
+        </select>
+      </div>
+      <div class="filter-select-wrap">
+        <div class="filter-label">코어 수</div>
+        <select class="filter-select" id="f-core" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+        </select>
+      </div>
+      <button class="filter-reset" onclick="resetFilters()">↺ 초기화</button>
     </div>
 
     <div class="result-meta">
@@ -433,40 +479,52 @@ function switchCategory(slug) {
   applyFilter();
 }
 
-function setFilter(type, val, btn) {
-  filters[type] = val;
-  // 같은 그룹의 다른 chip 비활성화
-  var group = btn.parentElement;
-  group.querySelectorAll('.filter-chip').forEach(function(c){c.classList.remove('on')});
-  btn.classList.add('on');
+function resetFilters() {
+  ['f-maker','f-node','f-wafer','f-pkg','f-asil','f-hsm','f-core'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.value = ''; el.classList.remove('active'); }
+  });
+  document.getElementById('searchInput').value = '';
   applyFilter();
 }
 
-function resetFilters() {
-  filters = { maker:'all', node:'all', asil:'all', search:'' };
-  document.getElementById('searchInput').value = '';
-  document.querySelectorAll('.filter-chip').forEach(function(c){
-    if(c.dataset.val === 'all') c.classList.add('on');
-    else c.classList.remove('on');
-  });
-  applyFilter();
+function pkgFamilyMatch(pkgType, fam){
+  if(!pkgType || !fam) return true;
+  var p = pkgType.toUpperCase();
+  if(fam === 'BGA') return p.indexOf('BGA') >= 0;
+  if(fam === 'LQFP') return p.indexOf('LQFP') >= 0;
+  if(fam === 'TQFP') return p.indexOf('TQFP') >= 0 && p.indexOf('LQFP') < 0;
+  if(fam === 'QFP') return (p.indexOf('HDQFP') >= 0 || p.indexOf('TEQFP') >= 0 || p.indexOf('MAPBGA') >= 0);
+  return true;
 }
 
 function applyFilter() {
-  filters.search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  var fMaker  = (document.getElementById('f-maker')?.value  || '').trim();
+  var fNode   = (document.getElementById('f-node')?.value   || '').trim();
+  var fWafer  = (document.getElementById('f-wafer')?.value  || '').trim();
+  var fPkg    = (document.getElementById('f-pkg')?.value    || '').trim();
+  var fAsil   = (document.getElementById('f-asil')?.value   || '').trim();
+  var fHsm    = (document.getElementById('f-hsm')?.value    || '').trim();
+  var fCore   = (document.getElementById('f-core')?.value   || '').trim();
+  var search  = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
 
   var filtered = ALL_PRODUCTS.filter(function(p){
-    if(filters.maker !== 'all' && p.maker !== filters.maker) return false;
-    if(filters.node !== 'all' && p.node_nm != filters.node) return false;
-    if(filters.asil !== 'all' && p.asil_level !== filters.asil) return false;
-    if(filters.search){
+    if(fMaker && p.maker !== fMaker) return false;
+    if(fNode  && p.node_nm != fNode) return false;
+    if(fWafer && p.wafer_size_inch != fWafer) return false;
+    if(fPkg   && !pkgFamilyMatch(p.package_type, fPkg)) return false;
+    if(fAsil  && p.asil_level !== fAsil) return false;
+    if(fHsm === 'true'  && !p.hsm) return false;
+    if(fHsm === 'false' && p.hsm)  return false;
+    if(fCore  && p.core_count != fCore) return false;
+    if(search){
       var hay = [
         p.part_number, p.full_part_number, p.maker, p.grade, p.package_type,
         p.product_series && p.product_series.series_name,
         p.product_series && p.product_series.series_code,
         p.typical_use
       ].filter(Boolean).join(' ').toLowerCase();
-      if(hay.indexOf(filters.search) < 0) return false;
+      if(hay.indexOf(search) < 0) return false;
     }
     return true;
   });
@@ -477,6 +535,29 @@ function applyFilter() {
 
 var sortKey = 'node_nm';
 var sortDir = 1;  // 1=asc, -1=desc
+
+/* 필터 드롭다운 활성 스타일 */
+function updateFilterStyle(sel){
+  sel.classList.toggle('active', sel.value !== '');
+}
+
+/* 노드·코어 드롭다운 옵션 동적 생성 */
+function buildFilterOptions(){
+  // 노드
+  var nodes = [...new Set(ALL_PRODUCTS.map(function(p){return p.node_nm}).filter(Boolean))].sort(function(a,b){return a-b});
+  var ns = document.getElementById('f-node');
+  if(ns){
+    var cur = ns.value;
+    ns.innerHTML = '<option value="">전체</option>' + nodes.map(function(n){return '<option value="'+n+'"'+( n==cur?' selected':'')+'>'+ n+'nm</option>';}).join('');
+  }
+  // 코어 수
+  var cores = [...new Set(ALL_PRODUCTS.map(function(p){return p.core_count}).filter(Boolean))].sort(function(a,b){return a-b});
+  var cs = document.getElementById('f-core');
+  if(cs){
+    var cur2 = cs.value;
+    cs.innerHTML = '<option value="">전체</option>' + cores.map(function(c){return '<option value="'+c+'"'+(c==cur2?' selected':'')+'>'+ c+'코어</option>';}).join('');
+  }
+}
 
 var COLUMNS = [
   {key:'maker',       label:'메이커',   cls:'col-maker'},
@@ -642,6 +723,7 @@ document.addEventListener('keydown', function(e){
     ALL_CATEGORIES = cats;
     ALL_PRODUCTS = prods;
     renderCategoryTabs();
+    buildFilterOptions();
     applyFilter();
   } catch(e) {
     console.error(e);
