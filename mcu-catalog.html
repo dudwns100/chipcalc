@@ -60,56 +60,95 @@ body{background:var(--bg);color:var(--l1);font-family:var(--font);font-size:14px
 .chip-reset{background:none;border:none;color:var(--blue);font-size:11.5px;font-weight:600;cursor:pointer;margin-left:auto;padding:0 8px;font-family:var(--font)}
 .result-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:11.5px;color:var(--l4)}
 
-/* 카드 그리드 */
-.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
-
-.prod-card{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  box-shadow:var(--sh);overflow:hidden;
-  transition:transform 0.15s,box-shadow 0.15s,border-color 0.15s;
-  display:flex;flex-direction:column;
+/* ─── 테이블 뷰 ─── */
+.prod-table-wrap{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;overflow:hidden;
+  box-shadow:var(--sh);
 }
-.prod-card:hover{transform:translateY(-2px);box-shadow:var(--sh2);border-color:var(--blue-s)}
+.prod-table{
+  width:100%;border-collapse:collapse;
+  font-size:12.5px;
+}
+.prod-table thead th{
+  position:sticky;top:0;
+  background:#f0f4f9;
+  padding:9px 12px;
+  text-align:left;
+  font-size:10px;font-weight:700;color:var(--l4);
+  letter-spacing:0.06em;text-transform:uppercase;
+  border-bottom:2px solid var(--border);
+  white-space:nowrap;cursor:pointer;
+  user-select:none;
+  transition:background 0.12s;
+}
+.prod-table thead th:hover{background:#e4eaf2;color:var(--l2)}
+.prod-table thead th.sorted-asc::after{content:' ↑';color:var(--blue)}
+.prod-table thead th.sorted-desc::after{content:' ↓';color:var(--blue)}
+body.dark .prod-table thead th{background:var(--s2);color:var(--l4)}
+body.dark .prod-table thead th:hover{background:var(--s3)}
 
-.pc-hd{padding:14px 16px 10px;border-bottom:1px solid var(--border);position:relative}
-.pc-maker-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.pc-maker{font-size:10px;font-weight:800;color:var(--l4);letter-spacing:0.09em;text-transform:uppercase;font-family:var(--mono)}
-.pc-badges{display:flex;gap:4px;flex-wrap:wrap}
-.pc-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:0.05em;text-transform:uppercase}
+.prod-table tbody tr{
+  border-bottom:1px solid var(--border);
+  transition:background 0.1s;
+  cursor:pointer;
+}
+.prod-table tbody tr:last-child{border-bottom:none}
+.prod-table tbody tr:hover{background:var(--blue-t)}
+body.dark .prod-table tbody tr:hover{background:rgba(0,113,227,0.08)}
+
+.prod-table tbody td{
+  padding:8px 12px;
+  vertical-align:middle;
+  white-space:nowrap;
+  color:var(--l2);
+}
+
+/* 컬럼별 스타일 */
+.col-pn{font-family:var(--mono);font-weight:700;color:var(--l1)!important;font-size:12px;min-width:190px}
+.col-maker{font-size:11px;color:var(--l3)!important;font-family:var(--mono);font-weight:700}
+.col-series{font-size:11.5px;font-weight:600;color:var(--l2)!important}
+.col-num{font-family:var(--mono);font-weight:600;text-align:right;color:var(--l1)!important}
+.col-pkg{font-family:var(--mono);font-size:11.5px;min-width:110px}
+.col-actions{min-width:130px;white-space:nowrap}
+
+/* ASIL 뱃지 (테이블 인라인) */
+.pc-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;letter-spacing:0.05em;text-transform:uppercase;display:inline-block}
 .badge-asil-d{background:#fee2e2;color:#991b1b}
 .badge-asil-b{background:#dbeafe;color:#1e40af}
 .badge-asil-qm{background:#f3f4f6;color:#4b5563}
-.badge-hsm{background:#e0e7ff;color:#3730a3}
+.badge-hsm{background:#e0e7ff;color:#3730a3;margin-left:3px}
 body.dark .badge-asil-d{background:rgba(239,68,68,0.18);color:#fca5a5}
 body.dark .badge-asil-b{background:rgba(59,130,246,0.18);color:#93c5fd}
 body.dark .badge-asil-qm{background:rgba(107,114,128,0.18);color:#cbd5e1}
 body.dark .badge-hsm{background:rgba(99,102,241,0.18);color:#a5b4fc}
-.pc-pn{font-family:var(--mono);font-size:14px;font-weight:800;color:var(--l1);letter-spacing:-0.01em;line-height:1.2;word-break:break-all}
-.pc-series{font-size:11.5px;color:var(--l3);margin-top:3px;display:flex;gap:5px;align-items:center}
-.pc-series-dot{width:7px;height:7px;border-radius:2px;background:var(--blue);flex-shrink:0}
 
-/* 스펙 그리드 */
-.pc-specs{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;border-bottom:1px solid var(--border);font-size:11.5px}
-.pc-spec-lbl{color:var(--l4);font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
-.pc-spec-val{font-family:var(--mono);font-weight:700;color:var(--l1);margin-top:1px;font-size:12.5px}
-.pc-spec-val.small{font-size:11px}
-
-.pc-ft{padding:10px 16px 12px;margin-top:auto;display:flex;gap:8px;align-items:center}
+/* 액션 버튼 (소형) */
 .btn-calc{
-  flex:1;height:34px;padding:0 14px;
-  background:var(--blue);color:#fff;border:none;border-radius:8px;
-  font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:4px 10px;height:26px;
+  background:var(--blue);color:#fff;border:none;border-radius:6px;
+  font-family:var(--font);font-size:11px;font-weight:700;cursor:pointer;
   text-decoration:none;transition:background 0.15s;
+  display:inline-flex;align-items:center;gap:4px;
 }
 .btn-calc:hover{background:#0059b3;text-decoration:none}
 .btn-detail{
-  height:34px;padding:0 11px;
-  background:var(--s3);color:var(--l2);border:1px solid var(--border);border-radius:8px;
-  font-family:var(--font);font-size:11.5px;font-weight:600;cursor:pointer;
-  transition:all 0.15s;
+  padding:4px 10px;height:26px;
+  background:var(--s3);color:var(--l2);border:1px solid var(--border);border-radius:6px;
+  font-family:var(--font);font-size:11px;font-weight:600;cursor:pointer;
+  margin-right:4px;transition:all 0.15s;
 }
 .btn-detail:hover{background:var(--blue-t);color:var(--blue);border-color:var(--blue-s)}
+
+/* 계열별 색 스트라이프 */
+.prod-table tbody tr[data-maker="Infineon"] .col-maker{color:#0071e3!important}
+.prod-table tbody tr[data-maker="NXP"] .col-maker{color:#c57100!important}
+.prod-table tbody tr[data-maker="Cypress(Infineon)"] .col-maker{color:#059669!important}
+
+/* 스펙 관련 (모달 안) */
+.pc-spec-lbl{color:var(--l4);font-size:10.5px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:2px}
+.pc-spec-val{font-family:var(--mono);font-weight:700;color:var(--l1);font-size:13px}
+.pc-spec-val.small{font-size:11.5px}
 
 /* 로딩·빈 상태 */
 .loading,.empty{text-align:center;padding:60px 20px;color:var(--l4);font-size:13px}
@@ -151,20 +190,22 @@ body.dark .modal-note{background:rgba(0,113,227,0.12);border-color:rgba(0,113,22
 .ad-wrap::before{content:'Advertisement';display:block;font-size:9px;color:var(--l4);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
 
 /* 다크모드 */
-body.dark .prod-card,body.dark .modal-card,body.dark .cat-tab,body.dark .filter-group,body.dark .toolbar{background:var(--surface)}
+body.dark .prod-table-wrap,body.dark .modal-card,body.dark .cat-tab,body.dark .filter-group,body.dark .toolbar{background:var(--surface)}
 body.dark .toolbar{background:var(--bg)}
 body.dark .search-box{background-color:var(--s2)}
 
-/* 모바일 */
+/* 모바일: 테이블 가로 스크롤 */
 @media(max-width:768px){
   .hero{padding:28px 18px 24px}
   .hero h1{font-size:22px}
   .hero-desc{font-size:13px}
-  .page-wrap{padding:16px 14px 60px}
-  .prod-grid{grid-template-columns:1fr;gap:10px}
-  .pc-specs{grid-template-columns:1fr 1fr;gap:7px 12px}
+  .page-wrap{padding:16px 0 60px}
+  .prod-table-wrap{border-radius:0;border-left:none;border-right:none}
+  .prod-table thead th,.prod-table tbody td{padding:7px 10px}
   .modal-grid{grid-template-columns:1fr}
   .filter-group{flex-wrap:wrap}
+  .prod-table thead th:nth-child(n+7){display:none}  /* 모바일에서 뒷 컬럼 숨김 */
+  .prod-table tbody td:nth-child(n+7){display:none}
 }
 </style>
 </head>
@@ -434,6 +475,50 @@ function applyFilter() {
   renderProducts(filtered);
 }
 
+var sortKey = 'node_nm';
+var sortDir = 1;  // 1=asc, -1=desc
+
+var COLUMNS = [
+  {key:'maker',       label:'메이커',   cls:'col-maker'},
+  {key:'part_number', label:'Part Number', cls:'col-pn'},
+  {key:'series_name', label:'시리즈',   cls:'col-series'},
+  {key:'grade',       label:'등급',     cls:''},
+  {key:'node_nm',     label:'노드(nm)', cls:'col-num'},
+  {key:'wafer_size_inch',label:'웨이퍼', cls:'col-num'},
+  {key:'package_type',label:'패키지',   cls:'col-pkg'},
+  {key:'package_pin_count',label:'핀',  cls:'col-num'},
+  {key:'core_count',  label:'코어',     cls:'col-num'},
+  {key:'freq_mhz',    label:'MHz',      cls:'col-num'},
+  {key:'flash_mb',    label:'Flash',    cls:'col-num'},
+  {key:'asil_level',  label:'ASIL',     cls:''},
+  {key:'wafer_price_usd',label:'웨이퍼$',cls:'col-num'},
+  {key:'package_cost_usd',label:'Pkg$', cls:'col-num'},
+  {key:'test_cost_usd',label:'Test$',   cls:'col-num'},
+  {key:'_actions',    label:'',         cls:'col-actions', nosort:true},
+];
+
+function sortProducts(list){
+  return list.slice().sort(function(a,b){
+    var av = getCellVal(a, sortKey);
+    var bv = getCellVal(b, sortKey);
+    if(av == null) return 1;
+    if(bv == null) return -1;
+    if(typeof av === 'number' && typeof bv === 'number') return (av - bv) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+}
+
+function getCellVal(p, key){
+  if(key === 'series_name') return p.product_series ? p.product_series.series_name : '';
+  return p[key] != null ? p[key] : null;
+}
+
+function setSort(key){
+  if(sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  applyFilter();
+}
+
 function renderProducts(list) {
   var ct = document.getElementById('productsContainer');
   if(list.length === 0){
@@ -441,41 +526,51 @@ function renderProducts(list) {
     return;
   }
 
-  // 시리즈별 정렬 후 한 번에 렌더
-  var html = '<div class="prod-grid">' + list.map(cardHtml).join('') + '</div>';
-  ct.innerHTML = html;
+  var sorted = sortProducts(list);
+
+  // 헤더
+  var thead = '<thead><tr>' + COLUMNS.map(function(c){
+    if(c.nosort) return '<th class="' + c.cls + '">' + c.label + '</th>';
+    var sc = sortKey === c.key ? (sortDir > 0 ? ' sorted-asc' : ' sorted-desc') : '';
+    return '<th class="' + c.cls + sc + '" onclick="setSort(\'' + c.key + '\')">' + c.label + '</th>';
+  }).join('') + '</tr></thead>';
+
+  // 행
+  var tbody = '<tbody>' + sorted.map(function(p){ return rowHtml(p); }).join('') + '</tbody>';
+
+  ct.innerHTML = '<div class="prod-table-wrap"><table class="prod-table">' + thead + tbody + '</table></div>';
 }
 
-function cardHtml(p){
-  var asilCls = p.asil_level === 'D' ? 'badge-asil-d' : (p.asil_level === 'B' ? 'badge-asil-b' : 'badge-asil-qm');
-  var badges = '<span class="pc-badge ' + asilCls + '">ASIL-' + (p.asil_level || 'QM') + '</span>'
-    + (p.hsm ? '<span class="pc-badge badge-hsm">HSM</span>' : '');
-
-  var seriesName = p.product_series ? p.product_series.series_name : '—';
+function rowHtml(p){
+  var sn = p.product_series ? p.product_series.series_name : '—';
   var flashMb = p.flash_mb >= 1 ? p.flash_mb + 'MB' : Math.round(p.flash_mb * 1024) + 'KB';
-
-  // URL 파라미터로 계산기 연동
+  var asilCls = p.asil_level === 'D' ? 'badge-asil-d' : (p.asil_level === 'B' ? 'badge-asil-b' : 'badge-asil-qm');
   var calcUrl = 'calculator.html?part=' + encodeURIComponent(p.part_number);
+  var id = p.id.replace(/'/g,"\\'");
+  var pid = p.id;
 
-  return '<div class="prod-card">'
-    + '<div class="pc-hd">'
-      + '<div class="pc-maker-row"><span class="pc-maker">' + p.maker + '</span><div class="pc-badges">' + badges + '</div></div>'
-      + '<div class="pc-pn">' + p.part_number + '</div>'
-      + '<div class="pc-series"><span class="pc-series-dot"></span>' + seriesName + ' · ' + (p.grade || '-') + '</div>'
-    + '</div>'
-    + '<div class="pc-specs">'
-      + '<div><div class="pc-spec-lbl">공정</div><div class="pc-spec-val">' + p.node_nm + 'nm / ' + p.wafer_size_inch + '″</div></div>'
-      + '<div><div class="pc-spec-lbl">패키지</div><div class="pc-spec-val small">' + (p.package_type || '—') + '</div></div>'
-      + '<div><div class="pc-spec-lbl">코어</div><div class="pc-spec-val">' + p.core_count + '× ' + (p.core_arch || '') + '</div></div>'
-      + '<div><div class="pc-spec-lbl">속도</div><div class="pc-spec-val">' + p.freq_mhz + ' MHz</div></div>'
-      + '<div><div class="pc-spec-lbl">Flash</div><div class="pc-spec-val">' + flashMb + '</div></div>'
-      + '<div><div class="pc-spec-lbl">웨이퍼 $</div><div class="pc-spec-val">$' + (p.wafer_price_usd || 0).toLocaleString() + '</div></div>'
-    + '</div>'
-    + '<div class="pc-ft">'
-      + '<button class="btn-detail" onclick="openDetail(\'' + p.id + '\')">상세</button>'
-      + '<a class="btn-calc" href="' + calcUrl + '">🧮 원가 계산</a>'
-    + '</div>'
-  + '</div>';
+  return '<tr data-maker="' + (p.maker||'') + '" onclick="openDetail(\'' + id + '\')">'
+    + '<td class="col-maker">' + (p.maker||'—') + '</td>'
+    + '<td class="col-pn">' + p.part_number + '</td>'
+    + '<td class="col-series">' + sn + '</td>'
+    + '<td>' + (p.grade||'—') + '</td>'
+    + '<td class="col-num">' + p.node_nm + '</td>'
+    + '<td class="col-num">' + p.wafer_size_inch + '″</td>'
+    + '<td class="col-pkg">' + (p.package_type||'—') + '</td>'
+    + '<td class="col-num">' + (p.package_pin_count||'—') + '</td>'
+    + '<td class="col-num">' + p.core_count + '</td>'
+    + '<td class="col-num">' + p.freq_mhz + '</td>'
+    + '<td class="col-num">' + flashMb + '</td>'
+    + '<td><span class="pc-badge ' + asilCls + '">ASIL-' + (p.asil_level||'QM') + '</span>'
+        + (p.hsm ? '<span class="pc-badge badge-hsm">HSM</span>' : '') + '</td>'
+    + '<td class="col-num">$' + (p.wafer_price_usd||0).toLocaleString() + '</td>'
+    + '<td class="col-num">$' + (p.package_cost_usd||0).toFixed(2) + '</td>'
+    + '<td class="col-num">$' + (p.test_cost_usd||0).toFixed(2) + '</td>'
+    + '<td class="col-actions" onclick="event.stopPropagation()">'
+        + '<button class="btn-detail" onclick="openDetail(\'' + id + '\')">상세</button>'
+        + '<a class="btn-calc" href="' + calcUrl + '">🧮</a>'
+    + '</td>'
+  + '</tr>';
 }
 
 /* ───── 상세 모달 ───── */
