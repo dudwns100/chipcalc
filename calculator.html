@@ -798,8 +798,8 @@ body.dark .ref-btn{background:rgba(0,113,227,0.15);border-color:rgba(0,113,227,0
           <div class="matrix-wrap" id="priceMatrix"></div>
         </div>
         <div class="field">
-          <div class="fl" data-i="fl-wprice" style="display:flex;align-items:center;justify-content:space-between">
-            <span>적용 웨이퍼 가격 (USD/장) — 직접 수정 가능</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+            <div class="fl" data-i="fl-wprice">적용 웨이퍼 가격 (USD/장) — 직접 수정 가능</div>
             <button class="ref-btn" onclick="openRefModal('wafer')" title="시장 참조">📊 시장 참조</button>
           </div>
           <div class="iw"><input type="number" id="waferPrice" value="0" step="100" oninput="calc();updatePctl('wafer')"><span class="iu">$</span></div>
@@ -823,8 +823,9 @@ body.dark .ref-btn{background:rgba(0,113,227,0.15);border-color:rgba(0,113,227,0
         </div>
         <div class="fr fr2">
           <div class="field">
-            <div class="fl" data-i="fl-yield" style="display:flex;align-items:center;justify-content:space-between">
-              <span>Wafer Yield (%)</span>
+          <div class="field">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+              <div class="fl" data-i="fl-yield">Wafer Yield (%)</div>
               <button class="ref-btn" onclick="openRefModal('yield')" title="시장 참조">📊</button>
             </div>
             <div class="iw"><input type="number" id="waferYield" value="90" step="1" max="100" min="1" oninput="calc();updatePctl('yield')"><span class="iu">%</span></div>
@@ -852,16 +853,16 @@ body.dark .ref-btn{background:rgba(0,113,227,0.15);border-color:rgba(0,113,227,0
         <div id="pinBadge" style="display:none"></div>
         <div class="fr fr2">
           <div class="field">
-            <div class="fl" data-i="fl-asm" style="display:flex;align-items:center;justify-content:space-between">
-              <span>어셈블리 ($/unit)</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+              <div class="fl" data-i="fl-asm">어셈블리 ($/unit)</div>
               <button class="ref-btn" onclick="openRefModal('asm')" title="시장 참조">📊</button>
             </div>
             <div class="iw"><input type="number" id="asmCost" value="0.080" step="0.005" min="0" oninput="calc();updatePctl('asm')"><span class="iu">$</span></div>
             <div class="pctl-bar" id="pctl-asm" style="display:none"></div>
           </div>
           <div class="field">
-            <div class="fl" data-i="fl-test" style="display:flex;align-items:center;justify-content:space-between">
-              <span>테스트 ($/unit)</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+              <div class="fl" data-i="fl-test">테스트 ($/unit)</div>
               <button class="ref-btn" onclick="openRefModal('test')" title="시장 참조">📊</button>
             </div>
             <div class="iw"><input type="number" id="testCost" value="0.050" step="0.005" min="0" oninput="calc();updatePctl('test')"><span class="iu">$</span></div>
@@ -2876,22 +2877,22 @@ var REF_META = {
   wafer: {
     label: '웨이퍼 가격', icon: '🏭', column: 'wafer_price_usd',
     inputId: 'waferPrice', unit: '$', fmt: function(v){return '$' + Math.round(v).toLocaleString();},
-    helper: '같은 공정 노드의 시장 분포에서 입력값이 어디에 위치하는지 확인하세요. 신제품 견적 검증에 유용합니다.'
+    helper: '지금 입력한 웨이퍼 가격이 같은 공정의 다른 제품들과 비교해서 어느 수준인지 보여줍니다. 견적을 받았을 때 적정 가격인지 판단하는 데 활용하세요.'
   },
   yield: {
     label: 'Wafer Yield', icon: '🎯', column: 'wafer_yield_pct',
     inputId: 'waferYield', unit: '%', fmt: function(v){return v.toFixed(1) + '%';},
-    helper: '공정 노드별 일반적인 수율 범위입니다. 성숙 공정(legacy)은 95%+, 선단 공정은 80% 내외가 일반적입니다.'
+    helper: '공정 노드별 일반적인 수율 범위입니다. 오래된 공정(180nm 등)은 95% 이상, 최신 공정(40nm 이하)은 80~90% 수준이 보통입니다.'
   },
   asm: {
     label: '어셈블리 비용', icon: '📦', column: 'package_cost_usd',
     inputId: 'asmCost', unit: '$/unit', fmt: function(v){return '$' + v.toFixed(3);},
-    helper: '같은/유사 패키지 타입의 어셈블리 비용 분포입니다. 핀 수가 많고 BGA형일수록 비싸집니다.'
+    helper: '같거나 비슷한 패키지 타입의 어셈블리 비용 범위입니다. 핀 수가 많고 BGA 타입일수록 비용이 높아집니다.'
   },
   test: {
     label: '테스트 비용', icon: '🧪', column: 'test_cost_usd',
     inputId: 'testCost', unit: '$/unit', fmt: function(v){return '$' + v.toFixed(3);},
-    helper: '같은 등급(ASIL·HSM)·핀 수의 테스트 비용 분포입니다. ASIL-D HSM 탑재 제품은 더 비쌉니다.'
+    helper: '비슷한 사양(ASIL 등급·핀 수) 제품의 테스트 비용 범위입니다. 차량용 안전 인증(ASIL-D)이 적용된 제품일수록 비용이 높습니다.'
   }
 };
 
@@ -3045,20 +3046,18 @@ async function updatePctl(field){
 
   // 톤 결정
   var tone = 'flat';
-  var msg = '시장 ' + pctl + 'p (' + sample.length + '개 중)';
+  var msg = '시장 ' + pctl + '% 위치 (' + sample.length + '개 중)';
   if(field === 'wafer' || field === 'asm' || field === 'test'){
-    // 비용류: 낮을수록 좋음
-    if(pctl <= 25) { tone = 'good'; msg = '✅ 시장 저가 영역 (P' + pctl + ')'; }
-    else if(pctl >= 75) { tone = 'warn'; msg = '⚠️ 시장 고가 영역 (P' + pctl + ')'; }
-    else { msg = '시장 중간대 (P' + pctl + ')'; }
+    if(pctl <= 25) { tone = 'good'; msg = '✅ 시장보다 저렴한 편 (하위 ' + pctl + '%)'; }
+    else if(pctl >= 75) { tone = 'warn'; msg = '⚠️ 시장보다 비싼 편 (상위 ' + (100-pctl) + '%)'; }
+    else { msg = '시장 중간 수준 (하위 ' + pctl + '%)'; }
   } else if(field === 'yield'){
-    // yield: 높을수록 좋음
-    if(pctl <= 25) { tone = 'warn'; msg = '⚠️ 수율 낮음 (P' + pctl + ')'; }
-    else if(pctl >= 75) { tone = 'good'; msg = '✅ 수율 우수 (P' + pctl + ')'; }
-    else { msg = '시장 중간대 (P' + pctl + ')'; }
+    if(pctl <= 25) { tone = 'warn'; msg = '⚠️ 업계 평균보다 낮은 수율 (하위 ' + pctl + '%)'; }
+    else if(pctl >= 75) { tone = 'good'; msg = '✅ 업계 평균보다 높은 수율 (상위 ' + (100-pctl) + '%)'; }
+    else { msg = '업계 평균 수준 (하위 ' + pctl + '%)'; }
   }
 
-  var matchInfo = matched.length >= 3 ? '' : ' · 노드 매칭 부족, 전체 분포 사용';
+  var matchInfo = matched.length >= 3 ? '' : ' · 동일 노드 부족, 전체 범위 기준';
   el.innerHTML =
     '<div class="pctl-track"><div class="pctl-marker ' + tone + '" style="left:' + pos + '%"></div></div>'
     + '<span class="pctl-text ' + tone + '">' + msg + matchInfo + '</span>';
@@ -3069,7 +3068,7 @@ async function updatePctl(field){
 async function openRefModal(field){
   REF_FIELD = field;
   var meta = REF_META[field];
-  document.getElementById('ref-title-text').textContent = meta.label + ' 시장 참조';
+  document.getElementById('ref-title-text').textContent = meta.label + ' — 시장 가격 범위';
   document.getElementById('ref-icon').textContent = meta.icon;
   document.getElementById('ref-helper').textContent = meta.helper;
   document.getElementById('refModal').classList.add('open');
@@ -3239,22 +3238,22 @@ window.onAuthStateChanged = function(event, session) {
       </div>
 
       <div class="ref-stat-grid">
-        <div class="ref-stat"><div class="ref-stat-lbl">최저</div><div class="ref-stat-val" id="ref-min">—</div></div>
-        <div class="ref-stat median"><div class="ref-stat-lbl">중앙값 (P50)</div><div class="ref-stat-val" id="ref-median">—</div></div>
-        <div class="ref-stat"><div class="ref-stat-lbl">최고</div><div class="ref-stat-val" id="ref-max">—</div></div>
+        <div class="ref-stat"><div class="ref-stat-lbl">최저가</div><div class="ref-stat-val" id="ref-min">—</div></div>
+        <div class="ref-stat median"><div class="ref-stat-lbl">시장 평균</div><div class="ref-stat-val" id="ref-median">—</div></div>
+        <div class="ref-stat"><div class="ref-stat-lbl">최고가</div><div class="ref-stat-val" id="ref-max">—</div></div>
       </div>
 
       <div style="font-size:10.5px;color:var(--l4);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
         <span id="ref-count">매칭 0개</span>
-        <span style="font-family:var(--mono);font-size:9.5px">P25: <span id="ref-p25">—</span> · P75: <span id="ref-p75">—</span></span>
+        <span style="font-family:var(--mono);font-size:9.5px">저가대: <span id="ref-p25">—</span> · 고가대: <span id="ref-p75">—</span></span>
       </div>
 
       <div class="ref-list" id="ref-list"></div>
     </div>
     <div class="ref-actions">
-      <button class="ref-action-btn" onclick="applyRefValue('p25')">P25 적용</button>
-      <button class="ref-action-btn primary" onclick="applyRefValue('median')">중앙값 적용</button>
-      <button class="ref-action-btn" onclick="applyRefValue('p75')">P75 적용</button>
+      <button class="ref-action-btn" onclick="applyRefValue('p25')" title="시장 제품 중 하위 25% 수준의 가격">저가 기준 적용</button>
+      <button class="ref-action-btn primary" onclick="applyRefValue('median')" title="시장 제품 전체의 중간값">시장 평균 적용</button>
+      <button class="ref-action-btn" onclick="applyRefValue('p75')" title="시장 제품 중 상위 25% 수준의 가격">고가 기준 적용</button>
       <button class="ref-action-btn" onclick="closeRefModal()">취소</button>
     </div>
   </div>
