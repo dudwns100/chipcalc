@@ -1631,7 +1631,7 @@ body.dark {
     <a class="nav-link" href="index.html">🏠 홈</a>
     <a class="nav-link" href="calculator.html">🧮 계산기</a>
     <a class="nav-link" href="mcu-catalog.html">📇 카탈로그</a>
-    <a class="nav-link active" href="analysis.html" class="active">📊 분석</a>
+    <a class="nav-link active" href="analysis.html">📊 분석</a>
     <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
     <div class="nav-resources">
       <button class="nav-resources-btn">📚 리소스 <span class="caret">▾</span></button>
@@ -1671,7 +1671,7 @@ body.dark {
   <a class="nav-link" href="index.html">🏠 홈</a>
   <a class="nav-link" href="calculator.html">🧮 계산기</a>
   <a class="nav-link" href="mcu-catalog.html">📇 카탈로그</a>
-  <a class="nav-link active" href="analysis.html" class="active">📊 분석</a>
+  <a class="nav-link active" href="analysis.html">📊 분석</a>
   <a class="nav-link" href="fab-explorer.html">🏭 Fab</a>
   <div class="nav-drawer-section">
     <div class="nav-drawer-section-label">리소스</div>
@@ -2415,16 +2415,41 @@ document.getElementById('themeToggle') && document.getElementById('themeToggle')
   if (icon) icon.textContent = isDark ? '☀' : '☾';
 });
 
-document.getElementById('langToggle').addEventListener('click', () => {
-  currentLang = currentLang === 'ko' ? 'en' : 'ko';
-  applyI18n();
-  if (lastAnalysis) {
-    renderStats(lastAnalysis);
-    renderTable(lastAnalysis, currentClass);
-    renderChart(lastAnalysis);
-    updateSimulator();
+// langToggle: ChipCalc btn-ko/btn-en 사용. portfolio 자체 토글도 연결
+(function() {
+  var el = document.getElementById('langToggle');
+  if (el) {
+    el.addEventListener('click', function() {
+      currentLang = currentLang === 'ko' ? 'en' : 'ko';
+      applyI18n();
+      if (lastAnalysis) {
+        renderStats(lastAnalysis);
+        renderTable(lastAnalysis, currentClass);
+        renderChart(lastAnalysis);
+        updateSimulator();
+      }
+    });
   }
-});
+  // ChipCalc KO/EN 버튼과 연동
+  ['btn-ko', 'btn-en'].forEach(function(btnId) {
+    var btn = document.getElementById(btnId);
+    if (btn) {
+      btn.addEventListener('click', function() {
+        var lang = btnId === 'btn-ko' ? 'ko' : 'en';
+        if (currentLang !== lang) {
+          currentLang = lang;
+          applyI18n();
+          if (lastAnalysis) {
+            renderStats(lastAnalysis);
+            renderTable(lastAnalysis, currentClass);
+            renderChart(lastAnalysis);
+            updateSimulator();
+          }
+        }
+      });
+    }
+  });
+})();
 
 /* =============================================================
    SAMPLE DATA — generic, fictional semiconductor examples
@@ -4732,14 +4757,29 @@ document.getElementById('guideToggle').addEventListener('click', () => {
 /* =============================================================
    INIT
 ============================================================= */
-initTheme();
+// ChipCalc shared-styles.js가 테마를 관리. 현재 다크모드 상태만 동기화.
+(function() {
+  // themeIcon 동기화 (ChipCalc 다크모드 버튼 상태와 맞춤)
+  var icon = document.getElementById('themeIcon');
+  if (icon) {
+    icon.textContent = document.body.classList.contains('dark') ? '☾' : '☀';
+  }
+  // MutationObserver: body.dark 변경 감지 → 차트 색상 재렌더링
+  if (typeof MutationObserver !== 'undefined') {
+    new MutationObserver(function(mutations) {
+      mutations.forEach(function(m) {
+        if (m.attributeName === 'class') {
+          var icon = document.getElementById('themeIcon');
+          if (icon) icon.textContent = document.body.classList.contains('dark') ? '☾' : '☀';
+          if (lastAnalysis) renderChart(lastAnalysis);
+        }
+      });
+    }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  }
+})();
 applyI18n();
 clearMiniChart(currentLang === 'ko' ? '데이터를 입력하면 여기에 미리보기가 나타납니다' : 'Paste data to see a preview here');
 
 </script>
-</body>
-</html>
-
-
 </body>
 </html>
