@@ -62,9 +62,9 @@ body.dark {
      (portfolio는 독립 페이지 scope이므로 충돌 없음)
 ─────────────────────────────────────────────── */
 <style>
-  
 
-  
+
+
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -3129,22 +3129,19 @@ let miniChart = null;
  * derived from a stable hash of the series name, so re-analysis with
  * the same data always produces the same colors.
  */
-const SERIES_PALETTE_LIGHT = [
-  '#ea580c', // orange
-  '#0891b2', // cyan
-  '#9333ea', // purple
-  '#16a34a', // green
-  '#dc2626', // red
-  '#ca8a04', // amber
-  '#0284c7', // sky
-  '#db2777', // pink
-  '#65a30d', // lime
-  '#7c3aed'  // violet
-];
-const SERIES_PALETTE_DARK = [
-  '#fb923c', '#22d3ee', '#c084fc', '#4ade80', '#f87171',
-  '#fbbf24', '#38bdf8', '#f472b6', '#a3e635', '#a78bfa'
-];
+// 시리즈 팔레트: CSS 변수에서 동적 로드 (다크모드 자동 대응)
+function getSeriesPalette() {
+  const s = getComputedStyle(document.body);
+  const vars = ['--pf-series-a','--pf-series-b','--pf-series-c',
+                '--pf-series-d','--pf-series-e','--pf-series-f'];
+  const fromVars = vars.map(v => s.getPropertyValue(v).trim()).filter(Boolean);
+  if (fromVars.length >= 4) return fromVars;
+  // fallback
+  const isDark = document.body.classList.contains('dark');
+  return isDark
+    ? ['#fb923c','#22d3ee','#c084fc','#4ade80','#f87171','#fbbf24','#38bdf8','#f472b6']
+    : ['#ea580c','#0891b2','#9333ea','#16a34a','#dc2626','#ca8a04','#0284c7','#db2777'];
+}
 
 // Runtime cache: { seriesName → color } — kept fresh per rawItems load
 let seriesColorMap = {};
@@ -3161,7 +3158,7 @@ function hashString(str) {
 /** Assign colors to all distinct series once, stably */
 function buildSeriesColorMap(seriesList) {
   const isDark = document.body.classList.contains('dark');
-  const palette = isDark ? SERIES_PALETTE_DARK : SERIES_PALETTE_LIGHT;
+  const palette = getSeriesPalette();
   const map = {};
   seriesList.forEach((s, idx) => {
     if (idx < palette.length) {
@@ -3189,7 +3186,10 @@ function seriesColor(series) {
 }
 
 function getCss(v) {
-  return getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  // ChipCalc: 라이트 변수는 :root(html), 다크 변수는 body.dark 에 선언
+  // → body 기준으로 읽어야 다크모드 변수가 적용됨
+  return getComputedStyle(document.body).getPropertyValue(v).trim()
+      || getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 }
 
 function getBubbleScaleMode() {
@@ -3266,7 +3266,7 @@ function renderScatterChart(analysis) {
   const trendDatasets = [];
   const bandConfigs = [];        // fed to trendBand plugin
   const threshold = analysis.threshold;
-  const textColor = getCss('--text-subtle');
+  const textColor = getCss('--l3');
   const showCostTrend = document.getElementById('costOverlayChk')?.checked && analysis.hasEstimated;
 
   const computeLinePts = (reg, xsArr) => {
@@ -3312,7 +3312,7 @@ function renderScatterChart(analysis) {
         label: 'Should-cost Trendline',
         type: 'line',
         data: clp,
-        borderColor: getCss('--brand'),
+        borderColor: getCss('--blue'),
         borderWidth: 1.8, borderDash: [2, 3],
         fill: false, pointRadius: 0, tension: 0, showLine: true
       });
@@ -3392,20 +3392,20 @@ function renderScatterChart(analysis) {
               ];
             }
           },
-          backgroundColor: getCss('--bg-elev'),
-          titleColor: getCss('--text'),
-          bodyColor: getCss('--text'),
-          borderColor: getCss('--border-strong'),
+          backgroundColor: getCss('--surface'),
+          titleColor: getCss('--l1'),
+          bodyColor: getCss('--l1'),
+          borderColor: getCss('--border2'),
           borderWidth: 1, padding: 12, displayColors: false
         }
       },
       scales: {
         x: {
           type: 'linear', position: 'bottom', display: true,
-          title: { display: true, text: xTitle, color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          title: { display: true, text: xTitle, color: getCss('--l2'), font: { weight: 600, size: 12 } },
           grid: { color: getCss('--border'), drawOnChartArea: true },
           ticks: {
-            display: true, color: getCss('--text-subtle'), font: { size: 11 },
+            display: true, color: getCss('--l3'), font: { size: 11 },
             callback: function(value) {
               const n = Number(value);
               if (isNaN(n)) return value;
@@ -3417,10 +3417,10 @@ function renderScatterChart(analysis) {
         },
         y: {
           type: 'linear', display: true,
-          title: { display: true, text: dict.colActual, color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          title: { display: true, text: dict.colActual, color: getCss('--l2'), font: { weight: 600, size: 12 } },
           grid: { color: getCss('--border'), drawOnChartArea: true },
           ticks: {
-            display: true, color: getCss('--text-subtle'), font: { size: 11 },
+            display: true, color: getCss('--l3'), font: { size: 11 },
             callback: v => fmtInt(v)
           }
         }
@@ -3512,7 +3512,7 @@ function renderMiniChart(analysis) {
       type: 'bubble',
       data: ghostData.map(g => ({ x: g.x, y: g.y, r: miniRadius(g.qty) })),
       backgroundColor: 'transparent',
-      borderColor: getCss('--status-danger') + '88',
+      borderColor: getCss('--red') + '88',
       borderWidth: 1,
       borderDash: [3, 3]
     });
@@ -3522,7 +3522,7 @@ function renderMiniChart(analysis) {
   const trendDatasets = [];
   const bandConfigs = [];
   const threshold = analysis.threshold;
-  const textColor = getCss('--text-subtle');
+  const textColor = getCss('--l3');
 
   const linePts = (reg, xs) => {
     const xMin = Math.min(...xs) * 0.95;
@@ -3588,14 +3588,14 @@ function renderMiniChart(analysis) {
           type: 'linear', position: 'bottom',
           title: { display: false },
           grid: { color: getCss('--border'), drawOnChartArea: true },
-          ticks: { color: getCss('--text-subtle'), font: { size: 9 }, maxTicksLimit: 5 }
+          ticks: { color: getCss('--l3'), font: { size: 9 }, maxTicksLimit: 5 }
         },
         y: {
           type: 'linear',
           title: { display: false },
           grid: { color: getCss('--border'), drawOnChartArea: true },
           ticks: {
-            color: getCss('--text-subtle'), font: { size: 9 }, maxTicksLimit: 5,
+            color: getCss('--l3'), font: { size: 9 }, maxTicksLimit: 5,
             callback: v => fmtInt(v)
           }
         }
@@ -3817,10 +3817,10 @@ function renderMatrixChart(analysis) {
   });
 
   const classColors = {
-    danger: getCss('--status-danger'),
-    warn: getCss('--status-warn'),
-    good: getCss('--status-good'),
-    info: getCss('--status-info')
+    danger: getCss('--red'),
+    warn: getCss('--orange'),
+    good: getCss('--green'),
+    info: getCss('--blue')
   };
 
   const classLabels = {
@@ -3874,8 +3874,8 @@ function renderMatrixChart(analysis) {
           threshold,
           dangerColor: classColors.danger + '18',
           infoColor: classColors.info + '18',
-          axisColor: getCss('--text-subtle'),
-          thresholdColor: getCss('--border-strong')
+          axisColor: getCss('--l3'),
+          thresholdColor: getCss('--border2')
         },
         tooltip: {
           callbacks: {
@@ -3892,10 +3892,10 @@ function renderMatrixChart(analysis) {
               ];
             }
           },
-          backgroundColor: getCss('--bg-elev'),
-          titleColor: getCss('--text'),
-          bodyColor: getCss('--text'),
-          borderColor: getCss('--border-strong'),
+          backgroundColor: getCss('--surface'),
+          titleColor: getCss('--l1'),
+          bodyColor: getCss('--l1'),
+          borderColor: getCss('--border2'),
           borderWidth: 1, padding: 12, displayColors: false
         }
       },
@@ -3903,10 +3903,10 @@ function renderMatrixChart(analysis) {
         x: {
           type: 'linear', position: 'bottom',
           min: -xAbs, max: xAbs,
-          title: { display: true, text: (currentLang === 'ko' ? '원가 대비 편차 (%)' : 'Cost deviation (%)'), color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          title: { display: true, text: (currentLang === 'ko' ? '원가 대비 편차 (%)' : 'Cost deviation (%)'), color: getCss('--l2'), font: { weight: 600, size: 12 } },
           grid: { color: getCss('--border'), drawOnChartArea: true },
           ticks: {
-            color: getCss('--text-subtle'),
+            color: getCss('--l3'),
             font: { size: 11 },
             stepSize: xStep,
             callback: v => Math.round(v) + '%'
@@ -3915,10 +3915,10 @@ function renderMatrixChart(analysis) {
         y: {
           type: 'linear',
           min: -yAbs, max: yAbs,
-          title: { display: true, text: (currentLang === 'ko' ? '동급 대비 편차 (%)' : 'Peer deviation (%)'), color: getCss('--text-muted'), font: { weight: 600, size: 12 } },
+          title: { display: true, text: (currentLang === 'ko' ? '동급 대비 편차 (%)' : 'Peer deviation (%)'), color: getCss('--l2'), font: { weight: 600, size: 12 } },
           grid: { color: getCss('--border'), drawOnChartArea: true },
           ticks: {
-            color: getCss('--text-subtle'),
+            color: getCss('--l3'),
             font: { size: 11 },
             stepSize: yStep,
             callback: v => Math.round(v) + '%'
@@ -3935,10 +3935,10 @@ function renderMatrixChart(analysis) {
 
 function renderMatrixLegend() {
   const classColors = {
-    danger: getCss('--status-danger'),
-    warn: getCss('--status-warn'),
-    good: getCss('--status-good'),
-    info: getCss('--status-info')
+    danger: getCss('--red'),
+    warn: getCss('--orange'),
+    good: getCss('--green'),
+    info: getCss('--blue')
   };
   const labels = {
     ko: { danger: '이중 overprice', warn: '편측 이상', good: '합리 구간', info: '저평가' },
@@ -3968,19 +3968,19 @@ function renderMatrixInsight(analysis) {
   if (currentLang === 'ko') {
     insight.innerHTML = `
       <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
-        <div><strong style="color:${getCss('--status-danger')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 인하여력</div>
-        <div><strong style="color:${getCss('--status-warn')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
-        <div><strong style="color:${getCss('--status-warn')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
-        <div><strong style="color:${getCss('--status-info')};">🔵 좌하단 (${q3.length}개)</strong><br>이중 저평가 · <b>인상 방어 우선</b></div>
+        <div><strong style="color:${getCss('--red')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 인하여력</div>
+        <div><strong style="color:${getCss('--orange')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
+        <div><strong style="color:${getCss('--orange')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
+        <div><strong style="color:${getCss('--blue')};">🔵 좌하단 (${q3.length}개)</strong><br>이중 저평가 · <b>인상 방어 우선</b></div>
       </div>
     `;
   } else {
     insight.innerHTML = `
       <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
-        <div><strong style="color:${getCss('--status-danger')};">🔴 Top-right (${q1.length})</strong><br>Double overpriced · <b>highest priority</b><br>Annual ${savingStr} potential</div>
-        <div><strong style="color:${getCss('--status-warn')};">🟡 Top (${q2.length})</strong><br>Peer-expensive only · series outlier</div>
-        <div><strong style="color:${getCss('--status-warn')};">🟡 Right (${q4.length})</strong><br>Cost-expensive only · margin review</div>
-        <div><strong style="color:${getCss('--status-info')};">🔵 Bottom-left (${q3.length})</strong><br>Double underpriced · <b>defend against increase</b></div>
+        <div><strong style="color:${getCss('--red')};">🔴 Top-right (${q1.length})</strong><br>Double overpriced · <b>highest priority</b><br>Annual ${savingStr} potential</div>
+        <div><strong style="color:${getCss('--orange')};">🟡 Top (${q2.length})</strong><br>Peer-expensive only · series outlier</div>
+        <div><strong style="color:${getCss('--orange')};">🟡 Right (${q4.length})</strong><br>Cost-expensive only · margin review</div>
+        <div><strong style="color:${getCss('--blue')};">🔵 Bottom-left (${q3.length})</strong><br>Double underpriced · <b>defend against increase</b></div>
       </div>
     `;
   }
