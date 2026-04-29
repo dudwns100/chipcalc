@@ -3291,76 +3291,85 @@ function renderScatterChart(analysis) {
     };
   };
 
-  if (analysis.trendMode === 'all' && analysis.regressions['_all']) {
-    // Global peer trendline + band
-    const reg = analysis.regressions['_all'];
+  // cost 모드: 메인 추세선 = 추정원가 회귀선, peer/hybrid: 실구매가 회귀선
+  const isCostMode = analysis.classMode === 'cost' && analysis.hasEstimated;
+  const mainRegs  = isCostMode ? analysis.costRegressions : analysis.regressions;
+  const extraRegs = isCostMode ? analysis.regressions     : (showCostTrend ? analysis.costRegressions : null);
+  const mainLabel   = isCostMode ? '추정원가 추세선' : 'Peer Trendline';
+  const extraLabel  = isCostMode ? 'Peer Trendline'  : 'Should-cost Trendline';
+  const mainColor   = isCostMode ? getCss('--blue')   : textColor;
+  const extraColor  = isCostMode ? textColor          : getCss('--blue');
+  const mainDash    = isCostMode ? [4, 3]             : [6, 4];
+  const extraDash   = isCostMode ? [6, 4]             : [2, 3];
+  const showExtra   = isCostMode || showCostTrend;
+
+  if (analysis.trendMode === 'all' && mainRegs['_all']) {
+    const reg = mainRegs['_all'];
     const xs = filtered.map(i => i.x);
     const { points, range } = computeLinePts(reg, xs);
 
     trendDatasets.push({
-      label: 'Peer Trendline',
+      label: mainLabel,
       type: 'line',
       data: points,
-      borderColor: textColor,
-      borderWidth: 1.8,
-      borderDash: [6, 4],
+      borderColor: mainColor,
+      borderWidth: 1.8, borderDash: mainDash,
       fill: false, pointRadius: 0, tension: 0, showLine: true
     });
-
     bandConfigs.push({
       regression: reg,
       xRange: range,
-      fillColor: textColor + '14',
-      strokeColor: textColor + '66'
+      fillColor: mainColor + '14',
+      strokeColor: mainColor + '66'
     });
 
-    // Optional cost trendline overlay
-    if (showCostTrend && analysis.costRegressions['_all']) {
-      const creg = analysis.costRegressions['_all'];
-      const { points: clp } = computeLinePts(creg, xs);
+    // 보조 추세선 (cost 모드: 실구매가 추세선 / peer모드: 추정원가 overlay)
+    if (showExtra && extraRegs && extraRegs['_all']) {
+      const { points: clp } = computeLinePts(extraRegs['_all'], xs);
       trendDatasets.push({
-        label: 'Should-cost Trendline',
+        label: extraLabel,
         type: 'line',
         data: clp,
-        borderColor: getCss('--blue'),
-        borderWidth: 1.8, borderDash: [2, 3],
+        borderColor: extraColor,
+        borderWidth: 1.5, borderDash: extraDash,
         fill: false, pointRadius: 0, tension: 0, showLine: true
       });
     }
   } else {
-    // Per-series trendlines + per-series bands
-    Object.keys(analysis.regressions).forEach(s => {
-      const reg = analysis.regressions[s];
+    // Per-series 추세선
+    const seriesKeys = Object.keys(mainRegs);
+    seriesKeys.forEach(s => {
+      const reg = mainRegs[s];
       if (!reg) return;
       const groupItems = filtered.filter(i => i.series === s);
       if (groupItems.length === 0) return;
       const xs = groupItems.map(i => i.x);
       const { points, range } = computeLinePts(reg, xs);
+      const sc = seriesColor(s);
 
       trendDatasets.push({
-        label: s + ' peer trend',
+        label: s + ' ' + (isCostMode ? 'cost trend' : 'peer trend'),
         type: 'line',
         data: points,
-        borderColor: seriesColor(s),
-        borderWidth: 1.5, borderDash: [6, 4],
+        borderColor: isCostMode ? sc : sc,
+        borderWidth: 1.5, borderDash: mainDash,
         fill: false, pointRadius: 0, tension: 0, showLine: true
       });
-
       bandConfigs.push({
         regression: reg,
         xRange: range,
-        fillColor: seriesColor(s) + '18',
-        strokeColor: seriesColor(s) + '55'
+        fillColor: sc + '18',
+        strokeColor: sc + '55'
       });
 
-      if (showCostTrend && analysis.costRegressions[s]) {
-        const { points: clp } = computeLinePts(analysis.costRegressions[s], xs);
+      if (showExtra && extraRegs && extraRegs[s]) {
+        const { points: clp } = computeLinePts(extraRegs[s], xs);
         trendDatasets.push({
-          label: s + ' should-cost trend',
+          label: s + ' ' + extraLabel,
           type: 'line',
           data: clp,
-          borderColor: seriesColor(s),
-          borderWidth: 1.5, borderDash: [2, 3],
+          borderColor: sc,
+          borderWidth: 1.2, borderDash: extraDash,
           fill: false, pointRadius: 0, tension: 0, showLine: true
         });
       }
@@ -3427,7 +3436,13 @@ function renderScatterChart(analysis) {
         },
         y: {
           type: 'linear', display: true,
-          title: { display: true, text: dict.colActual, color: getCss('--l2'), font: { weight: 600, size: 12 } },
+          title: {
+            display: true,
+            text: analysis.classMode === 'cost' && analysis.hasEstimated
+              ? (currentLang === 'ko' ? '실구매가 (추정원가 추세선 기준)' : 'Actual Price (vs. Should-cost trend)')
+              : dict.colActual,
+            color: getCss('--l2'), font: { weight: 600, size: 12 }
+          },
           grid: { color: getCss('--border'), drawOnChartArea: true },
           ticks: {
             display: true, color: getCss('--l3'), font: { size: 11 },
