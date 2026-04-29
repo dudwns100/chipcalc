@@ -2400,6 +2400,16 @@ function applyI18n() {
   });
   document.documentElement.lang = currentLang;
   updateCompareModeLabels();
+
+  // i18n 후 select 값 복원 (textContent 교체로 인한 value 리셋 방지)
+  // seriesFilterSelect: 동적 옵션이 있을 경우 value를 재설정
+  const sfs = document.getElementById('seriesFilterSelect');
+  if (sfs && sfs.dataset.savedValue) {
+    const saved = sfs.dataset.savedValue;
+    if ([...sfs.options].find(o => o.value === saved)) {
+      sfs.value = saved;
+    }
+  }
 }
 
 /* =============================================================
@@ -3653,14 +3663,16 @@ function tryPreviewAnalysis() {
   const validation = validateItems(parsed, meta);
   if (validation.errors.length) return null;
 
-  // Stash as if it were the real data (for color map & options)
-  const needsBootstrap = !rawItems.length;
-  if (needsBootstrap) {
+  // 미리보기에서도 시리즈 필터 옵션 항상 갱신
+  // (rawItems가 없을 때만이 아니라, 모드 전환 시에도 SUP-A 잔존 방지)
+  const seriesSet = [...new Set(parsed.map(i => i.series))];
+  buildSeriesColorMap(seriesSet);
+  if (!rawItems.length) {
+    // 첫 데이터 진입 시만 X축 옵션 갱신 (사용자 선택 유지)
     rawItems = parsed;
-    buildSeriesColorMap([...new Set(parsed.map(i => i.series))]);
     populateXAxisOptions(meta, parsed);
-    updateSeriesFilterOptions(parsed);
   }
+  updateSeriesFilterOptions(parsed);
 
   return analyze(parsed);
 }
@@ -4453,6 +4465,24 @@ function renderAll(analysis) {
   renderMiniChart(analysis);
   // If a drilldown is currently open, refresh it with new data
   if (currentDrilldown) renderDrilldown(currentDrilldown);
+  // viewTabs active 상태 재동기화 (renderChart 후 혹시 틀어진 경우 보정)
+  syncViewTabActive();
+  // classTabs active 상태 재동기화
+  syncClassTabActive();
+}
+
+function syncViewTabActive() {
+  document.querySelectorAll('#viewTabs .mode-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.view === currentView);
+  });
+  const ow = document.getElementById('costOverlayWrap');
+  if (ow) ow.style.display = currentView === 'scatter' ? 'inline-flex' : 'none';
+}
+
+function syncClassTabActive() {
+  document.querySelectorAll('.class-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.class === currentClass);
+  });
 }
 
 /* =============================================================
@@ -4691,8 +4721,13 @@ function reanalyze() {
   renderAll(lastAnalysis);
 }
 
-['xAxisSelect','thresholdInput','trendModeSelect','seriesFilterSelect','classModeSelect'].forEach(id => {
+['xAxisSelect','thresholdInput','trendModeSelect','classModeSelect'].forEach(id => {
   document.getElementById(id).addEventListener('change', reanalyze);
+});
+// seriesFilterSelect: 사용자가 직접 바꿀 때만 reanalyze (i18n 갱신 시 오발 방지)
+document.getElementById('seriesFilterSelect').addEventListener('change', function() {
+  this.dataset.savedValue = this.value;  // 선택값 저장 (applyI18n 후 복원용)
+  reanalyze();
 });
 
 // Bubble scale: only redraw chart + mini
@@ -4706,6 +4741,9 @@ document.getElementById('bubbleScaleSelect').addEventListener('change', () => {
 });
 
 // View tabs (scatter / matrix)
+// ── 뷰 탭 (합리성 산점도 / 종합 매트릭스) ──
+// viewTabs와 modeTabs가 같은 .mode-tab 클래스를 공유하므로
+// 각각 자신의 컨테이너 내에서만 active를 제어한다
 document.querySelectorAll('#viewTabs .mode-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('#viewTabs .mode-tab').forEach(t => t.classList.remove('active'));
@@ -4721,9 +4759,11 @@ document.getElementById('costOverlayChk').addEventListener('change', () => {
   if (lastAnalysis) renderChart(lastAnalysis);
 });
 
-document.querySelectorAll('.mode-tab').forEach(tab => {
+// ── 입력 모드 탭 (단일 / 시점비교 / 공급사비교) ──
+// #modeTabs 컨테이너 내에서만 active를 제어 (viewTabs 건드리지 않음)
+document.querySelectorAll('#modeTabs .mode-tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#modeTabs .mode-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentMode = tab.dataset.mode;
     if (currentMode === 'single') {
@@ -4734,6 +4774,19 @@ document.querySelectorAll('.mode-tab').forEach(tab => {
       document.getElementById('dualInputRow').classList.remove('hidden');
       updateCompareModeLabels();
     }
+    // 모드 전환 시 rawItems·분석 결과·시리즈 필터 완전 초기화
+    // (SUP-A/SUP-B 같은 이전 모드 태그가 단일 모드에서 보이지 않도록)
+    rawItems = [];
+    lastAnalysis = null;
+    seriesColorMap = {};
+    const sfsEl = document.getElementById('seriesFilterSelect');
+    if (sfsEl) {
+      // 옵션을 "전체 표시"만 남기고 초기화
+      const dict = i18n[currentLang];
+      sfsEl.innerHTML = `<option value="all">${dict.filterAll || '전체 표시'}</option>`;
+      sfsEl.value = 'all';
+    }
+    scheduleMiniChartUpdate();
   });
 });
 
