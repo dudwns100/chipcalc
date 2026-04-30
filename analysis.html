@@ -2113,6 +2113,9 @@ body.dark {
             <div class="stat-sub" id="simDetail" style="margin-top:4px;font-size:11px">—</div>
           </div>
         </div>
+        <p style="margin-top:4px;font-size:11px;color:var(--l3);line-height:1.45">
+          💡 아래 제품 행을 클릭하면 차트에서 해당 제품만 하이라이트됩니다. 다시 클릭하면 해제.
+        </p>
         <p style="margin-top:6px;font-size:11.5px;color:var(--l3);line-height:1.55" data-i18n="simDesc">
           관리 검토 대상 제품들의 가격 협상 목표를 X% 적용했을 때의 연간 절감 효과를 실시간 계산합니다.
         </p>
@@ -3246,18 +3249,29 @@ function renderTable(analysis, cls) {
     return (b.qty || 0) - (a.qty || 0);
   });
 
-  const showCost = analysis.hasEstimated;
-  const showAdj  = analysis.classMode === 'hybrid' && !!analysis.correctionK;
-  const kStr     = showAdj ? `K=${analysis.correctionK.toFixed(3)}` : '';
+  const showCost   = analysis.hasEstimated;
+  const showAdj    = analysis.classMode === 'hybrid' && !!analysis.correctionK;
+  const kStr       = showAdj ? `K=${analysis.correctionK.toFixed(3)}` : '';
+  const tableKo    = currentLang === 'ko';
+  // 목표단가·절감단가는 danger/warn 탭에서만 표시
+  const showTarget = (cls === 'danger' || cls === 'warn');
 
-  let html = `<div class="table-wrap"><table>
+  // 모드별 기준값 컬럼 레이블
+  let tgtColLabel;
+  if (analysis.classMode === 'hybrid') tgtColLabel = tableKo ? `목표단가(보정원가)` : 'Target(AdjCost)';
+  else if (analysis.classMode === 'cost') tgtColLabel = tableKo ? '목표단가(추정원가)' : 'Target(Est.)';
+  else tgtColLabel = tableKo ? '목표단가(추세선)' : 'Target(Trend)';
+
+  let html = `<div class="drilldown-table-wrap"><table class="drilldown-table" style="min-width:100%">
     <thead><tr>
       <th>${dict.colProduct}</th>
       <th>${dict.colSeries}</th>
       <th class="num">${dict.colActual}</th>
-      <th class="num">${currentLang === 'ko' ? '실구매가 편차' : 'Market gap'}</th>
-      ${showCost ? `<th class="num">${currentLang === 'ko' ? '추정원가 편차' : 'Cost gap'}</th>` : ''}
-      ${showAdj  ? `<th class="num" style="color:var(--blue)">${currentLang === 'ko' ? `보정원가 편차 (${kStr})` : `Adj. gap (${kStr})`}</th>` : ''}
+      <th class="num">${tableKo ? '실구매가 편차' : 'Market gap'}</th>
+      ${showCost ? `<th class="num">${tableKo ? '추정원가 편차' : 'Cost gap'}</th>` : ''}
+      ${showAdj  ? `<th class="num" style="color:var(--blue)">${tableKo ? `보정원가 편차 (${kStr})` : `Adj. gap (${kStr})`}</th>` : ''}
+      ${showTarget ? `<th class="num" style="color:var(--blue)">${tgtColLabel}</th>` : ''}
+      ${showTarget ? `<th class="num" style="color:var(--red)">절감단가</th>` : ''}
       <th class="num">${dict.colQty}</th>
       <th class="num">${dict.colSavingPotential}</th>
     </tr></thead><tbody>`;
@@ -3295,21 +3309,77 @@ function renderTable(analysis, cls) {
       }
     }
 
+    // 목표단가 = 모드별 기준값 (refVal)
+    let refVal;
+    if (analysis.classMode === 'hybrid' && !isNaN(i.adjCost))             refVal = i.adjCost;
+    else if (analysis.classMode === 'cost' && !isNaN(i.estimated) && i.estimated > 0) refVal = i.estimated;
+    else                                                                   refVal = i.trendY;
+    const hasRef   = !isNaN(refVal) && refVal > 0;
+    const unitSave = hasRef ? (i.actual - refVal) : NaN;  // 양수 = 현재가가 기준보다 비쌈
     const savingStr = i.savingPotential > 0
-      ? (currentLang === 'ko' ? `₩${fmtMoney(i.savingPotential)}` : `₩${fmtMoneyEn(i.savingPotential)}`)
+      ? (tableKo ? `₩${fmtMoney(i.savingPotential)}` : `₩${fmtMoneyEn(i.savingPotential)}`)
       : '—';
 
-    html += `<tr>
+    // 목표단가 셀
+    const tgtCell = showTarget
+      ? (hasRef
+          ? `<td class="num" style="color:var(--blue);font-weight:600">${fmtInt(Math.round(refVal))}</td>`
+          : `<td class="num"><span style="color:var(--l3)">—</span></td>`)
+      : '';
+
+    // 절감단가 셀 — 마이너스(-) 부호: 이 만큼 낮춰야 한다
+    let unitSaveCell = '';
+    if (showTarget) {
+      if (!isNaN(unitSave) && unitSave > 0) {
+        unitSaveCell = `<td class="num" style="color:var(--red);font-weight:600">−${fmtInt(Math.round(unitSave))}</td>`;
+      } else if (!isNaN(unitSave) && unitSave <= 0) {
+        unitSaveCell = `<td class="num" style="color:var(--green)">−${fmtInt(Math.round(Math.abs(unitSave)))}</td>`;
+      } else {
+        unitSaveCell = `<td class="num"><span style="color:var(--l3)">—</span></td>`;
+      }
+    }
+
+    html += `<tr
+      class="sim-row"
+      data-name="${i.name.replace(/"/g, '&quot;')}"
+      style="cursor:pointer"
+      onclick="highlightSimRow(this, '${i.name.replace(/'/g, "\'")}')"
+    >
       <td><strong>${i.name}</strong></td>
       <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
       <td class="num">${fmtInt(i.actual)}</td>
       <td class="num"><span class="pill ${peerPillClass}">${peerStr}</span></td>
       ${costCell}
       ${adjCell}
+      ${tgtCell}
+      ${unitSaveCell}
       <td class="num">${fmtInt(i.qty)}</td>
       <td class="num">${savingStr}</td>
     </tr>`;
   });
+
+  // 합계 행 (danger/warn 탭에서만)
+  if (showTarget && items.length > 0) {
+    const totalQty    = items.reduce((s, i) => s + (i.qty || 0), 0);
+    const totalSaving = items.reduce((s, i) => s + (i.savingPotential || 0), 0);
+    const totalUnitSave = items.reduce((s, i) => {
+      let rv;
+      if (analysis.classMode === 'hybrid' && !isNaN(i.adjCost)) rv = i.adjCost;
+      else if (analysis.classMode === 'cost' && !isNaN(i.estimated) && i.estimated > 0) rv = i.estimated;
+      else rv = i.trendY;
+      return s + ((!isNaN(rv) && rv > 0 && i.actual > rv) ? (i.actual - rv) : 0);
+    }, 0);
+    const extraCols = (showCost ? 1 : 0) + (showAdj ? 1 : 0) + 2; // 편차 + target + unitSave
+    html += `<tr class="total-row">
+      <td colspan="${3 + extraCols}" style="text-align:right;font-weight:700;color:var(--l1)">
+        ${tableKo ? `합계 (${items.length}개 제품)` : `Total (${items.length} items)`}
+      </td>
+      <td class="num" style="color:var(--red);font-weight:700">평균 −${fmtInt(Math.round(totalUnitSave / Math.max(items.length,1)))}</td>
+      <td class="num" style="font-weight:700">${fmtInt(totalQty)}</td>
+      <td class="num" style="color:var(--blue);font-weight:700">₩${fmtMoney(totalSaving)}</td>
+    </tr>`;
+  }
+
   html += '</tbody></table></div>';
   container.innerHTML = html;
 }
@@ -4402,10 +4472,26 @@ function renderChartLegend(analysis) {
 // ── 시뮬레이터 미니 차트 ──
 let simMiniChart = null;
 
+let simHighlightName = null;  // 행 클릭으로 선택된 제품명
+
+function highlightSimRow(rowEl, name) {
+  // 같은 제품 클릭 시 해제
+  simHighlightName = (simHighlightName === name) ? null : name;
+  // 행 스타일 업데이트
+  document.querySelectorAll('.sim-row, tr[data-name]').forEach(r => {
+    const active = !simHighlightName || r.dataset.name === simHighlightName;
+    r.style.opacity = active ? '1' : '0.35';
+    r.style.background = (simHighlightName && r.dataset.name === simHighlightName)
+      ? 'var(--blue-t)' : '';
+  });
+  // 차트 갱신
+  const slider = document.getElementById('simSlider');
+  if (slider) updateSimMiniChart(parseFloat(slider.value));
+}
+
 function updateSimMiniChart(pct) {
   const canvas = document.getElementById('simMiniChart');
   if (!canvas || !lastAnalysis) return;
-  // 데이터가 없으면 캔버스 숨김
   const managed = lastAnalysis.items.filter(
     i => i.classification === 'danger' || i.classification === 'warn'
   );
@@ -4420,83 +4506,177 @@ function updateSimMiniChart(pct) {
 
   if (simMiniChart) simMiniChart.destroy();
 
-  // 현재가 버블 — NaN x값 필터링
-  const currentBubbles = all
-    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
-    .map(i => ({
-      x: i.x,
-      y: i.actual,
-      r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 600) * 4, 3), 16),
-      _managed: managed.includes(i),
-      _name: i.name
-    }));
-
-  // 목표가 버블 (검토 대상만)
-  const targetBubbles = managed
-    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
-    .map(i => ({
-      x: i.x,
-      y: i.actual * (1 - pct / 100),
-      r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 600) * 4, 3), 16),
-      _name: i.name,
-      _orig: i.actual
-    }));
-
-  if (!currentBubbles.length) { canvas.style.display = 'none'; return; }
-
   const textColor   = getComputedStyle(document.body).getPropertyValue('--l2').trim();
   const borderColor = getComputedStyle(document.body).getPropertyValue('--border').trim();
   const blueColor   = getComputedStyle(document.body).getPropertyValue('--blue').trim();
+  const redColor    = '#ef4444';
+  const hlName      = simHighlightName;
+
+  // 버블 크기 계산
+  const calcR = qty => Math.min(Math.max(Math.sqrt((qty || 1) / 600) * 4, 3), 16);
+
+  // 현재가 버블
+  const currentBubbles = all
+    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
+    .map(i => {
+      const isManaged = managed.includes(i);
+      const isHL      = hlName && i.name === hlName;
+      const dim       = hlName && !isHL;
+      return {
+        x: i.x, y: i.actual, r: calcR(i.qty),
+        _name: i.name, _managed: isManaged, _dim: dim, _hl: isHL
+      };
+    });
+
+  // 목표가 버블 (검토 대상)
+  const targetBubbles = managed
+    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
+    .map(i => {
+      const isHL  = hlName && i.name === hlName;
+      const dim   = hlName && !isHL;
+      return {
+        x: i.x, y: i.actual * (1 - pct / 100),
+        r: calcR(i.qty), _name: i.name, _orig: i.actual, _dim: dim, _hl: isHL
+      };
+    });
+
+  if (!currentBubbles.length) { canvas.style.display = 'none'; return; }
+
+  // 현재가→목표가 연결선 (검토 대상만, 수직 화살표)
+  const arrowLines = managed
+    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
+    .flatMap(i => {
+      const isHL  = hlName && i.name === hlName;
+      const dim   = hlName && !isHL;
+      const alpha = dim ? 0.08 : (isHL ? 0.9 : 0.35);
+      return [
+        { x: i.x, y: i.actual,              _alpha: alpha },
+        { x: i.x, y: i.actual*(1-pct/100),  _alpha: alpha },
+        null  // 구분자
+      ];
+    }).filter(Boolean);
+
+  // 추세선 계산 (메인 차트와 동일 로직)
+  const trendDatasets = [];
+  const cmode = lastAnalysis.classMode;
+  const regs  = cmode === 'hybrid' && lastAnalysis.adjCostRegressions
+    ? lastAnalysis.adjCostRegressions
+    : lastAnalysis.regressions;
+  const reg   = lastAnalysis.trendMode === 'all' ? regs['_all'] : null;
+  if (reg && reg.slope != null) {
+    const xs = currentBubbles.map(b => b.x);
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    const pad  = (xMax - xMin) * 0.05;
+    const trendPts = [
+      { x: xMin - pad, y: reg.slope*(xMin-pad) + reg.intercept },
+      { x: xMax + pad, y: reg.slope*(xMax+pad) + reg.intercept }
+    ].filter(p => p.y > 0);
+    if (trendPts.length === 2) {
+      trendDatasets.push({
+        label: cmode === 'hybrid' ? '보정원가 추세선' : cmode === 'cost' ? '추정원가 추세선' : '실구매가 추세선',
+        type: 'line', data: trendPts,
+        borderColor: cmode === 'hybrid' ? blueColor : cmode === 'cost' ? '#f97316' : textColor,
+        borderWidth: 1.8, borderDash: [5, 3],
+        fill: false, pointRadius: 0, tension: 0, showLine: true, order: 0
+      });
+      // 목표가 추세선 (pct% 내린 선)
+      if (pct > 0) {
+        trendDatasets.push({
+          label: `목표가 추세선 (−${pct.toFixed(1)}%)`,
+          type: 'line',
+          data: trendPts.map(p => ({ x: p.x, y: p.y * (1 - pct/100) })),
+          borderColor: blueColor,
+          borderWidth: 1.5, borderDash: [3, 2],
+          fill: false, pointRadius: 0, tension: 0, showLine: true, order: 0
+        });
+      }
+    }
+  }
 
   simMiniChart = new Chart(ctx, {
     type: 'bubble',
     data: {
       datasets: [
+        ...trendDatasets,
+        // 연결선 (현재가→목표가)
+        {
+          label: '_arrows',
+          type: 'line',
+          data: arrowLines,
+          borderColor: arrowLines.map(p => `rgba(239,68,68,${p?._alpha||0.3})`),
+          borderWidth: 1.5, borderDash: [2, 2],
+          fill: false, pointRadius: 0, tension: 0, showLine: true, spanGaps: false, order: 1
+        },
+        // 현재가 버블
         {
           label: '현재가',
           data: currentBubbles,
-          backgroundColor: currentBubbles.map(b =>
-            b._managed ? 'rgba(239,68,68,0.25)' : 'rgba(150,150,150,0.15)'
-          ),
-          borderColor: currentBubbles.map(b =>
-            b._managed ? 'rgba(239,68,68,0.6)' : 'rgba(150,150,150,0.3)'
-          ),
-          borderWidth: 1.5
+          backgroundColor: currentBubbles.map(b => {
+            if (b._dim) return 'rgba(150,150,150,0.08)';
+            if (b._hl)  return b._managed ? 'rgba(239,68,68,0.5)' : 'rgba(100,100,100,0.4)';
+            return b._managed ? 'rgba(239,68,68,0.22)' : 'rgba(150,150,150,0.12)';
+          }),
+          borderColor: currentBubbles.map(b => {
+            if (b._dim) return 'rgba(150,150,150,0.15)';
+            if (b._hl)  return b._managed ? redColor : '#888';
+            return b._managed ? 'rgba(239,68,68,0.55)' : 'rgba(150,150,150,0.28)';
+          }),
+          borderWidth: currentBubbles.map(b => b._hl ? 2.5 : 1.5),
+          order: 2
         },
+        // 목표가 버블
         {
           label: '목표가',
           data: targetBubbles,
-          backgroundColor: blueColor + '44',
-          borderColor: blueColor,
-          borderWidth: 2,
-          borderDash: [3, 2]
+          backgroundColor: targetBubbles.map(b =>
+            b._dim ? 'rgba(59,130,246,0.06)' : b._hl ? 'rgba(59,130,246,0.6)' : blueColor+'33'
+          ),
+          borderColor: targetBubbles.map(b =>
+            b._dim ? 'rgba(59,130,246,0.15)' : blueColor
+          ),
+          borderWidth: targetBubbles.map(b => b._hl ? 2.5 : 1.8),
+          borderDash: [3, 2],
+          order: 3
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      animation: { duration: 300 },
+      animation: { duration: 250 },
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: true, position: 'bottom',
+          labels: {
+            color: textColor, font: { size: 10 }, boxWidth: 12, padding: 8,
+            filter: item => !item.text.startsWith('_')  // _arrows 숨김
+          }
+        },
         tooltip: {
           callbacks: {
+            title: items => {
+              const d = items[0]?.raw;
+              return d?._name || items[0]?.dataset?.label || '';
+            },
             label: (ctx) => {
               const d = ctx.raw;
-              const label = d._name || '';
-              const isTarget = ctx.datasetIndex === 1;
+              if (!d?._name) return '';  // 추세선/연결선은 tooltip 생략
               const koL = currentLang === 'ko';
+              const isTarget = ctx.dataset.label === '목표가';
               if (isTarget) {
-                const origStr = d._orig ? ` (원래 ₩${fmtInt(Math.round(d._orig))})` : '';
-                return `${label}: ${koL ? '목표가' : 'Target'} ₩${fmtInt(Math.round(d.y))} −${pct.toFixed(1)}%${origStr}`;
+                return [
+                  `${koL ? '목표가' : 'Target'}: ₩${fmtInt(Math.round(d.y))}  (−${pct.toFixed(1)}%)`,
+                  d._orig ? `${koL ? '현재가' : 'Current'}: ₩${fmtInt(Math.round(d._orig))}` : '',
+                  d._orig ? `${koL ? '절감단가' : 'Saving'}: −₩${fmtInt(Math.round(d._orig - d.y))}` : ''
+                ].filter(Boolean);
               }
-              const mgTag = d._managed ? (koL ? ' [검토대상]' : ' [review]') : '';
-              return `${label}: ₩${fmtInt(Math.round(d.y))}${mgTag}`;
+              const mgTag = d._managed ? (koL ? ' ⚑ 검토대상' : ' ⚑ Review') : '';
+              return `${koL ? '현재가' : 'Current'}: ₩${fmtInt(Math.round(d.y))}${mgTag}`;
             }
           },
           backgroundColor: getComputedStyle(document.body).getPropertyValue('--surface').trim(),
           titleColor: textColor, bodyColor: textColor,
-          borderColor: borderColor, borderWidth: 1, padding: 8, displayColors: false
+          borderColor: borderColor, borderWidth: 1, padding: 10, displayColors: false
         }
       },
       scales: {
@@ -4570,15 +4750,15 @@ function updateSimulator() {
     : `<div class="formula-banner"><span class="formula-icon">ƒ</span><code>Potential Save = (Current × ${pct.toFixed(1)}%) × Qty</code></div>`;
 
   const headers = currentLang === 'ko'
-    ? ['제품명', '시리즈', '현재가', '인하후가', '수량', '단위절감', '연간절감']
-    : ['Product', 'Series', 'Current', 'Reduced', 'Qty', 'Unit Save', 'Potential Save'];
+    ? ['제품명', '시리즈', '현재가', '목표단가', '절감단가', '수량', '연간절감']
+    : ['Product', 'Series', 'Current', 'Target', 'Unit Save', 'Qty', 'Annual Save'];
 
   let html = `<thead><tr>
     <th>${headers[0]}</th>
     <th>${headers[1]}</th>
     <th class="num">${headers[2]}</th>
-    <th class="num">${headers[3]}</th>
-    <th class="num">${headers[4]}</th>
+    <th class="num" style="color:var(--green)">${headers[3]}</th>
+    <th class="num" style="color:var(--red)">${headers[4]}</th>
     <th class="num">${headers[5]}</th>
     <th class="num">${headers[6]}</th>
   </tr></thead><tbody>`;
@@ -4593,13 +4773,21 @@ function updateSimulator() {
     const rowFormula = currentLang === 'ko'
       ? `${fmtInt(unitSave)} × ${fmtInt(i.qty)} = ${fmtInt(annualSave)}`
       : `${fmtInt(unitSave)} × ${fmtInt(i.qty)} = ${fmtInt(annualSave)}`;
-    html += `<tr>
+    const simIsHL  = simHighlightName && i.name === simHighlightName;
+    const simHLStyle = simIsHL ? 'background:var(--blue-t);' : '';
+    const simDimStyle = simHighlightName && !simIsHL ? 'opacity:0.4;' : '';
+    html += `<tr
+      class="sim-row"
+      data-name="${i.name.replace(/"/g, '&quot;')}"
+      style="cursor:pointer;${simHLStyle}${simDimStyle}"
+      onclick="highlightSimRow(this,'${i.name.replace(/'/g, "\'")}')"
+    >
       <td><strong>${i.name}</strong></td>
       <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
       <td class="num">${fmtInt(i.actual)}</td>
-      <td class="num" style="color:var(--green)">${fmtInt(reduced)}</td>
+      <td class="num" style="color:var(--green)">${fmtInt(Math.round(reduced))}</td>
+      <td class="num" style="color:var(--red)">−${fmtInt(Math.round(unitSave))}</td>
       <td class="num">${fmtInt(i.qty)}</td>
-      <td class="num"><strong>${fmtInt(unitSave)}</strong><span class="sub-percent">${pctStr}</span></td>
       <td class="num" title="${rowFormula}"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(annualSave) : '₩'+fmtMoneyEn(annualSave)}</strong></td>
     </tr>`;
   });
@@ -4754,8 +4942,9 @@ function renderDrilldown(key) {
         ? `실구매가 ${fmtInt(i.actual)} − 기준가 ${fmtInt(Math.round(refVal))} = ${fmtInt(Math.round(unitDiff))} × ${fmtInt(i.qty)}개 = ₩${fmtMoney(saving)}`
         : `Actual ${fmtInt(i.actual)} − Ref ${fmtInt(Math.round(refVal))} = ${fmtInt(Math.round(unitDiff))} × ${fmtInt(i.qty)} = ₩${fmtMoneyEn(saving)}`;
 
+      // 절감단가: "얼마나 낮춰야 하나" → 마이너스(-) 부호
       const unitDiffColor = unitDiff > 0 ? 'color:var(--red)' : 'color:var(--green)';
-      const unitDiffStr   = unitDiff >= 0 ? `+${fmtInt(Math.round(unitDiff))}` : fmtInt(Math.round(unitDiff));
+      const unitDiffStr   = unitDiff > 0 ? `−${fmtInt(Math.round(unitDiff))}` : `+${fmtInt(Math.round(Math.abs(unitDiff)))}`;
 
       html += `<tr>
         <td><strong>${i.name}</strong></td>
