@@ -4509,7 +4509,8 @@ function updateSimMiniChart(pct) {
   const hlName      = simHighlightName;         // null = 전체, string = 선택된 제품
   const calcR       = qty => Math.min(Math.max(Math.sqrt((qty || 1) / 600) * 4, 3), 16);
 
-  if (simMiniChart) { simMiniChart.destroy(); simMiniChart = null; }
+  if (simMiniChart) { try { simMiniChart.destroy(); } catch(e){} simMiniChart = null; }
+  if (!ctx) return;
 
   // ── 데이터 필터 ──────────────────────────────────────────────
   // 제품 선택 시: 해당 제품만 표시 (나머지 완전 제거)
@@ -4572,9 +4573,10 @@ function updateSimMiniChart(pct) {
 
   if (reg && reg.slope != null) {
     // X 범위: 전체 데이터 기준 (제품 선택 여부 무관)
-    const allXs = all.filter(i => !isNaN(i.x)).map(i => i.x);
+    const allXs = all.filter(i => !isNaN(i.x) && i.x > 0).map(i => i.x);
+    if (!allXs.length) { return; }   // x값 없으면 차트 생략
     const xMin = Math.min(...allXs), xMax = Math.max(...allXs);
-    const pad  = (xMax - xMin) * 0.08 || 1;
+    const pad  = Math.max((xMax - xMin) * 0.08, xMin * 0.05, 0.1);
     const tPts = [
       { x: xMin - pad, y: reg.slope * (xMin - pad) + reg.intercept },
       { x: xMax + pad, y: reg.slope * (xMax + pad) + reg.intercept }
@@ -4709,7 +4711,6 @@ function updateSimulator() {
     ? `₩${fmtMoney(saving)}`
     : `₩${fmtMoneyEn(saving)}`;
   const _suEl = document.getElementById('simUnit'); if (_suEl) _suEl.textContent = 'KRW';
-  updateSimMiniChart(pct);
   const sdEl = document.getElementById('simDetail'); if(sdEl) sdEl.textContent =
     `${managed.length} ${dict.dataCount} · ${dict.totalPerYear}${currentLang === 'ko' ? fmtMoney(totalAnnual) : fmtMoneyEn(totalAnnual)}`;
 
@@ -4761,13 +4762,12 @@ function updateSimulator() {
     const rowFormula = currentLang === 'ko'
       ? `${fmtInt(unitSave)} × ${fmtInt(i.qty)} = ${fmtInt(annualSave)}`
       : `${fmtInt(unitSave)} × ${fmtInt(i.qty)} = ${fmtInt(annualSave)}`;
-    const simIsHL  = simHighlightName && i.name === simHighlightName;
-    const simHLStyle = simIsHL ? 'background:var(--blue-t);' : '';
-    const simDimStyle = simHighlightName && !simIsHL ? 'opacity:0.4;' : '';
+    const simIsHL   = simHighlightName && i.name === simHighlightName;
+    const simHLStyle = simIsHL ? 'background:var(--blue-t);font-weight:600;' : '';
     html += `<tr
       class="sim-row"
       data-name="${i.name.replace(/"/g, '&quot;')}"
-      style="cursor:pointer;${simHLStyle}${simDimStyle}"
+      style="cursor:pointer;${simHLStyle}"
       onclick="highlightSimRow(this,'${i.name.replace(/'/g, "\'")}')"
     >
       <td><strong>${i.name}</strong></td>
@@ -4787,8 +4787,11 @@ function updateSimulator() {
   </tr>`;
   html += '</tbody>';
 
-  // Render banner + table together (so formula appears above table)
+  // 테이블 렌더링
   bodyDiv.innerHTML = formulaBanner + '<table class="drilldown-table">' + html + '</table>';
+
+  // 미니차트는 테이블 이후에 (에러가 발생해도 테이블에 영향 없도록)
+  try { updateSimMiniChart(pct); } catch(e) { console.warn('simMiniChart error:', e); }
 }
 
 document.getElementById('simSlider').addEventListener('input', () => {
