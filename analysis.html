@@ -1960,6 +1960,9 @@ body.dark {
   </div>
 
 
+  <!-- X축 추정원가 해석 가이드 (동적으로 표시) -->
+  <div id="xAxisGuideBox" style="display:none;margin-bottom:12px;padding:12px 14px;background:var(--blue-t);border:1px solid var(--blue-s);border-radius:8px;font-size:11.5px;color:var(--l2);line-height:1.75"></div>
+
   <!-- ══ 보정계수 K 패널 (hybrid 모드에서만 표시) ══ -->
   <div id="kFactorPanel" style="display:none;margin-bottom:12px">
     <div style="background:var(--blue-t);border:1.5px solid var(--blue-s);border-radius:10px;padding:14px 18px">
@@ -2227,7 +2230,7 @@ const i18n = {
     tip_totalProducts: "현재 분석 범위에 포함된 제품 수와 연간 거래 규모입니다.\n\n시리즈 필터를 적용하면 그 범위에 맞춰 재계산됩니다.",
     tip_rSquared: "가격 체계의 합리성을 나타내는 통계 지표입니다 (0~1 사이).\n\n• 0.9 이상: 우수 — 매우 일관된 가격 체계\n• 0.75~0.9: 양호 — 합리적 가격 체계\n• 0.5~0.75: 보통 — 일부 비합리 존재\n• 0.5 미만: 미흡 — 가격 체계 재점검 필요\n\n높을수록 '성능에 비례해서 가격이 매겨졌다'는 뜻입니다.",
     tip_manageTarget: "클릭하면 관리 대상으로 분류된 제품의 상세 목록을 볼 수 있습니다.\n\n각 제품의 추세선 대비 편차와 인하여력을 확인하세요.",
-    tip_savingPotential: "클릭하면 이 금액이 어떻게 산출되었는지 제품별로 상세히 볼 수 있습니다.\n\n산출 방식: 각 관리 대상 제품에 대해 (실구매가 − 추세선값) × 연간수량의 합계.",
+    tip_savingPotential: "클릭하면 관리 대상 제품별 인하여력 상세를 볼 수 있습니다.\n\n【 분류 기준별 산출 방식 】\n① 실구매가 기준: (실구매가 − 추세선값) × 연간수량\n② 추정원가 기준: (실구매가 − 추정원가) × 연간수량\n③ 보정원가 기준: (실구매가 − 보정원가) × 연간수량  ※ 보정원가 = 추정원가 × K\n\n추세선 이하 품목은 인하여력 = 0으로 처리됩니다.",
 
     tip_simulator: "관리 대상 제품들을 일괄 X% 인하했을 때 연간 얼마가 절감되는지 실시간으로 계산합니다.\n\n아래 제품별 표에서 슬라이더 조정 시 각 제품의 현재가, 인하 후 가격, 절감액이 즉시 업데이트됩니다.",
     previewTitle: "인식된 데이터",
@@ -2361,7 +2364,7 @@ const i18n = {
     tip_totalProducts: "Number of products and total annual spend in the current analysis scope.\n\nRecomputes if you apply a series filter.",
     tip_rSquared: "How rational your pricing structure is (0 to 1).\n\n• 0.9+: Excellent — very consistent\n• 0.75–0.9: Good — rational\n• 0.5–0.75: Fair — some inconsistencies\n• <0.5: Poor — review required\n\nHigher means 'price scales with performance' more faithfully.",
     tip_manageTarget: "Click to see the detailed list of managed products.\n\nReview each product's deviation from the trendline and its saving potential.",
-    tip_savingPotential: "Click to see how this number was calculated, product by product.\n\nFormula: for each managed item, (actual − trendline) × annual qty, summed.",
+    tip_savingPotential: "Click to see the per-product saving potential breakdown.\n\n【 Formula by mode 】\n① Actual Price: (Actual − Trendline) × Annual Qty\n② Est. Cost: (Actual − Estimated) × Annual Qty\n③ Adj. Cost: (Actual − Adj.Cost) × Annual Qty  (Adj.Cost = Estimated × K)\n\nItems below the reference line have 0 saving potential.",
 
     tip_simulator: "Calculates annual savings from applying an X% average reduction to all managed items.\n\nThe per-product table below updates in real time as you move the slider.",
     previewTitle: "Detected Data",
@@ -3027,8 +3030,13 @@ function analyze(items) {
     const reg = trendMode === 'all' ? regressions['_all'] : regressions[item.series];
     if (reg) {
       item.trendY    = reg.slope * item.x + reg.intercept;
-      item.peerGap   = item.trendY > 0 ? (item.actual - item.trendY) / item.trendY * 100 : 0;
-      item.peerSaving= Math.max(0, (item.actual - item.trendY) * item.qty);
+      if (item.trendY > 0) {
+        item.peerGap   = (item.actual - item.trendY) / item.trendY * 100;
+        item.peerSaving= Math.max(0, (item.actual - item.trendY) * item.qty);
+      } else {
+        // 회귀선이 0 이하면 의미 없는 구간 — gap=0, saving=0
+        item.peerGap = 0; item.peerSaving = 0;
+      }
     } else {
       item.trendY = NaN; item.peerGap = 0; item.peerSaving = 0;
     }
@@ -3041,13 +3049,25 @@ function analyze(items) {
       item.costGap = NaN; item.costSaving = 0;
     }
 
-    // ③ 보정원가 기준 편차 (추정원가 × K)
-    //    K가 없거나 추정원가가 없으면 adjGap = NaN → 판단 불가
+    // ③ 보정원가 기준 편차 — 차트 추세선 Y값과 동일한 기준 사용
+    //    adjCostReg 회귀선의 Y값을 기준으로 gap·saving 계산
+    //    (차트에서 추세선 위 = saving > 0 이 항상 성립하게 함)
     if (correctionK && !isNaN(item.estimated) && item.estimated > 0) {
-      const adjCost    = item.estimated * correctionK;
-      item.adjGap      = (item.actual - adjCost) / adjCost * 100;
-      item.adjSaving   = Math.max(0, (item.actual - adjCost) * item.qty);
-      item.adjCost     = adjCost;
+      const adjReg = trendMode === 'all'
+        ? adjCostRegressions['_all']
+        : adjCostRegressions[item.series];
+      // 회귀선이 없으면 품목별 estimated*K로 fallback
+      const adjTrendY = (adjReg && adjReg.slope != null)
+        ? adjReg.slope * item.x + adjReg.intercept
+        : item.estimated * correctionK;
+      if (adjTrendY > 0) {
+        item.adjGap    = (item.actual - adjTrendY) / adjTrendY * 100;
+        item.adjSaving = Math.max(0, (item.actual - adjTrendY) * item.qty);
+        item.adjCost   = adjTrendY;    // 화면에 표시되는 "보정 기준선"
+      } else {
+        // 회귀선이 음수면 판단 불가 (데이터 부족)
+        item.adjGap = NaN; item.adjSaving = 0; item.adjCost = NaN;
+      }
     } else {
       item.adjGap = NaN; item.adjSaving = 0; item.adjCost = NaN;
     }
@@ -3106,10 +3126,16 @@ function renderStats(analysis) {
   const dict = i18n[currentLang];
   const items = analysis.items;
   const total = items.length;
-  const managedItems = items.filter(i => i.classification === 'danger');
+  // 관리 대상 = danger(즉시 조치) + warn(모니터링) 모두 포함
+  const managedItems = items.filter(i =>
+    i.classification === 'danger' || i.classification === 'warn');
+  const dangerItems  = items.filter(i => i.classification === 'danger');
   const managed = managedItems.length;
   // Match drilldown: saving potential is only for managed (danger) items
-  const totalSaving = managedItems.reduce((s, i) => s + (i.savingPotential || 0), 0);
+  // 잠재 절감액 = 관리 대상 중 실제로 추세선 위에 있는 항목(savingPotential>0)만 합산
+  const totalSaving = managedItems.reduce((s, i) => s + Math.max(0, i.savingPotential || 0), 0);
+  const dangerCnt = dangerItems.length;
+  const warnCnt   = managedItems.length - dangerCnt;
   const totalAnnualBuy = items.reduce((s, i) => s + (i.actual * i.qty), 0);
 
   document.getElementById('stat-total').innerHTML = `${fmtInt(total)}<span class="unit">${currentLang === 'ko' ? '개' : ''}</span>`;
@@ -3133,8 +3159,11 @@ function renderStats(analysis) {
   }
 
   const pct = total > 0 ? (managed / total * 100).toFixed(0) : 0;
+  const manageLabel = currentLang === 'ko'
+    ? `🔴 위험 ${dangerCnt}개 + 🟡 주의 ${warnCnt}개`
+    : `🔴 ${dangerCnt} danger + 🟡 ${warnCnt} warn`;
   document.getElementById('stat-manage').innerHTML = `${managed}<span class="unit">/${total}</span>`;
-  document.getElementById('stat-manageSub').textContent = `${dict.managePercent} ${pct}%`;
+  document.getElementById('stat-manageSub').textContent = manageLabel;
 
   const savingText = currentLang === 'ko'
     ? `₩${fmtMoney(totalSaving)}`
@@ -3500,6 +3529,33 @@ function renderScatterChart(analysis) {
     showExtra  = showCostTrend;
   }
 
+  // 추세선 설명 문자열 (tooltip + 라벨용)
+  const ko = currentLang === 'ko';
+  let mainTrendDesc, extraTrendDesc;
+  if (isCostOnly) {
+    mainTrendDesc = ko
+      ? '추정원가 추세선: 담당자가 계산한 적정가 기준 선입니다. 이 선 위의 점은 추정원가보다 비싸게 구매한 품목입니다.'
+      : 'Should-cost Trend: baseline from estimated costs. Points above = paid more than estimated.';
+    extraTrendDesc = ko
+      ? '실구매가 추세선: 실제 구매한 가격들의 평균 추이입니다.'
+      : 'Actual Price Trend: average trend of actual purchase prices.';
+  } else if (isHybrid) {
+    const kStr = analysis.correctionK ? analysis.correctionK.toFixed(3) : '—';
+    mainTrendDesc = ko
+      ? `보정원가 추세선 (K=${kStr}): 추정원가에 보정계수 K를 곱한 선입니다. 이 선 위의 점이 진짜 이상 고가 품목입니다.`
+      : `Adjusted Cost Trend (K=${kStr}): estimated cost × correction factor K. Points above this line are genuine outliers.`;
+    extraTrendDesc = ko
+      ? '실구매가 추세선: 실제 구매한 가격들의 평균 추이입니다.'
+      : 'Actual Price Trend: average trend of actual purchase prices.';
+  } else {
+    mainTrendDesc = ko
+      ? '실구매가 추세선: 이 포트폴리오의 실구매가 평균 추이입니다. 이 선보다 높이 있는 점이 상대적 고가 품목입니다.'
+      : 'Actual Price Trend: average of actual purchase prices. Points above = relatively overpriced in this portfolio.';
+    extraTrendDesc = ko
+      ? '추정원가 추세선: 담당자가 계산한 적정가 기준 선입니다.'
+      : 'Should-cost Trend: baseline from estimated costs.';
+  }
+
   if (analysis.trendMode === 'all' && mainRegs['_all']) {
     const reg = mainRegs['_all'];
     const xs = filtered.map(i => i.x);
@@ -3510,8 +3566,10 @@ function renderScatterChart(analysis) {
       type: 'line',
       data: points,
       borderColor: mainColor,
-      borderWidth: 1.8, borderDash: mainDash,
-      fill: false, pointRadius: 0, tension: 0, showLine: true
+      borderWidth: 2.2, borderDash: mainDash,
+      fill: false, pointRadius: 0, pointHoverRadius: 6,
+      tension: 0, showLine: true,
+      _trendDesc: mainTrendDesc    // 설명 문자열
     });
     bandConfigs.push({
       regression: reg,
@@ -3529,7 +3587,9 @@ function renderScatterChart(analysis) {
         data: clp,
         borderColor: extraColor,
         borderWidth: 1.5, borderDash: extraDash,
-        fill: false, pointRadius: 0, tension: 0, showLine: true
+        fill: false, pointRadius: 0, pointHoverRadius: 6,
+        tension: 0, showLine: true,
+        _trendDesc: extraTrendDesc
       });
     }
   } else {
@@ -3545,12 +3605,14 @@ function renderScatterChart(analysis) {
       const sc = seriesColor(s);
 
       trendDatasets.push({
-        label: s + ' ' + (isCostMode ? 'cost trend' : 'peer trend'),
+        label: s + ' ' + (ko ? '추세선' : 'Trend'),
         type: 'line',
         data: points,
-        borderColor: isCostMode ? sc : sc,
+        borderColor: sc,
         borderWidth: 1.5, borderDash: mainDash,
-        fill: false, pointRadius: 0, tension: 0, showLine: true
+        fill: false, pointRadius: 0, pointHoverRadius: 6,
+        tension: 0, showLine: true,
+        _trendDesc: mainTrendDesc
       });
       bandConfigs.push({
         regression: reg,
@@ -3567,7 +3629,9 @@ function renderScatterChart(analysis) {
           data: clp,
           borderColor: sc,
           borderWidth: 1.2, borderDash: extraDash,
-          fill: false, pointRadius: 0, tension: 0, showLine: true
+          fill: false, pointRadius: 0, pointHoverRadius: 6,
+          tension: 0, showLine: true,
+          _trendDesc: extraTrendDesc
         });
       }
     });
@@ -3582,7 +3646,7 @@ function renderScatterChart(analysis) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'point' },
+      interaction: { mode: 'nearest', intersect: true, axis: 'xy' },
       plugins: {
         legend: { display: false },
         trendBand: {
@@ -3592,20 +3656,53 @@ function renderScatterChart(analysis) {
         },
         tooltip: {
           callbacks: {
+            title: (items) => {
+              if (!items.length) return '';
+              const item = items[0];
+              // 추세선 dataset은 raw.raw가 없음
+              if (!item.raw?.raw) {
+                return item.dataset.label || '';
+              }
+              return item.raw.raw?.name || '';
+            },
             label: (ctx) => {
               const raw = ctx.raw?.raw;
-              if (!raw) return '';
+              // ── 추세선 hover: 설명 출력 ──
+              if (!raw) {
+                const desc = ctx.dataset._trendDesc;
+                if (desc) {
+                  // 40자 단위로 줄 분리
+                  const words = desc.split(' ');
+                  const lines = [];
+                  let cur = '';
+                  words.forEach(w => {
+                    if ((cur + ' ' + w).trim().length > 42) {
+                      lines.push(cur.trim());
+                      cur = w;
+                    } else {
+                      cur = cur ? cur + ' ' + w : w;
+                    }
+                  });
+                  if (cur) lines.push(cur.trim());
+                  return lines;
+                }
+                return '';
+              }
+              // ── 버블 hover: 제품 상세 ──
               const peerGapStr = raw.peerGap != null ? `${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%` : '—';
               const costGapStr = !isNaN(raw.costGap) ? `${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%` : '—';
-              return [
-                raw.name,
+              const adjGapStr  = !isNaN(raw.adjGap)  ? `${raw.adjGap  > 0 ? '+' : ''}${raw.adjGap.toFixed(1)}%`  : null;
+              const ko = currentLang === 'ko';
+              const rows = [
                 `${dict.colSeries}: ${raw.series}`,
                 `${xTitle}: ${raw.x?.toFixed(2)}`,
                 `${dict.colActual}: ${fmtInt(raw.actual)}`,
-                `동급 편차: ${peerGapStr}`,
-                `Cost gap: ${costGapStr}`,
-                `${dict.colQty}: ${fmtInt(raw.qty)}`
+                `${ko ? '실구매가 편차' : 'Market gap'}: ${peerGapStr}`,
               ];
+              if (!isNaN(raw.costGap)) rows.push(`${ko ? '추정원가 편차' : 'Cost gap'}: ${costGapStr}`);
+              if (adjGapStr) rows.push(`${ko ? '보정원가 편차' : 'Adj. gap'}: ${adjGapStr}`);
+              rows.push(`${dict.colQty}: ${fmtInt(raw.qty)}`);
+              return rows;
             }
           },
           backgroundColor: getCss('--surface'),
@@ -3635,9 +3732,11 @@ function renderScatterChart(analysis) {
           type: 'linear', display: true,
           title: {
             display: true,
-            text: analysis.classMode === 'cost' && analysis.hasEstimated
-              ? (currentLang === 'ko' ? '실구매가 (추정원가 추세선 기준)' : 'Actual Price (vs. Should-cost trend)')
-              : dict.colActual,
+            text: isHybrid
+              ? (ko ? `실구매가 (보정원가 추세선 기준, K=${analysis.correctionK?.toFixed(3) || '—'})` : `Actual Price (Adj. Cost Trend, K=${analysis.correctionK?.toFixed(3) || '—'})`)
+              : isCostOnly
+                ? (ko ? '실구매가 (추정원가 추세선 기준)' : 'Actual Price (vs. Should-cost trend)')
+                : dict.colActual,
             color: getCss('--l2'), font: { weight: 600, size: 12 }
           },
           grid: { color: getCss('--border'), drawOnChartArea: true },
@@ -3648,7 +3747,7 @@ function renderScatterChart(analysis) {
         }
       }
     },
-    plugins: [trendBandPlugin]
+    plugins: [trendBandPlugin, trendLabelPlugin]
   });
 
   renderChartLegend(analysis);
@@ -3794,7 +3893,7 @@ function renderMiniChart(analysis) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'point' },
+      interaction: { mode: 'nearest', intersect: true, axis: 'xy' },
       animation: false,  // snappier for live updates
       plugins: {
         legend: { display: false },
@@ -3823,7 +3922,7 @@ function renderMiniChart(analysis) {
         }
       }
     },
-    plugins: [trendBandPlugin]
+    plugins: [trendBandPlugin, trendLabelPlugin]
   });
 
   // Update the hint text to reflect simulator state
@@ -3917,6 +4016,43 @@ function scheduleMiniChartUpdate() {
 // Trend band plugin: draws ±threshold band around each trendline.
 // Accepts opts.regressions = array of { regression, xRange, fillColor, strokeColor }.
 // Runs in beforeDatasetsDraw so it sits behind data points.
+// ── 추세선 끝에 라벨을 표시하는 플러그인 ──
+const trendLabelPlugin = {
+  id: 'trendLabel',
+  afterDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    chart.data.datasets.forEach((ds, i) => {
+      if (ds.type !== 'line' || !ds.label || !ds.showLine) return;
+      const meta = chart.getDatasetMeta(i);
+      if (!meta.visible || !meta.data || meta.data.length === 0) return;
+      const lastPt = meta.data[meta.data.length - 1];
+      if (!lastPt) return;
+      const x = lastPt.x;
+      const y = lastPt.y;
+      const label = ds.label.length > 26 ? ds.label.slice(0, 25) + '\u2026' : ds.label;
+      ctx.save();
+      ctx.font = '600 10.5px Inter, sans-serif';
+      const tw = ctx.measureText(label).width;
+      const pad = 5, h = 17;
+      const bx = Math.min(x + 5, chart.chartArea.right - tw - pad*2 - 4);
+      const by = Math.max(y - h/2, chart.chartArea.top + 1);
+      const clr = typeof ds.borderColor === 'string' ? ds.borderColor : '#888';
+      ctx.fillStyle = clr;
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      if (ctx.roundRect) ctx.roundRect(bx, by, tw + pad*2, h, 3);
+      else ctx.rect(bx, by, tw + pad*2, h);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label, bx + pad, by + h/2);
+      ctx.restore();
+    });
+  }
+};
+
 const trendBandPlugin = {
   id: 'trendBand',
   beforeDatasetsDraw(chart, args, opts) {
@@ -4090,7 +4226,7 @@ function renderMatrixChart(analysis) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { mode: 'point' },
+      interaction: { mode: 'nearest', intersect: true, axis: 'xy' },
       plugins: {
         legend: { display: false },
         quadrantShading: {
@@ -4211,14 +4347,48 @@ function renderMatrixInsight(analysis) {
 }
 
 function renderChartLegend(analysis) {
+  const ko = currentLang === 'ko';
   const allSeries = [...new Set(analysis.items.map(i => i.series))];
-  const legendHtml = allSeries.map(s => {
+
+  // 버블 범례 (시리즈별 색)
+  const bubbleLegend = allSeries.map(s => {
     return `<span class="legend-item" data-series="${s}">
       <span class="legend-dot" style="background:${seriesColor(s)}"></span>
       ${s}
     </span>`;
   }).join('');
-  document.getElementById('chartLegend').innerHTML = legendHtml;
+
+  // 추세선 범례 — mainChart dataset에서 type==='line'인 것만
+  let trendLegend = '';
+  if (mainChart) {
+    const seen = new Set();
+    mainChart.data.datasets.forEach(ds => {
+      if (ds.type !== 'line' || !ds.label || seen.has(ds.label)) return;
+      seen.add(ds.label);
+      // 점선 스타일 SVG
+      const dashArr = (ds.borderDash || []).join(',') || 'none';
+      const clr = ds.borderColor || '#888';
+      const svg = `<svg width="28" height="10" style="margin-right:4px;vertical-align:middle">
+        <line x1="0" y1="5" x2="28" y2="5"
+          stroke="${clr}" stroke-width="2.2"
+          stroke-dasharray="${dashArr}"/>
+      </svg>`;
+      const desc = ds._trendDesc
+        ? ` title="${ds._trendDesc.replace(/"/g, '&quot;')}"`
+        : '';
+      trendLegend += `<span class="legend-item legend-trend-item"${desc}>
+        ${svg}${ds.label}
+      </span>`;
+    });
+  }
+
+  const sep = (bubbleLegend && trendLegend)
+    ? '<span style="display:inline-block;width:1px;height:14px;background:var(--border);margin:0 8px;vertical-align:middle"></span>'
+    : '';
+
+  document.getElementById('chartLegend').innerHTML =
+    `<span style="font-size:11px;color:var(--l3);margin-right:6px">${ko ? '시리즈:' : 'Series:'}</span>`
+    + bubbleLegend + sep + trendLegend;
 }
 
 /* =============================================================
@@ -4239,7 +4409,7 @@ function updateSimulator() {
     return;
   }
 
-  const managed = lastAnalysis.items.filter(i => i.classification === 'danger');
+  const managed = lastAnalysis.items.filter(i => i.classification === 'danger' || i.classification === 'warn');
   const totalAnnual = managed.reduce((s, i) => s + (i.actual * i.qty), 0);
   const saving = totalAnnual * (pct / 100);
 
@@ -4395,13 +4565,23 @@ function renderDrilldown(key) {
     // Sort by saving potential desc
     const sorted = [...items].sort((a, b) => (b.savingPotential || 0) - (a.savingPotential || 0));
 
-    const headers = currentLang === 'ko'
-      ? ['제품명', '시리즈', '실구매가', '추세선값', '단가차이', '수량', '인하여력']
-      : ['Product', 'Series', 'Actual', 'Trendline', 'Unit Δ', 'Qty', 'Potential'];
+    // 모드별 헤더/공식 결정
+    const _cmode = lastAnalysis.classMode;
+    let refColLabel, formulaTip;
+    if (_cmode === 'hybrid') {
+      refColLabel = currentLang === 'ko' ? `보정원가 (×K=${(lastAnalysis.correctionK||1).toFixed(3)})` : `Adj.Cost (×K=${(lastAnalysis.correctionK||1).toFixed(3)})`;
+      formulaTip  = currentLang === 'ko' ? '인하여력 = (실구매가 − 보정원가) × 연간수량  ※보정원가 = 추정원가 × K' : 'Potential = (Actual − Adj.Cost) × Qty  (Adj.Cost = Estimated × K)';
+    } else if (_cmode === 'cost') {
+      refColLabel = currentLang === 'ko' ? '추정원가' : 'Est. Cost';
+      formulaTip  = currentLang === 'ko' ? '인하여력 = (실구매가 − 추정원가) × 연간수량' : 'Potential = (Actual − Estimated) × Annual Qty';
+    } else {
+      refColLabel = currentLang === 'ko' ? '추세선값' : 'Trendline';
+      formulaTip  = currentLang === 'ko' ? '인하여력 = (실구매가 − 추세선값) × 연간수량' : 'Potential = (Actual − Trendline) × Annual Qty';
+    }
 
-    const formulaTipKo = '인하여력 = (실구매가 − 추세선값) × 연간수량';
-    const formulaTipEn = 'Potential = (Actual − Trendline) × Annual Qty';
-    const formulaTip = currentLang === 'ko' ? formulaTipKo : formulaTipEn;
+    const headers = currentLang === 'ko'
+      ? ['제품명', '시리즈', '실구매가', refColLabel, '단가차이', '수량', '인하여력']
+      : ['Product', 'Series', 'Actual', refColLabel, 'Unit Δ', 'Qty', 'Potential'];
 
     html += `<div class="formula-banner">
       <span class="formula-icon">ƒ</span>
@@ -4419,22 +4599,47 @@ function renderDrilldown(key) {
         <th class="num">${headers[6]}</th>
       </tr></thead><tbody>`;
 
+    // 모드별 기준값 결정
+    const cmode = lastAnalysis.classMode;
+    const K = lastAnalysis.correctionK;
+
     sorted.forEach(i => {
-      const gap = i.peerGap;
-      const gapStr = gap > 0 ? `+${gap.toFixed(1)}%` : `${gap.toFixed(1)}%`;
-      const unitDiff = i.actual - (i.trendY || 0);
-      const rowFormula = currentLang === 'ko'
-        ? `(${fmtInt(i.actual)} − ${fmtInt(i.trendY)}) × ${fmtInt(i.qty)} = ${fmtInt(i.savingPotential||0)}`
-        : `(${fmtInt(i.actual)} − ${fmtInt(i.trendY)}) × ${fmtInt(i.qty)} = ${fmtInt(i.savingPotential||0)}`;
+      // ── 모드별 기준값 (refVal) 결정 ──
+      // peer  → 실구매가 추세선(trendY)
+      // cost  → 담당자 추정원가(estimated)
+      // hybrid → 추정원가 × K (adjCost)
+      let refVal, refLabel, gapVal;
+      if (cmode === 'hybrid' && !isNaN(i.adjCost)) {
+        refVal   = i.adjCost;
+        refLabel = currentLang === 'ko' ? '보정원가' : 'Adj.Cost';
+        gapVal   = i.adjGap;
+      } else if (cmode === 'cost' && !isNaN(i.estimated) && i.estimated > 0) {
+        refVal   = i.estimated;
+        refLabel = currentLang === 'ko' ? '추정원가' : 'Est.Cost';
+        gapVal   = i.costGap;
+      } else {
+        refVal   = i.trendY || 0;
+        refLabel = currentLang === 'ko' ? '추세선' : 'Trendline';
+        gapVal   = i.peerGap;
+      }
+
+      const unitDiff = i.actual - refVal;
+      const gapStr   = !isNaN(gapVal) ? (gapVal > 0 ? `+${gapVal.toFixed(1)}%` : `${gapVal.toFixed(1)}%`) : '—';
+      const saving   = i.savingPotential || 0;
+      const rowFormula = `(${fmtInt(i.actual)} − ${fmtInt(Math.round(refVal))}) × ${fmtInt(i.qty)} = ${fmtInt(saving)}`;
+
+      // 단가차이: 양수(비쌈)면 강조, 음수(저렴)면 회색
+      const unitDiffStr = unitDiff >= 0 ? `+${fmtInt(Math.round(unitDiff))}` : fmtInt(Math.round(unitDiff));
+      const unitDiffColor = unitDiff >= 0 ? '' : 'color:var(--l3)';
 
       html += `<tr>
         <td><strong>${i.name}</strong></td>
         <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
         <td class="num">${fmtInt(i.actual)}</td>
-        <td class="num" style="color:var(--l3)">${fmtInt(i.trendY)}</td>
-        <td class="num" title="${gapStr}"><strong>+${fmtInt(unitDiff)}</strong><span class="sub-percent">${gapStr}</span></td>
+        <td class="num" style="color:var(--l3)" title="${refLabel}">${fmtInt(Math.round(refVal))}</td>
+        <td class="num" title="${gapStr}" style="${unitDiffColor}"><strong>${unitDiffStr}</strong><span class="sub-percent">${gapStr}</span></td>
         <td class="num">${fmtInt(i.qty)}</td>
-        <td class="num" title="${rowFormula}"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(i.savingPotential||0) : '₩'+fmtMoneyEn(i.savingPotential||0)}</strong></td>
+        <td class="num" title="${rowFormula}"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(saving) : '₩'+fmtMoneyEn(saving)}</strong></td>
       </tr>`;
     });
 
@@ -4679,6 +4884,7 @@ function renderAll(analysis) {
   if (currentDrilldown) renderDrilldown(currentDrilldown);
   // viewTabs active 상태 재동기화 (renderChart 후 혹시 틀어진 경우 보정)
   syncViewTabActive();
+  updateXAxisGuide();
   // classTabs active 상태 재동기화
   syncClassTabActive();
 }
@@ -4936,6 +5142,31 @@ function reanalyze() {
 ['xAxisSelect','thresholdInput','trendModeSelect','classModeSelect'].forEach(id => {
   document.getElementById(id).addEventListener('change', reanalyze);
 });
+
+// X축 해석 가이드 함수
+function updateXAxisGuide() {
+  const box = document.getElementById('xAxisGuideBox');
+  if (!box || !lastAnalysis) { if(box) box.style.display='none'; return; }
+  const xField = getXField();
+  const ko = currentLang === 'ko';
+  const isEstField = xField && /estim|추정|shouldcost|원가/i.test(xField);
+  if (!isEstField) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  const kStr = lastAnalysis.correctionK ? lastAnalysis.correctionK.toFixed(3) : '—';
+  box.innerHTML = ko
+    ? '<b>💡 X축 = 추정원가일 때 해석 방법</b><br>' +
+      'Y축(실구매가) vs X축(추정원가) 산점도입니다.<br>' +
+      '• <b>보정원가 추세선</b> = Y = ' + kStr + ' × X &nbsp; (K는 전 품목 평균 실구매가/추정원가 비율)<br>' +
+      '• 점이 추세선 <b>위</b> → 보정 후에도 비싸게 구매한 품목 — 협상 우선순위<br>' +
+      '• 점이 추세선 <b>아래</b> → 잘 협상된 품목<br>' +
+      '• 기울기 > 1이면 고가 품목일수록 마진이 더 많이 붙는 구조'
+    : '<b>💡 Interpreting the chart when X = Estimated Cost</b><br>' +
+      'This scatter shows Y (Actual) vs X (Estimated Cost).<br>' +
+      '• <b>Adjusted Cost Trendline</b> = Y = ' + kStr + ' × X &nbsp; (K = portfolio-avg actual/estimated)<br>' +
+      '• Points <b>above</b> the line → overpriced after correction — negotiation priority<br>' +
+      '• Points <b>below</b> → well-negotiated<br>' +
+      '• Slope > 1 means high-value items carry disproportionately more margin';
+}
 // seriesFilterSelect: 사용자가 직접 바꿀 때만 reanalyze (i18n 갱신 시 오발 방지)
 document.getElementById('seriesFilterSelect').addEventListener('change', function() {
   this.dataset.savedValue = this.value;  // 선택값 저장 (applyI18n 후 복원용)
