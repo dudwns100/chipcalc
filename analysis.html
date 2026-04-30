@@ -1019,9 +1019,7 @@ body.dark {
 
   .stat-card.highlight .stat-label,
   .stat-card.highlight .stat-sub,
-  .stat-card.highlight .stat-expand-hint {
-    color: rgba(255,255,255,0.7);
-  }
+  .stat-card.highlight
 
   .stat-clickable {
     cursor: pointer;
@@ -1036,14 +1034,6 @@ body.dark {
 
   .stat-clickable.highlight:hover {
     box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-  }
-
-  .stat-expand-hint {
-    margin-top: 8px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--l3);
-    letter-spacing: 0.03em;
   }
 
   /* Active state: text is swapped via JS, no CSS rotation (prevents flipping) */
@@ -1125,6 +1115,10 @@ body.dark {
     color: var(--l1);
   }
 
+  .drilldown-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .drilldown-table {
     width: 100%;
     border-collapse: collapse;
@@ -1763,7 +1757,7 @@ body.dark {
             <ul class="guide-list">
               <li><strong data-i18n="guideColName">제품명</strong><span data-i18n="guideColNameDesc"> — 식별자</span></li>
               <li><strong data-i18n="guideColActual">실구매가</strong><span data-i18n="guideColActualDesc"> — 분석 기준값 (Y축)</span></li>
-              <li><strong data-i18n="guideColQty">연간수량</strong><span data-i18n="guideColQtyDesc"> — 인하여력 계산용</span></li>
+              <li><strong data-i18n="guideColQty">연간수량</strong><span data-i18n="guideColQtyDesc"> — 협상 여지 계산용</span></li>
               <li><strong data-i18n="guideColX">X축 지표</strong><span data-i18n="guideColXDesc"> — 성능을 대표하는 숫자 컬럼 최소 1개</span></li>
               <li><strong data-i18n="guideColEstimated">추정원가</strong><span data-i18n="guideColEstimatedDesc"> — Hybrid / Should-cost 분석용 (권장)</span></li>
             </ul>
@@ -1988,58 +1982,6 @@ body.dark {
     </div>
   </div>
 
-  <!-- STATS -->
-  <section>
-    <div class="section-title" data-i18n="summary">분석 요약</div>
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-card" data-stat-key="total">
-        <div class="stat-label">
-          <span data-i18n="totalProducts">총 제품</span>
-          <span class="help-icon" data-tip-key="totalProducts"></span>
-        </div>
-        <div class="stat-value" id="stat-total">—</div>
-        <div class="stat-sub" id="stat-totalSub" data-i18n="readyToAnalyze">분석 준비 완료</div>
-      </div>
-      <div class="stat-card" data-stat-key="r2">
-        <div class="stat-label">
-          <span data-i18n="rSquared">가격 체계 R²</span>
-          <span class="help-icon" data-tip-key="rSquared"></span>
-        </div>
-        <div class="stat-value" id="stat-r2">—</div>
-        <div class="stat-sub" id="stat-r2Sub">—</div>
-      </div>
-      <div class="stat-card stat-clickable" data-stat-key="manage" id="manageCard">
-        <div class="stat-label">
-          <span data-i18n="manageTarget">관리 대상</span>
-          <span class="help-icon" data-tip-key="manageTarget"></span>
-        </div>
-        <div class="stat-value" id="stat-manage">—</div>
-        <div class="stat-sub" id="stat-manageSub">—</div>
-        <div class="stat-expand-hint" data-i18n="clickToExpand">클릭하여 상세 보기 ▼</div>
-      </div>
-      <div class="stat-card highlight stat-clickable" data-stat-key="saving" id="savingCard">
-        <div class="stat-label">
-          <span data-i18n="savingPotential">잠재 인하여력</span>
-          <span class="help-icon tip-right" data-tip-key="savingPotential"></span>
-        </div>
-        <div class="stat-value" id="stat-saving">—</div>
-        <div class="stat-sub" id="stat-savingSub" data-i18n="yearlyEstimate">추세선 기준 연간 추정</div>
-        <div class="stat-expand-hint" data-i18n="clickToExpand">클릭하여 상세 보기 ▼</div>
-      </div>
-    </div>
-
-    <!-- Drilldown area: shown when a stat card is clicked -->
-    <div id="statDrilldown" class="stat-drilldown hidden">
-      <div class="drilldown-header">
-        <span class="drilldown-title" id="drilldownTitle"></span>
-        <button class="btn-mini ghost" id="drilldownCloseBtn">
-          <span>✕</span>
-        </button>
-      </div>
-      <div class="drilldown-body" id="drilldownBody"></div>
-    </div>
-  </section>
-
   <!-- CHART -->
   <section>
     <div class="section-title" data-i18n="chartSection">버블 산점도</div>
@@ -2064,6 +2006,56 @@ body.dark {
         <canvas id="mainChart"></canvas>
       </div>
       <div id="matrixInsight" style="margin-top:12px; display:none; padding:12px 14px; background:var(--s3); border-radius:8px; font-size:12px; line-height:1.7; color:var(--l2);"></div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section style="padding-top:0;margin-top:-4px">
+    <div style="font-size:11px;font-weight:600;color:var(--l3);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;padding-left:2px" data-i18n="summary">분석 요약</div>
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card" data-stat-key="total">
+        <div class="stat-label">
+          <span data-i18n="totalProducts">총 제품</span>
+          <span class="help-icon" data-tip-key="totalProducts"></span>
+        </div>
+        <div class="stat-value" id="stat-total">—</div>
+        <div class="stat-sub" id="stat-totalSub" data-i18n="readyToAnalyze">분석 준비 완료</div>
+      </div>
+      <div class="stat-card" data-stat-key="r2">
+        <div class="stat-label">
+          <span data-i18n="rSquared">가격 체계 R²</span>
+          <span class="help-icon" data-tip-key="rSquared"></span>
+        </div>
+        <div class="stat-value" id="stat-r2">—</div>
+        <div class="stat-sub" id="stat-r2Sub">—</div>
+      </div>
+      <div class="stat-card" data-stat-key="manage" id="manageCard">
+        <div class="stat-label">
+          <span data-i18n="manageTarget">관리 대상</span>
+          <span class="help-icon" data-tip-key="manageTarget"></span>
+        </div>
+        <div class="stat-value" id="stat-manage">—</div>
+        <div class="stat-sub" id="stat-manageSub">—</div>
+      </div>
+      <div class="stat-card highlight stat-clickable" data-stat-key="saving" id="savingCard">
+        <div class="stat-label">
+          <span data-i18n="savingPotential">가격 최적화 여지</span>
+          <span class="help-icon tip-right" data-tip-key="savingPotential"></span>
+        </div>
+        <div class="stat-value" id="stat-saving">—</div>
+        <div class="stat-sub" id="stat-savingSub" data-i18n="yearlyEstimate">추세선 기준 연간 추정</div>
+      </div>
+    </div>
+
+    <!-- Drilldown area: shown when a stat card is clicked -->
+    <div id="statDrilldown" class="stat-drilldown hidden">
+      <div class="drilldown-header">
+        <span class="drilldown-title" id="drilldownTitle"></span>
+        <button class="btn-mini ghost" id="drilldownCloseBtn">
+          <span>✕</span>
+        </button>
+      </div>
+      <div class="drilldown-body" id="drilldownBody"></div>
     </div>
   </section>
 
@@ -2102,25 +2094,38 @@ body.dark {
   <!-- SIMULATOR -->
   <section class="card">
     <div class="section-title">
-      <span data-i18n="simSection">인하 시나리오 시뮬레이터</span>
+      <span data-i18n="simSection">협상 시나리오 시뮬레이터</span>
       <span class="help-icon" data-tip-key="simulator"></span>
     </div>
-    <div class="sim-grid">
-      <div class="sim-slider-wrap">
-        <label class="input-label" data-i18n="simSlider">관리 대상 제품에 적용할 평균 인하율</label>
-        <input type="range" class="sim-slider" id="simSlider" min="0" max="20" value="5" step="0.5" />
-        <div class="sim-slider-labels">
-          <span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start">
+      <!-- 왼쪽: 슬라이더 + 결과 -->
+      <div>
+        <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;margin-bottom:10px">
+          <div>
+            <label class="input-label" data-i18n="simSlider" style="margin-bottom:6px;display:block">협상 목표 절감률 (관리 검토 대상 제품)</label>
+            <input type="range" class="sim-slider" id="simSlider" min="0" max="20" value="5" step="0.5" style="width:100%" />
+            <div class="sim-slider-labels"><span>0%</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span></div>
+          </div>
+          <div class="sim-value-display" style="min-width:120px;text-align:center">
+            <div class="stat-label" data-i18n="simResult" style="font-size:11px">예상 연간 절감액</div>
+            <div class="sim-percent" id="simPercent" style="font-size:22px">5.0%</div>
+            <div class="sim-saving" style="font-size:15px"><span id="simAmount">—</span></div>
+            <div class="stat-sub" id="simDetail" style="margin-top:4px;font-size:11px">—</div>
+          </div>
         </div>
-        <p style="margin-top:14px; font-size:12px; color:var(--l3); line-height:1.6;" data-i18n="simDesc">
-          관리 대상 제품들의 가격을 X% 인하했을 때의 연간 절감 효과를 실시간 계산합니다. 협상 목표 설정 및 경영층 보고용 근거 자료로 활용하세요.
+        <p style="margin-top:6px;font-size:11.5px;color:var(--l3);line-height:1.55" data-i18n="simDesc">
+          관리 검토 대상 제품들의 가격 협상 목표를 X% 적용했을 때의 연간 절감 효과를 실시간 계산합니다.
         </p>
       </div>
-      <div class="sim-value-display">
-        <div class="stat-label" data-i18n="simResult">예상 연간 절감액</div>
-        <div class="sim-percent" id="simPercent">5.0%</div>
-        <div class="sim-saving"><span id="simAmount">—</span> <span class="unit" id="simUnit">KRW</span></div>
-        <div class="stat-sub" id="simDetail" style="margin-top:6px;">—</div>
+      <!-- 오른쪽: 미니 버블 차트 -->
+      <div>
+        <div style="font-size:11.5px;font-weight:600;color:var(--l2);margin-bottom:6px">
+          📊 협상 목표 적용 시 가격 분포 변화
+          <span style="font-size:10.5px;font-weight:400;color:var(--l3);margin-left:6px">● 현재가 &nbsp; ◎ 목표가</span>
+        </div>
+        <div style="height:200px;position:relative">
+          <canvas id="simMiniChart"></canvas>
+        </div>
       </div>
     </div>
 
@@ -2198,7 +2203,7 @@ const i18n = {
     guideColActual: "실구매가",
     guideColActualDesc: " — 분석 기준값 (Y축)",
     guideColQty: "연간수량",
-    guideColQtyDesc: " — 인하여력 계산용",
+    guideColQtyDesc: " — 협상 여지 계산용",
     guideColX: "X축 지표",
     guideColXDesc: " — 성능을 대표하는 숫자 컬럼 최소 1개 (예: 전류, 전압, 가중치 등)",
     guideColEstimated: "추정원가",
@@ -2217,7 +2222,7 @@ const i18n = {
     clickToCollapse: "클릭하여 접기 ▲",
     simDetailTitle: "제품별 세부 내역",
     drilldownManageTitle: "관리 대상 제품 상세",
-    drilldownSavingTitle: "잠재 인하여력 산출 내역",
+    drilldownSavingTitle: "가격 최적화 여지 산출 내역",
 
     // tooltip text for help icons
     tip_xaxis: "차트의 X축으로 사용할 성능/스펙 지표입니다.\n\n데이터에 포함된 숫자 컬럼들이 자동으로 후보에 나타납니다 (예: 전류, 전압, 가중치, Flash 용량 등).\n\nY축(실구매가)과의 관계를 보기 위한 '성능 대리 지표'로 생각하세요.",
@@ -2229,8 +2234,8 @@ const i18n = {
 
     tip_totalProducts: "현재 분석 범위에 포함된 제품 수와 연간 거래 규모입니다.\n\n시리즈 필터를 적용하면 그 범위에 맞춰 재계산됩니다.",
     tip_rSquared: "가격 체계의 합리성을 나타내는 통계 지표입니다 (0~1 사이).\n\n• 0.9 이상: 우수 — 매우 일관된 가격 체계\n• 0.75~0.9: 양호 — 합리적 가격 체계\n• 0.5~0.75: 보통 — 일부 비합리 존재\n• 0.5 미만: 미흡 — 가격 체계 재점검 필요\n\n높을수록 '성능에 비례해서 가격이 매겨졌다'는 뜻입니다.",
-    tip_manageTarget: "클릭하면 관리 대상으로 분류된 제품의 상세 목록을 볼 수 있습니다.\n\n각 제품의 추세선 대비 편차와 인하여력을 확인하세요.",
-    tip_savingPotential: "클릭하면 관리 대상 제품별 인하여력 상세를 볼 수 있습니다.\n\n【 분류 기준별 산출 방식 】\n① 실구매가 기준: (실구매가 − 추세선값) × 연간수량\n② 추정원가 기준: (실구매가 − 추정원가) × 연간수량\n③ 보정원가 기준: (실구매가 − 보정원가) × 연간수량  ※ 보정원가 = 추정원가 × K\n\n추세선 이하 품목은 인하여력 = 0으로 처리됩니다.",
+    tip_manageTarget: "클릭하면 관리 대상으로 분류된 제품의 상세 목록을 볼 수 있습니다.\n\n각 제품의 추세선 대비 편차와 협상 여지을 확인하세요.",
+    tip_savingPotential: "클릭하면 관리 대상 제품별 협상 여지 상세를 볼 수 있습니다.\n\n【 분류 기준별 산출 방식 】\n① 실구매가 기준: (실구매가 − 추세선값) × 연간수량\n② 추정원가 기준: (실구매가 − 추정원가) × 연간수량\n③ 보정원가 기준: (실구매가 − 보정원가) × 연간수량  ※ 보정원가 = 추정원가 × K\n\n추세선 이하 품목은 협상 기준가 절감 = 0으로 처리됩니다.",
 
     tip_simulator: "관리 대상 제품들을 일괄 X% 인하했을 때 연간 얼마가 절감되는지 실시간으로 계산합니다.\n\n아래 제품별 표에서 슬라이더 조정 시 각 제품의 현재가, 인하 후 가격, 절감액이 즉시 업데이트됩니다.",
     previewTitle: "인식된 데이터",
@@ -2269,7 +2274,7 @@ const i18n = {
     readyToAnalyze: "분석 준비 완료",
     rSquared: "가격 체계 R²",
     manageTarget: "관리 대상",
-    savingPotential: "잠재 인하여력",
+    savingPotential: "가격 최적화 여지",
     yearlyEstimate: "추세선 기준 연간 추정",
     chartSection: "버블 산점도",
     chartTitle: "가격 합리성 분포 (버블 크기 = 연간수량)",
@@ -2279,9 +2284,9 @@ const i18n = {
     classGood: "합리 구간",
     classInfo: "저평가",
     emptyTable: "분석을 실행하면 분류된 제품이 여기에 표시됩니다",
-    simSection: "인하 시나리오 시뮬레이터",
-    simSlider: "관리 대상 제품에 적용할 평균 인하율",
-    simDesc: "관리 대상 제품들의 가격을 X% 인하했을 때의 연간 절감 효과를 실시간 계산합니다. 협상 목표 설정 및 경영층 보고용 근거 자료로 활용하세요.",
+    simSection: "협상 시나리오 시뮬레이터",
+    simSlider: "협상 목표 절감률 (관리 검토 대상 제품)",
+    simDesc: "관리 검토 대상 제품들의 가격 협상 목표를 X% 적용했을 때의 연간 절감 효과를 실시간 계산합니다. 협상 목표 설정 및 경영층 보고용 근거 자료로 활용하세요.",
     simResult: "예상 연간 절감액",
     exportSection: "보고서 내보내기",
     exportPdf: "PDF 한 장 리포트",
@@ -2290,7 +2295,7 @@ const i18n = {
     exportNote: "* 모든 내보내기는 브라우저에서 직접 생성됩니다. 데이터는 서버로 전송되지 않습니다.",
     footerText: "ChipCalc Portfolio Analyzer · 100% 클라이언트 사이드 처리 · 데이터 수집 없음",
     colProduct: "제품명", colSeries: "시리즈", colX: "X값", colActual: "실구매가", colTrend: "추세선값",
-    colGap: "편차", colQty: "연간수량", colSavingPotential: "인하여력",
+    colGap: "편차", colQty: "연간수량", colSavingPotential: "협상 여지",
     labelB1Time: "이전 기간", labelB2Time: "현재 기간",
     labelB1Sup: "공급사 A", labelB2Sup: "공급사 B",
     trendExcellent: "우수 (가격 체계 매우 합리적)",
@@ -2306,7 +2311,7 @@ const i18n = {
     exportGeneratedAt: "생성일시",
     exportTotal: "총 제품 수",
     exportManagement: "관리 대상 건수",
-    exportSaving: "잠재 인하여력(연간)",
+    exportSaving: "가격 최적화 여지(연간)",
     exportR2: "가격 체계 R² 지수"
   },
   en: {
@@ -2352,7 +2357,7 @@ const i18n = {
     clickToCollapse: "Click to collapse ▲",
     simDetailTitle: "Per-product Breakdown",
     drilldownManageTitle: "Managed Items Detail",
-    drilldownSavingTitle: "Saving Potential Breakdown",
+    drilldownSavingTitle: "Optimization Opportunity Breakdown",
 
     tip_xaxis: "The performance/spec metric used as the X-axis.\n\nAll numeric columns in your data appear as candidates (e.g. current, voltage, weight, Flash capacity).\n\nThink of it as the 'performance proxy' to correlate with actual price.",
     tip_threshold: "Deviation threshold for classifying products as 'managed'.\n\nExample: at 15%, products priced +15% above the trendline are flagged.\n\nTypically 10–20% works well. Lower = stricter, higher = more tolerant.",
@@ -2363,10 +2368,10 @@ const i18n = {
 
     tip_totalProducts: "Number of products and total annual spend in the current analysis scope.\n\nRecomputes if you apply a series filter.",
     tip_rSquared: "How rational your pricing structure is (0 to 1).\n\n• 0.9+: Excellent — very consistent\n• 0.75–0.9: Good — rational\n• 0.5–0.75: Fair — some inconsistencies\n• <0.5: Poor — review required\n\nHigher means 'price scales with performance' more faithfully.",
-    tip_manageTarget: "Click to see the detailed list of managed products.\n\nReview each product's deviation from the trendline and its saving potential.",
-    tip_savingPotential: "Click to see the per-product saving potential breakdown.\n\n【 Formula by mode 】\n① Actual Price: (Actual − Trendline) × Annual Qty\n② Est. Cost: (Actual − Estimated) × Annual Qty\n③ Adj. Cost: (Actual − Adj.Cost) × Annual Qty  (Adj.Cost = Estimated × K)\n\nItems below the reference line have 0 saving potential.",
+    tip_manageTarget: "Click to see the detailed list of managed products.\n\nReview each product's deviation from the trendline and its price optimization opportunity.",
+    tip_savingPotential: "Click to see the per-product price optimization opportunity breakdown.\n\n【 Formula by mode 】\n① Actual Price: (Actual − Trendline) × Annual Qty\n② Est. Cost: (Actual − Estimated) × Annual Qty\n③ Adj. Cost: (Actual − Adj.Cost) × Annual Qty  (Adj.Cost = Estimated × K)\n\nItems below the reference line have 0 price optimization opportunity.",
 
-    tip_simulator: "Calculates annual savings from applying an X% average reduction to all managed items.\n\nThe per-product table below updates in real time as you move the slider.",
+    tip_simulator: "Calculates annual savings estimate from applying an X% average reduction to all managed items.\n\nThe per-product table below updates in real time as you move the slider.",
     previewTitle: "Detected Data",
     miniChartLabel: "Live Preview",
     miniChartHint: "Updates instantly as you change settings",
@@ -2403,7 +2408,7 @@ const i18n = {
     readyToAnalyze: "Ready to analyze",
     rSquared: "Pricing R²",
     manageTarget: "Managed Items",
-    savingPotential: "Saving Potential",
+    savingPotential: "Price Optimization",
     yearlyEstimate: "Yearly est. vs trendline",
     chartSection: "Bubble Scatter",
     chartTitle: "Price Rationality Distribution (Bubble = Annual Qty)",
@@ -2415,7 +2420,7 @@ const i18n = {
     emptyTable: "Run analysis to see classified products",
     simSection: "Reduction Scenario Simulator",
     simSlider: "Average reduction rate applied to managed items",
-    simDesc: "Calculates real-time annual savings from reducing prices of managed items by X%. Use as basis for negotiation targets and executive reporting.",
+    simDesc: "Calculates real-time annual savings estimate from reducing prices of managed items by X%. Use as basis for negotiation targets and executive reporting.",
     simResult: "Estimated Annual Saving",
     exportSection: "Export Report",
     exportPdf: "One-page PDF Report",
@@ -2440,7 +2445,7 @@ const i18n = {
     exportGeneratedAt: "Generated",
     exportTotal: "Total products",
     exportManagement: "Managed items",
-    exportSaving: "Annual saving potential",
+    exportSaving: "Annual price optimization opportunity",
     exportR2: "Pricing R² index"
   }
 };
@@ -2782,7 +2787,7 @@ function validateItems(items, meta) {
 
   if (!hasName) errors.push('제품명 컬럼이 필요합니다.');
   if (!hasActual) errors.push('실구매가 컬럼이 필요합니다 (분석의 기준값).');
-  if (!hasQty) recommendations.push('연간수량 컬럼이 없으면 인하여력 계산이 수량=1 기준으로 수행됩니다.');
+  if (!hasQty) recommendations.push('연간수량 컬럼이 없으면 협상 여지 계산이 수량=1 기준으로 수행됩니다.');
 
   // X-axis candidate: at least one numeric extra column
   if (!meta.extraNumericCols.length) {
@@ -3131,7 +3136,7 @@ function renderStats(analysis) {
     i.classification === 'danger' || i.classification === 'warn');
   const dangerItems  = items.filter(i => i.classification === 'danger');
   const managed = managedItems.length;
-  // Match drilldown: saving potential is only for managed (danger) items
+  // Match drilldown: price optimization opportunity is only for managed (danger) items
   // 잠재 절감액 = 관리 대상 중 실제로 추세선 위에 있는 항목(savingPotential>0)만 합산
   const totalSaving = managedItems.reduce((s, i) => s + Math.max(0, i.savingPotential || 0), 0);
   const dangerCnt = dangerItems.length;
@@ -4328,7 +4333,7 @@ function renderMatrixInsight(analysis) {
   if (currentLang === 'ko') {
     insight.innerHTML = `
       <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
-        <div><strong style="color:${getCss('--red')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 인하여력</div>
+        <div><strong style="color:${getCss('--red')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 협상 여지</div>
         <div><strong style="color:${getCss('--orange')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
         <div><strong style="color:${getCss('--orange')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
         <div><strong style="color:${getCss('--blue')};">🔵 좌하단 (${q3.length}개)</strong><br>이중 저평가 · <b>인상 방어 우선</b></div>
@@ -4394,6 +4399,110 @@ function renderChartLegend(analysis) {
 /* =============================================================
    SIMULATOR
 ============================================================= */
+// ── 시뮬레이터 미니 차트 ──
+let simMiniChart = null;
+
+function updateSimMiniChart(pct) {
+  const canvas = document.getElementById('simMiniChart');
+  if (!canvas || !lastAnalysis) return;
+  const ctx = canvas.getContext('2d');
+
+  const managed = lastAnalysis.items.filter(
+    i => i.classification === 'danger' || i.classification === 'warn'
+  );
+  const all = lastAnalysis.items;
+  const xField = getXField();
+
+  if (simMiniChart) simMiniChart.destroy();
+
+  // 현재가 버블 (회색)
+  const currentBubbles = all.map(i => ({
+    x: i.x,
+    y: i.actual,
+    r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 500) * 4, 3), 14),
+    _managed: managed.includes(i),
+    _name: i.name
+  }));
+
+  // 목표가 버블 (관리 대상만, 색상)
+  const targetBubbles = managed.map(i => ({
+    x: i.x,
+    y: i.actual * (1 - pct / 100),
+    r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 500) * 4, 3), 14),
+    _name: i.name
+  }));
+
+  const textColor   = getComputedStyle(document.body).getPropertyValue('--l2').trim();
+  const borderColor = getComputedStyle(document.body).getPropertyValue('--border').trim();
+  const blueColor   = getComputedStyle(document.body).getPropertyValue('--blue').trim();
+
+  simMiniChart = new Chart(ctx, {
+    type: 'bubble',
+    data: {
+      datasets: [
+        {
+          label: '현재가',
+          data: currentBubbles,
+          backgroundColor: currentBubbles.map(b =>
+            b._managed ? 'rgba(239,68,68,0.25)' : 'rgba(150,150,150,0.15)'
+          ),
+          borderColor: currentBubbles.map(b =>
+            b._managed ? 'rgba(239,68,68,0.6)' : 'rgba(150,150,150,0.3)'
+          ),
+          borderWidth: 1.5
+        },
+        {
+          label: '목표가',
+          data: targetBubbles,
+          backgroundColor: blueColor + '44',
+          borderColor: blueColor,
+          borderWidth: 2,
+          borderDash: [3, 2]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const d = ctx.raw;
+              const label = d._name || '';
+              const isTarget = ctx.datasetIndex === 1;
+              const ko = currentLang === 'ko';
+              if (isTarget) {
+                return `${label}: ${ko ? '목표가' : 'Target'} ₩${fmtInt(Math.round(d.y))} (${pct.toFixed(1)}% 적용)`;
+              }
+              return `${label}: ₩${fmtInt(Math.round(d.y))}`;
+            }
+          },
+          backgroundColor: getComputedStyle(document.body).getPropertyValue('--surface').trim(),
+          titleColor: textColor, bodyColor: textColor,
+          borderColor: borderColor, borderWidth: 1, padding: 8, displayColors: false
+        }
+      },
+      scales: {
+        x: {
+          display: true,
+          title: { display: true, text: xField || 'X', color: textColor, font: { size: 10 } },
+          grid: { color: borderColor },
+          ticks: { color: textColor, font: { size: 10 }, maxTicksLimit: 5 }
+        },
+        y: {
+          display: true,
+          title: { display: true, text: currentLang === 'ko' ? '단가' : 'Price', color: textColor, font: { size: 10 } },
+          grid: { color: borderColor },
+          ticks: { color: textColor, font: { size: 10 }, callback: v => fmtMoney(v), maxTicksLimit: 5 }
+        }
+      }
+    }
+  });
+}
+
 function updateSimulator() {
   const slider = document.getElementById('simSlider');
   const pct = parseFloat(slider.value);
@@ -4418,6 +4527,7 @@ function updateSimulator() {
     ? `₩${fmtMoney(saving)}`
     : `₩${fmtMoneyEn(saving)}`;
   document.getElementById('simUnit').textContent = 'KRW';
+  updateSimMiniChart(pct);
   document.getElementById('simDetail').textContent =
     `${managed.length} ${dict.dataCount} · ${dict.totalPerYear}${currentLang === 'ko' ? fmtMoney(totalAnnual) : fmtMoneyEn(totalAnnual)}`;
 
@@ -4432,7 +4542,7 @@ function updateSimulator() {
     ? `총 ${managed.length}개 관리 대상 제품`
     : `${managed.length} managed products`;
 
-  // Sort by saving potential (descending)
+  // Sort by price optimization opportunity (descending)
   const sorted = [...managed].sort((a, b) => {
     const sa = a.actual * a.qty * (pct / 100);
     const sb = b.actual * b.qty * (pct / 100);
@@ -4443,11 +4553,11 @@ function updateSimulator() {
   const bodyDiv = detailWrap.querySelector('.drilldown-body');
   const formulaBanner = currentLang === 'ko'
     ? `<div class="formula-banner"><span class="formula-icon">ƒ</span><code>연간절감 = (현재가 × ${pct.toFixed(1)}%) × 연간수량</code></div>`
-    : `<div class="formula-banner"><span class="formula-icon">ƒ</span><code>Annual Save = (Current × ${pct.toFixed(1)}%) × Qty</code></div>`;
+    : `<div class="formula-banner"><span class="formula-icon">ƒ</span><code>Potential Save = (Current × ${pct.toFixed(1)}%) × Qty</code></div>`;
 
   const headers = currentLang === 'ko'
     ? ['제품명', '시리즈', '현재가', '인하후가', '수량', '단위절감', '연간절감']
-    : ['Product', 'Series', 'Current', 'Reduced', 'Qty', 'Unit Save', 'Annual Save'];
+    : ['Product', 'Series', 'Current', 'Reduced', 'Qty', 'Unit Save', 'Potential Save'];
 
   let html = `<thead><tr>
     <th>${headers[0]}</th>
@@ -4502,18 +4612,7 @@ document.getElementById('simSlider').addEventListener('input', () => {
 ============================================================= */
 let currentDrilldown = null;  // 'manage' | 'saving' | null
 
-function updateExpandHintTexts() {
-  const dict = i18n[currentLang];
-  document.querySelectorAll('.stat-clickable').forEach(card => {
-    const hint = card.querySelector('.stat-expand-hint');
-    if (!hint) return;
-    if (card.classList.contains('active')) {
-      hint.textContent = dict.clickToCollapse || '클릭하여 접기 ▲';
-    } else {
-      hint.textContent = dict.clickToExpand || '클릭하여 상세 보기 ▼';
-    }
-  });
-}
+function updateExpandHintTexts() { /* 힌트 텍스트 비사용 */ }
 
 function renderDrilldown(key) {
   if (!lastAnalysis) return;
@@ -4549,7 +4648,7 @@ function renderDrilldown(key) {
         <span class="value">${currentLang === 'ko' ? '₩'+fmtMoney(totalAnnualBuy) : '₩'+fmtMoneyEn(totalAnnualBuy)}</span>
       </div>
       <div class="drilldown-summary-item">
-        <span class="label">${currentLang === 'ko' ? '총 인하여력' : 'Total potential'}</span>
+        <span class="label">${currentLang === 'ko' ? '총 협상 여지' : 'Total potential'}</span>
         <span class="value" style="color:var(--green)">${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</span>
       </div>
     </div>`;
@@ -4562,7 +4661,7 @@ function renderDrilldown(key) {
       return;
     }
 
-    // Sort by saving potential desc
+    // Sort by price optimization opportunity desc
     const sorted = [...items].sort((a, b) => (b.savingPotential || 0) - (a.savingPotential || 0));
 
     // 모드별 헤더/공식 결정
@@ -4570,25 +4669,26 @@ function renderDrilldown(key) {
     let refColLabel, formulaTip;
     if (_cmode === 'hybrid') {
       refColLabel = currentLang === 'ko' ? `보정원가 (×K=${(lastAnalysis.correctionK||1).toFixed(3)})` : `Adj.Cost (×K=${(lastAnalysis.correctionK||1).toFixed(3)})`;
-      formulaTip  = currentLang === 'ko' ? '인하여력 = (실구매가 − 보정원가) × 연간수량  ※보정원가 = 추정원가 × K' : 'Potential = (Actual − Adj.Cost) × Qty  (Adj.Cost = Estimated × K)';
+      formulaTip  = currentLang === 'ko' ? '협상 기준가 절감 = (실구매가 − 보정원가) × 연간수량  ※보정원가 = 추정원가 × K' : 'Potential = (Actual − Adj.Cost) × Qty  (Adj.Cost = Estimated × K)';
     } else if (_cmode === 'cost') {
       refColLabel = currentLang === 'ko' ? '추정원가' : 'Est. Cost';
-      formulaTip  = currentLang === 'ko' ? '인하여력 = (실구매가 − 추정원가) × 연간수량' : 'Potential = (Actual − Estimated) × Annual Qty';
+      formulaTip  = currentLang === 'ko' ? '협상 기준가 절감 = (실구매가 − 추정원가) × 연간수량' : 'Potential = (Actual − Estimated) × Annual Qty';
     } else {
       refColLabel = currentLang === 'ko' ? '추세선값' : 'Trendline';
-      formulaTip  = currentLang === 'ko' ? '인하여력 = (실구매가 − 추세선값) × 연간수량' : 'Potential = (Actual − Trendline) × Annual Qty';
+      formulaTip  = currentLang === 'ko' ? '협상 기준가 절감 = (실구매가 − 추세선값) × 연간수량' : 'Potential = (Actual − Trendline) × Annual Qty';
     }
 
-    const headers = currentLang === 'ko'
-      ? ['제품명', '시리즈', '실구매가', refColLabel, '단가차이', '수량', '인하여력']
-      : ['Product', 'Series', 'Actual', refColLabel, 'Unit Δ', 'Qty', 'Potential'];
+    const ko = currentLang === 'ko';
+    const headers = ko
+      ? ['제품명', '시리즈', '실구매가', refColLabel + ' ①', '목표단가 ②', '단가절감 ①-②', '수량', '연간 최적화여지']
+      : ['Product', 'Series', 'Actual', refColLabel + ' ①', 'Target ②', 'Unit Save ①-②', 'Qty', 'Annual Opportunity'];
 
     html += `<div class="formula-banner">
       <span class="formula-icon">ƒ</span>
       <code>${formulaTip}</code>
     </div>`;
 
-    html += `<table class="drilldown-table">
+    html += `<div class="drilldown-table-wrap"><table class="drilldown-table">
       <thead><tr>
         <th>${headers[0]}</th>
         <th>${headers[1]}</th>
@@ -4597,6 +4697,7 @@ function renderDrilldown(key) {
         <th class="num">${headers[4]}</th>
         <th class="num">${headers[5]}</th>
         <th class="num">${headers[6]}</th>
+        <th class="num">${headers[7]}</th>
       </tr></thead><tbody>`;
 
     // 모드별 기준값 결정
@@ -4623,31 +4724,49 @@ function renderDrilldown(key) {
         gapVal   = i.peerGap;
       }
 
-      const unitDiff = i.actual - refVal;
-      const gapStr   = !isNaN(gapVal) ? (gapVal > 0 ? `+${gapVal.toFixed(1)}%` : `${gapVal.toFixed(1)}%`) : '—';
-      const saving   = i.savingPotential || 0;
-      const rowFormula = `(${fmtInt(i.actual)} − ${fmtInt(Math.round(refVal))}) × ${fmtInt(i.qty)} = ${fmtInt(saving)}`;
+      const unitDiff   = i.actual - refVal;         // 단가 절감 여지
+      const targetPrice = refVal;                      // 목표단가 = 기준값
+      const gapStr      = !isNaN(gapVal) ? (gapVal > 0 ? `+${gapVal.toFixed(1)}%` : `${gapVal.toFixed(1)}%`) : '—';
+      const saving      = i.savingPotential || 0;
 
-      // 단가차이: 양수(비쌈)면 강조, 음수(저렴)면 회색
-      const unitDiffStr = unitDiff >= 0 ? `+${fmtInt(Math.round(unitDiff))}` : fmtInt(Math.round(unitDiff));
-      const unitDiffColor = unitDiff >= 0 ? '' : 'color:var(--l3)';
+      // 편차 적용 기준 설명 (tooltip)
+      const basisDesc = cmode === 'hybrid'
+        ? (currentLang === 'ko' ? `보정원가(추정원가×K=${(K||1).toFixed(3)}) 대비 ${gapStr} 초과` : `${gapStr} above Adj.Cost (Est.×K=${(K||1).toFixed(3)})`)
+        : cmode === 'cost'
+          ? (currentLang === 'ko' ? `추정원가 대비 ${gapStr} 초과` : `${gapStr} above Est.Cost`)
+          : (currentLang === 'ko' ? `시장 추세선 대비 ${gapStr} 초과` : `${gapStr} above market trend`);
+
+      const rowFormula = currentLang === 'ko'
+        ? `실구매가 ${fmtInt(i.actual)} − 기준가 ${fmtInt(Math.round(refVal))} = ${fmtInt(Math.round(unitDiff))} × ${fmtInt(i.qty)}개 = ₩${fmtMoney(saving)}`
+        : `Actual ${fmtInt(i.actual)} − Ref ${fmtInt(Math.round(refVal))} = ${fmtInt(Math.round(unitDiff))} × ${fmtInt(i.qty)} = ₩${fmtMoneyEn(saving)}`;
+
+      const unitDiffColor = unitDiff > 0 ? 'color:var(--red)' : 'color:var(--green)';
+      const unitDiffStr   = unitDiff >= 0 ? `+${fmtInt(Math.round(unitDiff))}` : fmtInt(Math.round(unitDiff));
 
       html += `<tr>
         <td><strong>${i.name}</strong></td>
         <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
         <td class="num">${fmtInt(i.actual)}</td>
-        <td class="num" style="color:var(--l3)" title="${refLabel}">${fmtInt(Math.round(refVal))}</td>
-        <td class="num" title="${gapStr}" style="${unitDiffColor}"><strong>${unitDiffStr}</strong><span class="sub-percent">${gapStr}</span></td>
+        <td class="num" style="color:var(--l2)" title="${basisDesc}">${fmtInt(Math.round(refVal))} <span class="sub-percent" style="color:var(--l3)">${gapStr}</span></td>
+        <td class="num" style="color:var(--blue);font-weight:600">${fmtInt(Math.round(targetPrice))}</td>
+        <td class="num" title="${rowFormula}" style="${unitDiffColor}"><strong>${unitDiffStr}</strong></td>
         <td class="num">${fmtInt(i.qty)}</td>
         <td class="num" title="${rowFormula}"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(saving) : '₩'+fmtMoneyEn(saving)}</strong></td>
       </tr>`;
     });
 
+    const totalUnitSaving = sorted.reduce((s, i) => s + Math.max(0, i.actual - (
+      cmode === 'hybrid' && !isNaN(i.adjCost) ? i.adjCost :
+      cmode === 'cost'   && !isNaN(i.estimated) && i.estimated > 0 ? i.estimated :
+      (i.trendY || 0)
+    )), 0);
     html += `<tr class="total-row">
-      <td colspan="6" style="text-align:right">${currentLang === 'ko' ? `합계 (${sorted.length}개 제품 연간)` : `Total (${sorted.length} products / year)`}</td>
-      <td class="num"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</strong></td>
+      <td colspan="5" style="text-align:right;font-weight:700">${currentLang === 'ko' ? `합계 (${sorted.length}개 제품)` : `Total (${sorted.length} items)`}</td>
+      <td class="num" style="color:var(--red);font-weight:700">+${fmtInt(Math.round(totalUnitSaving / Math.max(sorted.length,1)))}<span class="sub-percent" style="font-size:10px"> 평균/단</span></td>
+      <td class="num" style="font-weight:700">${fmtInt(sorted.reduce((s,i)=>s+(i.qty||0),0))}</td>
+      <td class="num" style="color:var(--blue);font-weight:700"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</strong></td>
     </tr>`;
-    html += '</tbody></table>';
+    html += '</tbody></table></div>';
   }
 
   titleEl.textContent = title;
@@ -4887,6 +5006,12 @@ function renderAll(analysis) {
   updateXAxisGuide();
   // classTabs active 상태 재동기화
   syncClassTabActive();
+  // 분석 완료 후 manage 드릴다운 자동 표시
+  setTimeout(() => {
+    if (analysis.items.some(i => i.classification === 'danger' || i.classification === 'warn')) {
+      renderDrilldown('manage');
+    }
+  }, 50);
 }
 
 function syncViewTabActive() {
