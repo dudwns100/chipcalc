@@ -2109,7 +2109,7 @@ body.dark {
           <div class="sim-value-display" style="min-width:120px;text-align:center">
             <div class="stat-label" data-i18n="simResult" style="font-size:11px">예상 연간 절감액</div>
             <div class="sim-percent" id="simPercent" style="font-size:22px">5.0%</div>
-            <div class="sim-saving" style="font-size:15px"><span id="simAmount">—</span></div>
+            <div class="sim-saving" style="font-size:15px"><span id="simAmount">—</span> <span class="unit" id="simUnit" style="font-size:11px;color:var(--l3)">KRW</span></div>
             <div class="stat-sub" id="simDetail" style="margin-top:4px;font-size:11px">—</div>
           </div>
         </div>
@@ -2123,14 +2123,14 @@ body.dark {
           📊 협상 목표 적용 시 가격 분포 변화
           <span style="font-size:10.5px;font-weight:400;color:var(--l3);margin-left:6px">● 현재가 &nbsp; ◎ 목표가</span>
         </div>
-        <div style="height:200px;position:relative">
-          <canvas id="simMiniChart"></canvas>
+        <div style="height:220px;position:relative;min-height:220px">
+          <canvas id="simMiniChart" style="width:100%;height:100%"></canvas>
         </div>
       </div>
     </div>
 
     <!-- Live detail breakdown -->
-    <div class="sim-detail-wrap" id="simDetailTableWrap">
+    <div class="sim-detail-wrap" id="simDetailTableWrap" style="display:none">
       <div class="sim-detail-header">
         <span class="sim-detail-title" data-i18n="simDetailTitle">제품별 세부 내역</span>
         <span class="sim-detail-count" id="simDetailCount"></span>
@@ -4405,32 +4405,44 @@ let simMiniChart = null;
 function updateSimMiniChart(pct) {
   const canvas = document.getElementById('simMiniChart');
   if (!canvas || !lastAnalysis) return;
-  const ctx = canvas.getContext('2d');
-
+  // 데이터가 없으면 캔버스 숨김
   const managed = lastAnalysis.items.filter(
     i => i.classification === 'danger' || i.classification === 'warn'
   );
+  if (!lastAnalysis.items.length) {
+    canvas.style.display = 'none';
+    return;
+  }
+  canvas.style.display = 'block';
+  const ctx = canvas.getContext('2d');
   const all = lastAnalysis.items;
-  const xField = getXField();
+  const xField = getXField() || 'X';
 
   if (simMiniChart) simMiniChart.destroy();
 
-  // 현재가 버블 (회색)
-  const currentBubbles = all.map(i => ({
-    x: i.x,
-    y: i.actual,
-    r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 500) * 4, 3), 14),
-    _managed: managed.includes(i),
-    _name: i.name
-  }));
+  // 현재가 버블 — NaN x값 필터링
+  const currentBubbles = all
+    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
+    .map(i => ({
+      x: i.x,
+      y: i.actual,
+      r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 600) * 4, 3), 16),
+      _managed: managed.includes(i),
+      _name: i.name
+    }));
 
-  // 목표가 버블 (관리 대상만, 색상)
-  const targetBubbles = managed.map(i => ({
-    x: i.x,
-    y: i.actual * (1 - pct / 100),
-    r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 500) * 4, 3), 14),
-    _name: i.name
-  }));
+  // 목표가 버블 (검토 대상만)
+  const targetBubbles = managed
+    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
+    .map(i => ({
+      x: i.x,
+      y: i.actual * (1 - pct / 100),
+      r: Math.min(Math.max(Math.sqrt((i.qty || 1) / 600) * 4, 3), 16),
+      _name: i.name,
+      _orig: i.actual
+    }));
+
+  if (!currentBubbles.length) { canvas.style.display = 'none'; return; }
 
   const textColor   = getComputedStyle(document.body).getPropertyValue('--l2').trim();
   const borderColor = getComputedStyle(document.body).getPropertyValue('--border').trim();
@@ -4473,11 +4485,13 @@ function updateSimMiniChart(pct) {
               const d = ctx.raw;
               const label = d._name || '';
               const isTarget = ctx.datasetIndex === 1;
-              const ko = currentLang === 'ko';
+              const koL = currentLang === 'ko';
               if (isTarget) {
-                return `${label}: ${ko ? '목표가' : 'Target'} ₩${fmtInt(Math.round(d.y))} (${pct.toFixed(1)}% 적용)`;
+                const origStr = d._orig ? ` (원래 ₩${fmtInt(Math.round(d._orig))})` : '';
+                return `${label}: ${koL ? '목표가' : 'Target'} ₩${fmtInt(Math.round(d.y))} −${pct.toFixed(1)}%${origStr}`;
               }
-              return `${label}: ₩${fmtInt(Math.round(d.y))}`;
+              const mgTag = d._managed ? (koL ? ' [검토대상]' : ' [review]') : '';
+              return `${label}: ₩${fmtInt(Math.round(d.y))}${mgTag}`;
             }
           },
           backgroundColor: getComputedStyle(document.body).getPropertyValue('--surface').trim(),
@@ -4512,8 +4526,8 @@ function updateSimulator() {
   const countEl = document.getElementById('simDetailCount');
 
   if (!lastAnalysis) {
-    document.getElementById('simAmount').textContent = '—';
-    document.getElementById('simDetail').textContent = '—';
+    const saEl = document.getElementById('simAmount'); if(saEl) saEl.textContent = '—';
+    const sdEl1 = document.getElementById('simDetail'); if(sdEl1) sdEl1.textContent = '—';
     if (detailWrap) detailWrap.style.display = 'none';
     return;
   }
@@ -4526,9 +4540,9 @@ function updateSimulator() {
   document.getElementById('simAmount').textContent = currentLang === 'ko'
     ? `₩${fmtMoney(saving)}`
     : `₩${fmtMoneyEn(saving)}`;
-  document.getElementById('simUnit').textContent = 'KRW';
+  const _suEl = document.getElementById('simUnit'); if (_suEl) _suEl.textContent = 'KRW';
   updateSimMiniChart(pct);
-  document.getElementById('simDetail').textContent =
+  const sdEl = document.getElementById('simDetail'); if(sdEl) sdEl.textContent =
     `${managed.length} ${dict.dataCount} · ${dict.totalPerYear}${currentLang === 'ko' ? fmtMoney(totalAnnual) : fmtMoneyEn(totalAnnual)}`;
 
   // Per-product breakdown table (updates live as slider moves)
@@ -5244,8 +5258,8 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   ['stat-totalSub','stat-r2Sub','stat-manageSub','stat-savingSub'].forEach(id => document.getElementById(id).textContent = '—');
   ['count-danger','count-warn','count-good','count-info'].forEach(id => document.getElementById(id).textContent = '0');
   document.getElementById('tableContainer').innerHTML = `<div class="empty">${i18n[currentLang].emptyTable}</div>`;
-  document.getElementById('simAmount').textContent = '—';
-  document.getElementById('simDetail').textContent = '—';
+  const saEl = document.getElementById('simAmount'); if(saEl) saEl.textContent = '—';
+  const sdEl = document.getElementById('simDetail'); if(sdEl) sdEl.textContent = '—';
   document.getElementById('matrixInsight').style.display = 'none';
 });
 
