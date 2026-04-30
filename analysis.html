@@ -4497,139 +4497,146 @@ function updateSimMiniChart(pct) {
 
   const all     = lastAnalysis.items;
   const managed = all.filter(i => i.classification === 'danger' || i.classification === 'warn');
-
   if (!all.length) { canvas.style.display = 'none'; return; }
+
+  // 유효한 x/y 데이터가 있는 항목만
+  const validAll     = all.filter(i => !isNaN(i.x) && i.x > 0 && !isNaN(i.actual) && i.actual > 0);
+  const validManaged = managed.filter(i => !isNaN(i.x) && i.x > 0 && !isNaN(i.actual) && i.actual > 0);
+  if (!validAll.length) { canvas.style.display = 'none'; return; }
+
   canvas.style.display = 'block';
 
-  const ctx         = canvas.getContext('2d');
-  const textColor   = getComputedStyle(document.body).getPropertyValue('--l2').trim();
-  const borderColor = getComputedStyle(document.body).getPropertyValue('--border').trim();
-  const blueColor   = getComputedStyle(document.body).getPropertyValue('--blue').trim();
-  const redColor    = '#ef4444';
-  const hlName      = simHighlightName;         // null = 전체, string = 선택된 제품
-  const calcR       = qty => Math.min(Math.max(Math.sqrt((qty || 1) / 600) * 4, 3), 16);
-
-  if (simMiniChart) { try { simMiniChart.destroy(); } catch(e){} simMiniChart = null; }
+  const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // ── 데이터 필터 ──────────────────────────────────────────────
-  // 제품 선택 시: 해당 제품만 표시 (나머지 완전 제거)
-  const showItems   = hlName
-    ? all.filter(i => i.name === hlName)
-    : all.filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0);
-  const showManaged = hlName
-    ? managed.filter(i => i.name === hlName)
-    : managed.filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0);
+  // 기존 차트 제거
+  if (simMiniChart) { try { simMiniChart.destroy(); } catch(e) {} simMiniChart = null; }
 
-  if (!showItems.length) { canvas.style.display = 'none'; return; }
+  // CSS 변수 값 (항상 안전한 hex 폴백)
+  const cs          = getComputedStyle(document.body);
+  const textColor   = cs.getPropertyValue('--l2').trim()   || '#888';
+  const borderColor = cs.getPropertyValue('--border').trim() || '#e5e7eb';
+  const blueRaw     = cs.getPropertyValue('--blue').trim()  || '#3b82f6';
+  const orangeRaw   = cs.getPropertyValue('--orange').trim()|| '#f97316';
+
+  // ── 색상 헬퍼: CSS 변수가 rgb/hsl일 때 대비 ──
+  function safeAlpha(color, a) {
+    if (!color) return `rgba(100,100,100,${a})`;
+    if (color.startsWith('#') && color.length <= 7) {
+      const r = parseInt(color.slice(1,3)||'80',16);
+      const g = parseInt(color.slice(3,5)||'80',16);
+      const b = parseInt(color.slice(5,7)||'80',16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+    if (color.startsWith('rgb')) {
+      return color.replace(/rgb\(/, 'rgba(').replace(')', `,${a})`);
+    }
+    return `rgba(100,100,100,${a})`;
+  }
+
+  const blueAlpha  = safeAlpha(blueRaw, 0.3);
+  const blueAlpha2 = safeAlpha(blueRaw, 0.12);
+  const redColor   = '#ef4444';
+  const redAlpha   = 'rgba(239,68,68,0.28)';
+  const redBorder  = 'rgba(239,68,68,0.75)';
+  const grayAlpha  = 'rgba(140,140,140,0.15)';
+  const grayBorder = 'rgba(140,140,140,0.35)';
+
+  const hlName  = simHighlightName;
+  const calcR   = qty => Math.min(Math.max(Math.sqrt((qty || 1) / 600) * 4, 3), 16);
+  const cmode   = lastAnalysis.classMode;
+
+  // ── 표시 데이터 ─────────────────────────────
+  const showAll     = hlName ? validAll.filter(i => i.name === hlName)     : validAll;
+  const showManaged = hlName ? validManaged.filter(i => i.name === hlName) : validManaged;
+
+  if (!showAll.length) { canvas.style.display = 'none'; return; }
 
   // 현재가 버블
-  const currentBubbles = showItems
-    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
-    .map(i => ({
-      x: i.x, y: i.actual, r: calcR(i.qty),
-      _name: i.name, _managed: managed.includes(i)
-    }));
+  const curBubbles = showAll.map(i => ({
+    x: i.x, y: i.actual, r: calcR(i.qty),
+    _name: i.name, _managed: managed.includes(i)
+  }));
 
   // 목표가 버블 (검토 대상만)
-  const targetBubbles = showManaged
-    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
-    .map(i => ({
-      x: i.x, y: i.actual * (1 - pct / 100), r: calcR(i.qty),
-      _name: i.name, _orig: i.actual
-    }));
+  const tgtBubbles = showManaged.map(i => ({
+    x: i.x, y: Math.round(i.actual * (1 - pct / 100)), r: calcR(i.qty),
+    _name: i.name, _orig: i.actual
+  }));
 
-  // 현재가→목표가 연결선 (검토 대상만, spanGaps:false로 선 분리)
-  const arrowData = [];
-  showManaged
-    .filter(i => !isNaN(i.x) && !isNaN(i.actual) && i.actual > 0)
-    .forEach(i => {
-      arrowData.push({ x: i.x, y: i.actual });
-      arrowData.push({ x: i.x, y: i.actual * (1 - pct / 100) });
-      arrowData.push(null);   // 선 끊기
-    });
-
-  // ── 추세선 (단 하나) ────────────────────────────────────────
-  // trendMode='all' → _all 회귀, 'series' → 선택 제품의 series 회귀
+  // ── 추세선 ──────────────────────────────────
   const trendDatasets = [];
-  const cmode = lastAnalysis.classMode;
-  const regs  = (cmode === 'hybrid' && lastAnalysis.adjCostRegressions)
-    ? lastAnalysis.adjCostRegressions
-    : lastAnalysis.regressions;
+  const regs = (cmode === 'hybrid' && lastAnalysis.adjCostRegressions)
+    ? lastAnalysis.adjCostRegressions : lastAnalysis.regressions;
 
-  // 사용할 회귀 결정
   let reg;
   if (lastAnalysis.trendMode === 'all') {
     reg = regs['_all'];
   } else {
-    // series 모드: 선택된 제품의 시리즈, 없으면 첫 번째 시리즈
-    const targetSeries = hlName
-      ? (all.find(i => i.name === hlName) || {}).series
-      : null;
-    reg = targetSeries
-      ? (regs[targetSeries] || regs['_all'])
-      : regs['_all'];
+    const targetSeries = hlName ? (all.find(i => i.name === hlName) || {}).series : null;
+    reg = targetSeries ? (regs[targetSeries] || regs['_all']) : regs['_all'];
   }
 
-  if (reg && reg.slope != null) {
-    // X 범위: 전체 데이터 기준 (제품 선택 여부 무관)
-    const allXs = all.filter(i => !isNaN(i.x) && i.x > 0).map(i => i.x);
-    if (!allXs.length) { return; }   // x값 없으면 차트 생략
-    const xMin = Math.min(...allXs), xMax = Math.max(...allXs);
-    const pad  = Math.max((xMax - xMin) * 0.08, xMin * 0.05, 0.1);
-    const tPts = [
-      { x: xMin - pad, y: reg.slope * (xMin - pad) + reg.intercept },
-      { x: xMax + pad, y: reg.slope * (xMax + pad) + reg.intercept }
-    ].filter(p => p.y > 0);
-
-    if (tPts.length === 2) {
+  if (reg && reg.slope != null && isFinite(reg.slope) && isFinite(reg.intercept)) {
+    const xs   = validAll.map(i => i.x);
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    const pad  = Math.max((xMax - xMin) * 0.08, 0.1);
+    const x0 = xMin - pad, x1 = xMax + pad;
+    const y0 = reg.slope * x0 + reg.intercept;
+    const y1 = reg.slope * x1 + reg.intercept;
+    if (y0 > 0 && y1 > 0) {
+      const trendColor = cmode === 'hybrid' ? blueRaw : cmode === 'cost' ? orangeRaw : textColor;
       const trendLabel = cmode === 'hybrid' ? '보정원가 추세선'
         : cmode === 'cost' ? '추정원가 추세선' : '실구매가 추세선';
-      const trendColor = cmode === 'hybrid' ? blueColor
-        : cmode === 'cost' ? '#f97316' : textColor;
       trendDatasets.push({
-        label: trendLabel, type: 'line', data: tPts,
-        borderColor: trendColor, borderWidth: 1.8, borderDash: [6, 3],
-        fill: false, pointRadius: 0, tension: 0, showLine: true, order: 0
+        label: trendLabel, type: 'line',
+        data: [{ x: x0, y: y0 }, { x: x1, y: y1 }],
+        borderColor: trendColor, borderWidth: 2,
+        borderDash: [6, 3], fill: false,
+        pointRadius: 0, tension: 0, showLine: true, order: 0
       });
     }
   }
 
-  // ── Chart 생성 ───────────────────────────────────────────────
+  // ── 현재→목표 연결선: null 없이 개별 dataset으로 ──
+  // null 사용 시 Chart.js 혼합 차트에서 에러 발생 → 개별 dataset
+  const arrowDatasets = [];
+  showManaged.forEach(i => {
+    if (!isNaN(i.x) && i.x > 0) {
+      arrowDatasets.push({
+        label: '_arrow',
+        type: 'line',
+        data: [
+          { x: i.x, y: i.actual },
+          { x: i.x, y: i.actual * (1 - pct / 100) }
+        ],
+        borderColor: 'rgba(239,68,68,0.45)',
+        borderWidth: 1.5, borderDash: [2, 3],
+        fill: false, pointRadius: 0, tension: 0, showLine: true, order: 1
+      });
+    }
+  });
+
+  // ── Chart 생성 ─────────────────────────────
   simMiniChart = new Chart(ctx, {
     type: 'bubble',
     data: {
       datasets: [
         ...trendDatasets,
-        // 연결선 (화살표 효과)
+        ...arrowDatasets,
         {
-          label: '_arrows',
-          type: 'line',
-          data: arrowData,
-          borderColor: 'rgba(239,68,68,0.55)',
-          borderWidth: 1.8, borderDash: [2, 3],
-          fill: false, pointRadius: 0, tension: 0,
-          showLine: true, spanGaps: false, order: 1
+          label: currentLang === 'ko' ? '현재가' : 'Current',
+          data: curBubbles,
+          backgroundColor: curBubbles.map(b => b._managed ? redAlpha  : grayAlpha),
+          borderColor:     curBubbles.map(b => b._managed ? redBorder : grayBorder),
+          borderWidth: 1.5, order: 2
         },
-        // 현재가 버블
-        {
-          label: currentLang === 'ko' ? '현재가' : 'Current Price',
-          data: currentBubbles,
-          backgroundColor: currentBubbles.map(b =>
-            b._managed ? 'rgba(239,68,68,0.28)' : 'rgba(140,140,140,0.15)'
-          ),
-          borderColor: currentBubbles.map(b =>
-            b._managed ? redColor : 'rgba(140,140,140,0.35)'
-          ),
-          borderWidth: 2, order: 2
-        },
-        // 목표가 버블 (검토 대상)
         {
           label: currentLang === 'ko' ? `목표가 (−${pct.toFixed(1)}%)` : `Target (−${pct.toFixed(1)}%)`,
-          data: targetBubbles,
-          backgroundColor: blueColor + '44',
-          borderColor: blueColor,
-          borderWidth: 2.2, order: 3
+          data: tgtBubbles,
+          backgroundColor: blueAlpha,
+          borderColor: blueRaw,
+          borderWidth: 2, order: 3
         }
       ]
     },
@@ -4642,28 +4649,26 @@ function updateSimMiniChart(pct) {
           display: true, position: 'bottom',
           labels: {
             color: textColor, font: { size: 10 }, boxWidth: 12, padding: 6,
-            filter: item => !item.text.startsWith('_')
+            filter: item => item.text && !item.text.startsWith('_')
           }
         },
         tooltip: {
           callbacks: {
-            title: items => (items[0]?.raw?._name) || (items[0]?.dataset?.label) || '',
-            label: ctx => {
-              const d = ctx.raw;
+            title: items => items[0]?.raw?._name || items[0]?.dataset?.label || '',
+            label: ctx2 => {
+              const d = ctx2.raw;
               if (!d?._name) return '';
               const ko = currentLang === 'ko';
-              const isTarget = ctx.dataset.label?.startsWith(ko ? '목표가' : 'Target');
-              if (isTarget && d._orig) {
+              if (d._orig != null) {
                 return [
                   `${ko ? '목표가' : 'Target'}: ₩${fmtInt(Math.round(d.y))}`,
-                  `${ko ? '절감단가' : 'Save/unit'}: −₩${fmtInt(Math.round(d._orig - d.y))}`
+                  `${ko ? '절감단가' : 'Save'}: −₩${fmtInt(Math.round(d._orig - d.y))}`
                 ];
               }
-              const tag = d._managed ? (ko ? ' ⚑ 검토대상' : ' ⚑ Review') : '';
-              return `${ko ? '현재가' : 'Current'}: ₩${fmtInt(Math.round(d.y))}${tag}`;
+              return `${ko ? '현재가' : 'Current'}: ₩${fmtInt(Math.round(d.y))}${d._managed ? ' ⚑' : ''}`;
             }
           },
-          backgroundColor: getComputedStyle(document.body).getPropertyValue('--surface').trim(),
+          backgroundColor: cs.getPropertyValue('--surface').trim() || '#fff',
           titleColor: textColor, bodyColor: textColor,
           borderColor: borderColor, borderWidth: 1, padding: 10, displayColors: false
         }
