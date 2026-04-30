@@ -4565,19 +4565,44 @@ function updateSimMiniChart(pct) {
   }));
 
   // ── 추세선 ──────────────────────────────────
+  // 규칙: series모드여도 _all이 없으면 전체 데이터로 즉석 계산
   const trendDatasets = [];
-  const regs = (cmode === 'hybrid' && lastAnalysis.adjCostRegressions)
-    ? lastAnalysis.adjCostRegressions : lastAnalysis.regressions;
 
-  let reg;
-  if (lastAnalysis.trendMode === 'all') {
-    reg = regs['_all'];
-  } else {
-    const targetSeries = hlName ? (all.find(i => i.name === hlName) || {}).series : null;
-    reg = targetSeries ? (regs[targetSeries] || regs['_all']) : regs['_all'];
+  const regs = (cmode === 'hybrid'
+    && lastAnalysis.adjCostRegressions
+    && Object.keys(lastAnalysis.adjCostRegressions).length)
+    ? lastAnalysis.adjCostRegressions
+    : lastAnalysis.regressions;
+
+  // _all 우선, 없으면 즉석 선형회귀 계산
+  let reg = (regs && regs['_all'] && isFinite(regs['_all'].slope)) ? regs['_all'] : null;
+  if (!reg) {
+    // series 모드: _all 키 없음 → validAll 전체로 직접 계산
+    const yFn = i => {
+      if (cmode === 'hybrid' && !isNaN(i.estimated) && i.estimated > 0 && lastAnalysis.correctionK)
+        return i.estimated * lastAnalysis.correctionK;
+      if (cmode === 'cost' && !isNaN(i.estimated) && i.estimated > 0)
+        return i.estimated;
+      return i.actual;
+    };
+    const pts = validAll.map(i => ({ x: i.x, y: yFn(i) })).filter(p => p.y > 0);
+    if (pts.length >= 2) {
+      const n   = pts.length;
+      const sx  = pts.reduce((s,p) => s+p.x, 0);
+      const sy  = pts.reduce((s,p) => s+p.y, 0);
+      const sxy = pts.reduce((s,p) => s+p.x*p.y, 0);
+      const sx2 = pts.reduce((s,p) => s+p.x*p.x, 0);
+      const den = n*sx2 - sx*sx;
+      if (Math.abs(den) > 1e-10) {
+        const slope = (n*sxy - sx*sy) / den;
+        const intercept = (sy - slope*sx) / n;
+        if (isFinite(slope) && isFinite(intercept)) reg = { slope, intercept };
+      }
+    }
   }
 
-  if (reg && reg.slope != null && isFinite(reg.slope) && isFinite(reg.intercept)) {
+  // 추세선 그리기 (전체 데이터 X 범위 기준, 항상)
+  if (reg) {
     const xs   = validAll.map(i => i.x);
     const xMin = Math.min(...xs), xMax = Math.max(...xs);
     const pad  = Math.max((xMax - xMin) * 0.08, 0.1);
@@ -4585,7 +4610,8 @@ function updateSimMiniChart(pct) {
     const y0 = reg.slope * x0 + reg.intercept;
     const y1 = reg.slope * x1 + reg.intercept;
     if (y0 > 0 && y1 > 0) {
-      const trendColor = cmode === 'hybrid' ? blueRaw : cmode === 'cost' ? orangeRaw : textColor;
+      const trendColor = cmode === 'hybrid' ? blueRaw
+        : cmode === 'cost' ? orangeRaw : textColor;
       const trendLabel = cmode === 'hybrid' ? '보정원가 추세선'
         : cmode === 'cost' ? '추정원가 추세선' : '실구매가 추세선';
       trendDatasets.push({
@@ -4598,11 +4624,10 @@ function updateSimMiniChart(pct) {
     }
   }
 
-  // ── 현재→목표 연결선: null 없이 개별 dataset으로 ──
-  // null 사용 시 Chart.js 혼합 차트에서 에러 발생 → 개별 dataset
+  // ── 현재→목표 연결선: 제품별 개별 dataset (null 없이)
   const arrowDatasets = [];
   showManaged.forEach(i => {
-    if (!isNaN(i.x) && i.x > 0) {
+    if (!isNaN(i.x) && i.x > 0 && i.actual > 0) {
       arrowDatasets.push({
         label: '_arrow',
         type: 'line',
