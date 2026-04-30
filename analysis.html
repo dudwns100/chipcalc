@@ -1782,6 +1782,42 @@ body.dark {
           </div>
         </div>
       </div>
+
+      <!-- 분류 기준 설명 (처음 사용자용) -->
+      <div style="margin-top:18px;padding:14px 16px;background:var(--blue-t);border:1px solid var(--blue-s);border-radius:10px">
+        <div style="font-size:12.5px;font-weight:700;color:var(--l1);margin-bottom:10px">📊 분류 기준 3가지 — 이게 가장 중요합니다</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+          <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">
+            <div style="font-size:11px;font-weight:800;color:var(--l3);letter-spacing:0.05em;margin-bottom:4px">① 실구매가 기준</div>
+            <div style="font-size:12px;font-weight:700;color:var(--l1);margin-bottom:5px">"시장 평균과 비교"</div>
+            <div style="font-size:11.5px;color:var(--l2);line-height:1.65">
+              우리 구매가 데이터의 평균 추세선을 그린 뒤,<br>
+              유독 비싼 품목을 찾습니다.<br>
+              <span style="color:var(--l3)">→ 추정원가 없어도 동작</span>
+            </div>
+          </div>
+          <div style="background:var(--surface);border-radius:8px;padding:12px 14px;border:1px solid var(--border)">
+            <div style="font-size:11px;font-weight:800;color:var(--l3);letter-spacing:0.05em;margin-bottom:4px">② 추정원가 기준</div>
+            <div style="font-size:12px;font-weight:700;color:var(--l1);margin-bottom:5px">"이론 원가와 비교"</div>
+            <div style="font-size:11.5px;color:var(--l2);line-height:1.65">
+              담당자가 계산한 적정가 대비<br>
+              실구매가가 얼마나 비싼지 봅니다.<br>
+              <span style="color:var(--l3)">→ 추정원가 컬럼 필요</span>
+            </div>
+          </div>
+          <div style="background:var(--blue);border-radius:8px;padding:12px 14px;border:1px solid var(--blue)">
+            <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,0.7);letter-spacing:0.05em;margin-bottom:4px">③ 보정원가 기준 ★ 권장</div>
+            <div style="font-size:12px;font-weight:700;color:#fff;margin-bottom:5px">"오차 보정 후 비교"</div>
+            <div style="font-size:11.5px;color:rgba(255,255,255,0.88);line-height:1.65">
+              추정원가가 전반적으로 낮게 잡혀있다면<br>
+              그 오차를 전 품목에 균등 보정(K)한 뒤,<br>
+              그래도 비싼 품목만 선별합니다.<br>
+              <span style="color:rgba(255,255,255,0.65)">→ 가장 정확, 이 방법 권장</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -1876,9 +1912,9 @@ body.dark {
             <span class="help-icon" data-tip-key="classMode"></span>
           </label>
           <select id="classModeSelect">
-            <option value="hybrid" data-i18n="classModeHybrid">Hybrid (교차검증) ★</option>
-            <option value="peer" data-i18n="classModePeer">Peer only (동급비교)</option>
-            <option value="cost" data-i18n="classModeCost">Should-cost (원가기반)</option>
+            <option value="hybrid" data-i18n="classModeHybrid" selected>③ 보정원가 기준 (권장) ★</option>
+            <option value="peer" data-i18n="classModePeer">① 실구매가 기준</option>
+            <option value="cost" data-i18n="classModeCost">② 추정원가 기준</option>
           </select>
         </div>
         <div class="control-item">
@@ -1921,6 +1957,32 @@ body.dark {
       </div>
     </section>
 
+  </div>
+
+
+  <!-- ══ 보정계수 K 패널 (hybrid 모드에서만 표시) ══ -->
+  <div id="kFactorPanel" style="display:none;margin-bottom:12px">
+    <div style="background:var(--blue-t);border:1.5px solid var(--blue-s);border-radius:10px;padding:14px 18px">
+      <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+        <div style="flex:0 0 auto">
+          <div style="font-size:10.5px;font-weight:700;color:var(--blue);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px">보정계수 K</div>
+          <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:var(--blue)" id="kFactorValue">—</div>
+          <div style="font-size:11px;color:var(--l3);margin-top:2px" id="kFactorItems">—</div>
+        </div>
+        <div style="flex:1;min-width:240px;border-left:1px solid var(--blue-s);padding-left:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--l1);margin-bottom:6px">📐 보정계수(K)란?</div>
+          <div style="font-size:11.5px;color:var(--l2);line-height:1.65" id="kFactorDesc">—</div>
+        </div>
+        <div style="flex:1;min-width:200px;border-left:1px solid var(--blue-s);padding-left:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--l1);margin-bottom:6px">📊 계산 방법</div>
+          <div style="font-size:11px;color:var(--l2);line-height:1.65">
+            K = 평균(실구매가 ÷ 추정원가)<br>
+            보정원가ᵢ = 추정원가ᵢ × K<br>
+            편차 = (실구매가 − 보정원가) ÷ 보정원가 × 100%
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- STATS -->
@@ -2158,7 +2220,7 @@ const i18n = {
     tip_xaxis: "차트의 X축으로 사용할 성능/스펙 지표입니다.\n\n데이터에 포함된 숫자 컬럼들이 자동으로 후보에 나타납니다 (예: 전류, 전압, 가중치, Flash 용량 등).\n\nY축(실구매가)과의 관계를 보기 위한 '성능 대리 지표'로 생각하세요.",
     tip_threshold: "제품을 '관리 대상'으로 분류하는 편차 기준입니다.\n\n예: 15%로 설정 시, 추세선 대비 +15% 이상 비싼 제품이 '관리 대상'으로 분류됩니다.\n\n일반적으로 10~20% 사이가 적정합니다. 낮을수록 엄격, 높을수록 관대.",
     tip_trendMode: "가격 합리성 기준선을 어떻게 그을지 결정합니다.\n\n• 전체 통합: 모든 제품을 하나의 추세선으로 비교. 전체 구매 포트폴리오의 일관성 검토용.\n\n• 시리즈별: 각 시리즈마다 별도 추세선. 예: AURIX2와 AURIX1을 각자의 기준으로 비교. 시리즈 내부 일관성 검토용.",
-    tip_classMode: "overprice/저평가를 판정하는 기준입니다.\n\n• Hybrid (권장): 동급비교와 원가비교 두 관점을 교차검증. 둘 다 고가여야 '관리 대상'. 가장 신뢰도 높음.\n\n• Peer only: 유사 제품끼리만 비교. 추정원가 없어도 작동.\n\n• Should-cost: 기술 사양 기반 추정원가 대비만 비교. 공급사 전체가 overprice인 경우를 잡을 때 유용.",
+    tip_classMode: "어떤 기준으로 가격 이상 여부를 판단할지 선택합니다.\n\n① 실구매가 기준\n  → 우리가 실제 구매한 가격들의 평균 추세선을 그어, 그 선보다 일정 % 이상 비싼 제품을 탐지합니다.\n  → 추정원가가 없어도 사용 가능.\n  → 단점: 시장 전체가 비싸면 이상치를 못 잡음.\n\n② 추정원가 기준\n  → 담당자가 입력한 이론적 원가 대비 편차로 판단합니다.\n  → 단점: 추정원가 자체가 낮게 잡혀 있으면 모든 제품이 위험으로 나옴.\n\n③ 보정원가 기준 (권장 ★)\n  → 추정원가가 전반적으로 얼마나 낮게 잡혔는지 계산해(보정계수 K), 그만큼 보정한 후 이상치를 탐지합니다.\n  → 체계적인 오차를 감안하여 진짜 이상 품목만 골라냅니다.",
     tip_seriesFilter: "특정 시리즈만 선택해서 분석할 수 있습니다.\n\n예: 'A-Series'만 선택하면 A-Series 제품만으로 추세선과 통계가 재계산됩니다.\n\n특정 공급사/제품군에 집중한 협상 준비 시 유용.",
     tip_bubbleScale: "차트에서 버블 크기가 수량을 표현하는 방식을 조정합니다.\n\n• 제곱근 (권장): 시각적으로 균형 잡힌 기본 스케일.\n• 선형: 대량 제품을 크게 강조.\n• 로그: 수량 편차가 극단적일 때 (예: 10,000 vs 5,000,000) 작은 제품도 보이게 완화.\n• 고정: 수량 무관 동일 크기. 가격 패턴만 보고 싶을 때.",
 
@@ -2186,9 +2248,9 @@ const i18n = {
     trendAll: "전체 통합",
     trendSeries: "시리즈별",
     classMode: "분류 기준",
-    classModeHybrid: "Hybrid (교차검증) ★",
-    classModePeer: "Peer only (동급비교)",
-    classModeCost: "Should-cost (원가기반)",
+    classModeHybrid: "③ 보정원가 기준 (권장) ★",
+    classModePeer: "① 실구매가 기준",
+    classModeCost: "② 추정원가 기준",
     viewScatter: "합리성 산점도",
     viewMatrix: "종합 매트릭스",
     costOverlay: "추정원가 추세선 표시",
@@ -2292,7 +2354,7 @@ const i18n = {
     tip_xaxis: "The performance/spec metric used as the X-axis.\n\nAll numeric columns in your data appear as candidates (e.g. current, voltage, weight, Flash capacity).\n\nThink of it as the 'performance proxy' to correlate with actual price.",
     tip_threshold: "Deviation threshold for classifying products as 'managed'.\n\nExample: at 15%, products priced +15% above the trendline are flagged.\n\nTypically 10–20% works well. Lower = stricter, higher = more tolerant.",
     tip_trendMode: "How to draw the rationality baseline.\n\n• All Combined: one trendline across all products. For overall portfolio consistency.\n\n• Per Series: separate trendline per series. For within-series consistency.",
-    tip_classMode: "Method for flagging overpriced / underpriced items.\n\n• Hybrid (recommended): cross-checks peer comparison AND cost comparison. Most reliable.\n\n• Peer only: peer comparison only. Works even without estimated cost.\n\n• Should-cost: compare only vs. estimated cost. Catches cases where the whole supplier portfolio is overpriced.",
+    tip_classMode: "Choose the benchmark for detecting pricing anomalies.\n\n① Actual Price Benchmark\n  → Draws a trend line from actual purchase prices; flags items priced significantly above it.\n  → Works without estimated costs.\n  → Limitation: misses overpricing if the whole market is inflated.\n\n② Estimated Cost Benchmark\n  → Compares actual price vs. your input estimated cost.\n  → Limitation: if estimates are systematically low, everything looks overpriced.\n\n③ Adjusted Cost Benchmark (Recommended ★)\n  → Computes a correction factor K = average(actual / estimated), then applies it uniformly.\n  → Removes systematic bias and surfaces only genuine outliers.",
     tip_seriesFilter: "Analyze only a specific series.\n\nExample: selecting 'A-Series' recalculates trendline and stats using only A-Series products.\n\nUseful when preparing negotiations for a specific supplier or product family.",
     tip_bubbleScale: "How bubble size represents quantity.\n\n• Square root (recommended): balanced default.\n• Linear: emphasizes high-volume items.\n• Log: flattens extreme ranges so small items stay visible.\n• Fixed: uniform size, focus on pricing pattern only.",
 
@@ -2320,9 +2382,9 @@ const i18n = {
     trendAll: "All Combined",
     trendSeries: "Per Series",
     classMode: "Classification",
-    classModeHybrid: "Hybrid (cross-check) ★",
-    classModePeer: "Peer only",
-    classModeCost: "Should-cost",
+    classModeHybrid: "③ Adjusted Cost (Recommended) ★",
+    classModePeer: "Market Only",
+    classModeCost: "② Estimated Cost Benchmark",
     viewScatter: "Rationality Scatter",
     viewMatrix: "Combined Matrix",
     costOverlay: "Show cost trendline",
@@ -2726,7 +2788,7 @@ function validateItems(items, meta) {
 
   // Recommended: estimated cost (for hybrid/should-cost mode)
   if (!items.some(i => !isNaN(i.estimated))) {
-    recommendations.push('추정원가 컬럼이 없어 Hybrid/Should-cost 분석 모드는 비활성됩니다. Peer 비교만 수행됩니다.');
+    recommendations.push('추정원가 컬럼이 없어 Hybrid/Should-cost 분석 모드는 비활성됩니다. 동급 시세 비교만 수행됩니다.');
   }
 
   return { errors, recommendations };
@@ -2858,36 +2920,41 @@ function getXLabel() {
 /* -------------------------------------------------------------
    Classification helper: peer/cost gap → 4-bucket classification
 ------------------------------------------------------------- */
-function classifyItem(peerGap, costGap, threshold, mode) {
-  const hasCost = !isNaN(costGap);
+/**
+ * 분류 기준별 판정 함수
+ *
+ * mode === 'peer'   : 실구매가 기준 — 시장 추세선 대비 편차(peerGap)로 판정
+ * mode === 'cost'   : 추정원가 기준 — 추정원가 대비 편차(costGap)로 판정
+ * mode === 'hybrid' : 보정원가 기준 — 추정원가 × 전체 보정계수(K) 대비 편차(adjGap)로 판정
+ *                     adjGap은 analyze()에서 계산돼 인수로 전달됨
+ */
+function classifyItem(peerGap, costGap, threshold, mode, adjGap) {
   const absHigh = threshold;
-  const absMid = threshold / 2;
+  const absMid  = threshold / 2;
 
+  // ── 실구매가 기준 (시장 추세선 대비) ──
   if (mode === 'peer') {
-    if (peerGap > absHigh) return 'danger';
-    if (peerGap > absMid) return 'warn';
+    if (peerGap > absHigh)  return 'danger';
+    if (peerGap > absMid)   return 'warn';
     if (peerGap < -absHigh) return 'info';
     return 'good';
   }
+
+  // ── 추정원가 기준 (입력된 추정원가 그대로) ──
   if (mode === 'cost') {
-    if (!hasCost) return 'good';
-    if (costGap > absHigh) return 'danger';
-    if (costGap > absMid) return 'warn';
-    if (costGap < -absHigh) return 'info';
+    if (isNaN(costGap))      return 'good';   // 추정원가 없으면 판단 불가
+    if (costGap > absHigh)   return 'danger';
+    if (costGap > absMid)    return 'warn';
+    if (costGap < -absHigh)  return 'info';
     return 'good';
   }
-  // hybrid: cross-verification
-  const peerHigh = peerGap > absHigh;
-  const costHigh = hasCost && costGap > absHigh;
-  const peerLow = peerGap < -absHigh;
-  const costLow = hasCost && costGap < -absHigh;
-  const peerMid = peerGap > absMid && peerGap <= absHigh;
-  const costMid = hasCost && costGap > absMid && costGap <= absHigh;
 
-  if (peerHigh && costHigh) return 'danger';           // 이중 overprice
-  if (peerHigh || costHigh) return 'warn';             // 한쪽만 overprice
-  if (peerMid || costMid) return 'warn';
-  if (peerLow || costLow) return 'info';
+  // ── 보정원가 기준 (K 보정 후 추정원가 대비) ──
+  // adjGap = (실구매가 - 추정원가×K) / (추정원가×K) × 100
+  if (isNaN(adjGap))         return 'good';   // 추정원가 없는 항목은 판단 불가
+  if (adjGap > absHigh)      return 'danger';
+  if (adjGap > absMid)       return 'warn';
+  if (adjGap < -absHigh)     return 'info';
   return 'good';
 }
 
@@ -2941,42 +3008,66 @@ function analyze(items) {
     ? buildRegressions(enriched, trendMode, i => i.estimated)
     : {};
 
-  // 4. Compute gaps, savings, classification per item
+  // 4-A. 보정계수 K 계산 (hybrid 모드용)
+  //   K = mean(실구매가ᵢ / 추정원가ᵢ) — 추정원가를 전체적으로 얼마나 낮게 잡았는지
+  //   이 비율을 전 제품에 균등 적용해 추정원가를 보정함
+  const itemsWithBoth = enriched.filter(i => !isNaN(i.estimated) && i.estimated > 0 && !isNaN(i.actual));
+  const correctionK = itemsWithBoth.length > 0
+    ? itemsWithBoth.reduce((s, i) => s + i.actual / i.estimated, 0) / itemsWithBoth.length
+    : null;
+  // 보정원가 회귀선: 추정원가 × K를 Y값으로 사용
+  const adjCostRegressions = (correctionK && hasEstimated)
+    ? buildRegressions(enriched, trendMode, i =>
+        (!isNaN(i.estimated) && i.estimated > 0) ? i.estimated * correctionK : NaN)
+    : {};
+
+  // 4-B. 각 항목별 편차·절감·분류 계산
   enriched.forEach(item => {
-    // Peer gap: distance from peer-benchmark trendline
+    // ① 실구매가 기준 편차 (시장 추세선 대비)
     const reg = trendMode === 'all' ? regressions['_all'] : regressions[item.series];
     if (reg) {
-      item.trendY = reg.slope * item.x + reg.intercept;
-      item.peerGap = item.trendY > 0 ? (item.actual - item.trendY) / item.trendY * 100 : 0;
-      item.peerSaving = Math.max(0, (item.actual - item.trendY) * item.qty);
+      item.trendY    = reg.slope * item.x + reg.intercept;
+      item.peerGap   = item.trendY > 0 ? (item.actual - item.trendY) / item.trendY * 100 : 0;
+      item.peerSaving= Math.max(0, (item.actual - item.trendY) * item.qty);
     } else {
-      item.trendY = NaN;
-      item.peerGap = 0;
-      item.peerSaving = 0;
+      item.trendY = NaN; item.peerGap = 0; item.peerSaving = 0;
     }
 
-    // Cost gap: distance from should-cost estimate
+    // ② 추정원가 기준 편차 (입력된 추정원가 그대로)
     if (!isNaN(item.estimated) && item.estimated > 0) {
-      item.costGap = (item.actual - item.estimated) / item.estimated * 100;
-      item.costSaving = Math.max(0, (item.actual - item.estimated) * item.qty);
+      item.costGap   = (item.actual - item.estimated) / item.estimated * 100;
+      item.costSaving= Math.max(0, (item.actual - item.estimated) * item.qty);
     } else {
-      item.costGap = NaN;
-      item.costSaving = 0;
+      item.costGap = NaN; item.costSaving = 0;
     }
 
-    item.classification = classifyItem(item.peerGap, item.costGap, threshold, classMode);
+    // ③ 보정원가 기준 편차 (추정원가 × K)
+    //    K가 없거나 추정원가가 없으면 adjGap = NaN → 판단 불가
+    if (correctionK && !isNaN(item.estimated) && item.estimated > 0) {
+      const adjCost    = item.estimated * correctionK;
+      item.adjGap      = (item.actual - adjCost) / adjCost * 100;
+      item.adjSaving   = Math.max(0, (item.actual - adjCost) * item.qty);
+      item.adjCost     = adjCost;
+    } else {
+      item.adjGap = NaN; item.adjSaving = 0; item.adjCost = NaN;
+    }
 
-    // Composite saving: depends on classification mode
-    if (classMode === 'cost') item.savingPotential = item.costSaving;
-    else if (classMode === 'hybrid') item.savingPotential = Math.max(item.peerSaving, item.costSaving);
-    else item.savingPotential = item.peerSaving;
+    // 분류 판정
+    item.classification = classifyItem(item.peerGap, item.costGap, threshold, classMode, item.adjGap);
+
+    // 절감 잠재액: 모드별로 기준 다름
+    if      (classMode === 'peer')   item.savingPotential = item.peerSaving;
+    else if (classMode === 'cost')   item.savingPotential = item.costSaving;
+    else                             item.savingPotential = item.adjSaving;  // hybrid: 보정원가 기준
   });
 
   return {
     items: enriched,
-    filtered: enriched,        // retained for backward compat with chart code
+    filtered: enriched,
     regressions,
     costRegressions,
+    adjCostRegressions,       // 보정원가 회귀선
+    correctionK,              // 보정계수 K (UI에 표시)
     threshold,
     trendMode,
     seriesFilter,
@@ -3050,6 +3141,51 @@ function renderStats(analysis) {
     : `₩${fmtMoneyEn(totalSaving)}`;
   document.getElementById('stat-saving').innerHTML = savingText;
   document.getElementById('stat-savingSub').textContent = dict.yearlyEstimate;
+
+  // K 패널 업데이트 (hybrid 모드에서만 표시)
+  updateKFactorPanel(analysis);
+}
+
+function updateKFactorPanel(analysis) {
+  const panel = document.getElementById('kFactorPanel');
+  if (!panel) return;
+
+  if (analysis.classMode !== 'hybrid' || !analysis.correctionK) {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const K = analysis.correctionK;
+  const n = analysis.items.filter(i => !isNaN(i.adjGap)).length;
+  const ko = currentLang === 'ko';
+
+  document.getElementById('kFactorValue').textContent = K.toFixed(3) + '×';
+  document.getElementById('kFactorItems').textContent =
+    ko ? `${n}개 품목 기준` : `Based on ${n} items`;
+
+  const kPct = ((K - 1) * 100).toFixed(1);
+  let desc;
+  if (K > 1.1) {
+    desc = ko
+      ? `추정원가가 실구매가보다 평균 ${kPct}% 낮게 책정되어 있습니다. ` +
+        `이 차이를 전 품목에 균등 보정 후 이상치를 탐지합니다.`
+      : `Estimated costs are ${kPct}% lower than actual prices on average. ` +
+        `This systematic gap is applied uniformly before detecting outliers.`;
+  } else if (K > 0.9) {
+    desc = ko
+      ? `추정원가와 실구매가가 비교적 잘 맞습니다 (차이 ${kPct}%). ` +
+        `소폭 보정 후 이상치를 탐지합니다.`
+      : `Estimated and actual prices are closely aligned (gap: ${kPct}%). ` +
+        `A small correction is applied before outlier detection.`;
+  } else {
+    desc = ko
+      ? `추정원가가 실구매가보다 높게 설정되어 있습니다 (${Math.abs(kPct)}% 초과). ` +
+        `원가 모델을 재검토하는 것을 권장합니다.`
+      : `Estimated costs are set ${Math.abs(kPct)}% above actual prices. ` +
+        `Consider revisiting the cost model.`;
+  }
+  document.getElementById('kFactorDesc').textContent = desc;
 }
 
 /* =============================================================
@@ -3077,14 +3213,17 @@ function renderTable(analysis, cls) {
   });
 
   const showCost = analysis.hasEstimated;
+  const showAdj  = analysis.classMode === 'hybrid' && !!analysis.correctionK;
+  const kStr     = showAdj ? `K=${analysis.correctionK.toFixed(3)}` : '';
 
   let html = `<div class="table-wrap"><table>
     <thead><tr>
       <th>${dict.colProduct}</th>
       <th>${dict.colSeries}</th>
       <th class="num">${dict.colActual}</th>
-      <th class="num">${currentLang === 'ko' ? '피어 편차' : 'Peer gap'}</th>
-      ${showCost ? `<th class="num">${currentLang === 'ko' ? '원가 편차' : 'Cost gap'}</th>` : ''}
+      <th class="num">${currentLang === 'ko' ? '실구매가 편차' : 'Market gap'}</th>
+      ${showCost ? `<th class="num">${currentLang === 'ko' ? '추정원가 편차' : 'Cost gap'}</th>` : ''}
+      ${showAdj  ? `<th class="num" style="color:var(--blue)">${currentLang === 'ko' ? `보정원가 편차 (${kStr})` : `Adj. gap (${kStr})`}</th>` : ''}
       <th class="num">${dict.colQty}</th>
       <th class="num">${dict.colSavingPotential}</th>
     </tr></thead><tbody>`;
@@ -3094,6 +3233,20 @@ function renderTable(analysis, cls) {
                          i.peerGap > analysis.threshold/2 ? 'warn' :
                          i.peerGap < -analysis.threshold ? 'info' : 'good';
     const peerStr = i.peerGap > 0 ? `+${i.peerGap.toFixed(1)}%` : `${i.peerGap.toFixed(1)}%`;
+
+    // 보정원가 편차 셀
+    let adjCell = '';
+    if (showAdj) {
+      if (isNaN(i.adjGap)) {
+        adjCell = `<td class="num"><span style="color:var(--l3)">—</span></td>`;
+      } else {
+        const adjPillClass = i.adjGap > analysis.threshold ? 'danger' :
+                             i.adjGap > analysis.threshold/2 ? 'warn' :
+                             i.adjGap < -analysis.threshold ? 'info' : 'good';
+        const adjStr = i.adjGap > 0 ? `+${i.adjGap.toFixed(1)}%` : `${i.adjGap.toFixed(1)}%`;
+        adjCell = `<td class="num"><span class="pill ${adjPillClass}">${adjStr}</span></td>`;
+      }
+    }
 
     let costCell = '';
     if (showCost) {
@@ -3118,6 +3271,7 @@ function renderTable(analysis, cls) {
       <td class="num">${fmtInt(i.actual)}</td>
       <td class="num"><span class="pill ${peerPillClass}">${peerStr}</span></td>
       ${costCell}
+      ${adjCell}
       <td class="num">${fmtInt(i.qty)}</td>
       <td class="num">${savingStr}</td>
     </tr>`;
@@ -3187,12 +3341,35 @@ function buildSeriesColorMap(seriesList) {
 
 function seriesColor(series) {
   if (!seriesColorMap[series]) {
-    // Called before map was built: compute on the fly (stable hash)
     const isDark = document.body.classList.contains('dark');
     const hue = hashString(series) % 360;
     return `hsl(${hue}, ${isDark ? 70 : 55}%, ${isDark ? 65 : 50}%)`;
   }
   return seriesColorMap[series];
+}
+
+/**
+ * 색상값에 투명도를 안전하게 적용
+ * hex (#rrggbb) → #rrggbbAA 형식
+ * hsl(...)     → hsla(..., alpha) 형식으로 변환
+ * 두 형식 모두 Chart.js 에서 유효하게 렌더링됨
+ */
+function withAlpha(color, alpha) {
+  if (!color) return `rgba(100,100,100,${alpha})`;
+  if (color.startsWith('#')) {
+    // hex → hex + 2자리 alpha (0.0~1.0 → 00~ff)
+    const a = Math.round(alpha * 255).toString(16).padStart(2, '0');
+    return color + a;
+  }
+  if (color.startsWith('hsl(')) {
+    // hsl(h, s%, l%) → hsla(h, s%, l%, alpha)
+    return color.replace('hsl(', 'hsla(').replace(')', `, ${alpha})`);
+  }
+  if (color.startsWith('hsla(')) {
+    // 이미 hsla → alpha만 교체
+    return color.replace(/,\s*[\d.]+\)$/, `, ${alpha})`);
+  }
+  return color;  // 기타 형식은 그대로
 }
 
 function getCss(v) {
@@ -3267,7 +3444,7 @@ function renderScatterChart(analysis) {
       x: i.x, y: i.y, r: bubbleRadius(i.qty, maxQty, minQty),
       raw: i
     })),
-    backgroundColor: seriesColor(s) + '88',
+    backgroundColor: withAlpha(seriesColor(s), 0.53),
     borderColor: seriesColor(s),
     borderWidth: 1.5
   }));
@@ -3292,16 +3469,36 @@ function renderScatterChart(analysis) {
   };
 
   // cost 모드: 메인 추세선 = 추정원가 회귀선, peer/hybrid: 실구매가 회귀선
-  const isCostMode = analysis.classMode === 'cost' && analysis.hasEstimated;
-  const mainRegs  = isCostMode ? analysis.costRegressions : analysis.regressions;
-  const extraRegs = isCostMode ? analysis.regressions     : (showCostTrend ? analysis.costRegressions : null);
-  const mainLabel   = isCostMode ? '추정원가 추세선' : 'Peer Trendline';
-  const extraLabel  = isCostMode ? 'Peer Trendline'  : 'Should-cost Trendline';
-  const mainColor   = isCostMode ? getCss('--blue')   : textColor;
-  const extraColor  = isCostMode ? textColor          : getCss('--blue');
-  const mainDash    = isCostMode ? [4, 3]             : [6, 4];
-  const extraDash   = isCostMode ? [6, 4]             : [2, 3];
-  const showExtra   = isCostMode || showCostTrend;
+  // 모드별 메인·보조 추세선 결정
+  const cmode     = analysis.classMode;
+  const isHybrid  = cmode === 'hybrid' && analysis.hasEstimated;
+  const isCostOnly= cmode === 'cost'   && analysis.hasEstimated;
+  let mainRegs, extraRegs, mainLabel, extraLabel, mainColor, extraColor, mainDash, extraDash, showExtra;
+  if (isCostOnly) {
+    mainRegs   = analysis.costRegressions;
+    extraRegs  = analysis.regressions;
+    mainLabel  = currentLang === 'ko' ? '추정원가 추세선' : 'Should-cost Trend';
+    extraLabel = currentLang === 'ko' ? '실구매가 추세선' : 'Actual Price Trend';
+    mainColor  = getCss('--orange'); mainDash = [4, 3];
+    extraColor = textColor;          extraDash= [6, 4];
+    showExtra  = true;
+  } else if (isHybrid) {
+    mainRegs   = analysis.adjCostRegressions || {};
+    extraRegs  = analysis.regressions;
+    mainLabel  = currentLang === 'ko' ? '보정원가 추세선 (×K)' : 'Adjusted Cost Trend (×K)';
+    extraLabel = currentLang === 'ko' ? '실구매가 추세선' : 'Actual Price Trend';
+    mainColor  = getCss('--blue'); mainDash = [4, 3];
+    extraColor = textColor;         extraDash= [6, 4];
+    showExtra  = true;
+  } else {
+    mainRegs   = analysis.regressions;
+    extraRegs  = showCostTrend ? analysis.costRegressions : null;
+    mainLabel  = currentLang === 'ko' ? '실구매가 추세선' : 'Actual Price Trend';
+    extraLabel = currentLang === 'ko' ? '추정원가 추세선' : 'Should-cost Trend';
+    mainColor  = textColor; mainDash = [6, 4];
+    extraColor = getCss('--orange'); extraDash= [2, 3];
+    showExtra  = showCostTrend;
+  }
 
   if (analysis.trendMode === 'all' && mainRegs['_all']) {
     const reg = mainRegs['_all'];
@@ -3319,8 +3516,8 @@ function renderScatterChart(analysis) {
     bandConfigs.push({
       regression: reg,
       xRange: range,
-      fillColor: mainColor + '14',
-      strokeColor: mainColor + '66'
+      fillColor: withAlpha(mainColor, 0.08),
+      strokeColor: withAlpha(mainColor, 0.4)
     });
 
     // 보조 추세선 (cost 모드: 실구매가 추세선 / peer모드: 추정원가 overlay)
@@ -3405,7 +3602,7 @@ function renderScatterChart(analysis) {
                 `${dict.colSeries}: ${raw.series}`,
                 `${xTitle}: ${raw.x?.toFixed(2)}`,
                 `${dict.colActual}: ${fmtInt(raw.actual)}`,
-                `Peer gap: ${peerGapStr}`,
+                `동급 편차: ${peerGapStr}`,
                 `Cost gap: ${costGapStr}`,
                 `${dict.colQty}: ${fmtInt(raw.qty)}`
               ];
@@ -3525,7 +3722,7 @@ function renderMiniChart(analysis) {
       x: i.x, y: i.y, r: miniRadius(i.qty),
       raw: i
     })),
-    backgroundColor: seriesColor(s) + '88',
+    backgroundColor: withAlpha(seriesColor(s), 0.53),
     borderColor: seriesColor(s),
     borderWidth: 1
   }));
@@ -3571,7 +3768,7 @@ function renderMiniChart(analysis) {
     });
     bandConfigs.push({
       regression: reg, xRange: range,
-      fillColor: textColor + '14', strokeColor: textColor + '44'
+      fillColor: withAlpha(textColor, 0.08), strokeColor: textColor + '44'
     });
   } else {
     Object.keys(analysis.regressions).forEach(s => {
@@ -3587,7 +3784,7 @@ function renderMiniChart(analysis) {
       });
       bandConfigs.push({
         regression: reg, xRange: range,
-        fillColor: seriesColor(s) + '18', strokeColor: seriesColor(s) + '44'
+        fillColor: withAlpha(seriesColor(s), 0.09), strokeColor: withAlpha(seriesColor(s), 0.27)
       });
     });
   }
@@ -3913,7 +4110,7 @@ function renderMatrixChart(analysis) {
                 raw.name,
                 `${dict.colSeries}: ${raw.series}`,
                 `Cost gap: ${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%`,
-                `Peer gap: ${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%`,
+                `동급 편차: ${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%`,
                 `${dict.colActual}: ${fmtInt(raw.actual)}`,
                 `${dict.colQty}: ${fmtInt(raw.qty)}`
               ];
@@ -4650,7 +4847,7 @@ function renderPreview(text) {
 
   // Reconstruct rows from raw text to include ALL cells (including ignored columns)
   const lines = text.trim().split(/\r?\n/).filter(l => l.trim());
-  const rawRows = lines.slice(1).map(l => l.split('\t'));
+  const rawRows = lines.slice(1).map(l => l.split('	'));
 
   let tbody = '<tbody>';
   rawRows.forEach(cells => {
