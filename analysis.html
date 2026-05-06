@@ -20,6 +20,18 @@
 <!-- ChipCalc 공유 스타일시트 -->
 <link rel="stylesheet" href="shared.css">
 
+<!-- ECharts 로컬 vendor (CDN 차단 대응) -->
+<script src="vendor/echarts.min.js"></script>
+<!-- Tailwind Play CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- ChipCalc 공유 모듈 (의존성 순서 엄수) -->
+<script src="shared/chipcalc-init.js"></script>
+<script src="shared/chip-calc-engine.js"></script>
+<script src="shared/data-parser.js"></script>
+<script src="shared/storage.js"></script>
+<script src="shared/ui-utils.js"></script>
+<script src="shared/chart-config.js"></script>
+
 <!-- 분석 라이브러리 (Chart.js, html2canvas, jsPDF) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
