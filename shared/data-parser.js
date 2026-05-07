@@ -64,13 +64,168 @@
     return { headers: headers, rows: rows }
   }
 
+  // ── 포트폴리오 열 감지 패턴 (Story 2.1) ────────────────────────
+  var PORTFOLIO_FIELD_PATTERNS = {
+    name:          /품목|품명|제품명|모델명?|part\b|product(?!.?famil|.?group)|mpn|model\b|item\b|^name$/i,
+    node:          /공정|노드|node|process|tech/i,
+    dieArea:       /다이.*면적|다이.*크기|die.?area|die.?size|칩.*면적/i,
+    waferSize:     /웨이퍼|wafer/i,
+    'yield':       /수율|yield/i,
+    pkgType:       /패키지|package|pkg/i,
+    pins:          /핀수?$|^핀$|pin|ball/i,
+    productFamily: /제품군|품종|family|category|카테고리/i,
+    actualPrice:   /실구매|실가|구매가|단가|actual.*price|price\b/i,
+    qty:           /물량|수량|qty|quantity|volume/i
+  }
+
+  // headers: string[] → { name: idx, node: idx, ... } (미감지 필드는 undefined)
+  function detectPortfolioColumns(headers) {
+    var result = {}
+    for (var i = 0; i < headers.length; i++) {
+      var h = String(headers[i] || '').trim()
+      for (var field in PORTFOLIO_FIELD_PATTERNS) {
+        if (result[field] !== undefined) continue
+        if (PORTFOLIO_FIELD_PATTERNS[field].test(h)) {
+          result[field] = i
+          break
+        }
+      }
+    }
+    return result
+  }
+
+  // rows: string[][], headers: string[], columnMapping: {field: colIdx}
+  // → { items: portfolioDataItem[], warnings: string[] }
+  function parsePortfolioRows(rows, headers, columnMapping) {
+    var items = []
+    var warnings = []
+    var hasAnyNumeric = false
+
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i]
+      if (!row || row.length < 2) continue
+
+      var item = {}
+
+      var get = function(field) {
+        var idx = columnMapping[field]
+        return (idx != null && idx !== undefined) ? (row[idx] || '') : ''
+      }
+
+      item.name          = String(get('name')).trim() || ('행' + (i + 1))
+      item.node          = String(get('node')).trim()
+      item.dieArea       = parseDecimal(get('dieArea'))
+      item.waferSize     = parseInteger(get('waferSize'))
+      item.pkgType       = String(get('pkgType')).trim()
+      item.pins          = parseInteger(get('pins'))
+      item.productFamily = String(get('productFamily')).trim() || '기타'
+      item.actualPrice   = parseCurrency(get('actualPrice'))
+      item.qty           = parseInteger(get('qty'))
+
+      var yieldRaw = get('yield')
+      if (yieldRaw !== '') {
+        var yp = parsePercent(yieldRaw)
+        item['yield'] = (yp != null) ? yp : parseDecimal(yieldRaw)
+      } else {
+        item['yield'] = null
+      }
+
+      if (item.dieArea != null || item.actualPrice != null || item.waferSize != null) {
+        hasAnyNumeric = true
+      }
+
+      items.push(item)
+    }
+
+    if (!hasAnyNumeric && items.length > 0) {
+      warnings.push('숫자 데이터를 찾을 수 없습니다. 예시: 품목명 | 공정노드 | 단가(원) | 물량')
+      return { items: [], warnings: warnings }
+    }
+
+    return { items: items, warnings: warnings }
+  }
+
+  // ── 인상 검토 열 감지 패턴 (Story 3.1) ───────────────────────────
+  var REVIEW_FIELD_PATTERNS = {
+    name:          /품목|품명|제품명|모델명?|part\b|product(?!.?famil|.?group)|mpn|model\b|item\b|^name$/i,
+    currentPrice:  /현재단가|현재가|기존단가|기존가|current.?price|^단가$|^price$/i,
+    requestedRate: /요청인상률?|요청률?|인상률?|인상율|requested.?rate|increase.?rate|인상/i,
+    node:          /공정|노드|node|process|tech/i,
+    waferSize:     /웨이퍼|wafer/i,
+    dieArea:       /다이.*면적|다이.*크기|die.?area|die.?size|칩.*면적/i,
+    'yield':       /수율|yield/i,
+    pkgType:       /패키지|package|pkg/i,
+    pins:          /핀수?$|^핀$|pin|ball/i,
+    productFamily: /제품군|품종|family|category|카테고리/i
+  }
+
+  function detectReviewColumns(headers) {
+    var result = {}
+    for (var i = 0; i < headers.length; i++) {
+      var h = String(headers[i] || '').trim()
+      for (var field in REVIEW_FIELD_PATTERNS) {
+        if (result[field] !== undefined) continue
+        if (REVIEW_FIELD_PATTERNS[field].test(h)) { result[field] = i; break }
+      }
+    }
+    return result
+  }
+
+  function parseReviewRows(rows, headers, columnMapping) {
+    var items = []
+    var warnings = []
+    var hasAnyNumeric = false
+
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i]
+      if (!row || row.length < 2) continue
+
+      var get = function(field) {
+        var idx = columnMapping[field]
+        return (idx != null) ? (row[idx] || '') : ''
+      }
+
+      var item = {}
+      item.name          = String(get('name')).trim() || ('행' + (i + 1))
+      item.currentPrice  = parseCurrency(get('currentPrice'))
+      item.requestedRate = parsePercent(get('requestedRate'))
+      item.node          = String(get('node')).trim()
+      item.waferSize     = parseInteger(get('waferSize'))
+      item.dieArea       = parseDecimal(get('dieArea'))
+      item.pkgType       = String(get('pkgType')).trim()
+      item.pins          = parseInteger(get('pins'))
+      item.productFamily = String(get('productFamily')).trim() || '기타'
+
+      var yieldRaw = get('yield')
+      if (yieldRaw !== '') {
+        var yp = parsePercent(yieldRaw)
+        item['yield'] = yp != null ? yp : parseDecimal(yieldRaw)
+      } else {
+        item['yield'] = null
+      }
+
+      if (item.currentPrice != null || item.requestedRate != null) hasAnyNumeric = true
+      items.push(item)
+    }
+
+    if (!hasAnyNumeric && items.length > 0) {
+      warnings.push('숫자 데이터(현재단가 또는 요청인상률)를 찾을 수 없습니다.')
+      return { items: [], warnings: warnings }
+    }
+    return { items: items, warnings: warnings }
+  }
+
   Object.assign(window.ChipCalc, {
     parser: {
-      parseCurrency: parseCurrency,
-      parsePercent:  parsePercent,
-      parseDecimal:  parseDecimal,
-      parseInteger:  parseInteger,
-      parseTSV:      parseTSV
+      parseCurrency:          parseCurrency,
+      parsePercent:           parsePercent,
+      parseDecimal:           parseDecimal,
+      parseInteger:           parseInteger,
+      parseTSV:               parseTSV,
+      detectPortfolioColumns: detectPortfolioColumns,
+      parsePortfolioRows:     parsePortfolioRows,
+      detectReviewColumns:    detectReviewColumns,
+      parseReviewRows:        parseReviewRows
     }
   })
 })()

@@ -138,10 +138,51 @@ assert(r8.totalCOGS === r8b.totalCOGS, '순수 함수 (같은 입력 → 같은 
 
 // ── AC9: getKValue storage 없을 때 1.0 fallback ────────────────────────────
 console.log('\n[AC9] getKValue fallback')
-// storage 스텁 상태 (empty object, .load 없음)
 assert(engine.getKValue('MCU') === 1.0, 'getKValue MCU → 1.0 (storage 없음)')
 assert(engine.getKValue('PMIC') === 1.0, 'getKValue PMIC → 1.0 (storage 없음)')
 assert(engine.getKValue('알수없음') === 1.0, 'getKValue 미등록 → 1.0')
+
+// ── Epic 4: getPkgTable / getDefaultPkgTable / setPkgPrice ────────────────
+console.log('\n[Epic4] getPkgTable / getDefaultPkgTable / setPkgPrice')
+const pkgs = engine.getPkgTable()
+assert(Array.isArray(pkgs), 'getPkgTable() 배열 반환')
+assert(pkgs.length > 0, 'getPkgTable() 비어있지 않음')
+const qfpEntry = pkgs.find(function(p){ return p.name.indexOf('QFP (AEC)') !== -1 })
+assert(qfpEntry != null, 'getPkgTable() QFP 항목 존재')
+
+const defPkgs = engine.getDefaultPkgTable()
+assert(Array.isArray(defPkgs), 'getDefaultPkgTable() 배열 반환')
+assert(defPkgs.length === pkgs.length, 'getDefaultPkgTable() 길이 동일')
+
+// deep copy 확인
+defPkgs[0].asm = 9999
+const defPkgs2 = engine.getDefaultPkgTable()
+assert(defPkgs2[0].asm !== 9999, 'getDefaultPkgTable() deep copy (원본 불변)')
+
+// setPkgPrice: 핀 레벨 수정
+const qfpId = qfpEntry.id
+engine.setPkgPrice(qfpId, '100핀', 'asm', 0.999)
+const pkgsAfter = engine.getPkgTable()
+const qfpAfter = pkgsAfter.find(function(p){ return p.id === qfpId })
+const pin100 = qfpAfter.pins.find(function(p){ return p.l === '100핀' })
+assert(pin100 != null && Math.abs(pin100.asm - 0.999) < 1e-9, 'setPkgPrice 핀 레벨 asm 수정')
+
+// setPkgPrice: 기본 레벨 수정
+engine.setPkgPrice(qfpId, null, 'test', 0.123)
+const pkgsAfter2 = engine.getPkgTable()
+const qfpAfter2 = pkgsAfter2.find(function(p){ return p.id === qfpId })
+assert(Math.abs(qfpAfter2.test - 0.123) < 1e-9, 'setPkgPrice 기본 레벨 test 수정')
+
+// setPkgPrice: 존재하지 않는 pkgId → 오류
+let setPkgErr = false
+try { engine.setPkgPrice(9999, null, 'asm', 1.0) } catch(e) { setPkgErr = true }
+assert(setPkgErr, 'setPkgPrice 없는 pkgId → 오류')
+
+// loadWaferData로 pkgs 복원
+engine.loadWaferData(null, engine.getDefaultPkgTable())
+const restored = engine.getPkgTable()
+const qfpRestored = restored.find(function(p){ return p.id === qfpId })
+assert(qfpRestored && Math.abs(qfpRestored.asm - qfpEntry.asm) < 1e-9, 'loadWaferData로 pkgs 원복')
 
 // ── 결과 ────────────────────────────────────────────────────────────────────
 console.log(`\n──────────────────────────────────────────`)

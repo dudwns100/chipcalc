@@ -67,8 +67,13 @@
 
   // ── 내부 헬퍼 ───────────────────────────────────────────────────
   function normalizeNode(node) {
-    var s = String(node).trim().toLowerCase()
-    return s.endsWith('nm') ? s : s + 'nm'
+    var s = String(node).trim().toLowerCase().replace(/\s+/g, '')
+    // "28nmlp", "28nm-lp" 등 숫자+nm 이후 접미사 제거 → "28nm"
+    var m = s.match(/^(\d+(?:\.\d+)?nm)/)
+    if (m) return m[1]
+    // 숫자만인 경우 nm 접미사 추가
+    if (/^\d+(?:\.\d+)?$/.test(s)) return s + 'nm'
+    return s
   }
 
   function getSizeKey(waferSize) {
@@ -178,14 +183,105 @@
     return K_VALUES_DEFAULT[productFamily] != null ? K_VALUES_DEFAULT[productFamily] : 1.0
   }
 
+  // ── recalculateAll: 전 품목 일괄 재계산 ─────────────────────────
+  // portfolioData 항목 입력 스키마 (Epic 2 Story 2.1에서 설정):
+  //   { node, dieArea, waferSize, yield, pkgType, pins, productFamily, actualPrice }
+  // 재계산 후 각 항목에 추가/갱신되는 필드:
+  //   { frontendCost, backendCost, totalCOGS, estimatedASP, isOutlier, calcError }
+  function recalculateAll() {
+    var state = window.ChipCalc.state
+    // ARCH-5 MUST NOT: portfolioData null/빈 배열 시 즉시 return
+    if (!state || !state.portfolioData || state.portfolioData.length === 0) return
+
+    // outlier 임계값: storage에서 조회, 없으면 1.3 기본값 (ARCH-14)
+    var threshold = 1.3
+    try {
+      var store = window.ChipCalc.storage && window.ChipCalc.storage.load()
+      if (store && store.outlierThreshold && !isNaN(store.outlierThreshold)) {
+        threshold = store.outlierThreshold
+      }
+    } catch (e) { /* storage 미구현 시 기본값 유지 */ }
+
+    var items = state.portfolioData
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i]
+      try {
+        var kValue = getKValue(item.productFamily || '기타')
+        var result = window.ChipCalc.engine.calcCOGS({
+          node:      item.node,
+          dieArea:   item.dieArea,
+          waferSize: item.waferSize,
+          'yield':   item['yield'] != null ? item['yield'] : 0.95,
+          pkgType:   item.pkgType,
+          pins:      item.pins,
+          kValue:    kValue
+        })
+        // NaN 체크
+        if (isNaN(result.totalCOGS) || isNaN(result.estimatedASP)) {
+          item.calcError = 'NaN 계산값'
+          item.isOutlier = false
+          continue
+        }
+        // 결과 반영 (item mutation)
+        item.node          = normalizeNode(item.node)  // 정규화된 노드를 다시 저장 (그룹핑 일관성)
+        item.frontendCost  = result.frontendCost
+        item.backendCost   = result.backendCost
+        item.totalCOGS     = result.totalCOGS
+        item.estimatedASP  = result.estimatedASP
+        item.calcError     = null
+        // 이상치 판정 (ARCH-14)
+        var ratio = (item.actualPrice != null && !isNaN(item.actualPrice))
+          ? item.actualPrice / result.estimatedASP
+          : 0
+        item.isOutlier = ratio > threshold
+      } catch (err) {
+        item.calcError = err.message || '계산 오류'
+        item.isOutlier = false
+      }
+    }
+
+    // 완료 후 UI 갱신 (no-op stub이 Epic 2에서 실제 구현으로 교체됨)
+    if (window.ChipCalc.ui && typeof window.ChipCalc.ui.refreshPortfolioView === 'function') {
+      window.ChipCalc.ui.refreshPortfolioView()
+    }
+  }
+
+  function getDefaultWaferTable() {
+    return JSON.parse(JSON.stringify(DEF_WAFER_DEFAULT))
+  }
+
+  function getPkgTable() {
+    return JSON.parse(JSON.stringify(_pkgs))
+  }
+
+  function getDefaultPkgTable() {
+    return JSON.parse(JSON.stringify(DEF_PKGS_DEFAULT))
+  }
+
+  function setPkgPrice(pkgId, pinLabel, field, price) {
+    var pkg = _pkgs.find(function (p) { return p.id === pkgId })
+    if (!pkg) throw new Error('패키지를 찾을 수 없습니다: ' + pkgId)
+    if (pinLabel && pkg.pins && pkg.pins.length > 0) {
+      var pin = pkg.pins.find(function (p) { return p.l === pinLabel })
+      if (pin) { pin[field] = price; return }
+    }
+    pkg[field] = price
+  }
+
   Object.assign(window.ChipCalc, {
     engine: {
-      calcCOGS:     calcCOGS,
-      getWaferPrice: getWaferPrice,
-      setWaferPrice: setWaferPrice,
-      getWaferTable: getWaferTable,
-      loadWaferData: loadWaferData,
-      getKValue:     getKValue
+      calcCOGS:            calcCOGS,
+      getWaferPrice:       getWaferPrice,
+      setWaferPrice:       setWaferPrice,
+      getWaferTable:       getWaferTable,
+      getDefaultWaferTable:getDefaultWaferTable,
+      getPkgTable:         getPkgTable,
+      getDefaultPkgTable:  getDefaultPkgTable,
+      setPkgPrice:         setPkgPrice,
+      loadWaferData:       loadWaferData,
+      getPackagePrice:     getPackagePrice,
+      getKValue:           getKValue,
+      recalculateAll:      recalculateAll
     }
   })
 })()

@@ -24,6 +24,32 @@
 <script src="vendor/echarts.min.js"></script>
 <!-- Tailwind Play CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
+<!-- ChipCalc 디자인 시스템 — Tailwind 커스텀 토큰 (Story 1.5) -->
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        primary:      '#0f172a',
+        surface:      '#f8fafc',
+        danger:       '#dc2626',
+        'danger-bg':  '#fef2f2',
+        success:      '#16a34a',
+        'success-bg': '#f0fdf4',
+        warning:      '#d97706',
+        'warning-bg': '#fffbeb',
+        neutral:      '#64748b'
+      },
+      fontFamily: {
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace']
+      },
+      fontSize: {
+        kpi: ['2.25rem', { lineHeight: '2.5rem', fontWeight: '700' }]
+      }
+    }
+  }
+}
+</script>
 <!-- ChipCalc 공유 모듈 (의존성 순서 엄수) -->
 <script src="shared/chipcalc-init.js"></script>
 <script src="shared/chip-calc-engine.js"></script>
@@ -1618,6 +1644,750 @@ body.dark {
 .pf-wrap {
   padding-top: 8px;
 }
+
+/* ── ChipCalc 탭 내비게이션 (Story 1.5) ── */
+#chipcalc-tab-nav {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 1rem;
+  position: sticky;
+  top: 48px; /* topbar 높이 보정 */
+  z-index: 10;
+}
+body.dark #chipcalc-tab-nav {
+  background: var(--card);
+  border-bottom-color: var(--border);
+}
+.chipcalc-tab-btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.chipcalc-tab-btn:hover {
+  color: #374151;
+}
+.chipcalc-tab-btn.cc-tab-active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+body.dark .chipcalc-tab-btn { color: var(--l2); }
+body.dark .chipcalc-tab-btn.cc-tab-active { color: #60a5fa; border-bottom-color: #60a5fa; }
+#admin-panel-btn {
+  margin-left: auto;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  border-radius: 0.375rem;
+  transition: background 0.15s;
+}
+#admin-panel-btn:hover { background: #f1f5f9; }
+
+/* K=1.0 경고 배너 */
+#k-warning-banner {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  margin: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#k-warning-banner button {
+  margin-left: auto;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  color: #92400e;
+  white-space: nowrap;
+}
+#k-warning-banner button:hover { background: #fde68a; }
+
+/* 관리자 패널 오버레이 */
+#admin-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+}
+#admin-panel {
+  position: fixed;
+  top: var(--topbar-h, 48px);
+  right: 0;
+  height: calc(100% - var(--topbar-h, 48px));
+  width: min(90vw, 44rem);
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+body.dark #admin-panel { background: var(--card); color: var(--l1); }
+#admin-panel h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: #0f172a;
+}
+body.dark #admin-panel h2 { color: var(--l1); }
+#admin-panel p {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+#admin-close-btn {
+  float: right;
+  background: transparent;
+  border: none;
+  font-size: 1.125rem;
+  cursor: pointer;
+  color: #64748b;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+}
+#admin-close-btn:hover { background: #f1f5f9; }
+
+/* ── 포트폴리오 탭 섹션 구분 ─────────────────────────────────────── */
+.pf-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin: 1.75rem 0 1.125rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 2px solid var(--border);
+}
+.pf-section-header:first-child { margin-top: 0.25rem; }
+.pf-section-icon { font-size: 1.375rem; line-height: 1; flex-shrink: 0; }
+.pf-section-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--l1);
+  letter-spacing: -0.01em;
+}
+.pf-section-sub {
+  font-size: 0.75rem;
+  color: var(--l3);
+  margin-top: 0.1875rem;
+  line-height: 1.4;
+}
+.pf-section-divider {
+  border: none;
+  border-top: 1.5px solid var(--border);
+  margin: 2rem 0 0;
+}
+
+/* ── Epic 4: 관리자 패널 테이블 & 섹션 ──────────────────────────── */
+#admin-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.admin-section { margin-bottom: 1.25rem; border-top: 1px solid var(--border); padding-top: 0.875rem; }
+.admin-section h3 { font-size: 0.8125rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; }
+body.dark .admin-section h3 { color: var(--l2); }
+.ap-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.ap-table th { background: #f8fafc; padding: 0.3rem 0.5rem; border: 1px solid var(--border); font-weight: 600; text-align: center; white-space: nowrap; }
+body.dark .ap-table th { background: rgba(255,255,255,0.05); }
+.ap-table td { padding: 0.25rem 0.5rem; border: 1px solid var(--border); text-align: right; }
+.ap-node-cell { text-align: left !important; font-weight: 500; white-space: nowrap; }
+.ap-cell-null { text-align: center !important; color: #94a3b8; }
+.ap-cell { cursor: pointer; transition: background 0.12s; }
+.ap-cell:hover { background: #eff6ff; }
+body.dark .ap-cell:hover { background: rgba(59,130,246,0.12); }
+.ap-pkg-group-header td { background: #f1f5f9; font-weight: 600; color: #475569; text-align: left !important; }
+body.dark .ap-pkg-group-header td { background: rgba(255,255,255,0.06); color: var(--l2); }
+.ap-k-input { width: 6rem; padding: 0.2rem 0.4rem; border: 1px solid var(--border); border-radius: 0.25rem; font-size: 0.8125rem; text-align: right; background: transparent; color: inherit; }
+.ap-k-input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+.admin-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; }
+#ap-snapshot-btn { flex: 1; padding: 0.5rem; border: none; border-radius: 0.375rem; background: #3b82f6; color: #fff; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+#ap-snapshot-btn:hover { background: #2563eb; }
+#ap-reset-btn { flex: 1; padding: 0.5rem; border: none; border-radius: 0.375rem; background: #ef4444; color: #fff; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+#ap-reset-btn:hover { background: #dc2626; }
+/* 초기화 확인 모달 */
+#ap-confirm-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: center; justify-content: center; }
+#ap-confirm-box { background: #fff; border-radius: 0.75rem; padding: 1.5rem; max-width: 22rem; width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+body.dark #ap-confirm-box { background: var(--card); }
+#ap-confirm-box p { font-size: 0.9rem; color: #0f172a; line-height: 1.6; margin-bottom: 1.25rem; }
+body.dark #ap-confirm-box p { color: var(--l1); }
+.ap-confirm-btns { display: flex; gap: 0.5rem; justify-content: flex-end; }
+#ap-confirm-cancel { padding: 0.4rem 1rem; border: 1px solid var(--border); border-radius: 0.375rem; background: transparent; cursor: pointer; font-size: 0.875rem; color: inherit; }
+#ap-confirm-ok { padding: 0.4rem 1rem; border: none; border-radius: 0.375rem; background: #ef4444; color: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 700; }
+
+/* ── Story 2.1: ChipCalc 포트폴리오 데이터 입력 ─────────────────── */
+#cc-portfolio-input-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+#cc-portfolio-input-card .cc-card-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--l1);
+  margin-bottom: 0.25rem;
+}
+#cc-portfolio-input-card .cc-card-sub {
+  font-size: 0.75rem;
+  color: var(--l3);
+  margin-bottom: 0.875rem;
+}
+#cc-portfolio-paste {
+  width: 100%;
+  min-height: 90px;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.8125rem;
+  font-family: var(--mono, monospace);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--l1);
+  resize: vertical;
+  box-sizing: border-box;
+}
+#cc-portfolio-paste:focus { outline: 2px solid #2563eb; border-color: transparent; }
+#cc-mapping-preview { margin-top: 0.875rem; }
+#cc-mapping-summary { font-size: 0.75rem; color: var(--l3); margin-bottom: 0.5rem; }
+#cc-row-warning {
+  background: #fffbeb;
+  border: 1px solid #d97706;
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.8125rem;
+  color: #92400e;
+  margin-bottom: 0.625rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+#cc-row-warning button {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border: 1px solid #d97706;
+  background: #fff;
+  color: #92400e;
+}
+.cc-mapping-table-wrap { overflow-x: auto; margin-bottom: 0.75rem; }
+.cc-mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.775rem;
+}
+.cc-mapping-table thead tr.cc-select-row th {
+  padding: 0.375rem 0.5rem;
+  background: var(--blue-t, #eff6ff);
+  border-bottom: 1px solid var(--border);
+}
+.cc-mapping-table thead tr.cc-header-row th {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.7rem;
+  color: var(--l3);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.cc-mapping-table tbody td {
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--l2);
+  white-space: nowrap;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cc-mapping-table tbody tr:last-child td { border-bottom: none; }
+.cc-field-select {
+  width: 100%;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--l1);
+}
+.cc-field-select.cc-matched { border-color: #16a34a; background: #f0fdf4; }
+#cc-confirm-btn {
+  padding: 0.5rem 1.5rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+#cc-confirm-btn:hover { background: #1d4ed8; }
+#cc-confirm-btn:disabled { background: #94a3b8; cursor: default; }
+.dark #cc-row-warning { background: #451a03; border-color: #d97706; color: #fcd34d; }
+.dark #cc-row-warning button { background: #1c1917; color: #fcd34d; border-color: #d97706; }
+.dark .cc-field-select.cc-matched { background: #14532d; border-color: #16a34a; }
+/* ── Story 2.2: 분석 결과 섹션 ───────────────────────────────────── */
+#cc-analysis-results {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.cc-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.cc-results-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--l1);
+}
+.cc-summary-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.875rem;
+}
+.cc-pill {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.cc-pill.total { background: #eff6ff; color: #1d4ed8; }
+.cc-pill.outlier { background: #fef2f2; color: #dc2626; }
+.cc-pill.ok { background: #f0fdf4; color: #16a34a; }
+.cc-pill.error { background: #fef3c7; color: #d97706; }
+.cc-results-table-wrap { overflow-x: auto; }
+.cc-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.775rem;
+}
+.cc-results-table th {
+  padding: 0.35rem 0.6rem;
+  background: var(--blue-t, #eff6ff);
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+  color: var(--l2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.cc-results-table td {
+  padding: 0.3rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--l2);
+  white-space: nowrap;
+}
+.cc-results-table tr:last-child td { border-bottom: none; }
+.cc-results-table tr.cc-group-header td {
+  background: var(--surface-2, #f8fafc);
+  font-weight: 700;
+  color: var(--l1);
+  font-size: 0.725rem;
+  letter-spacing: 0.02em;
+  padding-top: 0.6rem;
+}
+.cc-results-table tr.cc-outlier-row td {
+  background: #fff5f5;
+  color: #b91c1c;
+}
+.cc-results-table tr.cc-outlier-row td:first-child::before {
+  content: '⚠ ';
+}
+.cc-results-table tr.cc-error-row td { color: #92400e; font-style: italic; }
+.cc-badge-outlier {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.cc-badge-ok {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  background: #f0fdf4;
+  color: #16a34a;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.dark #cc-analysis-results { background: var(--surface); border-color: var(--border); }
+.dark .cc-results-table tr.cc-group-header td { background: #1e293b; }
+.dark .cc-results-table tr.cc-outlier-row td { background: #450a0a; color: #fca5a5; }
+.dark .cc-pill.total { background: #1e3a5f; color: #93c5fd; }
+.dark .cc-pill.outlier { background: #450a0a; color: #fca5a5; }
+.dark .cc-pill.ok { background: #052e16; color: #86efac; }
+.dark .cc-pill.error { background: #451a03; color: #fcd34d; }
+/* ── Story 2.3: 버블차트 섹션 ───────────────────────────────────── */
+#cc-bubble-section {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.cc-bubble-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.cc-bubble-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.cc-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  color: var(--l2);
+  cursor: pointer;
+  user-select: none;
+}
+#cc-bubble-png-btn {
+  padding: 0.3rem 0.875rem;
+  font-size: 0.8125rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+#cc-bubble-png-btn:hover:not(:disabled) { background: #1d4ed8; }
+#cc-bubble-png-btn:disabled { background: #94a3b8; cursor: default; }
+#cc-bubble-chart { width: 100%; height: 420px; }
+.dark #cc-bubble-section { background: var(--surface); border-color: var(--border); }
+/* ── Story 2.4: 이상치 상세 패널 ────────────────────────────────── */
+#cc-detail-panel {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: min(420px, 92vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 24px rgba(0,0,0,0.12);
+  z-index: 800;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  overflow: hidden;
+}
+#cc-detail-panel.open { transform: translateX(0); }
+#cc-detail-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#cc-detail-panel-title { font-size: 0.9rem; font-weight: 700; color: var(--l1); }
+#cc-detail-close-btn {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.1rem; color: var(--l3); padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+#cc-detail-close-btn:hover { background: var(--surface-2, #f1f5f9); color: var(--l1); }
+#cc-detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+.cc-kpi-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.cc-kpi-label { font-size: 0.75rem; color: var(--l3); margin-bottom: 0.2rem; }
+.cc-kpi-value { font-size: 1rem; font-weight: 700; color: var(--l1); }
+.cc-kpi-value.danger { color: #dc2626; }
+.cc-kpi-value.ok { color: #16a34a; }
+.cc-kpi-copy-btn {
+  font-size: 0.7rem; padding: 0.2rem 0.5rem;
+  background: none; border: 1px solid var(--border);
+  border-radius: 4px; cursor: pointer; color: var(--l3);
+  flex-shrink: 0;
+}
+.cc-kpi-copy-btn:hover { background: var(--surface-2, #f1f5f9); color: var(--l1); }
+.cc-detail-section { margin-bottom: 0.75rem; }
+.cc-detail-section-title {
+  font-size: 0.8rem; font-weight: 600; color: var(--l2);
+  margin-bottom: 0.5rem; padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.cc-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  padding: 0.25rem 0;
+  color: var(--l2);
+}
+.cc-detail-row span:first-child { color: var(--l3); }
+/* 산출 근거 접힘/펼침 */
+#cc-calc-basis-toggle {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--l2);
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+#cc-calc-basis-toggle:hover { background: var(--surface-2, #f1f5f9); }
+#cc-calc-basis-body { display: none; }
+#cc-calc-basis-body.open { display: block; }
+.cc-formula-step {
+  font-size: 0.775rem;
+  color: var(--l2);
+  padding: 0.2rem 0;
+  font-family: 'Courier New', monospace;
+}
+/* 오버레이 */
+#cc-detail-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 799;
+}
+#cc-detail-overlay.open { display: block; }
+/* Story 2.5: 포트폴리오 내보내기 */
+#cc-export-bar {
+  margin: 0.75rem 0 1rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+#cc-export-csv-btn {
+  padding: 0.4rem 1rem;
+  font-size: 0.8125rem;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--l2);
+  font-weight: 600;
+}
+#cc-export-csv-btn:hover:not(:disabled) { background: var(--surface-2, #f1f5f9); }
+#cc-export-csv-btn:disabled { opacity: 0.45; cursor: default; }
+/* PNG 미리보기 모달 */
+#cc-png-modal {
+  display: none;
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(0,0,0,0.55);
+  align-items: center;
+  justify-content: center;
+}
+#cc-png-modal.open { display: flex; }
+#cc-png-modal-box {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.25rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+#cc-png-modal-img {
+  max-width: 100%; max-height: 60vh;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.cc-png-modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+.cc-png-modal-actions button {
+  padding: 0.4rem 1rem; font-size: 0.875rem;
+  border-radius: 6px; cursor: pointer; font-weight: 600;
+}
+#cc-png-save-btn { background: #2563eb; color: #fff; border: none; }
+#cc-png-save-btn:hover { background: #1d4ed8; }
+#cc-png-cancel-btn { background: none; border: 1px solid var(--border); color: var(--l2); }
+.dark #cc-detail-panel { background: #1e293b; border-color: #334155; }
+.dark #cc-detail-close-btn:hover { background: #334155; }
+.dark #cc-calc-basis-toggle:hover { background: #334155; }
+.dark #cc-kpi-copy-btn:hover { background: #334155; }
+.dark #cc-png-modal-box { background: #1e293b; }
+/* ── Epic 3: 인상 검토 탭 ─────────────────────────────────────── */
+#rv-input-card {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.rv-card-title { font-size: 1rem; font-weight: 700; color: var(--l1); margin-bottom: 0.25rem; }
+.rv-card-sub   { font-size: 0.8125rem; color: var(--l3); margin-bottom: 0.625rem; }
+#rv-paste {
+  width: 100%; min-height: 110px; padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 0.8rem; font-family: monospace;
+  background: var(--surface); color: var(--l1); resize: vertical;
+  box-sizing: border-box;
+}
+#rv-row-warning {
+  margin: 0.5rem 0; padding: 0.5rem 0.75rem;
+  background: #fffbeb; border: 1px solid #f59e0b; border-radius: 6px;
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  font-size: 0.8125rem; color: #92400e;
+}
+#rv-row-warning button {
+  padding: 0.2rem 0.6rem; font-size: 0.775rem;
+  border: 1px solid #f59e0b; border-radius: 4px; cursor: pointer;
+  background: #fff; color: #92400e;
+}
+#rv-confirm-btn {
+  margin-top: 0.75rem; padding: 0.5rem 1.5rem;
+  background: #2563eb; color: #fff; border: none;
+  border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;
+}
+#rv-confirm-btn:hover { background: #1d4ed8; }
+#rv-confirm-btn:disabled { background: #94a3b8; cursor: default; }
+/* 검토 품목 목록 */
+#rv-items-section {
+  margin: 1rem 0; padding: 1rem 1.25rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+.rv-section-title { font-size: 0.9rem; font-weight: 700; color: var(--l1); margin-bottom: 0.625rem; }
+.rv-table { width: 100%; border-collapse: collapse; font-size: 0.775rem; }
+.rv-table th {
+  padding: 0.35rem 0.6rem; background: var(--blue-t, #eff6ff);
+  border-bottom: 2px solid var(--border); text-align: left;
+  color: var(--l2); font-weight: 600; white-space: nowrap;
+}
+.rv-table td { padding: 0.3rem 0.6rem; border-bottom: 1px solid var(--border); color: var(--l2); }
+.rv-table tr:last-child td { border-bottom: none; }
+.rv-item-row { cursor: pointer; }
+.rv-item-row:hover td { background: var(--blue-t, #eff6ff); }
+.rv-item-row.selected td { background: #eff6ff; font-weight: 600; }
+.rv-table td.danger { color: #dc2626; font-weight: 600; }
+.rv-table td.ok { color: #16a34a; }
+/* K 경고 */
+#rv-k-warning {
+  margin: 0.75rem 0; padding: 0.625rem 1rem;
+  background: #fffbeb; border-left: 4px solid #f59e0b;
+  border-radius: 0 6px 6px 0; font-size: 0.8125rem; color: #92400e;
+  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+}
+#rv-k-warning button {
+  padding: 0.15rem 0.6rem; font-size: 0.775rem;
+  border: 1px solid #f59e0b; border-radius: 4px; cursor: pointer;
+  background: #fff; color: #92400e; flex-shrink: 0;
+}
+/* 공개 지수 섹션 */
+#rv-index-section {
+  margin: 0.75rem 0; padding: 0.875rem 1rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+}
+.rv-index-title { font-size: 0.8125rem; font-weight: 700; color: var(--l2); margin-bottom: 0.5rem; }
+.rv-index-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.375rem; flex-wrap: wrap; font-size: 0.8125rem; color: var(--l2); }
+.rv-index-row input[type=number] {
+  width: 72px; padding: 0.2rem 0.4rem; font-size: 0.8rem;
+  border: 1px solid var(--border); border-radius: 4px;
+  background: var(--surface); color: var(--l1);
+}
+#rv-calc-index-btn {
+  padding: 0.25rem 0.75rem; font-size: 0.8rem; border-radius: 6px;
+  background: #2563eb; color: #fff; border: none; cursor: pointer; font-weight: 600;
+}
+#rv-index-result { font-size: 0.8125rem; color: var(--l2); margin-top: 0.375rem; font-style: italic; }
+/* KPI 카드 그리드 */
+#rv-kpi-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem; margin: 0.875rem 0;
+}
+.rv-kpi-card {
+  padding: 0.875rem 1rem; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); position: relative; overflow: hidden;
+}
+.rv-kpi-card.neutral  { border-left: 4px solid #94a3b8; }
+.rv-kpi-card.success  { border-left: 4px solid #16a34a; background: #f0fdf4; }
+.rv-kpi-card.danger   { border-left: 4px solid #dc2626; background: #fef2f2; }
+.rv-kpi-card.warn     { border-left: 4px solid #f59e0b; background: #fffbeb; }
+.rv-kpi-label    { font-size: 0.75rem; color: var(--l3); margin-bottom: 0.3rem; }
+.rv-kpi-value    { font-size: 1.25rem; font-weight: 700; font-family: monospace; color: var(--l1); }
+.rv-kpi-card.success .rv-kpi-value { color: #16a34a; }
+.rv-kpi-card.danger  .rv-kpi-value { color: #dc2626; }
+.rv-kpi-card.warn    .rv-kpi-value { color: #d97706; }
+.rv-kpi-sublabel { font-size: 0.7rem; color: var(--l3); margin-top: 0.2rem; }
+.rv-badge {
+  display: inline-block; margin-top: 0.375rem;
+  padding: 0.1rem 0.4rem; border-radius: 4px;
+  font-size: 0.7rem; font-weight: 600;
+  background: #fef9c3; color: #854d0e;
+  border: 1px solid #fde047;
+}
+/* 복사/저장 버튼 영역 */
+.rv-action-bar { display: flex; gap: 0.5rem; margin: 0.5rem 0; flex-wrap: wrap; }
+.rv-btn-ghost {
+  padding: 0.3rem 0.875rem; font-size: 0.8125rem;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: none; color: var(--l2); cursor: pointer; font-weight: 600;
+}
+.rv-btn-ghost:hover { background: var(--surface-2, #f1f5f9); }
+.rv-btn-primary {
+  padding: 0.3rem 0.875rem; font-size: 0.8125rem;
+  border: none; border-radius: 6px;
+  background: #2563eb; color: #fff; cursor: pointer; font-weight: 600;
+}
+.rv-btn-primary:hover { background: #1d4ed8; }
+.rv-btn-primary:disabled { background: #94a3b8; cursor: default; }
+/* 바차트 섹션 */
+#rv-chart-section {
+  margin: 0.75rem 0; padding: 1rem 1.25rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+.rv-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+#rv-bar-chart { width: 100%; height: 300px; }
+/* 이력 섹션 */
+#rv-history-section {
+  margin: 0.75rem 0; padding: 1rem 1.25rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+.rv-history-row { cursor: pointer; }
+.rv-history-row:hover td { background: var(--blue-t, #eff6ff); }
+.rv-verdict-btn {
+  padding: 0.15rem 0.5rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer;
+  border: 1px solid var(--border); background: none; color: var(--l2); margin-right: 0.25rem;
+}
+.rv-verdict-btn:hover { background: var(--surface-2, #f1f5f9); }
+.dark .rv-kpi-card.success { background: #052e16; }
+.dark .rv-kpi-card.danger  { background: #450a0a; }
+.dark .rv-kpi-card.warn    { background: #451a03; }
+.dark #rv-k-warning { background: #451a03; border-color: #d97706; color: #fcd34d; }
+.dark #rv-k-warning button { background: #1c1917; color: #fcd34d; border-color: #d97706; }
+.dark #rv-row-warning { background: #451a03; border-color: #d97706; color: #fcd34d; }
+.dark .rv-item-row.selected td { background: #1e3a5f; }
 </style>
 </head>
 <body>
@@ -1694,8 +2464,118 @@ body.dark {
     <a class="nav-link" href="news-archive.html">📰 뉴스 아카이브</a>
   </div>
 </nav>
+<!-- ChipCalc 탭 내비게이션 (Story 1.5) -->
+<div id="chipcalc-tab-nav">
+  <button class="chipcalc-tab-btn cc-tab-active" data-tab="portfolio" id="tab-btn-portfolio">포트폴리오 분석</button>
+  <button class="chipcalc-tab-btn" data-tab="review" id="tab-btn-review">인상 검토</button>
+  <button id="admin-panel-btn" title="관리자 설정">⚙️</button>
+</div>
+<!-- K=1.0 경고 배너 -->
+<div id="k-warning-banner" class="hidden">
+  <span>⚠️ K값이 기본값(1.0)입니다. 이 분석은 추정 원가 모델의 절대값 편향을 보정하지 않은 결과입니다. 참고용으로만 활용하세요.</span>
+  <button onclick="openAdminPanel()">⚙️ K값 설정</button>
+</div>
+
 <div class="pf-wrap">
+<div id="tab-portfolio" class="tab-panel">
 <main>
+
+  <!-- ── COGS 원가 분석 섹션 헤더 ──────────────────────────────── -->
+  <div class="pf-section-header">
+    <span class="pf-section-icon">🔬</span>
+    <div>
+      <div class="pf-section-title">COGS 원가 분석</div>
+      <div class="pf-section-sub">공정 스펙(노드·다이면적·패키지)을 입력하면 제조원가를 자동 계산하고 이상가를 탐지합니다</div>
+    </div>
+  </div>
+
+  <!-- ── Story 2.1: ChipCalc 반도체 원가 분석 데이터 입력 ────────── -->
+  <div id="cc-portfolio-input-card">
+    <div class="cc-card-title">데이터 입력</div>
+    <div class="cc-card-sub">엑셀에서 복사 후 붙여넣기 — 헤더행 포함 필수 (품목명·공정노드·다이면적·패키지·단가)</div>
+    <textarea id="cc-portfolio-paste" placeholder="품목명&#9;공정노드&#9;다이면적(mm²)&#9;웨이퍼사이즈&#9;수율&#9;패키지타입&#9;핀수&#9;제품군&#9;단가&#10;APX-A100&#9;28nm&#9;25&#9;300&#9;0.95&#9;QFP&#9;64&#9;MCU&#9;3.50&#10;..."></textarea>
+    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;margin-bottom:0.5rem;">
+      <button id="cc-sample-btn" class="btn-mini">샘플</button>
+      <button id="cc-clear-btn" class="btn-mini ghost">초기화</button>
+    </div>
+    <!-- 열 매핑 미리보기 (붙여넣기 후 표시) -->
+    <div id="cc-mapping-preview" class="hidden">
+      <div id="cc-mapping-summary"></div>
+      <div id="cc-row-warning" class="hidden">
+        <span id="cc-row-warning-msg"></span>
+        <button id="cc-row-continue-btn">계속 진행</button>
+        <button id="cc-row-cancel-btn">취소</button>
+      </div>
+      <div class="cc-mapping-table-wrap">
+        <table class="cc-mapping-table" id="cc-mapping-table">
+          <thead>
+            <tr class="cc-select-row" id="cc-select-row"></tr>
+            <tr class="cc-header-row" id="cc-header-row"></tr>
+          </thead>
+          <tbody id="cc-data-rows"></tbody>
+        </table>
+      </div>
+      <button id="cc-confirm-btn">✓ 확인 — 원가 분석 실행</button>
+    </div>
+  </div>
+  <!-- ── /Story 2.1 ─────────────────────────────────────────────── -->
+
+  <!-- ── Story 2.2: 그룹별 분포 분석 & 이상치 탐지 결과 ───────────── -->
+  <div id="cc-analysis-results" class="hidden">
+    <div class="cc-results-header">
+      <span class="cc-results-title">📈 원가 분석 결과</span>
+    </div>
+    <div class="cc-summary-pills" id="cc-summary-pills"></div>
+    <div class="cc-results-table-wrap">
+      <table class="cc-results-table">
+        <thead>
+          <tr>
+            <th>품목명</th>
+            <th>그룹 (노드·웨이퍼·패키지)</th>
+            <th>mm²당 구매가</th>
+            <th>실구매단가</th>
+            <th>추정ASP</th>
+            <th>초과율</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody id="cc-results-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+  <!-- ── /Story 2.2 ─────────────────────────────────────────────── -->
+
+  <!-- ── Story 2.3: 포트폴리오 버블차트 ───────────────────────────── -->
+  <div id="cc-bubble-section" class="hidden">
+    <div class="cc-bubble-header">
+      <span class="cc-results-title">🫧 포트폴리오 버블차트</span>
+      <div class="cc-bubble-controls">
+        <label class="cc-toggle-label">
+          <input type="checkbox" id="cc-exclude-outliers">
+          이상치 제외
+        </label>
+        <button id="cc-bubble-png-btn" disabled>📥 PNG 저장</button>
+      </div>
+    </div>
+    <div id="cc-bubble-chart"></div>
+  </div>
+  <!-- ── /Story 2.3 ─────────────────────────────────────────────── -->
+
+  <!-- ── Story 2.5: 포트폴리오 내보내기 바 ────────────────────────── -->
+  <div id="cc-export-bar" class="hidden">
+    <button id="cc-export-csv-btn" disabled title="포트폴리오 데이터를 먼저 로드하세요">📊 CSV 내보내기</button>
+  </div>
+  <!-- ── /Story 2.5 ─────────────────────────────────────────────── -->
+
+  <!-- ── 버블 산점도 분석 섹션 구분 ───────────────────────────────── -->
+  <div class="pf-section-divider"></div>
+  <div class="pf-section-header">
+    <span class="pf-section-icon">🫧</span>
+    <div>
+      <div class="pf-section-title">버블 산점도 분석</div>
+      <div class="pf-section-sub">구매가·추정원가·연간수량으로 포트폴리오 전체 분포를 시각화하고 이상 품목을 선별합니다</div>
+    </div>
+  </div>
 
   <!-- GETTING STARTED GUIDE -->
   <section class="guide-card" id="guideCard">
@@ -1705,10 +2585,10 @@ body.dark {
         <span data-i18n="guideTitle">처음 사용하는 분을 위한 가이드</span>
       </div>
       <button class="icon-btn guide-toggle" id="guideToggle" title="접기/펼치기">
-        <span id="guideToggleIcon">▲</span>
+        <span id="guideToggleIcon">▼</span>
       </button>
     </div>
-    <div class="guide-body" id="guideBody">
+    <div class="guide-body folded" id="guideBody">
       <div class="guide-grid">
         <div class="guide-step">
           <div class="guide-step-num">1</div>
@@ -1833,7 +2713,7 @@ body.dark {
     <!-- INPUT SECTION (LEFT) -->
     <section class="card paste-section">
       <div class="section-title-row">
-        <div class="section-title" data-i18n="inputSection">데이터 입력</div>
+        <div class="section-title" data-i18n="inputSection">데이터 입력 (버블 산점도)</div>
         <div class="input-header-actions">
           <div class="mode-tabs compact" id="modeTabs">
             <button class="mode-tab active" data-mode="single" data-i18n="modeSingle">단일</button>
@@ -2176,7 +3056,167 @@ body.dark {
   </section>
 
 </main>
-</div>
+</div><!-- /#tab-portfolio -->
+<div id="tab-review" class="tab-panel hidden">
+<main>
+
+  <!-- ── Story 3.1: 인상 검토 데이터 입력 ─────────────────────────── -->
+  <div id="rv-input-card">
+    <div class="rv-card-title">📋 가격 인상 검토 데이터 입력</div>
+    <div class="rv-card-sub">품목명·현재단가·요청인상률(선택: 공정노드·웨이퍼사이즈·다이면적·패키지)을 붙여넣으세요</div>
+    <textarea id="rv-paste" placeholder="품목명&#9;현재단가&#9;요청인상률&#9;공정노드&#9;웨이퍼사이즈&#9;...&#10;APX-A100&#9;3.50&#9;3%&#9;28nm&#9;300&#9;..."></textarea>
+    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;margin-bottom:0.5rem;">
+      <button id="rv-sample-btn" class="btn-mini">샘플</button>
+      <button id="rv-clear-btn" class="btn-mini ghost">초기화</button>
+    </div>
+    <div id="rv-mapping-preview" class="hidden">
+      <div id="rv-mapping-summary"></div>
+      <div id="rv-row-warning" class="hidden">
+        <span id="rv-row-warning-msg"></span>
+        <button id="rv-row-continue-btn">계속 진행</button>
+        <button id="rv-row-cancel-btn">취소</button>
+      </div>
+      <div class="cc-mapping-table-wrap">
+        <table class="cc-mapping-table" id="rv-mapping-table">
+          <thead>
+            <tr class="cc-select-row" id="rv-select-row"></tr>
+            <tr class="cc-header-row" id="rv-header-row"></tr>
+          </thead>
+          <tbody id="rv-data-rows"></tbody>
+        </table>
+      </div>
+      <button id="rv-confirm-btn" disabled>✓ 확인 — 분석 실행</button>
+    </div>
+  </div>
+
+  <!-- 검토 품목 목록 -->
+  <div id="rv-items-section" class="hidden">
+    <div class="rv-section-title">📄 검토 품목 목록</div>
+    <div style="overflow-x:auto;">
+      <table class="rv-table">
+        <thead>
+          <tr>
+            <th>품목명</th><th>현재단가</th><th>요청률</th><th>웨이퍼비중</th><th>정당률</th><th>갭</th>
+          </tr>
+        </thead>
+        <tbody id="rv-items-list"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── Story 3.2 + 3.3: 분석 결과 ──────────────────────────────── -->
+  <div id="rv-analysis-section" class="hidden">
+    <!-- K 경고 배너 -->
+    <div id="rv-k-warning" class="hidden">
+      <span>⚠️ K값이 기본값(1.0)입니다. 추정 원가 모델의 절대값 편향이 보정되지 않은 결과입니다. 참고용으로만 활용하세요.</span>
+      <button onclick="openAdminPanel()">⚙️ K값 설정</button>
+    </div>
+
+    <!-- 원가 변동 입력 -->
+    <div id="rv-cogs-section">
+      <div class="rv-index-title">🏭 원가 변동 입력 (공급사 주장 근거)</div>
+      <div class="rv-index-row">
+        <span>웨이퍼 가격 변화율</span>
+        <input type="number" id="rv-cogs-wafer-chg" placeholder="예: 10" step="0.1" style="width:5rem">
+        <span>%</span>
+      </div>
+      <div class="rv-index-row">
+        <span>웨이퍼 비중 <small style="color:var(--l3)">(구매가 기준)</small></span>
+        <input type="number" id="rv-cogs-wafer-frac" placeholder="예: 48" min="0" max="100" step="1" style="width:5rem">
+        <span>% &nbsp;<span id="rv-cogs-frac-note" style="font-size:0.75rem;color:var(--l3);font-style:italic;"></span></span>
+      </div>
+      <div class="rv-index-row">
+        <span>기타 원가 변화율</span>
+        <input type="number" id="rv-cogs-other-chg" placeholder="예: 3" step="0.1" style="width:5rem">
+        <span>%</span>
+      </div>
+      <div style="margin-top:0.375rem;display:flex;align-items:center;gap:0.75rem;">
+        <button id="rv-calc-cogs-btn">적용</button>
+        <span id="rv-cogs-result" style="font-size:0.8125rem;color:var(--l3);font-style:italic;">미입력</span>
+      </div>
+    </div>
+
+    <!-- 공개 지수 참고값 입력 -->
+    <div id="rv-index-section">
+      <div class="rv-index-title">📊 공개 지수 참고값 (선택)</div>
+      <div class="rv-index-row">
+        <span>LME 구리 변화율</span>
+        <input type="number" id="rv-index-copper" placeholder="예: 5" step="0.1">
+        <span>% · 가중치</span>
+        <input type="number" id="rv-index-copper-w" value="50" min="0" max="100">
+        <span>%</span>
+      </div>
+      <div class="rv-index-row">
+        <span>웨이퍼 인덱스 변화율</span>
+        <input type="number" id="rv-index-wafer" placeholder="예: 2" step="0.1">
+        <span>% · 가중치</span>
+        <input type="number" id="rv-index-wafer-w" value="50" min="0" max="100">
+        <span>%</span>
+      </div>
+      <div style="margin-top:0.375rem;display:flex;align-items:center;gap:0.75rem;">
+        <button id="rv-calc-index-btn">적용</button>
+        <span id="rv-index-result" style="font-size:0.8125rem;color:var(--l3);font-style:italic;">미입력</span>
+      </div>
+    </div>
+
+    <!-- KPI 카드 4개 -->
+    <div id="rv-kpi-grid">
+      <div class="rv-kpi-card neutral" id="rv-kpi-requested">
+        <div class="rv-kpi-label">요청 인상률</div>
+        <div class="rv-kpi-value">—</div>
+        <div class="rv-kpi-sublabel"></div>
+      </div>
+      <div class="rv-kpi-card neutral" id="rv-kpi-cogs">
+        <div class="rv-kpi-label">원가 기준 정당 인상률</div>
+        <div class="rv-kpi-value">—</div>
+        <div class="rv-kpi-sublabel"></div>
+      </div>
+      <div class="rv-kpi-card neutral" id="rv-kpi-index">
+        <div class="rv-kpi-label">공개지수 참고값</div>
+        <div class="rv-kpi-value">—</div>
+        <div class="rv-kpi-sublabel"></div>
+      </div>
+      <div class="rv-kpi-card neutral" id="rv-kpi-gap">
+        <div class="rv-kpi-label">과다 인상 추정</div>
+        <div class="rv-kpi-value">—</div>
+        <div class="rv-kpi-sublabel"></div>
+      </div>
+    </div>
+    <div class="rv-action-bar">
+      <button class="rv-btn-ghost" id="rv-copy-gap-btn">📋 갭 수치 복사</button>
+    </div>
+  </div>
+
+  <!-- ── Story 3.4: 인상 검토 바차트 ──────────────────────────────── -->
+  <div id="rv-chart-section" class="hidden">
+    <div class="rv-chart-header">
+      <span class="rv-section-title">📊 품목별 비교 차트</span>
+      <button class="rv-btn-primary" id="rv-png-btn" disabled>📥 PNG 저장</button>
+    </div>
+    <div id="rv-bar-chart"></div>
+  </div>
+
+  <!-- ── Story 3.5: 인상 검토 이력 ───────────────────────────────── -->
+  <div id="rv-history-section" class="hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.625rem;">
+      <span class="rv-section-title">📁 인상 검토 이력</span>
+      <button class="rv-btn-primary" id="rv-save-btn">💾 결과 저장</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="rv-table">
+        <thead>
+          <tr>
+            <th>날짜</th><th>품목명</th><th>요청률</th><th>COGS기준</th><th>결과</th><th>협의결과</th>
+          </tr>
+        </thead>
+        <tbody id="rv-history-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+</div><!-- /#tab-review -->
+</div><!-- /.pf-wrap -->
 
 <footer>
   <span data-i18n="footerText">ChipCalc Portfolio Analyzer · 100% 클라이언트 사이드 처리 · 데이터 수집 없음</span>
@@ -5603,7 +6643,7 @@ document.querySelectorAll('.class-tab').forEach(tab => {
   });
 });
 
-// Guide section toggle (fold/unfold)
+// Guide section toggle (fold/unfold) — starts folded by default
 document.getElementById('guideToggle').addEventListener('click', () => {
   const body = document.getElementById('guideBody');
   const icon = document.getElementById('guideToggleIcon');
@@ -5637,6 +6677,1819 @@ document.getElementById('guideToggle').addEventListener('click', () => {
 applyI18n();
 clearMiniChart(currentLang === 'ko' ? '데이터를 입력하면 여기에 미리보기가 나타납니다' : 'Paste data to see a preview here');
 
+/* =============================================================
+   ChipCalc 탭 라우팅 + 관리자 패널 + 초기화 시퀀스 (Story 1.5)
+============================================================= */
+
+// ── 관리자 패널 ───────────────────────────────────────────────
+function openAdminPanel() {
+  var overlay = document.getElementById('admin-panel-overlay');
+  if (overlay) overlay.classList.remove('hidden');
+  if (window.ChipCalc && window.ChipCalc.admin && window.ChipCalc.admin.renderAdminPanel) {
+    window.ChipCalc.admin.renderAdminPanel();
+  }
+}
+function closeAdminPanel() {
+  var overlay = document.getElementById('admin-panel-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+(function() {
+  var adminBtn = document.getElementById('admin-panel-btn');
+  var closeBtn = document.getElementById('admin-close-btn');
+  var overlay  = document.getElementById('admin-panel-overlay');
+  var panel    = document.getElementById('admin-panel');
+  if (adminBtn) adminBtn.addEventListener('click', openAdminPanel);
+  if (closeBtn) closeBtn.addEventListener('click', closeAdminPanel);
+  if (overlay) {
+    overlay.addEventListener('click', function(e) {
+      if (panel && !panel.contains(e.target)) closeAdminPanel();
+    });
+  }
+})();
+
+// ── URL Hash 탭 라우팅 ────────────────────────────────────────
+function activateTab(tabName) {
+  var validTabs = ['portfolio', 'review'];
+  var target = validTabs.indexOf(tabName) !== -1 ? tabName : 'portfolio';
+
+  // 모든 패널 숨김
+  document.querySelectorAll('.tab-panel').forEach(function(el) {
+    el.classList.add('hidden');
+  });
+  // 대상 패널 표시
+  var panelEl = document.getElementById('tab-' + target);
+  if (panelEl) panelEl.classList.remove('hidden');
+
+  // 탭 버튼 활성 상태 업데이트
+  document.querySelectorAll('[data-tab]').forEach(function(btn) {
+    btn.classList.remove('cc-tab-active');
+    if (btn.dataset.tab === target) btn.classList.add('cc-tab-active');
+  });
+}
+
+// 탭 버튼 클릭 → hash 변경 (브라우저 뒤로가기 지원)
+document.querySelectorAll('[data-tab]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    window.location.hash = '#' + btn.dataset.tab;
+  });
+});
+
+// hashchange 이벤트
+window.addEventListener('hashchange', function() {
+  var hash = window.location.hash.replace('#', '');
+  activateTab(hash);
+});
+
+// 초기 로드: hash 값으로 탭 결정
+(function() {
+  var initHash = window.location.hash.replace('#', '') || 'portfolio';
+  activateTab(initHash);
+})();
+
+// ── ChipCalc 초기화 시퀀스 (Story 1.5, ARCH-5) ───────────────
+(function() {
+  if (!window.ChipCalc || !ChipCalc.storage || !ChipCalc.engine) return;
+
+  var store = ChipCalc.storage.load();
+
+  // 저장된 웨이퍼/패키지 단가 엔진에 복원 (각각 독립 로드)
+  if (store && (store.wafer || store.pkgs)) {
+    try {
+      ChipCalc.engine.loadWaferData(store.wafer || null, store.pkgs || null);
+    } catch (e) {
+      // loadWaferData 실패 시 silent — 기본값 유지
+    }
+  }
+
+  // portfolioData가 있을 때만 recalculateAll (ARCH-5 MUST NOT)
+  if (ChipCalc.state && ChipCalc.state.portfolioData && ChipCalc.state.portfolioData.length > 0) {
+    try {
+      ChipCalc.engine.recalculateAll();
+    } catch (e) {
+      ChipCalc.ui && ChipCalc.ui.toast('재계산 중 오류가 발생했습니다.', 'error');
+    }
+  }
+
+  // K=1.0 경고 배너 체크 (ARCH-9)
+  var kValues = store && store.kValues ? store.kValues : {};
+  var hasUncalibratedK = Object.keys(kValues).some(function(cat) {
+    return Math.abs(kValues[cat] - 1.0) < 1e-9;
+  });
+  // kValues가 비어있으면 기본값(1.0)으로 간주 → 경고 표시
+  if (hasUncalibratedK || Object.keys(kValues).length === 0) {
+    var banner = document.getElementById('k-warning-banner');
+    if (banner) banner.classList.remove('hidden');
+  }
+})();
+
+// ── Story 2.1: ChipCalc 포트폴리오 데이터 입력 & 열 매핑 ─────────
+;(function() {
+  var CC_FIELD_LABELS = {
+    '':            '-- 무시 --',
+    name:          '품목명',
+    node:          '공정노드 (예: 28nm)',
+    dieArea:       '다이면적 mm²',
+    waferSize:     '웨이퍼사이즈 mm (150/200/300)',
+    'yield':       '수율 (0~1 또는 %)',
+    pkgType:       '패키지타입 (QFP/QFN 등)',
+    pins:          '핀수',
+    productFamily: '제품군 (MCU/PMIC/파워IC/기타)',
+    actualPrice:   '단가/실구매가 (USD)',
+    qty:           '연간물량'
+  };
+
+  var ccParsed = null;
+  var ccRowLimitConfirmed = false;
+
+  function getCcParser() { return window.ChipCalc && window.ChipCalc.parser; }
+
+  function loadSavedMapping() {
+    try {
+      var store = window.ChipCalc && window.ChipCalc.storage && window.ChipCalc.storage.load();
+      return (store && store.columnMapping && store.columnMapping.portfolio) || {};
+    } catch (e) { return {}; }
+  }
+
+  function renderCcMappingPreview(text, savedMapping) {
+    var p = getCcParser();
+    if (!p) return;
+    var parsed = p.parseTSV(text);
+    if (!parsed.headers.length && !parsed.rows.length) {
+      document.getElementById('cc-mapping-preview').classList.add('hidden');
+      return;
+    }
+    ccParsed = parsed;
+    var headers = parsed.headers;
+    var rows = parsed.rows;
+
+    // 행 초과 체크
+    if (rows.length > 300 && !ccRowLimitConfirmed) {
+      var warningEl = document.getElementById('cc-row-warning');
+      var warningMsg = document.getElementById('cc-row-warning-msg');
+      if (warningEl && warningMsg) {
+        warningMsg.textContent = '300행 초과(' + rows.length + '행). 계속 진행하시겠습니까?';
+        warningEl.classList.remove('hidden');
+        document.getElementById('cc-mapping-preview').classList.remove('hidden');
+        document.getElementById('cc-mapping-summary').textContent = '';
+        document.getElementById('cc-select-row').innerHTML = '';
+        document.getElementById('cc-header-row').innerHTML = '';
+        document.getElementById('cc-data-rows').innerHTML = '';
+        document.getElementById('cc-confirm-btn').disabled = true;
+      }
+      return;
+    }
+
+    if (!headers.length) {
+      var ui = window.ChipCalc && window.ChipCalc.ui;
+      if (ui) ui.toast('숫자 데이터를 찾을 수 없습니다. 예시: 품목명 | 공정노드 | 단가(원) | 물량', 'error');
+      return;
+    }
+
+    var autoDetected = p.detectPortfolioColumns(headers);
+    var mapping = {};
+    Object.keys(CC_FIELD_LABELS).forEach(function(field) {
+      if (!field) return;
+      if (savedMapping && savedMapping[field] !== undefined) {
+        mapping[field] = savedMapping[field];
+      } else if (autoDetected[field] !== undefined) {
+        mapping[field] = autoDetected[field];
+      }
+    });
+
+    var recognizedCount = Object.keys(mapping).filter(function(f) { return mapping[f] !== undefined; }).length;
+    document.getElementById('cc-mapping-summary').textContent =
+      headers.length + '개 컬럼 감지, ' + recognizedCount + '개 역할 자동 인식';
+
+    var warningEl2 = document.getElementById('cc-row-warning');
+    if (warningEl2) warningEl2.classList.add('hidden');
+
+    // 드롭다운 행
+    var selectRow = document.getElementById('cc-select-row');
+    selectRow.innerHTML = '';
+    headers.forEach(function(h, colIdx) {
+      var th = document.createElement('th');
+      var select = document.createElement('select');
+      select.className = 'cc-field-select';
+      select.dataset.col = colIdx;
+      Object.keys(CC_FIELD_LABELS).forEach(function(fieldKey) {
+        var opt = document.createElement('option');
+        opt.value = fieldKey;
+        opt.textContent = CC_FIELD_LABELS[fieldKey];
+        select.appendChild(opt);
+      });
+      var assignedField = null;
+      Object.keys(mapping).forEach(function(f) {
+        if (mapping[f] === colIdx) assignedField = f;
+      });
+      select.value = assignedField || '';
+      if (assignedField) select.classList.add('cc-matched');
+      select.addEventListener('change', function() {
+        this.classList.toggle('cc-matched', !!this.value);
+      });
+      th.appendChild(select);
+      selectRow.appendChild(th);
+    });
+
+    // 헤더 이름 행
+    var headerRow = document.getElementById('cc-header-row');
+    headerRow.innerHTML = '';
+    headers.forEach(function(h) {
+      var th = document.createElement('th');
+      th.textContent = h;
+      headerRow.appendChild(th);
+    });
+
+    // 데이터 미리보기 (최대 5행)
+    var tbody = document.getElementById('cc-data-rows');
+    tbody.innerHTML = '';
+    rows.slice(0, 5).forEach(function(row) {
+      var tr = document.createElement('tr');
+      headers.forEach(function(_, i) {
+        var td = document.createElement('td');
+        td.textContent = (row[i] || '').trim();
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    if (rows.length > 5) {
+      var tr = document.createElement('tr');
+      var td = document.createElement('td');
+      td.colSpan = headers.length;
+      td.style.cssText = 'color:var(--l3);text-align:center;padding:0.25rem';
+      td.textContent = '... 외 ' + (rows.length - 5) + '행';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+
+    document.getElementById('cc-mapping-preview').classList.remove('hidden');
+    document.getElementById('cc-confirm-btn').disabled = false;
+  }
+
+  function buildMappingFromDropdowns() {
+    var result = {};
+    document.querySelectorAll('.cc-field-select').forEach(function(sel) {
+      if (!sel.value) return;
+      result[sel.value] = parseInt(sel.dataset.col, 10);
+    });
+    return result;
+  }
+
+  function confirmCcMapping() {
+    var p = getCcParser();
+    var engine = window.ChipCalc && window.ChipCalc.engine;
+    var storage = window.ChipCalc && window.ChipCalc.storage;
+    var ui = window.ChipCalc && window.ChipCalc.ui;
+    var state = window.ChipCalc && window.ChipCalc.state;
+    if (!p || !engine || !state || !ccParsed) return;
+
+    var columnMapping = buildMappingFromDropdowns();
+    var result = p.parsePortfolioRows(ccParsed.rows, ccParsed.headers, columnMapping);
+
+    if (result.warnings.length > 0 && result.items.length === 0) {
+      if (ui) ui.toast(result.warnings[0], 'error');
+      return;
+    }
+
+    if (storage) {
+      var store = storage.load();
+      if (!store.columnMapping) store.columnMapping = { portfolio: {}, review: {} };
+      store.columnMapping.portfolio = columnMapping;
+      storage.save(store);
+    }
+
+    state.portfolioData = result.items;
+
+    if (columnMapping.productFamily === undefined && ui) {
+      ui.toast('제품군 컬럼이 없어 K값은 \'기타\' 기준으로 적용됩니다', 'warn');
+    }
+
+    if (state.portfolioData.length > 0) {
+      try {
+        engine.recalculateAll();
+      } catch (e) {
+        if (ui) ui.toast('원가 계산 중 오류: ' + e.message, 'error');
+      }
+    }
+  }
+
+  var pasteEl = document.getElementById('cc-portfolio-paste');
+  if (pasteEl) {
+    var ccPreviewTimer = null;
+    var schedulePreviewCC = function() {
+      clearTimeout(ccPreviewTimer);
+      ccPreviewTimer = setTimeout(function() {
+        ccRowLimitConfirmed = false;
+        renderCcMappingPreview(pasteEl.value, loadSavedMapping());
+      }, 200);
+    };
+    pasteEl.addEventListener('input', schedulePreviewCC);
+    pasteEl.addEventListener('paste', function() { setTimeout(schedulePreviewCC, 20); });
+  }
+
+  var continueBtn = document.getElementById('cc-row-continue-btn');
+  if (continueBtn) {
+    continueBtn.addEventListener('click', function() {
+      document.getElementById('cc-row-warning').classList.add('hidden');
+      ccRowLimitConfirmed = true;
+      if (pasteEl) renderCcMappingPreview(pasteEl.value, loadSavedMapping());
+    });
+  }
+
+  var cancelBtn = document.getElementById('cc-row-cancel-btn');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function() {
+      document.getElementById('cc-row-warning').classList.add('hidden');
+      document.getElementById('cc-confirm-btn').disabled = true;
+      ccParsed = null;
+    });
+  }
+
+  var confirmBtn = document.getElementById('cc-confirm-btn');
+  if (confirmBtn) confirmBtn.addEventListener('click', confirmCcMapping);
+
+  var sampleBtn = document.getElementById('cc-sample-btn');
+  if (sampleBtn) {
+    sampleBtn.addEventListener('click', function() {
+      var sample = [
+        '품목명\t공정노드\t다이면적(mm²)\t웨이퍼사이즈\t수율\t패키지타입\t핀수\t제품군\t단가(USD)',
+        'APX-A100-F256\t28nm\t25\t300\t0.95\tQFP\t64\tMCU\t3.50',
+        'APX-B070-M064\t40nm\t18\t300\t0.92\tQFN\t32\tMCU\t2.10',
+        'BPX-PMIC-001\t180nm\t8\t200\t0.97\tSOIC-8 (AEC)\t8\tPMIC\t0.85',
+        'CPX-PWR-002\t65nm\t12\t300\t0.94\tBGA (AEC)\t256\t파워IC\t4.20',
+        'DPX-C030-L032\t90nm\t6\t200\t0.96\tQFN (AEC)\t16\t기타\t0.65'
+      ].join('\n');
+      if (pasteEl) {
+        pasteEl.value = sample;
+        ccRowLimitConfirmed = false;
+        renderCcMappingPreview(sample, loadSavedMapping());
+      }
+    });
+  }
+
+  var clearBtn = document.getElementById('cc-clear-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function() {
+      if (pasteEl) pasteEl.value = '';
+      document.getElementById('cc-mapping-preview').classList.add('hidden');
+      document.getElementById('cc-row-warning').classList.add('hidden');
+      ccParsed = null;
+      ccRowLimitConfirmed = false;
+    });
+  }
+
+  function onPortfolioTabActivated() {
+    if (pasteEl && pasteEl.value.trim()) {
+      renderCcMappingPreview(pasteEl.value, loadSavedMapping());
+    }
+  }
+
+  window.addEventListener('hashchange', function() {
+    if (window.location.hash.replace('#', '') === 'portfolio') onPortfolioTabActivated();
+  });
+  if ((window.location.hash.replace('#', '') || 'portfolio') === 'portfolio') {
+    onPortfolioTabActivated();
+  }
+})();
+
+// ── Epic 3: 가격 인상 검토 & 반박 근거 생성 (Story 3.1~3.5) ──────
+;(function () {
+  'use strict'
+
+  var _reviewData         = []
+  var _selectedIdx        = 0
+  var _indexRefRate       = null
+  var _rvParsed           = null
+  var _rvRowLimitConfirmed= false
+  var _rvBarChart         = null
+
+  var RV_FIELD_LABELS = {
+    '': '(무시)', name: '품목명', currentPrice: '현재단가',
+    requestedRate: '요청인상률', node: '공정노드', waferSize: '웨이퍼사이즈',
+    dieArea: '다이면적', 'yield': '수율', pkgType: '패키지타입',
+    pins: '핀수', productFamily: '제품군'
+  }
+
+  function loadSavedReviewMapping() {
+    var s = window.ChipCalc && window.ChipCalc.storage
+    if (!s) return {}
+    try { var st = s.load(); return (st.columnMapping && st.columnMapping.review) || {} }
+    catch(e) { return {} }
+  }
+
+  function renderRvMappingPreview(text, savedMapping) {
+    var p = window.ChipCalc && window.ChipCalc.parser
+    if (!p || !text || !text.trim()) return
+    var parsed = p.parseTSV(text)
+    if (!parsed.headers.length && !parsed.rows.length) return
+    var headers = parsed.headers, rows = parsed.rows
+
+    if (rows.length > 300 && !_rvRowLimitConfirmed) {
+      document.getElementById('rv-row-warning').classList.remove('hidden')
+      document.getElementById('rv-row-warning-msg').textContent =
+        '300행 초과(' + rows.length + '행). 계속 진행하시겠습니까?'
+      document.getElementById('rv-mapping-preview').classList.remove('hidden')
+      _rvParsed = parsed; return
+    }
+    _rvParsed = parsed
+    var autoDetected = p.detectReviewColumns(headers)
+    var mapping = {}
+    Object.keys(RV_FIELD_LABELS).filter(function(k){return k}).forEach(function(f) {
+      if (savedMapping && savedMapping[f] !== undefined) mapping[f] = savedMapping[f]
+      else if (autoDetected[f] !== undefined) mapping[f] = autoDetected[f]
+    })
+    document.getElementById('rv-mapping-summary').textContent =
+      headers.length + '개 컬럼 감지, ' + Object.keys(mapping).filter(function(f){return mapping[f]!==undefined}).length + '개 역할 인식'
+
+    var selectRow = document.getElementById('rv-select-row')
+    selectRow.innerHTML = ''
+    headers.forEach(function(h, colIdx) {
+      var th = document.createElement('th')
+      var sel = document.createElement('select')
+      sel.className = 'cc-field-select'
+      sel.dataset.col = colIdx
+      Object.keys(RV_FIELD_LABELS).forEach(function(k) {
+        var opt = document.createElement('option')
+        opt.value = k; opt.textContent = RV_FIELD_LABELS[k]
+        sel.appendChild(opt)
+      })
+      var assigned = null
+      Object.keys(mapping).forEach(function(f) { if (mapping[f] === colIdx) assigned = f })
+      sel.value = assigned || ''
+      if (assigned) sel.classList.add('cc-matched')
+      sel.addEventListener('change', function() { this.classList.toggle('cc-matched', !!this.value) })
+      th.appendChild(sel); selectRow.appendChild(th)
+    })
+    var headerRow = document.getElementById('rv-header-row')
+    headerRow.innerHTML = ''
+    headers.forEach(function(h) {
+      var th = document.createElement('th'); th.textContent = h; headerRow.appendChild(th)
+    })
+    var tbody = document.getElementById('rv-data-rows')
+    tbody.innerHTML = ''
+    rows.slice(0, 5).forEach(function(row) {
+      var tr = document.createElement('tr')
+      headers.forEach(function(_, i) {
+        var td = document.createElement('td'); td.textContent = (row[i]||'').trim(); tr.appendChild(td)
+      })
+      tbody.appendChild(tr)
+    })
+    if (rows.length > 5) {
+      var tr = document.createElement('tr'), td = document.createElement('td')
+      td.colSpan = headers.length
+      td.style.cssText = 'color:var(--l3);text-align:center;padding:0.25rem'
+      td.textContent = '... 외 ' + (rows.length - 5) + '행'
+      tr.appendChild(td); tbody.appendChild(tr)
+    }
+    document.getElementById('rv-mapping-preview').classList.remove('hidden')
+    document.getElementById('rv-confirm-btn').disabled = false
+  }
+
+  function buildRvMapping() {
+    var result = {}
+    document.querySelectorAll('#rv-mapping-table .cc-field-select').forEach(function(sel) {
+      if (!sel.value) return
+      result[sel.value] = parseInt(sel.dataset.col, 10)
+    })
+    return result
+  }
+
+  // 품목 스펙으로 웨이퍼 비중(구매가 기준) 추정
+  function estimateItemWaferFrac(item) {
+    var engine = window.ChipCalc && window.ChipCalc.engine
+    if (!engine || !item.node || !item.waferSize || !item.dieArea || !item.pkgType) return null
+    try {
+      var r = engine.calcCOGS({
+        node: item.node, dieArea: item.dieArea, waferSize: item.waferSize,
+        'yield': item['yield'] != null ? item['yield'] : 0.95,
+        pkgType: item.pkgType, pins: item.pins, kValue: 1.0
+      })
+      return {
+        fracOfAsp:  r.frontendCost / r.estimatedASP,
+        fracOfCogs: r.frontendCost / r.totalCOGS,
+        frontendCost: r.frontendCost,
+        totalCOGS:  r.totalCOGS,
+        estimatedASP: r.estimatedASP
+      }
+    } catch(e) { return null }
+  }
+
+  function calcCogsJustified() {
+    var waferChg    = parseFloat(document.getElementById('rv-cogs-wafer-chg').value)
+    var fallbackFrac = parseFloat(document.getElementById('rv-cogs-wafer-frac').value)
+    var otherChg    = parseFloat(document.getElementById('rv-cogs-other-chg').value)
+    var resultEl    = document.getElementById('rv-cogs-result')
+    var hasWafer    = !isNaN(waferChg)
+    var hasOther    = !isNaN(otherChg)
+    var hasFallback = !isNaN(fallbackFrac) && fallbackFrac >= 0 && fallbackFrac <= 100
+
+    if (!hasWafer && !hasOther) {
+      _reviewData.forEach(function(it) {
+        it.cogsChangedRate = null; it.waferFracPct = null; it.waferFracBasis = ''
+      })
+      if (resultEl) { resultEl.textContent = '미입력'; resultEl.style.color = 'var(--l3)' }
+      renderReviewItemsList(); renderKpiCards()
+      if (_rvBarChart) renderReviewBarChart()
+      return
+    }
+
+    var wp = hasWafer ? waferChg / 100 : 0
+    var op = hasOther ? otherChg / 100 : 0
+    var computed = 0
+
+    _reviewData.forEach(function(it) {
+      var est = estimateItemWaferFrac(it)
+      var frac, basis
+
+      if (est) {
+        frac  = est.fracOfAsp
+        basis = it.node + ' / ' + it.waferSize + 'mm / 다이 ' + it.dieArea + 'mm² / 수율 ' +
+                ((it['yield']||0.95)*100).toFixed(0) + '% → 구매가 기준 추정'
+      } else if (hasFallback) {
+        frac  = fallbackFrac / 100
+        basis = '스펙 없음 — 입력값 ' + fallbackFrac + '% 사용'
+      } else {
+        it.cogsChangedRate = null; it.waferFracPct = null
+        it.waferFracBasis  = '스펙 없음 (비중 입력 필요)'
+        return
+      }
+
+      it.waferFracPct    = frac * 100
+      it.waferFracBasis  = basis
+      it.cogsChangedRate = wp * frac + op * (1 - frac)
+      computed++
+    })
+
+    if (resultEl) {
+      var total = _reviewData.length
+      resultEl.textContent = computed === total
+        ? '품목별 계산 완료 (' + computed + '개)'
+        : computed + '/' + total + '개 완료 (' + (total - computed) + '개 스펙 없음 — 비중 직접 입력 필요)'
+      resultEl.style.color = computed < total ? '#f59e0b' : 'var(--l1)'
+    }
+
+    renderReviewItemsList(); renderKpiCards()
+    if (_rvBarChart) renderReviewBarChart()
+  }
+
+  // 품목 선택 시 해당 품목의 추정 비중을 폴백 입력란에 표시
+  function autoEstimateWaferFrac(item) {
+    var est = estimateItemWaferFrac(item)
+    var fracInput = document.getElementById('rv-cogs-wafer-frac')
+    var noteEl    = document.getElementById('rv-cogs-frac-note')
+    if (!est) {
+      if (noteEl) noteEl.textContent = '스펙 없음 — 직접 입력'
+      return
+    }
+    var fracOfAsp  = est.fracOfAsp  * 100
+    var fracOfCogs = est.fracOfCogs * 100
+    if (fracInput && !fracInput.dataset.manualSet) fracInput.value = fracOfAsp.toFixed(0)
+    if (noteEl) noteEl.textContent =
+      '구매가 기준 ' + fracOfAsp.toFixed(0) + '% (제조원가 기준 ' + fracOfCogs.toFixed(0) + '%)'
+  }
+
+  function confirmRvMapping() {
+    var p = window.ChipCalc && window.ChipCalc.parser
+    var storage = window.ChipCalc && window.ChipCalc.storage
+    var ui = window.ChipCalc && window.ChipCalc.ui
+    if (!p || !_rvParsed) return
+    var columnMapping = buildRvMapping()
+    var result = p.parseReviewRows(_rvParsed.rows, _rvParsed.headers, columnMapping)
+    if (result.warnings.length > 0 && result.items.length === 0) {
+      if (ui) ui.toast(result.warnings[0], 'error'); return
+    }
+    if (storage) {
+      var store = storage.load()
+      if (!store.columnMapping) store.columnMapping = { portfolio: {}, review: {} }
+      store.columnMapping.review = columnMapping
+      storage.save(store)
+    }
+    _reviewData = result.items.map(function(item) {
+      return Object.assign({}, item, {
+        cogsChangedRate: null,
+        indexRefRate: _indexRefRate
+      })
+    })
+    _selectedIdx = 0
+    renderReviewItemsList()
+    renderAnalysisSection()
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  }
+
+  function renderReviewItemsList() {
+    var listEl = document.getElementById('rv-items-list')
+    if (!listEl) return
+    var rows = ''
+    _reviewData.forEach(function(item, idx) {
+      var req  = item.requestedRate != null ? (item.requestedRate*100).toFixed(1)+'%' : '—'
+      var cogs = item.cogsChangedRate != null ? (item.cogsChangedRate*100).toFixed(1)+'%' : '—'
+      var fracStr = item.waferFracPct != null
+        ? item.waferFracPct.toFixed(1)+'%'+(item.waferFracBasis&&item.waferFracBasis.indexOf('입력값')>=0?' (수동)':' (추정)')
+        : '—'
+      var gapVal = (item.requestedRate != null && item.cogsChangedRate != null)
+        ? (item.requestedRate - item.cogsChangedRate)*100 : null
+      var gapStr = gapVal != null ? (gapVal>0?'+':'')+gapVal.toFixed(1)+'%p' : '—'
+      var isOver = gapVal != null && gapVal > 0
+      rows += '<tr class="rv-item-row'+(idx===_selectedIdx?' selected':'')+'" data-idx="'+idx+'">' +
+        '<td>'+escHtml(item.name||'')+'</td>' +
+        '<td>'+(item.currentPrice!=null?'$'+item.currentPrice.toFixed(4):'—')+'</td>' +
+        '<td>'+req+'</td>' +
+        '<td title="'+escHtml(item.waferFracBasis||'')+'">'+fracStr+'</td>' +
+        '<td>'+cogs+'</td>' +
+        '<td class="'+(isOver?'danger':'ok')+'">'+gapStr+'</td></tr>'
+    })
+    listEl.innerHTML = rows
+    listEl.querySelectorAll('.rv-item-row').forEach(function(tr) {
+      tr.addEventListener('click', function() { selectItem(parseInt(this.dataset.idx,10)) })
+    })
+    var sec = document.getElementById('rv-items-section')
+    if (sec) sec.classList.toggle('hidden', _reviewData.length === 0)
+  }
+
+  function selectItem(idx) {
+    _selectedIdx = idx
+    renderReviewItemsList()
+    autoEstimateWaferFrac(_reviewData[idx])
+    renderKpiCards()
+    if (_rvBarChart) {
+      _rvBarChart.dispatchAction({ type: 'downplay', seriesIndex: [0,1,2] })
+      _rvBarChart.dispatchAction({ type: 'highlight', seriesIndex: 0, dataIndex: idx })
+    }
+  }
+
+  function renderAnalysisSection() {
+    var sec = document.getElementById('rv-analysis-section')
+    if (sec) sec.classList.toggle('hidden', _reviewData.length === 0)
+    var chartSec = document.getElementById('rv-chart-section')
+    if (chartSec) chartSec.classList.toggle('hidden', _reviewData.length === 0)
+    var histSec = document.getElementById('rv-history-section')
+    if (histSec) histSec.classList.remove('hidden')
+    renderKWarning()
+    renderKpiCards()
+    renderReviewBarChart()
+    renderHistoryTable()
+  }
+
+  function renderKWarning() {
+    var engine = window.ChipCalc && window.ChipCalc.engine
+    if (!engine) return
+    var allDefault = ['MCU','PMIC','파워IC','기타'].every(function(k){ return engine.getKValue(k)===1.0 })
+    var el = document.getElementById('rv-k-warning')
+    if (el) el.classList.toggle('hidden', !allDefault)
+  }
+
+  function renderKpiCards() {
+    if (!_reviewData.length) return
+    var item = _reviewData[_selectedIdx] || _reviewData[0]
+    var req  = item.requestedRate
+    var cogs = item.cogsChangedRate
+    var idx  = _indexRefRate
+
+    setKpiCard('rv-kpi-requested', req!=null?(req*100).toFixed(1)+'%':'—', '요청 인상률', 'neutral', '')
+
+    var cogsSub = ''
+    if (cogs != null) {
+      cogsSub = item.waferFracPct != null
+        ? '웨이퍼비중 '+item.waferFracPct.toFixed(1)+'% (구매가 기준)'
+        : '(웨이퍼변화율×비중 + 기타)'
+    }
+    setKpiCard('rv-kpi-cogs',
+      cogs!=null?(cogs*100).toFixed(1)+'%':'미입력',
+      '원가 기준 정당 인상률',
+      cogs==null?'neutral':(req==null||cogs<=req?'success':'warn'),
+      cogsSub
+    )
+
+    setKpiCard('rv-kpi-index',
+      idx!=null?(idx*100).toFixed(1)+'%':'미입력',
+      '공개지수 참고값',
+      idx==null?'neutral':(req==null||idx<=req?'success':'warn'),
+      idx!=null?'(LME·웨이퍼인덱스 가중평균)':''
+    )
+
+    // 갭: 더 작은 근거값 기준
+    var justified = null
+    if (cogs!=null && idx!=null) justified = Math.min(cogs, idx)
+    else if (cogs!=null) justified = cogs
+    else if (idx!=null) justified = idx
+    renderGapCard(req, justified)
+
+    // 협상 추천 배지
+    var cEl = document.getElementById('rv-kpi-cogs')
+    var iEl = document.getElementById('rv-kpi-index')
+    if (cEl) { var bc=cEl.querySelector('.rv-badge'); if(bc) bc.remove() }
+    if (iEl) { var bi=iEl.querySelector('.rv-badge'); if(bi) bi.remove() }
+    if (cogs!=null || idx!=null) {
+      var targetId
+      if (cogs!=null && idx!=null) targetId = cogs<=idx ? 'rv-kpi-cogs' : 'rv-kpi-index'
+      else targetId = cogs!=null ? 'rv-kpi-cogs' : 'rv-kpi-index'
+      var badgeEl = document.getElementById(targetId)
+      if (badgeEl) { var b=document.createElement('div'); b.className='rv-badge'; b.textContent='🏷 협상 추천 근거'; badgeEl.appendChild(b) }
+    }
+  }
+
+  function setKpiCard(id, value, label, type, subLabel) {
+    var el = document.getElementById(id); if (!el) return
+    el.className = 'rv-kpi-card ' + (type||'')
+    var vEl=el.querySelector('.rv-kpi-value'); if(vEl) vEl.textContent=value
+    var lEl=el.querySelector('.rv-kpi-label'); if(lEl) lEl.textContent=label
+    var sEl=el.querySelector('.rv-kpi-sublabel'); if(sEl) sEl.textContent=subLabel||''
+  }
+
+  function renderGapCard(req, justified) {
+    var el = document.getElementById('rv-kpi-gap'); if(!el) return
+    if (req==null||justified==null) { setKpiCard('rv-kpi-gap','—','과다 인상 추정','neutral',''); return }
+    var gapPct = (req-justified)*100
+    if (gapPct > 0) setKpiCard('rv-kpi-gap','▲ +'+gapPct.toFixed(1)+'%p 과다','과다 인상 추정','danger','요청이 근거보다 큼')
+    else            setKpiCard('rv-kpi-gap','✓ 범위 내 ('+gapPct.toFixed(1)+'%p)','과다 인상 추정','success','')
+  }
+
+  function calcIndexRefRate() {
+    var copperVal = parseFloat(document.getElementById('rv-index-copper').value)
+    var waferVal  = parseFloat(document.getElementById('rv-index-wafer').value)
+    var copperW   = parseFloat(document.getElementById('rv-index-copper-w').value)||50
+    var waferW    = parseFloat(document.getElementById('rv-index-wafer-w').value)||50
+    var hasC = !isNaN(copperVal), hasW = !isNaN(waferVal)
+    if (!hasC && !hasW) {
+      _indexRefRate = null
+      document.getElementById('rv-index-result').textContent = '미입력'
+    } else {
+      var totalW = (hasC?copperW:0)+(hasW?waferW:0)
+      var w = 0
+      if (hasC) w += (copperVal/100)*copperW
+      if (hasW) w += (waferVal/100)*waferW
+      _indexRefRate = w/totalW
+      _reviewData.forEach(function(it){ it.indexRefRate=_indexRefRate })
+      document.getElementById('rv-index-result').textContent =
+        '공개 지수 참고값: +'+(_indexRefRate*100).toFixed(1)+'% (참고값 — 수동 입력)'
+    }
+    renderKpiCards()
+    if (_rvBarChart) renderReviewBarChart()
+  }
+
+  function renderReviewBarChart() {
+    var el = document.getElementById('rv-bar-chart')
+    if (!el || !_reviewData.length) return
+    if (!_rvBarChart) _rvBarChart = echarts.init(el)
+    else _rvBarChart.clear()
+    var isDark = document.documentElement.classList.contains('dark')
+    var axisColor = isDark?'#94a3b8':'#64748b', gridColor = isDark?'#334155':'#e2e8f0'
+    var names    = _reviewData.map(function(it){ return it.name||'?' })
+    var reqData  = _reviewData.map(function(it){ return it.requestedRate!=null?+(it.requestedRate*100).toFixed(2):null })
+    var cogsData = _reviewData.map(function(it){ return it.cogsChangedRate!=null?+(it.cogsChangedRate*100).toFixed(2):null })
+    var idxData  = _reviewData.map(function(it){ return it.indexRefRate!=null?+(it.indexRefRate*100).toFixed(2):null })
+    _rvBarChart.setOption({
+      backgroundColor:'transparent',
+      grid:{ left:50,right:90,top:40,bottom:60 },
+      tooltip:{ trigger:'axis' },
+      legend:{ right:10,top:30,textStyle:{color:axisColor,fontSize:11} },
+      graphic:[{ type:'text',right:12,top:8,style:{text:'[단위: %]',fontSize:10,fill:axisColor} }],
+      xAxis:{ type:'category',data:names,axisLabel:{color:axisColor,rotate:names.length>5?30:0},axisLine:{lineStyle:{color:gridColor}} },
+      yAxis:{ type:'value',axisLabel:{color:axisColor,formatter:'{value}%'},splitLine:{lineStyle:{color:gridColor}} },
+      series:[
+        { name:'요청인상률', type:'bar', data:reqData, itemStyle:{color:'#3b82f6'},
+          label:{ show:true, position:'top', fontSize:10,
+            formatter:function(p){
+              var it=_reviewData[p.dataIndex]
+              if(it.cogsChangedRate==null) return ''
+              var gap=(it.requestedRate-it.cogsChangedRate)*100
+              return gap>0?'Δ+'+gap.toFixed(1)+'%p':''
+            }, color:'#dc2626' }
+        },
+        { name:'원가기준 정당인상률', type:'bar', data:cogsData, itemStyle:{color:'#16a34a'} },
+        { name:'공개지수참고값', type:'bar', data:idxData,  itemStyle:{color:'#f59e0b'} }
+      ]
+    })
+    var pngBtn = document.getElementById('rv-png-btn')
+    if (pngBtn) pngBtn.disabled = true
+    _rvBarChart.on('finished', function(){ if(pngBtn) pngBtn.disabled=false })
+    _rvBarChart.on('click', function(params){ selectItem(params.dataIndex) })
+  }
+
+  function exportRvPng() {
+    if (!_rvBarChart) return
+    var url = _rvBarChart.getDataURL({ type:'png', pixelRatio:2, backgroundColor:'#ffffff' })
+    var a = document.createElement('a')
+    a.href = url
+    a.download = 'chipcalc-review-' + new Date().toISOString().slice(0,10) + '.png'
+    a.click()
+    var ui = window.ChipCalc && window.ChipCalc.ui
+    if (ui) ui.toast('PNG 저장 완료', 'info')
+  }
+
+  function saveReviewHistory() {
+    if (!_reviewData.length) return
+    var storage = window.ChipCalc && window.ChipCalc.storage
+    var ui = window.ChipCalc && window.ChipCalc.ui
+    if (!storage) return
+    var item = _reviewData[_selectedIdx] || _reviewData[0]
+    var store = storage.load()
+    if (!store.priceReviewHistory) store.priceReviewHistory = []
+    store.priceReviewHistory.unshift({
+      id: Date.now(), date: new Date().toISOString().slice(0,10),
+      partNumber: item.name||'', currentPrice: item.currentPrice,
+      requestedRate: item.requestedRate, cogsChangedRate: item.cogsChangedRate,
+      indexRefRate: _indexRefRate, verdict: 'pending'
+    })
+    if (store.priceReviewHistory.length > 100)
+      store.priceReviewHistory = store.priceReviewHistory.slice(0, 100)
+    storage.save(store)
+    if (ui) ui.toast('이력 저장 완료', 'info')
+    renderHistoryTable()
+  }
+
+  function updateVerdict(id, verdict) {
+    var storage = window.ChipCalc && window.ChipCalc.storage; if (!storage) return
+    var store = storage.load()
+    var entry = (store.priceReviewHistory||[]).find(function(e){ return e.id===id })
+    if (entry) { entry.verdict=verdict; storage.save(store); renderHistoryTable() }
+  }
+
+  function renderHistoryTable() {
+    var tbody = document.getElementById('rv-history-tbody'); if (!tbody) return
+    var storage = window.ChipCalc && window.ChipCalc.storage; if (!storage) return
+    var store = storage.load()
+    var history = (store.priceReviewHistory||[]).slice().sort(function(a,b){ return b.id-a.id })
+    if (!history.length) {
+      tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--l3);padding:1rem">저장된 이력이 없습니다</td></tr>'; return
+    }
+    var LABELS={pending:'검토중',accepted:'수용',rejected:'반박'}
+    var rows=''
+    history.forEach(function(e) {
+      var reqPct  = e.requestedRate!=null?(e.requestedRate*100).toFixed(1)+'%':'—'
+      var cogsPct = e.cogsChangedRate!=null?(e.cogsChangedRate*100).toFixed(1)+'%':'—'
+      var vc = e.verdict==='accepted'?'ok':e.verdict==='rejected'?'danger':''
+      rows += '<tr class="rv-history-row" data-id="'+e.id+'">' +
+        '<td>'+e.date+'</td><td>'+escHtml(e.partNumber||'')+'</td>' +
+        '<td>'+reqPct+'</td><td>'+cogsPct+'</td>' +
+        '<td class="'+vc+'">'+(LABELS[e.verdict]||e.verdict)+'</td>' +
+        '<td>'+(e.verdict==='pending'?
+          '<button class="rv-verdict-btn" data-id="'+e.id+'" data-v="accepted">수용</button>'+
+          '<button class="rv-verdict-btn" data-id="'+e.id+'" data-v="rejected">반박</button>':'')+
+        '</td></tr>'
+    })
+    tbody.innerHTML = rows
+    tbody.querySelectorAll('.rv-history-row').forEach(function(tr) {
+      tr.addEventListener('click', function(e) {
+        if (e.target.classList.contains('rv-verdict-btn')) return
+        var id = parseInt(tr.dataset.id,10)
+        var entry = history.find(function(h){ return h.id===id })
+        if (entry) restoreHistory(entry)
+      })
+    })
+    tbody.querySelectorAll('.rv-verdict-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation(); updateVerdict(parseInt(this.dataset.id,10), this.dataset.v)
+      })
+    })
+  }
+
+  function restoreHistory(entry) {
+    _indexRefRate = entry.indexRefRate
+    _reviewData = [{ name:entry.partNumber, currentPrice:entry.currentPrice,
+      requestedRate:entry.requestedRate, cogsChangedRate:entry.cogsChangedRate,
+      indexRefRate:entry.indexRefRate }]
+    _selectedIdx = 0
+    var sec = document.getElementById('rv-analysis-section')
+    if (sec) sec.classList.remove('hidden')
+    renderReviewItemsList(); renderKpiCards(); renderReviewBarChart()
+  }
+
+  // ── 이벤트 바인딩 ─────────────────────────────────────────────────
+  var rvPasteEl = document.getElementById('rv-paste')
+  if (rvPasteEl) {
+    var rvTimer = null
+    var schedulePreview = function() {
+      clearTimeout(rvTimer)
+      rvTimer = setTimeout(function() {
+        _rvRowLimitConfirmed = false
+        renderRvMappingPreview(rvPasteEl.value, loadSavedReviewMapping())
+      }, 200)
+    }
+    rvPasteEl.addEventListener('input', schedulePreview)
+    rvPasteEl.addEventListener('paste', function(){ setTimeout(schedulePreview, 20) })
+  }
+  var el; el=document.getElementById('rv-row-continue-btn')
+  if(el) el.addEventListener('click', function(){
+    document.getElementById('rv-row-warning').classList.add('hidden')
+    _rvRowLimitConfirmed=true; if(rvPasteEl) renderRvMappingPreview(rvPasteEl.value, loadSavedReviewMapping())
+  })
+  el=document.getElementById('rv-row-cancel-btn')
+  if(el) el.addEventListener('click', function(){
+    document.getElementById('rv-row-warning').classList.add('hidden')
+    document.getElementById('rv-confirm-btn').disabled=true; _rvParsed=null
+  })
+  el=document.getElementById('rv-confirm-btn')
+  if(el) el.addEventListener('click', confirmRvMapping)
+
+  el=document.getElementById('rv-sample-btn')
+  if(el) el.addEventListener('click', function(){
+    var sample = [
+      '품목명\t현재단가\t요청인상률\t공정노드\t웨이퍼사이즈\t다이면적\t수율\t패키지타입\t핀수\t제품군',
+      'APX-A100\t3.50\t3%\t28nm\t300\t25\t0.95\tQFP\t64\tMCU',
+      'BPX-B070\t2.10\t5%\t40nm\t300\t18\t0.92\tQFN\t32\tPMIC',
+      'CPX-PWR-002\t4.20\t2.5%\t65nm\t300\t12\t0.94\tBGA (AEC)\t256\t파워IC'
+    ].join('\n')
+    if(rvPasteEl){ rvPasteEl.value=sample; _rvRowLimitConfirmed=false; renderRvMappingPreview(sample, loadSavedReviewMapping()) }
+  })
+  el=document.getElementById('rv-clear-btn')
+  if(el) el.addEventListener('click', function(){
+    if(rvPasteEl) rvPasteEl.value=''
+    document.getElementById('rv-mapping-preview').classList.add('hidden')
+    _rvParsed=null; _rvRowLimitConfirmed=false
+  })
+  el=document.getElementById('rv-calc-cogs-btn')
+  if(el) el.addEventListener('click', calcCogsJustified)
+  ;['rv-cogs-wafer-chg','rv-cogs-wafer-frac','rv-cogs-other-chg'].forEach(function(id){
+    var inp=document.getElementById(id)
+    if(inp) {
+      inp.addEventListener('keydown', function(e){ if(e.key==='Enter') calcCogsJustified() })
+      inp.addEventListener('input', function(){ inp.dataset.manualSet = '1' })
+    }
+  })
+  el=document.getElementById('rv-calc-index-btn')
+  if(el) el.addEventListener('click', calcIndexRefRate)
+  ;['rv-index-copper','rv-index-wafer','rv-index-copper-w','rv-index-wafer-w'].forEach(function(id){
+    var inp=document.getElementById(id)
+    if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter') calcIndexRefRate() })
+  })
+  el=document.getElementById('rv-copy-gap-btn')
+  if(el) el.addEventListener('click', function(){
+    var item=_reviewData[_selectedIdx]||_reviewData[0]; if(!item) return
+    var req  = item.requestedRate!=null?(item.requestedRate*100).toFixed(1)+'%':'?'
+    var itemCogs = item.cogsChangedRate
+    var cogs = itemCogs!=null?(itemCogs*100).toFixed(1)+'%':'?'
+    var idx  = _indexRefRate!=null?(_indexRefRate*100).toFixed(1)+'%':'?'
+    var justified = (itemCogs!=null&&_indexRefRate!=null)
+      ? Math.min(itemCogs,_indexRefRate)
+      : (itemCogs||_indexRefRate)
+    var gap = (item.requestedRate!=null&&justified!=null)
+      ? ((item.requestedRate-justified)*100).toFixed(1)+'%p':'?'
+    var text='요청 '+req+' / 원가기준 '+cogs+' / 공개지수 '+idx+' / 과다 '+gap
+    navigator.clipboard && navigator.clipboard.writeText(text).then(function(){
+      var ui=window.ChipCalc&&window.ChipCalc.ui; if(ui) ui.toast('복사됨','info')
+    })
+  })
+  el=document.getElementById('rv-png-btn')
+  if(el) el.addEventListener('click', exportRvPng)
+  el=document.getElementById('rv-save-btn')
+  if(el) el.addEventListener('click', saveReviewHistory)
+  window.addEventListener('resize', function(){ if(_rvBarChart) _rvBarChart.resize() })
+
+  function onReviewTabActivated() {
+    if(rvPasteEl && rvPasteEl.value.trim()) renderRvMappingPreview(rvPasteEl.value, loadSavedReviewMapping())
+    renderHistoryTable()
+    var histSec = document.getElementById('rv-history-section')
+    if(histSec) histSec.classList.remove('hidden')
+  }
+  window.addEventListener('hashchange', function(){
+    if(window.location.hash.replace('#','') === 'review') onReviewTabActivated()
+  })
+  if(window.location.hash.replace('#','') === 'review') onReviewTabActivated()
+
+  // 초기 이력 로드
+  var histSec = document.getElementById('rv-history-section')
+  if(histSec) histSec.classList.remove('hidden')
+  renderHistoryTable()
+})();
+
+// ── Story 2.4 & 2.5: 이상치 상세 패널 & 내보내기 ────────────────
+;(function () {
+  'use strict'
+
+  // ── 상세 패널 열기/닫기 ──────────────────────────────────────────
+  function openDetailPanel(item) {
+    var engine  = window.ChipCalc && window.ChipCalc.engine
+    var ui      = window.ChipCalc && window.ChipCalc.ui
+
+    // 패널 제목
+    document.getElementById('cc-detail-panel-title').textContent = '📋 ' + (item.name || '상세 비교')
+
+    // KPI 계산
+    var ratio = (item.estimatedASP && item.estimatedASP > 0)
+      ? item.actualPrice / item.estimatedASP : null
+
+    var ratioEl = document.getElementById('cc-kpi-ratio-val')
+    if (ratio != null) {
+      var overPct = ((ratio - 1) * 100).toFixed(1)
+      var icon    = ratio > 1 ? '▲' : '▽'
+      ratioEl.textContent = ratio.toFixed(2) + ' (' + icon + ' ' + Math.abs(overPct) + '% ' + (ratio > 1 ? '초과' : '미만') + ')'
+      ratioEl.className   = 'cc-kpi-value ' + (item.isOutlier ? 'danger' : 'ok')
+    } else {
+      ratioEl.textContent = '—'
+      ratioEl.className   = 'cc-kpi-value'
+    }
+
+    document.getElementById('cc-kpi-actual').textContent =
+      item.actualPrice != null ? '$' + item.actualPrice.toFixed(4) : '—'
+    document.getElementById('cc-kpi-asp').textContent =
+      item.estimatedASP != null ? '$' + item.estimatedASP.toFixed(4) : '—'
+    document.getElementById('cc-kpi-cogs').textContent =
+      item.totalCOGS != null ? '$' + item.totalCOGS.toFixed(4) : '—'
+
+    // 사용 단가
+    var waferPriceStr = '—', asmStr = '—', testStr = '—'
+    if (engine) {
+      try {
+        var wp = engine.getWaferPrice(item.node, item.waferSize)
+        waferPriceStr = '$' + wp.toFixed(2) + ' / wafer'
+      } catch (e) { waferPriceStr = '조회 불가' }
+      try {
+        var pp = engine.getPackagePrice(item.pkgType, item.pins)
+        asmStr  = '$' + pp.asm.toFixed(4)
+        testStr = '$' + pp.test.toFixed(4)
+      } catch (e) { asmStr = testStr = '조회 불가' }
+    }
+    document.getElementById('cc-d-wafer').textContent = waferPriceStr
+    document.getElementById('cc-d-asm').textContent   = asmStr
+    document.getElementById('cc-d-test').textContent  = testStr
+    document.getElementById('cc-d-kval').textContent  =
+      engine ? engine.getKValue(item.productFamily || '기타').toFixed(2) : '—'
+
+    // 산출 근거 계산식
+    var stepsEl = document.getElementById('cc-formula-steps')
+    if (stepsEl && item.frontendCost != null && item.backendCost != null) {
+      var yld     = item['yield'] != null ? item['yield'] : 0.95
+      var kv      = engine ? engine.getKValue(item.productFamily || '기타') : 1.0
+      var lines = [
+        '웨이퍼단가:    ' + waferPriceStr,
+        '다이면적:      ' + (item.dieArea || '—') + ' mm²',
+        '웨이퍼사이즈:  ' + (item.waferSize || '—') + ' mm',
+        '수율:          ' + (yld * 100).toFixed(1) + '%',
+        '',
+        'Frontend Cost  = 웨이퍼단가 / (DPW × 수율)',
+        '             = $' + item.frontendCost.toFixed(4),
+        '',
+        'Backend Cost   = 조립 + 테스트',
+        '             = ' + asmStr + ' + ' + testStr,
+        '             = $' + item.backendCost.toFixed(4),
+        '',
+        'COGS           = (Frontend + Backend) × K',
+        '             = $' + item.totalCOGS.toFixed(4) + ' (K=' + kv.toFixed(2) + ')',
+        '',
+        'ASP            = COGS / 0.69',
+        '             = $' + item.estimatedASP.toFixed(4),
+      ]
+      stepsEl.innerHTML = lines.map(function(l) {
+        return '<div class="cc-formula-step">' + (l === '' ? '&nbsp;' : escHtml(l)) + '</div>'
+      }).join('')
+    } else if (stepsEl) {
+      stepsEl.innerHTML = '<div class="cc-formula-step" style="color:#94a3b8">계산 데이터 없음</div>'
+    }
+
+    // 산출 근거 접힘 상태로 초기화
+    var basisBody = document.getElementById('cc-calc-basis-body')
+    var toggle    = document.getElementById('cc-calc-basis-toggle')
+    if (basisBody) basisBody.classList.remove('open')
+    if (toggle)    toggle.textContent = '▶ 산출 근거 펼치기'
+
+    document.getElementById('cc-detail-overlay').classList.add('open')
+    document.getElementById('cc-detail-panel').classList.add('open')
+  }
+
+  function closeDetailPanel() {
+    document.getElementById('cc-detail-overlay').classList.remove('open')
+    document.getElementById('cc-detail-panel').classList.remove('open')
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  }
+
+  // 닫기 버튼 & 오버레이 클릭
+  var closeBtn  = document.getElementById('cc-detail-close-btn')
+  var overlayEl = document.getElementById('cc-detail-overlay')
+  if (closeBtn)  closeBtn.addEventListener('click', closeDetailPanel)
+  if (overlayEl) overlayEl.addEventListener('click', closeDetailPanel)
+
+  // 산출 근거 펼치기 토글
+  var basisToggle = document.getElementById('cc-calc-basis-toggle')
+  if (basisToggle) {
+    basisToggle.addEventListener('click', function() {
+      var body  = document.getElementById('cc-calc-basis-body')
+      var isOpen = body.classList.toggle('open')
+      this.textContent = isOpen ? '▼ 산출 근거 접기' : '▶ 산출 근거 펼치기'
+    })
+  }
+
+  // [복사] 버튼 위임
+  var detailBody = document.getElementById('cc-detail-body')
+  if (detailBody) {
+    detailBody.addEventListener('click', function(e) {
+      var btn = e.target.closest('.cc-kpi-copy-btn')
+      if (!btn) return
+      var targetId  = btn.dataset.copy
+      var targetEl  = targetId && document.getElementById(targetId)
+      if (!targetEl) return
+      navigator.clipboard && navigator.clipboard.writeText(targetEl.textContent).then(function() {
+        var ui = window.ChipCalc && window.ChipCalc.ui
+        if (ui) ui.toast('복사됨', 'info')
+      })
+    })
+  }
+
+  // openDetailPanel을 ChipCalc.ui에 등록 (버블차트 IIFE에서 호출)
+  window.ChipCalc = window.ChipCalc || {}
+  window.ChipCalc.ui = window.ChipCalc.ui || {}
+  window.ChipCalc.ui.openOutlierDetail = openDetailPanel
+
+  // ── Story 2.5: CSV 내보내기 ───────────────────────────────────────
+  function exportPortfolioCsv() {
+    var state = window.ChipCalc && window.ChipCalc.state
+    if (!state || !state.portfolioData || state.portfolioData.length === 0) return
+    var engine = window.ChipCalc.engine
+
+    var BOM  = '﻿'
+    var cols = ['품목명','공정노드','웨이퍼사이즈','패키지타입','핀수','다이면적(mm²)',
+                '실구매단가','mm²당구매가','추정ASP','추정COGS','K값','초과율','이상치여부',
+                '사용웨이퍼단가','사용패키지단가(조립+테스트)']
+    var rows = [cols]
+    state.portfolioData.forEach(function(it) {
+      var pricePerMm2 = (it.dieArea && it.dieArea > 0 && it.actualPrice != null)
+        ? (it.actualPrice / it.dieArea).toFixed(4) : ''
+      var ratio = (it.estimatedASP && it.estimatedASP > 0 && it.actualPrice != null)
+        ? (it.actualPrice / it.estimatedASP).toFixed(4) : ''
+      var kv = engine ? engine.getKValue(it.productFamily || '기타').toFixed(2) : ''
+      var waferP = '', pkgP = ''
+      if (engine && !it.calcError) {
+        try { waferP = engine.getWaferPrice(it.node, it.waferSize).toFixed(2) } catch(e) {}
+        try { var pp = engine.getPackagePrice(it.pkgType, it.pins); pkgP = (pp.asm + pp.test).toFixed(4) } catch(e) {}
+      }
+      rows.push([
+        it.name || '',
+        it.node || '',
+        it.waferSize || '',
+        it.pkgType || '',
+        it.pins != null ? it.pins : '',
+        it.dieArea != null ? it.dieArea : '',
+        it.actualPrice != null ? it.actualPrice.toFixed(4) : '',
+        pricePerMm2,
+        it.estimatedASP != null ? it.estimatedASP.toFixed(4) : '',
+        it.totalCOGS != null ? it.totalCOGS.toFixed(4) : '',
+        kv,
+        ratio,
+        it.isOutlier ? 'Y' : 'N',
+        waferP,
+        pkgP
+      ])
+    })
+
+    var csv = BOM + rows.map(function(r) {
+      return r.map(function(v) { return '"' + String(v).replace(/"/g,'""') + '"' }).join(',')
+    }).join('\r\n')
+
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    var url  = URL.createObjectURL(blob)
+    var a    = document.createElement('a')
+    a.href   = url
+    a.download = 'chipcalc-portfolio-' + new Date().toISOString().slice(0,10) + '.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+
+    var ui = window.ChipCalc && window.ChipCalc.ui
+    if (ui) ui.toast('CSV 다운로드 완료', 'info')
+  }
+
+  // CSV 버튼
+  var csvBtn = document.getElementById('cc-export-csv-btn')
+  if (csvBtn) csvBtn.addEventListener('click', exportPortfolioCsv)
+
+  // portfolioData 로드되면 CSV 버튼 + 내보내기 바 활성화 (refreshPortfolioView에서 호출)
+  window.ChipCalc.ui.enablePortfolioExport = function() {
+    var bar    = document.getElementById('cc-export-bar')
+    var csvBtn = document.getElementById('cc-export-csv-btn')
+    if (bar)    bar.classList.remove('hidden')
+    if (csvBtn) { csvBtn.disabled = false; csvBtn.removeAttribute('title') }
+  }
+
+  // ── Story 2.5: PNG 미리보기 모달 ──────────────────────────────────
+  var _pngDataUrl = null
+
+  window.ChipCalc.ui.showPngPreview = function(dataUrl) {
+    _pngDataUrl = dataUrl
+    document.getElementById('cc-png-modal-img').src = dataUrl
+    document.getElementById('cc-png-modal').classList.add('open')
+  }
+
+  document.getElementById('cc-png-cancel-btn').addEventListener('click', function() {
+    document.getElementById('cc-png-modal').classList.remove('open')
+  })
+
+  document.getElementById('cc-png-save-btn').addEventListener('click', function() {
+    if (!_pngDataUrl) return
+    var a = document.createElement('a')
+    a.href = _pngDataUrl
+    a.download = 'chipcalc-portfolio-' + new Date().toISOString().slice(0,10) + '.png'
+    a.click()
+    document.getElementById('cc-png-modal').classList.remove('open')
+    var ui = window.ChipCalc && window.ChipCalc.ui
+    if (ui) ui.toast('PNG 저장 완료', 'info')
+  })
+})();
+
+// ── Story 2.3: 포트폴리오 버블차트 (ECharts) ────────────────────
+;(function () {
+  'use strict'
+  window.ChipCalc = window.ChipCalc || {}
+  window.ChipCalc.chart = window.ChipCalc.chart || {}
+
+  var _ccBubbleChart = null
+  var _ccExcludeOutliers = false
+
+  function renderPortfolioBubble(portfolioData, excludeOutliers) {
+    var el = document.getElementById('cc-bubble-chart')
+    var section = document.getElementById('cc-bubble-section')
+    if (!el || !section) return
+
+    var allItems = (portfolioData || []).filter(function(it) { return !it.calcError })
+    if (allItems.length === 0) {
+      section.classList.add('hidden')
+      return
+    }
+
+    _ccExcludeOutliers = !!excludeOutliers
+
+    var normalItems   = allItems.filter(function(it) { return !it.isOutlier })
+    var outlierItems  = excludeOutliers ? [] : allItems.filter(function(it) { return it.isOutlier })
+
+    function toPoint(it) {
+      var pricePerMm2 = (it.dieArea && it.dieArea > 0) ? it.actualPrice / it.dieArea : 0
+      return [it.dieArea || 0, pricePerMm2, it.qty || 1, it]
+    }
+
+    var normalData  = normalItems.map(toPoint)
+    var outlierData = outlierItems.map(toPoint)
+
+    // Y 범위 계산
+    var allY = allItems
+      .filter(function(it) { return !excludeOutliers || !it.isOutlier })
+      .map(function(it) { return it.dieArea > 0 ? it.actualPrice / it.dieArea : 0 })
+    var minY = Math.min.apply(null, allY)
+    var maxY = Math.max.apply(null, allY)
+    var yMin = Math.max(0, minY * 0.85)
+    var showTilde = yMin > 0
+
+    // PNG 버튼 초기화 (disabled)
+    var pngBtn = document.getElementById('cc-bubble-png-btn')
+    if (pngBtn) pngBtn.disabled = true
+
+    // ECharts 인스턴스 초기화 또는 재사용
+    if (!_ccBubbleChart) {
+      _ccBubbleChart = echarts.init(el)
+    } else {
+      _ccBubbleChart.clear()
+    }
+
+    var isDark = document.documentElement.classList.contains('dark')
+    var axisColor   = isDark ? '#94a3b8' : '#64748b'
+    var gridColor   = isDark ? '#334155' : '#e2e8f0'
+    var bgColor     = isDark ? '#1e293b' : '#ffffff'
+    var labelColor  = isDark ? '#94a3b8' : '#94a3b8'
+
+    var option = {
+      backgroundColor: 'transparent',
+      grid: { left: 60, right: 80, top: 40, bottom: 60 },
+      tooltip: {
+        trigger: 'item',
+        formatter: function(params) {
+          var d = params.data
+          var it = d[3]
+          var pricePerMm2 = d[1]
+          var ratio = (it.estimatedASP && it.estimatedASP > 0)
+            ? it.actualPrice / it.estimatedASP
+            : null
+          var overRate = ratio != null ? ((ratio - 1) * 100).toFixed(1) + '%' : '—'
+          return '<b>' + (it.name || '') + '</b><br/>' +
+            '실구매단가: $' + (it.actualPrice != null ? it.actualPrice.toFixed(4) : '—') + '<br/>' +
+            'mm²당 구매가: $' + pricePerMm2.toFixed(4) + '<br/>' +
+            '추정ASP: $' + (it.estimatedASP != null ? it.estimatedASP.toFixed(4) : '—') + '<br/>' +
+            '초과율: ' + overRate
+        }
+      },
+      legend: {
+        right: 10, top: 30,
+        data: ['정상', '이상치'],
+        textStyle: { color: axisColor, fontSize: 11 }
+      },
+      xAxis: {
+        name: '다이면적 (mm²)', nameLocation: 'middle', nameGap: 30,
+        nameTextStyle: { color: axisColor, fontSize: 11 },
+        axisLabel: { color: axisColor },
+        axisLine: { lineStyle: { color: gridColor } },
+        splitLine: { lineStyle: { color: gridColor } }
+      },
+      yAxis: {
+        name: 'mm²당 구매가 (USD)',
+        nameLocation: 'middle', nameGap: 45,
+        nameTextStyle: { color: axisColor, fontSize: 11 },
+        min: yMin,
+        axisLabel: { color: axisColor },
+        axisLine: { lineStyle: { color: gridColor } },
+        splitLine: { lineStyle: { color: gridColor } }
+      },
+      graphic: (function() {
+        var items = []
+        if (showTilde) {
+          items.push({
+            type: 'text', left: 50, bottom: 42,
+            style: { text: '~', fontSize: 18, fill: '#94a3b8', fontWeight: 'bold' }
+          })
+        }
+        items.push({
+          type: 'text', right: 12, top: 8,
+          style: { text: '[단위: USD/mm²]', fontSize: 10, fill: labelColor }
+        })
+        return items
+      })(),
+      series: [
+        {
+          name: '정상',
+          type: 'scatter',
+          data: normalData,
+          symbolSize: function(d) { return Math.max(8, Math.min(50, Math.sqrt(d[2] || 1) * 3)) },
+          itemStyle: { color: 'rgba(37,99,235,0.7)', borderColor: '#1d4ed8', borderWidth: 1 },
+          emphasis: { itemStyle: { color: 'rgba(29,78,216,0.9)' } }
+        },
+        {
+          name: '이상치',
+          type: 'scatter',
+          data: outlierData,
+          symbolSize: function(d) { return Math.max(8, Math.min(50, Math.sqrt(d[2] || 1) * 3)) },
+          itemStyle: { color: 'rgba(220,38,38,0.75)', borderColor: '#b91c1c', borderWidth: 1 },
+          emphasis: { itemStyle: { color: 'rgba(185,28,28,0.9)' } }
+        }
+      ]
+    }
+
+    _ccBubbleChart.setOption(option)
+
+    // 버블 클릭 → 이상치 상세 패널 (Story 2.4)
+    _ccBubbleChart.on('click', function(params) {
+      var it = params && params.data && params.data[3]
+      if (!it) return
+      var ui = window.ChipCalc && window.ChipCalc.ui
+      if (ui && typeof ui.openOutlierDetail === 'function') ui.openOutlierDetail(it)
+    })
+
+    // chart.on('finished') → PNG 버튼 활성화 (AC6, AC7)
+    _ccBubbleChart.on('finished', function() {
+      if (pngBtn) pngBtn.disabled = false
+    })
+
+    section.classList.remove('hidden')
+  }
+
+  // PNG 저장 → 모달 미리보기 (Story 2.5)
+  function exportBubblePng() {
+    if (!_ccBubbleChart) return
+    var url = _ccBubbleChart.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: '#ffffff' })
+    var ui = window.ChipCalc && window.ChipCalc.ui
+    if (ui && typeof ui.showPngPreview === 'function') {
+      ui.showPngPreview(url)
+    } else {
+      var a = document.createElement('a')
+      a.href = url
+      a.download = 'chipcalc-portfolio-' + new Date().toISOString().slice(0, 10) + '.png'
+      a.click()
+    }
+  }
+
+  // 이상치 제외 토글
+  var toggleEl = document.getElementById('cc-exclude-outliers')
+  if (toggleEl) {
+    toggleEl.addEventListener('change', function() {
+      var state = window.ChipCalc && window.ChipCalc.state
+      if (state && state.portfolioData && state.portfolioData.length > 0) {
+        renderPortfolioBubble(state.portfolioData, this.checked)
+      }
+    })
+  }
+
+  // PNG 버튼
+  var pngBtnEl = document.getElementById('cc-bubble-png-btn')
+  if (pngBtnEl) pngBtnEl.addEventListener('click', exportBubblePng)
+
+  // window resize 대응
+  window.addEventListener('resize', function() {
+    if (_ccBubbleChart) _ccBubbleChart.resize()
+  })
+
+  window.ChipCalc.chart.renderPortfolioBubble = renderPortfolioBubble
+})();
+
 </script>
+
+<!-- ── Story 2.4: 이상치 상세 비교 패널 ──────────────────────────── -->
+<div id="cc-detail-overlay"></div>
+<div id="cc-detail-panel">
+  <div id="cc-detail-panel-header">
+    <span id="cc-detail-panel-title">📋 이상치 상세 비교</span>
+    <button id="cc-detail-close-btn" title="닫기">✕</button>
+  </div>
+  <div id="cc-detail-body">
+    <!-- KPI 카드들 -->
+    <div class="cc-detail-section">
+      <div class="cc-detail-section-title">KPI</div>
+      <div class="cc-kpi-card" id="cc-kpi-ratio">
+        <div>
+          <div class="cc-kpi-label">실구매가 / 추정ASP</div>
+          <div class="cc-kpi-value danger" id="cc-kpi-ratio-val">—</div>
+        </div>
+        <button class="cc-kpi-copy-btn" data-copy="cc-kpi-ratio-val">복사</button>
+      </div>
+      <div class="cc-kpi-card">
+        <div>
+          <div class="cc-kpi-label">실구매단가</div>
+          <div class="cc-kpi-value" id="cc-kpi-actual">—</div>
+        </div>
+        <button class="cc-kpi-copy-btn" data-copy="cc-kpi-actual">복사</button>
+      </div>
+      <div class="cc-kpi-card">
+        <div>
+          <div class="cc-kpi-label">추정ASP</div>
+          <div class="cc-kpi-value" id="cc-kpi-asp">—</div>
+        </div>
+        <button class="cc-kpi-copy-btn" data-copy="cc-kpi-asp">복사</button>
+      </div>
+      <div class="cc-kpi-card">
+        <div>
+          <div class="cc-kpi-label">추정COGS</div>
+          <div class="cc-kpi-value" id="cc-kpi-cogs">—</div>
+        </div>
+        <button class="cc-kpi-copy-btn" data-copy="cc-kpi-cogs">복사</button>
+      </div>
+    </div>
+    <!-- 사용 단가 정보 -->
+    <div class="cc-detail-section">
+      <div class="cc-detail-section-title">사용된 단가</div>
+      <div class="cc-detail-row"><span>웨이퍼단가</span><span id="cc-d-wafer">—</span></div>
+      <div class="cc-detail-row"><span>패키지 조립</span><span id="cc-d-asm">—</span></div>
+      <div class="cc-detail-row"><span>패키지 테스트</span><span id="cc-d-test">—</span></div>
+      <div class="cc-detail-row"><span>K 계수</span><span id="cc-d-kval">—</span></div>
+    </div>
+    <!-- 산출 근거 (접힘) -->
+    <button id="cc-calc-basis-toggle">▶ 산출 근거 펼치기</button>
+    <div id="cc-calc-basis-body">
+      <div class="cc-detail-section">
+        <div class="cc-detail-section-title">계산식 단계</div>
+        <div id="cc-formula-steps"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Story 2.5: PNG 미리보기 모달 -->
+<div id="cc-png-modal">
+  <div id="cc-png-modal-box">
+    <div style="font-size:0.9rem;font-weight:700;color:var(--l1)">📷 PNG 미리보기</div>
+    <img id="cc-png-modal-img" src="" alt="차트 미리보기">
+    <div class="cc-png-modal-actions">
+      <button id="cc-png-cancel-btn">취소</button>
+      <button id="cc-png-save-btn">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 패널 오버레이 (Epic 4) -->
+<div id="admin-panel-overlay" class="hidden">
+  <div id="admin-panel">
+    <div id="admin-panel-header">
+      <h2>⚙️ 관리자 설정</h2>
+      <button id="admin-close-btn" title="닫기">✕</button>
+    </div>
+
+    <!-- Story 4.1: DEF_WAFER 테이블 -->
+    <div class="admin-section">
+      <h3>웨이퍼 단가 (USD/wafer)</h3>
+      <div id="ap-wafer-table-wrap"></div>
+    </div>
+
+    <!-- Story 4.2: DEF_PKGS 테이블 -->
+    <div class="admin-section">
+      <h3>패키지 단가 (USD/unit)</h3>
+      <div id="ap-pkgs-table-wrap"></div>
+    </div>
+
+    <!-- Story 4.3: K값 캘리브레이션 -->
+    <div class="admin-section">
+      <h3>K값 캘리브레이션</h3>
+      <div id="ap-k-section"></div>
+    </div>
+
+    <!-- Story 4.1, 4.4: 액션 버튼 -->
+    <div class="admin-actions">
+      <button id="ap-snapshot-btn">📸 기준 단가 스냅샷 저장</button>
+      <button id="ap-reset-btn">🔄 기본값으로 초기화</button>
+    </div>
+  </div>
+</div>
+
+<!-- Story 4.4: 기본값 초기화 확인 모달 -->
+<div id="ap-confirm-modal" class="hidden">
+  <div id="ap-confirm-box">
+    <p>모든 웨이퍼·패키지 단가와 K값이 기본값으로 초기화됩니다. 계속하시겠습니까?</p>
+    <div class="ap-confirm-btns">
+      <button id="ap-confirm-cancel">취소</button>
+      <button id="ap-confirm-ok">초기화</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Epic 4: 관리자 패널 IIFE (Stories 4.1~4.4) ─────────────────── -->
+<script>
+;(function () {
+  'use strict'
+
+  var WAFER_NODES = ['350nm','180nm','90nm','65nm','40nm','28nm','16nm','7nm','5nm']
+  var WAFER_SIZES = [
+    { label: '150mm', key: 'p6', mm: 150 },
+    { label: '200mm', key: 'p8', mm: 200 },
+    { label: '300mm', key: 'p12', mm: 300 }
+  ]
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  }
+
+  // ── 공통: 인라인 셀 편집 ──────────────────────────────────────────
+  function startCellEdit(cell, currentVal, onCommit) {
+    if (cell.querySelector('input')) return
+    var prevText = cell.textContent
+    var inp = document.createElement('input')
+    inp.type = 'text'
+    inp.value = currentVal != null ? String(currentVal) : ''
+    inp.style.cssText = 'width:100%;box-sizing:border-box;border:none;outline:2px solid #3b82f6;padding:0 2px;font-size:0.8125rem;text-align:right;background:transparent;color:inherit;'
+    cell.textContent = ''
+    cell.appendChild(inp)
+    inp.focus(); inp.select()
+
+    var committed = false
+    function commit() {
+      if (committed) return; committed = true
+      inp.remove()
+      onCommit(inp.value.trim(), cell, prevText)
+    }
+    function cancel() {
+      if (committed) return; committed = true
+      cell.textContent = prevText
+    }
+    inp.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); commit(); }
+      if (e.key === 'Escape') cancel();
+    })
+    inp.addEventListener('blur', commit)
+  }
+
+  // ── Story 4.1: DEF_WAFER 테이블 렌더 ────────────────────────────
+  function renderWaferTable() {
+    var C = window.ChipCalc
+    var wafer = C.engine.getWaferTable()
+    var html = '<table class="ap-table"><thead><tr><th style="text-align:left">노드</th>'
+    WAFER_SIZES.forEach(function (s) { html += '<th>' + esc(s.label) + '</th>' })
+    html += '</tr></thead><tbody>'
+    WAFER_NODES.forEach(function (node) {
+      html += '<tr><td class="ap-node-cell">' + esc(node) + '</td>'
+      WAFER_SIZES.forEach(function (s) {
+        var row = wafer[node] || {}
+        var val = row[s.key]
+        if (val == null) {
+          html += '<td class="ap-cell-null">—</td>'
+        } else {
+          html += '<td class="ap-cell" data-node="' + esc(node) + '" data-mm="' + s.mm + '" data-val="' + val + '">' + val + '</td>'
+        }
+      })
+      html += '</tr>'
+    })
+    html += '</tbody></table>'
+
+    var wrap = document.getElementById('ap-wafer-table-wrap')
+    if (!wrap) return
+    wrap.innerHTML = html
+
+    wrap.querySelectorAll('.ap-cell[data-node]').forEach(function (cell) {
+      cell.addEventListener('click', function () {
+        var node = cell.dataset.node
+        var mm   = parseInt(cell.dataset.mm, 10)
+        var curVal = parseFloat(cell.dataset.val)
+        startCellEdit(cell, curVal, function (v, el, prevText) {
+          var n = parseFloat(v)
+          if (isNaN(n)) {
+            el.textContent = prevText
+            C.ui.toast('숫자를 입력해주세요', 'warn')
+            return
+          }
+          if (n <= 0) {
+            el.textContent = prevText
+            C.ui.toast('단가는 0보다 큰 숫자를 입력하세요', 'warn')
+            return
+          }
+          C.ui.updateWaferPrice(node, mm, n)
+          el.dataset.val = n
+          el.textContent = n
+        })
+      })
+    })
+  }
+
+  // ── Story 4.2: DEF_PKGS 테이블 렌더 ────────────────────────────
+  function renderPkgsTable() {
+    var C = window.ChipCalc
+    var pkgs = C.engine.getPkgTable()
+    var html = '<table class="ap-table"><thead><tr>'
+    html += '<th style="text-align:left">패키지 / 핀</th><th>어셈블리($)</th><th>테스트($)</th>'
+    html += '</tr></thead><tbody>'
+
+    pkgs.forEach(function (pkg) {
+      // 패키지 그룹 헤더
+      html += '<tr class="ap-pkg-group-header"><td colspan="3">' + esc(pkg.name) + '</td></tr>'
+
+      // 핀별 행
+      if (pkg.pins && pkg.pins.length > 0) {
+        pkg.pins.forEach(function (pin) {
+          html += '<tr>'
+          html += '<td class="ap-node-cell" style="padding-left:1.25rem">' + esc(pin.l) + '</td>'
+          html += '<td class="ap-cell" data-pkgid="' + pkg.id + '" data-pin="' + esc(pin.l) + '" data-field="asm" data-val="' + pin.asm + '">' + pin.asm.toFixed(3) + '</td>'
+          html += '<td class="ap-cell" data-pkgid="' + pkg.id + '" data-pin="' + esc(pin.l) + '" data-field="test" data-val="' + pin.test + '">' + pin.test.toFixed(3) + '</td>'
+          html += '</tr>'
+        })
+      }
+
+      // 패키지 기본(default) 행
+      html += '<tr>'
+      html += '<td class="ap-node-cell" style="padding-left:1.25rem;color:#94a3b8">(기본)</td>'
+      html += '<td class="ap-cell" data-pkgid="' + pkg.id + '" data-pin="" data-field="asm" data-val="' + pkg.asm + '">' + pkg.asm.toFixed(3) + '</td>'
+      html += '<td class="ap-cell" data-pkgid="' + pkg.id + '" data-pin="" data-field="test" data-val="' + pkg.test + '">' + pkg.test.toFixed(3) + '</td>'
+      html += '</tr>'
+    })
+
+    html += '</tbody></table>'
+
+    var wrap = document.getElementById('ap-pkgs-table-wrap')
+    if (!wrap) return
+    wrap.innerHTML = html
+
+    wrap.querySelectorAll('.ap-cell[data-pkgid]').forEach(function (cell) {
+      cell.addEventListener('click', function () {
+        var pkgId = parseInt(cell.dataset.pkgid, 10)
+        var pinLabel = cell.dataset.pin || null
+        var field = cell.dataset.field
+        var curVal = parseFloat(cell.dataset.val)
+        startCellEdit(cell, curVal, function (v, el, prevText) {
+          var n = parseFloat(v)
+          if (isNaN(n) || n <= 0) {
+            el.textContent = prevText
+            C.ui.toast('단가는 0보다 큰 숫자를 입력하세요', 'warn')
+            return
+          }
+          try {
+            C.engine.setPkgPrice(pkgId, pinLabel, field, n)
+          } catch (e) {
+            el.textContent = prevText
+            C.ui.toast('저장 오류: ' + e.message, 'warn')
+            return
+          }
+          var store = C.storage.load()
+          store.pkgs = C.engine.getPkgTable()
+          C.storage.save(store)
+          var hasData = C.state && C.state.portfolioData && C.state.portfolioData.length > 0
+          if (hasData) {
+            C.engine.recalculateAll()
+            C.ui.toast('패키지 단가 저장됨', 'info')
+          } else {
+            C.ui.toast('단가가 저장되었습니다. 포트폴리오 데이터 로드 후 분석을 재실행하세요.', 'info')
+          }
+          el.dataset.val = n
+          el.textContent = n.toFixed(3)
+        })
+      })
+    })
+  }
+
+  // ── Story 4.3: K값 섹션 렌더 ────────────────────────────────────
+  function renderKSection() {
+    var C = window.ChipCalc
+    var store = C.storage.load()
+    var kVals = store.kValues || {}
+    var families = ['MCU', 'PMIC', '파워IC', '기타']
+
+    var html = '<table class="ap-table">'
+    html += '<thead><tr><th style="text-align:left">제품군</th><th>K값</th></tr></thead>'
+    html += '<tbody>'
+    families.forEach(function (fam) {
+      var val = kVals[fam] != null ? kVals[fam] : 1.0
+      html += '<tr>'
+      html += '<td class="ap-node-cell">' + esc(fam) + '</td>'
+      html += '<td><input class="ap-k-input" type="number" min="0.1" step="0.01" data-family="' + esc(fam) + '" data-prev="' + val.toFixed(2) + '" value="' + val.toFixed(2) + '"></td>'
+      html += '</tr>'
+    })
+    html += '</tbody></table>'
+
+    var sec = document.getElementById('ap-k-section')
+    if (!sec) return
+    sec.innerHTML = html
+
+    sec.querySelectorAll('.ap-k-input').forEach(function (inp) {
+      function saveK() {
+        var fam = inp.dataset.family
+        var n = parseFloat(inp.value)
+        if (isNaN(n) || n < 0.1) {
+          inp.value = inp.dataset.prev
+          C.ui.toast('K값은 0.1 이상이어야 합니다', 'warn')
+          return
+        }
+        var st = C.storage.load()
+        if (!st.kValues) st.kValues = {}
+        st.kValues[fam] = n
+        C.storage.save(st)
+        inp.dataset.prev = n.toFixed(2)
+        C.ui.toast('K값 저장됨', 'info')
+        if (C.state && C.state.portfolioData && C.state.portfolioData.length > 0) {
+          C.engine.recalculateAll()
+        }
+      }
+      inp.addEventListener('change', saveK)
+      inp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); saveK(); }
+      })
+    })
+  }
+
+  // ── Story 4.1: 기준 단가 스냅샷 저장 ────────────────────────────
+  function saveSnapshot() {
+    var C = window.ChipCalc
+    var now = new Date()
+    var dateStr = now.toISOString().slice(0, 10)
+    var timeStr = now.toTimeString().slice(0, 5)
+    var store = C.storage.load()
+    store.waferBaseline = {
+      wafer:   C.engine.getWaferTable(),
+      pkgs:    C.engine.getPkgTable(),
+      savedAt: now.toISOString()
+    }
+    C.storage.save(store)
+    C.ui.toast('기준 단가 스냅샷이 저장되었습니다 (' + dateStr + ' ' + timeStr + ')', 'info')
+  }
+
+  // ── Story 4.4: 기본값 초기화 ────────────────────────────────────
+  function showResetConfirm() {
+    var modal = document.getElementById('ap-confirm-modal')
+    if (modal) modal.classList.remove('hidden')
+  }
+  function hideResetConfirm() {
+    var modal = document.getElementById('ap-confirm-modal')
+    if (modal) modal.classList.add('hidden')
+  }
+  function doReset() {
+    hideResetConfirm()
+    var C = window.ChipCalc
+    var defWafer = C.engine.getDefaultWaferTable()
+    var defPkgs  = C.engine.getDefaultPkgTable()
+    C.engine.loadWaferData(defWafer, defPkgs)
+    var store = C.storage.load()
+    store.wafer   = defWafer
+    store.pkgs    = defPkgs
+    store.kValues = { MCU: 1.0, PMIC: 1.0, '파워IC': 1.0, '기타': 1.0 }
+    C.storage.save(store)
+    C.ui.toast('기본값으로 초기화되었습니다', 'info')
+    renderAdminPanel()
+    if (C.state && C.state.portfolioData && C.state.portfolioData.length > 0) {
+      C.engine.recalculateAll()
+    }
+  }
+
+  // ── 패널 메인 렌더 ───────────────────────────────────────────────
+  function renderAdminPanel() {
+    renderWaferTable()
+    renderPkgsTable()
+    renderKSection()
+
+    var closeBtn  = document.getElementById('admin-close-btn')
+    var snapBtn   = document.getElementById('ap-snapshot-btn')
+    var resetBtn  = document.getElementById('ap-reset-btn')
+    var cancelBtn = document.getElementById('ap-confirm-cancel')
+    var okBtn     = document.getElementById('ap-confirm-ok')
+    var overlay   = document.getElementById('admin-panel-overlay')
+    var panel     = document.getElementById('admin-panel')
+
+    if (closeBtn)  closeBtn.onclick  = closeAdminPanel
+    if (snapBtn)   snapBtn.onclick   = saveSnapshot
+    if (resetBtn)  resetBtn.onclick  = showResetConfirm
+    if (cancelBtn) cancelBtn.onclick = hideResetConfirm
+    if (okBtn)     okBtn.onclick     = doReset
+    if (overlay && panel) {
+      overlay.onclick = function (e) {
+        if (!panel.contains(e.target)) closeAdminPanel()
+      }
+    }
+  }
+
+  window.ChipCalc = window.ChipCalc || {}
+  window.ChipCalc.admin = { renderAdminPanel: renderAdminPanel }
+})()
+</script>
+
 </body>
 </html>
