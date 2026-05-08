@@ -2865,7 +2865,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
         <div style="flex:1;min-width:200px;border-left:1px solid var(--blue-s);padding-left:14px">
           <div style="font-size:12px;font-weight:700;color:var(--l1);margin-bottom:6px">📊 계산 방법</div>
           <div style="font-size:11px;color:var(--l2);line-height:1.65">
-            K = 평균(실구매가 ÷ 추정원가)<br>
+            K = Σ(실구매가×수량) ÷ Σ(추정원가×수량)<br>
             보정원가ᵢ = 추정원가ᵢ × K<br>
             편차 = (실구매가 − 보정원가) ÷ 보정원가 × 100%
           </div>
@@ -4078,11 +4078,12 @@ function analyze(items) {
     : {};
 
   // 4-A. 보정계수 K 계산 (hybrid 모드용)
-  //   K = mean(실구매가ᵢ / 추정원가ᵢ) — 추정원가를 전체적으로 얼마나 낮게 잡았는지
-  //   이 비율을 전 제품에 균등 적용해 추정원가를 보정함
+  //   qty-weighted Ratio of Means: Σ(actual×qty) / Σ(estimated×qty)
+  //   구매수량이 많은 품목이 K에 더 큰 영향 — 포트폴리오 총 실구매액 대 추정원가 비율
+  //   최소 5개 품목 미만이면 신뢰도 부족으로 null 처리
   const itemsWithBoth = enriched.filter(i => !isNaN(i.estimated) && i.estimated > 0 && !isNaN(i.actual));
-  const correctionK = itemsWithBoth.length > 0
-    ? itemsWithBoth.reduce((s, i) => s + i.actual / i.estimated, 0) / itemsWithBoth.length
+  const correctionK = itemsWithBoth.length >= 5
+    ? itemsWithBoth.reduce((s, i) => s + i.actual * i.qty, 0) / itemsWithBoth.reduce((s, i) => s + i.estimated * i.qty, 0)
     : null;
   // 보정원가 회귀선: 추정원가 × K를 Y값으로 사용
   const adjCostRegressions = (correctionK && hasEstimated)
