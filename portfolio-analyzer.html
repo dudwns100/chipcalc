@@ -2348,13 +2348,34 @@ function applyI18n() {
 /* =============================================================
    THEME
 ============================================================= */
+/* =============================================================
+   SETTINGS PERSISTENCE
+============================================================= */
+const PA_SETTINGS_KEY = 'chipcalc_pa_settings';
+function loadSettings() {
+  try { return JSON.parse(localStorage.getItem(PA_SETTINGS_KEY) || 'null'); } catch(e) { return null; }
+}
+function saveSettings() {
+  try {
+    localStorage.setItem(PA_SETTINGS_KEY, JSON.stringify({
+      theme:       document.documentElement.getAttribute('data-theme'),
+      lang:        currentLang,
+      threshold:   document.getElementById('thresholdInput').value,
+      trendMode:   document.getElementById('trendModeSelect').value,
+      classMode:   document.getElementById('classModeSelect').value,
+      bubbleScale: document.getElementById('bubbleScaleSelect').value
+    }));
+  } catch(e) {}
+}
+
 function initTheme() {
-  const saved = null;
+  const s = loadSettings();
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
-  const theme = mq.matches ? 'dark' : 'light';
+  const theme = (s && s.theme) || (mq.matches ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', theme);
   document.getElementById('themeIcon').textContent = theme === 'dark' ? '☾' : '☀';
   mq.addEventListener('change', e => {
+    if (loadSettings()?.theme) return;
     const t = e.matches ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', t);
     document.getElementById('themeIcon').textContent = t === 'dark' ? '☾' : '☀';
@@ -2370,11 +2391,13 @@ document.getElementById('themeToggle').addEventListener('click', () => {
   document.getElementById('themeIcon').textContent = next === 'dark' ? '☾' : '☀';
   if (rawItems.length) buildSeriesColorMap([...new Set(rawItems.map(i => i.series))]);
   if (lastAnalysis) { renderStats(lastAnalysis); renderChart(lastAnalysis); renderTable(lastAnalysis, currentClass); }
+  saveSettings();
 });
 
 document.getElementById('langToggle').addEventListener('click', () => {
   currentLang = currentLang === 'ko' ? 'en' : 'ko';
   applyI18n();
+  saveSettings();
   if (lastAnalysis) {
     renderStats(lastAnalysis);
     renderTable(lastAnalysis, currentClass);
@@ -2616,6 +2639,10 @@ function parseTSV(text) {
     if (isNaN(item.qty) || item.qty < 1) item.qty = 1;
     items.push(item);
   }
+
+  const seen = new Set(), dups = new Set();
+  items.forEach(it => seen.has(it.name) ? dups.add(it.name) : seen.add(it.name));
+  if (dups.size) meta.warnings.push(`중복 제품명: ${[...dups].join(', ')}`);
 
   return { items, meta };
 }
@@ -4626,6 +4653,9 @@ function reanalyze() {
 ['xAxisSelect','thresholdInput','trendModeSelect','seriesFilterSelect','classModeSelect'].forEach(id => {
   document.getElementById(id).addEventListener('change', reanalyze);
 });
+['thresholdInput','trendModeSelect','classModeSelect'].forEach(id => {
+  document.getElementById(id).addEventListener('change', saveSettings);
+});
 
 // Bubble scale: only redraw chart + mini
 document.getElementById('bubbleScaleSelect').addEventListener('change', () => {
@@ -4635,6 +4665,7 @@ document.getElementById('bubbleScaleSelect').addEventListener('change', () => {
   } else {
     scheduleMiniChartUpdate();
   }
+  saveSettings();
 });
 
 // View tabs (scatter / matrix)
@@ -4689,6 +4720,15 @@ document.getElementById('guideToggle').addEventListener('click', () => {
 /* =============================================================
    INIT
 ============================================================= */
+;(function() {
+  const s = loadSettings();
+  if (!s) return;
+  if (s.lang) currentLang = s.lang;
+  if (s.threshold) document.getElementById('thresholdInput').value = s.threshold;
+  if (s.trendMode) document.getElementById('trendModeSelect').value = s.trendMode;
+  if (s.classMode) document.getElementById('classModeSelect').value = s.classMode;
+  if (s.bubbleScale) document.getElementById('bubbleScaleSelect').value = s.bubbleScale;
+})();
 initTheme();
 applyI18n();
 clearMiniChart(currentLang === 'ko' ? '데이터를 입력하면 여기에 미리보기가 나타납니다' : 'Paste data to see a preview here');

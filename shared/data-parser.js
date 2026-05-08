@@ -42,6 +42,15 @@
     return isNaN(n) ? null : n
   }
 
+  // normalizeNode: "28 nm", "28nmlp", "28nm-lp" → "28nm"
+  function normalizeNode(node) {
+    var s = String(node || '').trim().toLowerCase().replace(/\s+/g, '')
+    var m = s.match(/^(\d+(?:\.\d+)?nm)/)
+    if (m) return m[1]
+    if (/^\d+(?:\.\d+)?$/.test(s)) return s + 'nm'
+    return s
+  }
+
   // parseTSV: 탭 구분 텍스트 → { headers, rows }
   // 첫 행 숫자 비율 < 50%면 헤더로 자동 판단
   function parseTSV(text) {
@@ -113,7 +122,7 @@
       }
 
       item.name          = String(get('name')).trim() || ('행' + (i + 1))
-      item.node          = String(get('node')).trim()
+      item.node          = normalizeNode(get('node'))
       item.dieArea       = parseDecimal(get('dieArea'))
       item.waferSize     = parseInteger(get('waferSize'))
       item.pkgType       = String(get('pkgType')).trim()
@@ -141,6 +150,13 @@
       warnings.push('숫자 데이터를 찾을 수 없습니다. 예시: 품목명 | 공정노드 | 단가(원) | 물량')
       return { items: [], warnings: warnings }
     }
+
+    var seen = Object.create(null), dups = []
+    items.forEach(function(it) {
+      if (seen[it.name]) { if (dups.indexOf(it.name) === -1) dups.push(it.name) }
+      else seen[it.name] = true
+    })
+    if (dups.length) warnings.push('중복 제품명: ' + dups.join(', '))
 
     return { items: items, warnings: warnings }
   }
@@ -189,7 +205,7 @@
       item.name          = String(get('name')).trim() || ('행' + (i + 1))
       item.currentPrice  = parseCurrency(get('currentPrice'))
       item.requestedRate = parsePercent(get('requestedRate'))
-      item.node          = String(get('node')).trim()
+      item.node          = normalizeNode(get('node'))
       item.waferSize     = parseInteger(get('waferSize'))
       item.dieArea       = parseDecimal(get('dieArea'))
       item.pkgType       = String(get('pkgType')).trim()
@@ -221,6 +237,7 @@
       parsePercent:           parsePercent,
       parseDecimal:           parseDecimal,
       parseInteger:           parseInteger,
+      normalizeNode:          normalizeNode,
       parseTSV:               parseTSV,
       detectPortfolioColumns: detectPortfolioColumns,
       parsePortfolioRows:     parsePortfolioRows,
