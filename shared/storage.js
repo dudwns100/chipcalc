@@ -13,6 +13,7 @@
     wafer: null,
     pkgs: null,
     kValues: { MCU: 1.0, PMIC: 1.0, '파워IC': 1.0, '기타': 1.0 },
+    cogsRatios: { MCU: 0.65, PMIC: 0.67, '파워IC': 0.75, '기타': 0.69 },
     priceReviewHistory: [],
     columnMapping: { portfolio: {}, review: {} },
     waferBaseline: null,

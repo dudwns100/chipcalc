@@ -2849,6 +2849,17 @@ body.dark #ap-confirm-box p { color: var(--l1); }
   <!-- X축 추정원가 해석 가이드 (동적으로 표시) -->
   <div id="xAxisGuideBox" style="display:none;margin-bottom:12px;padding:12px 14px;background:var(--blue-t);border:1px solid var(--blue-s);border-radius:8px;font-size:11.5px;color:var(--l2);line-height:1.75"></div>
 
+  <!-- ══ 제품군별 COGS 비율 요약 (분석 결과 있을 때 표시) ══ -->
+  <div id="cogsRatioPanel" style="display:none;margin-bottom:12px">
+    <div style="background:var(--surface-2,#f8fafc);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
+        <div style="font-size:11.5px;font-weight:700;color:var(--l1)">📋 제품군별 ASP 모델 가정 <span style="font-weight:400;color:var(--l3)">(ASP = 추정원가 ÷ COGS비율)</span></div>
+        <button onclick="openAdminPanel()" style="font-size:10.5px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;cursor:pointer;color:var(--l3)">⚙️ 수정</button>
+      </div>
+      <div id="cogsRatioTable" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+
   <!-- ══ 보정계수 K 패널 (hybrid 모드에서만 표시) ══ -->
   <div id="kFactorPanel" style="display:none;margin-bottom:12px">
     <div style="background:var(--blue-t);border:1.5px solid var(--blue-s);border-radius:10px;padding:14px 18px">
@@ -4240,6 +4251,7 @@ function renderStats(analysis) {
 
   // K 패널 업데이트 (hybrid 모드에서만 표시)
   updateKFactorPanel(analysis);
+  updateCogsRatioPanel();
 }
 
 function updateKFactorPanel(analysis) {
@@ -4282,6 +4294,29 @@ function updateKFactorPanel(analysis) {
         `Consider revisiting the cost model.`;
   }
   document.getElementById('kFactorDesc').textContent = desc;
+}
+
+function updateCogsRatioPanel() {
+  const panel = document.getElementById('cogsRatioPanel');
+  const table = document.getElementById('cogsRatioTable');
+  if (!panel || !table) return;
+
+  const families = ['MCU', 'PMIC', '파워IC', '기타'];
+  const opMargins = { MCU: 0.15, PMIC: 0.17, '파워IC': 0.13, '기타': 0.15 };
+  const getCogs = window.ChipCalc && window.ChipCalc.engine && window.ChipCalc.engine.getCOGSRatio;
+
+  table.innerHTML = families.map(fam => {
+    const ratio = getCogs ? getCogs(fam) : 0.69;
+    const op = opMargins[fam];
+    const rnd = Math.round((1 - ratio - op) * 100);
+    return `<div style="flex:1;min-width:110px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center">
+      <div style="font-size:11px;font-weight:700;color:var(--l1);margin-bottom:4px">${fam}</div>
+      <div style="font-family:var(--mono);font-size:18px;font-weight:800;color:var(--blue)">${(ratio * 100).toFixed(0)}%</div>
+      <div style="font-size:10px;color:var(--l3);margin-top:3px;line-height:1.5">R&D+SGA ${rnd}%<br>영업이익 ${Math.round(op*100)}%</div>
+    </div>`;
+  }).join('');
+
+  panel.style.display = 'block';
 }
 
 /* =============================================================
@@ -6997,7 +7032,7 @@ window.addEventListener('hashchange', function() {
     state.portfolioData = result.items;
 
     if (columnMapping.productFamily === undefined && ui) {
-      ui.toast('제품군 컬럼이 없어 K값은 \'기타\' 기준으로 적용됩니다', 'warn');
+      ui.toast('제품군 컬럼이 없습니다 — K값과 COGS비율이 모두 \'기타\' 기준(COGS 69%)으로 적용됩니다', 'warn');
     }
 
     if (state.portfolioData.length > 0) {
@@ -7766,7 +7801,7 @@ window.addEventListener('hashchange', function() {
         'COGS           = (Frontend + Backend) × K',
         '             = $' + item.totalCOGS.toFixed(4) + ' (K=' + kv.toFixed(2) + ')',
         '',
-        'ASP            = COGS / 0.69',
+        'ASP            = COGS / ' + (engine && engine.getCOGSRatio ? engine.getCOGSRatio(item.productFamily || '기타').toFixed(2) : '0.69') + ' (' + (item.productFamily || '기타') + ')',
         '             = $' + item.estimatedASP.toFixed(4),
       ]
       stepsEl.innerHTML = lines.map(function(l) {
@@ -8215,6 +8250,13 @@ window.addEventListener('hashchange', function() {
       <div id="ap-k-section"></div>
     </div>
 
+    <!-- COGS 비율 (제품군별 P&L 가정) -->
+    <div class="admin-section">
+      <h3>COGS 비율 (제품군별)</h3>
+      <p style="font-size:11.5px;color:var(--l3);margin-bottom:8px">ASP = 추정원가 ÷ COGS비율 &nbsp;|&nbsp; COGS비율 = 1 − R&D/SGA − 영업이익</p>
+      <div id="ap-cogs-section"></div>
+    </div>
+
     <!-- Story 4.1, 4.4: 액션 버튼 -->
     <div class="admin-actions">
       <button id="ap-snapshot-btn">📸 기준 단가 스냅샷 저장</button>
@@ -8454,6 +8496,62 @@ window.addEventListener('hashchange', function() {
     })
   }
 
+  // ── COGS 비율 섹션 렌더 ─────────────────────────────────────────
+  function renderCogsSection() {
+    var C = window.ChipCalc
+    var store = C.storage.load()
+    var cogsRatios = store.cogsRatios || {}
+    var families = ['MCU', 'PMIC', '파워IC', '기타']
+    // P&L 분해 표시용 (R&D+SGA = 1 - cogsRatio - opMargin)
+    var opMargins = { MCU: 0.15, PMIC: 0.17, '파워IC': 0.13, '기타': 0.15 }
+
+    var html = '<table class="ap-table">'
+    html += '<thead><tr><th style="text-align:left">제품군</th><th>COGS비율</th><th>R&D+SGA</th><th>영업이익</th></tr></thead>'
+    html += '<tbody>'
+    families.forEach(function (fam) {
+      var ratio = cogsRatios[fam] != null ? cogsRatios[fam] : (C.engine.getCOGSRatio ? C.engine.getCOGSRatio(fam) : 0.69)
+      var op = opMargins[fam] || 0.15
+      var rnd = Math.round((1 - ratio - op) * 100)
+      html += '<tr>'
+      html += '<td class="ap-node-cell">' + esc(fam) + '</td>'
+      html += '<td><input class="ap-cogs-input" type="number" min="0.1" max="0.99" step="0.01" data-family="' + esc(fam) + '" data-prev="' + ratio.toFixed(2) + '" value="' + ratio.toFixed(2) + '"></td>'
+      html += '<td style="text-align:center;font-size:11px;color:var(--l3)">' + rnd + '%</td>'
+      html += '<td style="text-align:center;font-size:11px;color:var(--l3)">' + Math.round(op * 100) + '%</td>'
+      html += '</tr>'
+    })
+    html += '</tbody></table>'
+
+    var sec = document.getElementById('ap-cogs-section')
+    if (!sec) return
+    sec.innerHTML = html
+
+    sec.querySelectorAll('.ap-cogs-input').forEach(function (inp) {
+      function saveCogs() {
+        var fam = inp.dataset.family
+        var n = parseFloat(inp.value)
+        if (isNaN(n) || n < 0.1 || n > 0.99) {
+          inp.value = inp.dataset.prev
+          C.ui.toast('COGS 비율은 0.10 ~ 0.99 사이여야 합니다', 'warn')
+          return
+        }
+        var st = C.storage.load()
+        if (!st.cogsRatios) st.cogsRatios = {}
+        st.cogsRatios[fam] = n
+        C.storage.save(st)
+        inp.dataset.prev = n.toFixed(2)
+        C.ui.toast('COGS 비율 저장됨', 'info')
+        if (C.state && C.state.portfolioData && C.state.portfolioData.length > 0) {
+          C.engine.recalculateAll()
+        }
+        renderCogsSection()
+      }
+      inp.addEventListener('change', saveCogs)
+      inp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); saveCogs(); }
+      })
+    })
+  }
+
   // ── Story 4.1: 기준 단가 스냅샷 저장 ────────────────────────────
   function saveSnapshot() {
     var C = window.ChipCalc
@@ -8488,7 +8586,8 @@ window.addEventListener('hashchange', function() {
     var store = C.storage.load()
     store.wafer   = defWafer
     store.pkgs    = defPkgs
-    store.kValues = { MCU: 1.0, PMIC: 1.0, '파워IC': 1.0, '기타': 1.0 }
+    store.kValues    = { MCU: 1.0, PMIC: 1.0, '파워IC': 1.0, '기타': 1.0 }
+    store.cogsRatios = C.engine.getDefaultCogsRatios()
     C.storage.save(store)
     C.ui.toast('기본값으로 초기화되었습니다', 'info')
     renderAdminPanel()
@@ -8502,6 +8601,7 @@ window.addEventListener('hashchange', function() {
     renderWaferTable()
     renderPkgsTable()
     renderKSection()
+    renderCogsSection()
 
     var closeBtn  = document.getElementById('admin-close-btn')
     var snapBtn   = document.getElementById('ap-snapshot-btn')

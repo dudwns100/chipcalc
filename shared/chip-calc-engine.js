@@ -6,7 +6,9 @@
 
   // ── 내부 상수 (클로저 캡슐화 — 외부 직접 접근 불가) ──────────────
   const WAFER_SIZE_KEY = { 150: 'p6', 200: 'p8', 300: 'p12' }
-  const COGS_RATIO = 0.69
+  // COGS 비율: 100% - R&D/SGA - 영업이익 = COGS 비율 → ASP = COGS / ratio
+  // MCU(R&D 20%+OP 15%=0.65), PMIC(R&D 16%+OP 17%=0.67), 파워IC(R&D 12%+OP 13%=0.75)
+  const COGS_RATIO_DEFAULT = { MCU: 0.65, PMIC: 0.67, '파워IC': 0.75, '기타': 0.69 }
 
   // DEF_WAFER: 노드별 웨이퍼 단가 (USD/wafer) — p6=150mm, p8=200mm, p12=300mm
   // 기준: 차량용 MCU 대표값 (K 캘리브레이션으로 제품군별 보정)
@@ -136,7 +138,8 @@
     var yld        = params['yield']
     var pkgType    = params.pkgType
     var pins       = params.pins
-    var kValue     = (params.kValue != null) ? params.kValue : 1.0
+    var kValue        = (params.kValue != null) ? params.kValue : 1.0
+    var productFamily = params.productFamily || '기타'
     var waferOverride = params.waferOverride || null
 
     if (!yld || yld <= 0 || !dieArea || dieArea <= 0) {
@@ -160,7 +163,8 @@
     var backendCost = pkg.asm + pkg.test
 
     var totalCOGS    = (frontendCost + backendCost) * kValue
-    var estimatedASP = totalCOGS / COGS_RATIO
+    var cogsRatio    = getCOGSRatio(productFamily)
+    var estimatedASP = totalCOGS / cogsRatio
 
     return {
       frontendCost:    frontendCost,
@@ -170,6 +174,16 @@
       estimatedASP:    estimatedASP,
       estimatedASPFmt: '$' + estimatedASP.toFixed(4)
     }
+  }
+
+  function getCOGSRatio(productFamily) {
+    try {
+      var store = window.ChipCalc.storage && window.ChipCalc.storage.load && window.ChipCalc.storage.load()
+      if (store && store.cogsRatios && store.cogsRatios[productFamily] != null) {
+        return store.cogsRatios[productFamily]
+      }
+    } catch (e) {}
+    return COGS_RATIO_DEFAULT[productFamily] != null ? COGS_RATIO_DEFAULT[productFamily] : COGS_RATIO_DEFAULT['기타']
   }
 
   function getKValue(productFamily) {
@@ -208,13 +222,14 @@
       try {
         var kValue = getKValue(item.productFamily || '기타')
         var result = window.ChipCalc.engine.calcCOGS({
-          node:      item.node,
-          dieArea:   item.dieArea,
-          waferSize: item.waferSize,
-          'yield':   item['yield'] != null ? item['yield'] : 0.95,
-          pkgType:   item.pkgType,
-          pins:      item.pins,
-          kValue:    kValue
+          node:          item.node,
+          dieArea:       item.dieArea,
+          waferSize:     item.waferSize,
+          'yield':       item['yield'] != null ? item['yield'] : 0.95,
+          pkgType:       item.pkgType,
+          pins:          item.pins,
+          kValue:        kValue,
+          productFamily: item.productFamily || '기타'
         })
         // NaN 체크
         if (isNaN(result.totalCOGS) || isNaN(result.estimatedASP)) {
@@ -280,8 +295,10 @@
       setPkgPrice:         setPkgPrice,
       loadWaferData:       loadWaferData,
       getPackagePrice:     getPackagePrice,
-      getKValue:           getKValue,
-      recalculateAll:      recalculateAll
+      getKValue:            getKValue,
+      getCOGSRatio:         getCOGSRatio,
+      getDefaultCogsRatios: function() { return JSON.parse(JSON.stringify(COGS_RATIO_DEFAULT)) },
+      recalculateAll:       recalculateAll
     }
   })
 })()
