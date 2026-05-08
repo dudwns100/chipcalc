@@ -1825,6 +1825,85 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 #ap-confirm-cancel { padding: 0.4rem 1rem; border: 1px solid var(--border); border-radius: 0.375rem; background: transparent; cursor: pointer; font-size: 0.875rem; color: inherit; }
 #ap-confirm-ok { padding: 0.4rem 1rem; border: none; border-radius: 0.375rem; background: #ef4444; color: #fff; cursor: pointer; font-size: 0.875rem; font-weight: 700; }
 
+/* ── Step 1: 모델 가정 설정 카드 ───────────────────────────────── */
+#cc-step1-card {
+  background: var(--surface);
+  border: 2px solid var(--blue-s);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+#cc-step1-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cc-step-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 800;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 7px;
+  margin-right: 8px;
+  letter-spacing: 0.06em;
+}
+.cc-step1-title { font-size: 0.9rem; font-weight: 700; color: var(--l1); }
+.cc-step1-sub   { font-size: 0.75rem; color: var(--l3); margin-bottom: 0.875rem; }
+#cc-step1-confirmed-row {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #16a34a;
+  font-weight: 600;
+}
+.cc-model-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 12.5px; }
+.cc-model-table th { text-align: left; padding: 6px 10px; font-size: 11px; font-weight: 700; color: var(--l3); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+.cc-model-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--l1); }
+.cc-model-table tr:last-child td { border-bottom: none; }
+.cc-model-table .cc-ratio-input { width: 68px; padding: 3px 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; text-align: center; background: var(--surface); color: var(--l1); }
+.cc-model-derived { color: var(--l3); font-size: 11.5px; }
+#cc-model-confirm-btn {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+#cc-model-confirm-btn:hover { opacity: 0.9; }
+#cc-model-edit-btn {
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--l3);
+}
+/* Step 2 잠금 상태 */
+#cc-step2-wrap.cc-locked { opacity: 0.45; pointer-events: none; }
+#cc-step2-lock-msg {
+  display: none;
+  text-align: center;
+  padding: 10px;
+  font-size: 12px;
+  color: var(--l3);
+  background: var(--surface-2, #f8fafc);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+#cc-step2-wrap.cc-locked #cc-step2-lock-msg { display: block; }
+
 /* ── Story 2.1: ChipCalc 포트폴리오 데이터 입력 ─────────────────── */
 #cc-portfolio-input-card {
   background: var(--surface);
@@ -2484,10 +2563,67 @@ body.dark #ap-confirm-box p { color: var(--l1); }
   <div class="pf-section-header">
     <span class="pf-section-icon">🔬</span>
     <div>
-      <div class="pf-section-title">COGS 원가 분석</div>
+      <div class="pf-section-title">COGS 원가 분석 <span style="font-size:12px;font-weight:400;color:var(--l3);margin-left:6px">Cost of Goods Sold — 제품 제조원가</span></div>
       <div class="pf-section-sub">공정 스펙(노드·다이면적·패키지)을 입력하면 제조원가를 자동 계산하고 이상가를 탐지합니다</div>
     </div>
   </div>
+
+  <!-- ══ Step 1: 모델 가정 설정 ══ -->
+  <div id="cc-step1-card">
+    <div id="cc-step1-header">
+      <div style="display:flex;align-items:center">
+        <span class="cc-step-badge">Step 1</span>
+        <span class="cc-step1-title">모델 가정 설정</span>
+      </div>
+      <div id="cc-step1-confirmed-row">
+        ✅ 확정됨
+        <button id="cc-model-edit-btn" onclick="openModelSetup()">수정</button>
+      </div>
+    </div>
+    <div id="cc-step1-body">
+      <p class="cc-step1-sub">제품군별 P&L 가정을 확인하고 확정하면 데이터 입력이 활성화됩니다.<br>ASP = 추정원가 ÷ COGS비율 &nbsp;|&nbsp; COGS비율 = 1 − R&D/SGA − 영업이익</p>
+      <table class="cc-model-table">
+        <thead><tr><th>제품군</th><th>COGS 비율</th><th>R&D+SGA</th><th>영업이익</th></tr></thead>
+        <tbody id="cc-model-table-body"></tbody>
+      </table>
+      <button id="cc-model-confirm-btn" onclick="confirmModelSetup()">✅ 확정 — 데이터 입력으로 이동</button>
+    </div>
+  </div>
+
+  <script>
+  // Step 1 테이블 즉시 렌더 — 이 스크립트는 tbody 바로 뒤에 위치해 타이밍 문제 없음
+  (function() {
+    var families   = ['MCU', 'PMIC', '파워IC', '기타'];
+    var opMargins  = { MCU: 0.15, PMIC: 0.17, '파워IC': 0.13, '기타': 0.15 };
+    var tbody = document.getElementById('cc-model-table-body');
+    if (!tbody) return;
+    var engine = window.ChipCalc && window.ChipCalc.engine;
+    tbody.innerHTML = families.map(function(fam) {
+      var ratio = (engine && engine.getCOGSRatio) ? engine.getCOGSRatio(fam) : ({ MCU:0.65, PMIC:0.67, '파워IC':0.75, '기타':0.69 }[fam] || 0.69);
+      var op = opMargins[fam] || 0.15;
+      var rnd = Math.round((1 - ratio - op) * 100);
+      return '<tr>' +
+        '<td style="font-weight:600">' + fam + '</td>' +
+        '<td><input class="cc-ratio-input" type="number" min="10" max="99" step="1" data-family="' + fam + '" value="' + Math.round(ratio * 100) + '" style="width:64px"> %</td>' +
+        '<td class="cc-model-derived" id="cc-rnd-' + fam + '">' + rnd + '%</td>' +
+        '<td class="cc-model-derived">' + Math.round(op * 100) + '%</td>' +
+      '</tr>';
+    }).join('');
+    tbody.oninput = function(e) {
+      var inp = e.target;
+      if (!inp.classList.contains('cc-ratio-input')) return;
+      var fam = inp.dataset.family;
+      var op  = opMargins[fam] || 0.15;
+      var v   = parseFloat(inp.value) / 100;
+      var el  = document.getElementById('cc-rnd-' + fam);
+      if (el && !isNaN(v) && v > 0 && v < 1) el.textContent = Math.round((1 - v - op) * 100) + '%';
+    };
+  })();
+  </script>
+
+  <!-- ══ Step 2: 데이터 입력 ══ -->
+  <div id="cc-step2-wrap" class="cc-locked">
+    <div id="cc-step2-lock-msg">🔒 Step 1 모델 가정을 먼저 확정해주세요</div>
 
   <!-- ── Story 2.1: ChipCalc 반도체 원가 분석 데이터 입력 ────────── -->
   <div id="cc-portfolio-input-card">
@@ -2566,6 +2702,8 @@ body.dark #ap-confirm-box p { color: var(--l1); }
     <button id="cc-export-csv-btn" disabled title="포트폴리오 데이터를 먼저 로드하세요">📊 CSV 내보내기</button>
   </div>
   <!-- ── /Story 2.5 ─────────────────────────────────────────────── -->
+
+  </div><!-- /#cc-step2-wrap -->
 
   <!-- ── 버블 산점도 분석 섹션 구분 ───────────────────────────────── -->
   <div class="pf-section-divider"></div>
@@ -2848,17 +2986,6 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 
   <!-- X축 추정원가 해석 가이드 (동적으로 표시) -->
   <div id="xAxisGuideBox" style="display:none;margin-bottom:12px;padding:12px 14px;background:var(--blue-t);border:1px solid var(--blue-s);border-radius:8px;font-size:11.5px;color:var(--l2);line-height:1.75"></div>
-
-  <!-- ══ 제품군별 COGS 비율 요약 (분석 결과 있을 때 표시) ══ -->
-  <div id="cogsRatioPanel" style="display:none;margin-bottom:12px">
-    <div style="background:var(--surface-2,#f8fafc);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
-        <div style="font-size:11.5px;font-weight:700;color:var(--l1)">📋 제품군별 ASP 모델 가정 <span style="font-weight:400;color:var(--l3)">(ASP = 추정원가 ÷ COGS비율)</span></div>
-        <button onclick="openAdminPanel()" style="font-size:10.5px;padding:2px 8px;border:1px solid var(--border);border-radius:4px;background:transparent;cursor:pointer;color:var(--l3)">⚙️ 수정</button>
-      </div>
-      <div id="cogsRatioTable" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-    </div>
-  </div>
 
   <!-- ══ 보정계수 K 패널 (hybrid 모드에서만 표시) ══ -->
   <div id="kFactorPanel" style="display:none;margin-bottom:12px">
@@ -4251,7 +4378,6 @@ function renderStats(analysis) {
 
   // K 패널 업데이트 (hybrid 모드에서만 표시)
   updateKFactorPanel(analysis);
-  updateCogsRatioPanel();
 }
 
 function updateKFactorPanel(analysis) {
@@ -4296,28 +4422,6 @@ function updateKFactorPanel(analysis) {
   document.getElementById('kFactorDesc').textContent = desc;
 }
 
-function updateCogsRatioPanel() {
-  const panel = document.getElementById('cogsRatioPanel');
-  const table = document.getElementById('cogsRatioTable');
-  if (!panel || !table) return;
-
-  const families = ['MCU', 'PMIC', '파워IC', '기타'];
-  const opMargins = { MCU: 0.15, PMIC: 0.17, '파워IC': 0.13, '기타': 0.15 };
-  const getCogs = window.ChipCalc && window.ChipCalc.engine && window.ChipCalc.engine.getCOGSRatio;
-
-  table.innerHTML = families.map(fam => {
-    const ratio = getCogs ? getCogs(fam) : 0.69;
-    const op = opMargins[fam];
-    const rnd = Math.round((1 - ratio - op) * 100);
-    return `<div style="flex:1;min-width:110px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;text-align:center">
-      <div style="font-size:11px;font-weight:700;color:var(--l1);margin-bottom:4px">${fam}</div>
-      <div style="font-family:var(--mono);font-size:18px;font-weight:800;color:var(--blue)">${(ratio * 100).toFixed(0)}%</div>
-      <div style="font-size:10px;color:var(--l3);margin-top:3px;line-height:1.5">R&D+SGA ${rnd}%<br>영업이익 ${Math.round(op*100)}%</div>
-    </div>`;
-  }).join('');
-
-  panel.style.display = 'block';
-}
 
 /* =============================================================
    RENDER: TABLE
@@ -8150,6 +8254,114 @@ window.addEventListener('hashchange', function() {
 
   window.ChipCalc.chart.renderPortfolioBubble = renderPortfolioBubble
 })();
+
+// ── 모델 가정 설정 (Step 1) ──────────────────────────────────────
+var MODEL_OP_MARGINS = { MCU: 0.15, PMIC: 0.17, '파워IC': 0.13, '기타': 0.15 };
+var MODEL_FAMILIES   = ['MCU', 'PMIC', '파워IC', '기타'];
+
+function renderModelTable() {
+  var tbody = document.getElementById('cc-model-table-body');
+  if (!tbody) return;
+  var engine = window.ChipCalc && window.ChipCalc.engine;
+  tbody.innerHTML = MODEL_FAMILIES.map(function(fam) {
+    var ratio = (engine && engine.getCOGSRatio) ? engine.getCOGSRatio(fam) : 0.69;
+    var op    = MODEL_OP_MARGINS[fam] || 0.15;
+    var rnd   = Math.round((1 - ratio - op) * 100);
+    return '<tr>' +
+      '<td style="font-weight:600">' + fam + '</td>' +
+      '<td><input class="cc-ratio-input" type="number" min="10" max="99" step="1" ' +
+        'data-family="' + fam + '" value="' + Math.round(ratio * 100) + '" ' +
+        'style="width:64px"> %</td>' +
+      '<td class="cc-model-derived" id="cc-rnd-' + fam + '">' + rnd + '%</td>' +
+      '<td class="cc-model-derived">' + Math.round(op * 100) + '%</td>' +
+    '</tr>';
+  }).join('');
+
+  // 이벤트 위임 — tbody 한 곳에만 등록 (중복 방지)
+  tbody.oninput = function(e) {
+    var inp = e.target;
+    if (!inp.classList.contains('cc-ratio-input')) return;
+    var fam = inp.dataset.family;
+    var v   = parseFloat(inp.value) / 100;
+    var op  = MODEL_OP_MARGINS[fam] || 0.15;
+    var el  = document.getElementById('cc-rnd-' + fam);
+    if (el && !isNaN(v) && v > 0 && v < 1) {
+      el.textContent = Math.round((1 - v - op) * 100) + '%';
+    }
+  };
+}
+
+function confirmModelSetup() {
+  var tbody = document.getElementById('cc-model-table-body');
+  if (!tbody) return;
+  var C = window.ChipCalc;
+  var store = C.storage.load();
+  if (!store.cogsRatios) store.cogsRatios = {};
+
+  var allValid = true;
+  tbody.querySelectorAll('.cc-ratio-input').forEach(function(inp) {
+    var v = parseFloat(inp.value) / 100;
+    if (isNaN(v) || v < 0.10 || v > 0.99) { allValid = false; return; }
+    store.cogsRatios[inp.dataset.family] = v;
+  });
+  if (!allValid) {
+    C.ui.toast('COGS 비율은 10% ~ 99% 사이여야 합니다', 'warn');
+    return;
+  }
+
+  store.modelConfirmed = true;
+  C.storage.save(store);
+
+  // Step 1 접기, Step 2 잠금 해제
+  var body = document.getElementById('cc-step1-body');
+  var confirmed = document.getElementById('cc-step1-confirmed-row');
+  var step2 = document.getElementById('cc-step2-wrap');
+  if (body) body.style.display = 'none';
+  if (confirmed) confirmed.style.display = 'flex';
+  if (step2) step2.classList.remove('cc-locked');
+
+  // 분석 결과 있으면 재분석 안내
+  if (C.state && C.state.portfolioData && C.state.portfolioData.length > 0) {
+    C.ui.toast('모델이 변경됐습니다. 분석 시작을 다시 눌러 재계산하세요.', 'warn');
+    C.engine.recalculateAll();
+  }
+
+  // 관리자 패널도 동기화
+  if (C.admin && C.admin.renderAdminPanel) C.admin.renderAdminPanel();
+}
+
+function openModelSetup() {
+  var body = document.getElementById('cc-step1-body');
+  var confirmed = document.getElementById('cc-step1-confirmed-row');
+  if (body) body.style.display = 'block';
+  if (confirmed) confirmed.style.display = 'none';
+  renderModelTable();
+}
+
+// 페이지 로드 시 상태 복원 — DOMContentLoaded 보장
+;(function initModelSetup() {
+  function run() {
+    var C = window.ChipCalc;
+    if (!C || !C.storage) return;
+    var store = C.storage.load();
+    if (store.modelConfirmed) {
+      var body      = document.getElementById('cc-step1-body');
+      var confirmed = document.getElementById('cc-step1-confirmed-row');
+      var step2     = document.getElementById('cc-step2-wrap');
+      if (body)      body.style.display = 'none';
+      if (confirmed) confirmed.style.display = 'flex';
+      if (step2)     step2.classList.remove('cc-locked');
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+})();
+
+// 제품군별 COGS 비율 요약 카드 — 모든 모듈 초기화 완료 후 표시
+updateCogsRatioPanel();
 
 </script>
 
