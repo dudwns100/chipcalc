@@ -15,7 +15,8 @@
     kValues: { MCU: 1.0, PMIC: 1.0, '파워IC': 1.0, '기타': 1.0 },
     priceReviewHistory: [],
     columnMapping: { portfolio: {}, review: {} },
-    waferBaseline: null
+    waferBaseline: null,
+    uiSettings: { threshold: 15, trendMode: 'all', classMode: 'hybrid', bubbleScale: 'sqrt', lang: 'ko' }
   }
 
   function _defaults() {

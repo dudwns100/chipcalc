@@ -3557,6 +3557,7 @@ document.getElementById('themeToggle') && document.getElementById('themeToggle')
     el.addEventListener('click', function() {
       currentLang = currentLang === 'ko' ? 'en' : 'ko';
       applyI18n();
+      saveUiSettings();
       if (lastAnalysis) {
         renderStats(lastAnalysis);
         renderTable(lastAnalysis, currentClass);
@@ -3574,6 +3575,7 @@ document.getElementById('themeToggle') && document.getElementById('themeToggle')
         if (currentLang !== lang) {
           currentLang = lang;
           applyI18n();
+          saveUiSettings();
           if (lastAnalysis) {
             renderStats(lastAnalysis);
             renderTable(lastAnalysis, currentClass);
@@ -3819,6 +3821,10 @@ function parseTSV(text) {
     if (isNaN(item.qty) || item.qty < 1) item.qty = 1;
     items.push(item);
   }
+
+  const seen = new Set(), dups = new Set();
+  items.forEach(it => seen.has(it.name) ? dups.add(it.name) : seen.add(it.name));
+  if (dups.size) meta.warnings.push(`중복 제품명: ${[...dups].join(', ')}`);
 
   return { items, meta };
 }
@@ -6543,6 +6549,9 @@ function reanalyze() {
 ['xAxisSelect','thresholdInput','trendModeSelect','classModeSelect'].forEach(id => {
   document.getElementById(id).addEventListener('change', reanalyze);
 });
+['thresholdInput','trendModeSelect','classModeSelect'].forEach(id => {
+  document.getElementById(id).addEventListener('change', saveUiSettings);
+});
 
 // X축 해석 가이드 함수
 function updateXAxisGuide() {
@@ -6582,6 +6591,7 @@ document.getElementById('bubbleScaleSelect').addEventListener('change', () => {
   } else {
     scheduleMiniChartUpdate();
   }
+  saveUiSettings();
 });
 
 // View tabs (scatter / matrix)
@@ -6651,9 +6661,35 @@ document.getElementById('guideToggle').addEventListener('click', () => {
   icon.textContent = isFolded ? '▼' : '▲';
 });
 
+function saveUiSettings() {
+  var s = window.ChipCalc && window.ChipCalc.storage;
+  if (!s) return;
+  var store = s.load();
+  store.uiSettings = {
+    threshold:   document.getElementById('thresholdInput').value,
+    trendMode:   document.getElementById('trendModeSelect').value,
+    classMode:   document.getElementById('classModeSelect').value,
+    bubbleScale: document.getElementById('bubbleScaleSelect').value,
+    lang:        currentLang
+  };
+  s.save(store);
+}
+
 /* =============================================================
    INIT
 ============================================================= */
+// UI 설정 복원
+;(function() {
+  var s = window.ChipCalc && window.ChipCalc.storage;
+  if (!s) return;
+  var ui = s.load().uiSettings;
+  if (!ui) return;
+  if (ui.lang) currentLang = ui.lang;
+  if (ui.threshold) document.getElementById('thresholdInput').value = ui.threshold;
+  if (ui.trendMode) document.getElementById('trendModeSelect').value = ui.trendMode;
+  if (ui.classMode) document.getElementById('classModeSelect').value = ui.classMode;
+  if (ui.bubbleScale) document.getElementById('bubbleScaleSelect').value = ui.bubbleScale;
+})();
 // ChipCalc shared-styles.js가 테마를 관리. 현재 다크모드 상태만 동기화.
 (function() {
   // themeIcon 동기화 (ChipCalc 다크모드 버튼 상태와 맞춤)
