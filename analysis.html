@@ -1475,6 +1475,7 @@ body.dark {
   .pill.warn { background: var(--orange-t); color: var(--orange); }
   .pill.good { background: var(--green-t); color: var(--green); }
   .pill.info { background: var(--blue-t); color: var(--blue); }
+  .pill.na { background: #e5e7eb; color: #6b7280; font-style: italic; }
 
   .series-tag {
     display: inline-flex;
@@ -3077,6 +3078,9 @@ body.dark #ap-confirm-box p { color: var(--l1); }
       </div>
     </div>
 
+    <!-- 표본 부족 시리즈 공지 -->
+    <div id="peerNotice" style="display:none;margin:8px 0 4px;padding:9px 12px;background:var(--blue-t);border:1px solid var(--blue-s);border-radius:7px;font-size:11.5px;color:var(--l2);line-height:1.7"></div>
+
     <!-- Drilldown area: shown when a stat card is clicked -->
     <div id="statDrilldown" class="stat-drilldown hidden">
       <div class="drilldown-header">
@@ -3760,7 +3764,12 @@ const sampleData = [
   ["CPX-C050-L064B", "C-Series",  3.6,  5300,  7600, 1050000],
   ["CPX-C050-L064C", "C-Series",  3.6,  6700,  8700,   95000],
   ["CPX-C055-L128",  "C-Series",  4.4,  7500, 13100, 3100000],
-  ["CPX-C060-L128",  "C-Series",  6.6, 13400, 19000,   95000]
+  ["CPX-C060-L128",  "C-Series",  6.6, 13400, 19000,   95000],
+  // 표본 부족 시리즈 — N/A 배지 테스트용 (2개: 동급 비교 불가)
+  ["XPX-X100-F256",  "X-Series", 12.5, 35000, 28000,   80000],
+  ["XPX-X080-F128",  "X-Series",  8.2, 18000, 16500,  120000],
+  // 표본 1개 시리즈 — N/A 배지 테스트용
+  ["YPX-Y200-F512",  "Y-Series", 22.0, 95000, 72000,   15000]
 ];
 
 function buildSampleTSV() {
@@ -4059,11 +4068,15 @@ function populateXAxisOptions(meta, items) {
   const options = [];
   // User-defined numeric columns come first
   meta.extraNumericCols.forEach(col => options.push({ value: col, label: col }));
-  // Estimated cost as optional X-axis
+  // Estimated cost & K-adjusted cost as optional X-axis
   if (items.some(i => !isNaN(i.estimated))) {
     options.push({
       value: 'estimated',
       label: currentLang === 'ko' ? '추정원가' : 'Estimated cost'
+    });
+    options.push({
+      value: 'adj_estimated',
+      label: currentLang === 'ko' ? '보정원가 (×K)' : 'Adj. cost (×K)'
     });
   }
 
@@ -4109,10 +4122,11 @@ function getXField() {
   return '';
 }
 
-function getXValue(item) {
+function getXValue(item, K) {
   const field = getXField();
   if (!field) return NaN;
   if (field === 'estimated') return item.estimated;
+  if (field === 'adj_estimated') return (K && item.estimated > 0) ? item.estimated * K : NaN;
   // All other X-axis choices come from the extras bag
   return item.extras?.[field] ?? NaN;
 }
@@ -4121,6 +4135,10 @@ function getXLabel() {
   const field = getXField();
   if (!field) return '';
   if (field === 'estimated') return currentLang === 'ko' ? '추정원가' : 'Estimated cost';
+  if (field === 'adj_estimated') {
+    const adjOpt = document.querySelector('#xAxisSelect option[value="adj_estimated"]');
+    return adjOpt?.textContent || (currentLang === 'ko' ? '보정원가' : 'Adj. cost');
+  }
   return field;  // the header name chosen by the user
 }
 
@@ -4168,11 +4186,13 @@ function classifyItem(peerGap, costGap, threshold, mode, adjGap) {
 /* -------------------------------------------------------------
    Group-wise linear regression (trendMode: 'all' | 'series')
 ------------------------------------------------------------- */
+const MIN_PEER_SAMPLE_SIZE = 3;
+
 function buildRegressions(data, trendMode, getY) {
   const out = {};
   if (trendMode === 'all') {
     const pts = data.map(i => ({ x: i.x, y: getY(i) })).filter(p => !isNaN(p.y));
-    if (pts.length >= 2) out['_all'] = linearRegression(pts);
+    if (pts.length >= MIN_PEER_SAMPLE_SIZE) out['_all'] = linearRegression(pts);
   } else {
     const bySeries = {};
     data.forEach(i => {
@@ -4181,7 +4201,7 @@ function buildRegressions(data, trendMode, getY) {
       (bySeries[i.series] ||= []).push({ x: i.x, y });
     });
     Object.keys(bySeries).forEach(s => {
-      if (bySeries[s].length >= 2) out[s] = linearRegression(bySeries[s]);
+      if (bySeries[s].length >= MIN_PEER_SAMPLE_SIZE) out[s] = linearRegression(bySeries[s]);
     });
   }
   return out;
@@ -4196,10 +4216,17 @@ function analyze(items) {
   const seriesFilter = document.getElementById('seriesFilterSelect').value;
   const classMode = document.getElementById('classModeSelect')?.value || 'hybrid';
 
+  // 1-pre. 보정원가 X축을 위한 사전 K 계산 (adj_estimated 선택 시 필요)
+  const preItemsWithBoth = items.filter(i => !isNaN(i.estimated) && i.estimated > 0 && !isNaN(i.actual));
+  const preK = preItemsWithBoth.length >= 5
+    ? preItemsWithBoth.reduce((s, i) => s + i.actual * (i.qty || 1), 0) /
+      preItemsWithBoth.reduce((s, i) => s + i.estimated * (i.qty || 1), 0)
+    : null;
+
   // 1. Map to {x, y} and drop invalid rows
   let enriched = items.map(item => ({
     ...item,
-    x: getXValue(item),
+    x: getXValue(item, preK),
     y: item.actual
   })).filter(i => !isNaN(i.x) && !isNaN(i.y));
 
@@ -4243,7 +4270,7 @@ function analyze(items) {
         item.peerGap = 0; item.peerSaving = 0;
       }
     } else {
-      item.trendY = NaN; item.peerGap = 0; item.peerSaving = 0;
+      item.trendY = null; item.peerGap = null; item.peerSaving = null;
     }
 
     // ② 추정원가 기준 편차 (입력된 추정원가 그대로)
@@ -4281,7 +4308,7 @@ function analyze(items) {
     item.classification = classifyItem(item.peerGap, item.costGap, threshold, classMode, item.adjGap);
 
     // 절감 잠재액: 모드별로 기준 다름
-    if      (classMode === 'peer')   item.savingPotential = item.peerSaving;
+    if      (classMode === 'peer')   item.savingPotential = item.peerSaving ?? 0;
     else if (classMode === 'cost')   item.savingPotential = item.costSaving;
     else                             item.savingPotential = item.adjSaving;  // hybrid: 보정원가 기준
   });
@@ -4378,6 +4405,28 @@ function renderStats(analysis) {
 
   // K 패널 업데이트 (hybrid 모드에서만 표시)
   updateKFactorPanel(analysis);
+
+  // 표본 부족 시리즈 공지 (시리즈별 모드에서만)
+  const noticeEl = document.getElementById('peerNotice');
+  if (noticeEl) {
+    if (analysis.trendMode === 'series') {
+      const bySeries = {};
+      analysis.items.forEach(i => { (bySeries[i.series] = bySeries[i.series] || []).push(i); });
+      const small = Object.entries(bySeries)
+        .filter(([, arr]) => arr.length < MIN_PEER_SAMPLE_SIZE)
+        .map(([s, arr]) => `<strong>${s}</strong> (${arr.length}개)`);
+      if (small.length) {
+        noticeEl.style.display = 'block';
+        noticeEl.innerHTML = currentLang === 'ko'
+          ? `ℹ️ 다음 시리즈는 비교 표본이 ${MIN_PEER_SAMPLE_SIZE}개 미만으로 <strong>동급 비교를 수행할 수 없습니다</strong> — 원가 편차 기준만 적용됩니다: ${small.join(', ')}`
+          : `ℹ️ The following series have fewer than ${MIN_PEER_SAMPLE_SIZE} samples — <strong>peer comparison unavailable</strong>, cost gap only: ${small.join(', ')}`;
+      } else {
+        noticeEl.style.display = 'none';
+      }
+    } else {
+      noticeEl.style.display = 'none';
+    }
+  }
 }
 
 function updateKFactorPanel(analysis) {
@@ -4443,7 +4492,7 @@ function renderTable(analysis, cls) {
 
   items.sort((a, b) => {
     if (cls === 'danger' || cls === 'warn') return (b.savingPotential || 0) - (a.savingPotential || 0);
-    if (cls === 'info') return (a.peerGap || 0) - (b.peerGap || 0);
+    if (cls === 'info') return (a.peerGap ?? -Infinity) - (b.peerGap ?? -Infinity);
     return (b.qty || 0) - (a.qty || 0);
   });
 
@@ -4475,10 +4524,12 @@ function renderTable(analysis, cls) {
     </tr></thead><tbody>`;
 
   items.forEach(i => {
-    const peerPillClass = i.peerGap > analysis.threshold ? 'danger' :
+    const peerPillClass = i.peerGap == null ? 'na' :
+                         i.peerGap > analysis.threshold ? 'danger' :
                          i.peerGap > analysis.threshold/2 ? 'warn' :
                          i.peerGap < -analysis.threshold ? 'info' : 'good';
-    const peerStr = i.peerGap > 0 ? `+${i.peerGap.toFixed(1)}%` : `${i.peerGap.toFixed(1)}%`;
+    const peerStr = i.peerGap == null ? 'N/A' :
+                   i.peerGap > 0 ? `+${i.peerGap.toFixed(1)}%` : `${i.peerGap.toFixed(1)}%`;
 
     // 보정원가 편차 셀
     let adjCell = '';
@@ -5467,7 +5518,7 @@ function renderMatrixChart(analysis) {
     label: classLabels[k],
     type: 'bubble',
     data: groups[k].map(i => ({
-      x: i.costGap, y: i.peerGap, r: bubbleRadius(i.qty, maxQty, minQty),
+      x: i.costGap, y: i.peerGap ?? 0, r: bubbleRadius(i.qty, maxQty, minQty),
       raw: i
     })),
     backgroundColor: classColors[k] + '99',
@@ -5479,7 +5530,7 @@ function renderMatrixChart(analysis) {
 
   // Compute axis ranges with "nice" rounded values (10의 배수로 올림)
   const allXVals = filtered.map(i => i.costGap);
-  const allYVals = filtered.map(i => i.peerGap);
+  const allYVals = filtered.filter(i => i.peerGap != null).map(i => i.peerGap);
   const rawXAbs = Math.max(Math.abs(Math.min(...allXVals)), Math.abs(Math.max(...allXVals)), threshold + 10);
   const rawYAbs = Math.max(Math.abs(Math.min(...allYVals)), Math.abs(Math.max(...allYVals)), threshold + 10);
 
@@ -5519,7 +5570,7 @@ function renderMatrixChart(analysis) {
                 raw.name,
                 `${dict.colSeries}: ${raw.series}`,
                 `Cost gap: ${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%`,
-                `동급 편차: ${raw.peerGap > 0 ? '+' : ''}${raw.peerGap.toFixed(1)}%`,
+                `동급 편차: ${raw.peerGap == null ? 'N/A (비교군 부족)' : (raw.peerGap > 0 ? '+' : '') + raw.peerGap.toFixed(1) + '%'}`,
                 `${dict.colActual}: ${fmtInt(raw.actual)}`,
                 `${dict.colQty}: ${fmtInt(raw.qty)}`
               ];
@@ -5590,10 +5641,10 @@ function renderMatrixInsight(analysis) {
   const items = analysis.filtered.filter(i => !isNaN(i.costGap));
   const threshold = analysis.threshold;
 
-  const q1 = items.filter(i => i.costGap > threshold && i.peerGap > threshold);
-  const q2 = items.filter(i => i.costGap <= threshold && i.peerGap > threshold);
-  const q4 = items.filter(i => i.costGap > threshold && i.peerGap <= threshold);
-  const q3 = items.filter(i => i.costGap < -threshold && i.peerGap < -threshold);
+  const q1 = items.filter(i => i.costGap > threshold && i.peerGap != null && i.peerGap > threshold);
+  const q2 = items.filter(i => i.costGap <= threshold && i.peerGap != null && i.peerGap > threshold);
+  const q4 = items.filter(i => i.costGap > threshold && (i.peerGap == null || i.peerGap <= threshold));
+  const q3 = items.filter(i => i.costGap < -threshold && i.peerGap != null && i.peerGap < -threshold);
 
   const q1Saving = q1.reduce((s, i) => s + Math.max(i.peerSaving, i.costSaving), 0);
   const savingStr = currentLang === 'ko' ? `₩${fmtMoney(q1Saving)}` : `₩${fmtMoneyEn(q1Saving)}`;
@@ -6140,14 +6191,14 @@ function renderDrilldown(key) {
         refLabel = currentLang === 'ko' ? '추정원가' : 'Est.Cost';
         gapVal   = i.costGap;
       } else {
-        refVal   = i.trendY || 0;
+        refVal   = i.trendY ?? i.actual;
         refLabel = currentLang === 'ko' ? '추세선' : 'Trendline';
         gapVal   = i.peerGap;
       }
 
       const unitDiff   = i.actual - refVal;         // 단가 절감 여지
       const targetPrice = refVal;                      // 목표단가 = 기준값
-      const gapStr      = !isNaN(gapVal) ? (gapVal > 0 ? `+${gapVal.toFixed(1)}%` : `${gapVal.toFixed(1)}%`) : '—';
+      const gapStr      = (gapVal != null && !isNaN(gapVal)) ? (gapVal > 0 ? `+${gapVal.toFixed(1)}%` : `${gapVal.toFixed(1)}%`) : '—';
       const saving      = i.savingPotential || 0;
 
       // 편차 적용 기준 설명 (tooltip)
@@ -6180,7 +6231,7 @@ function renderDrilldown(key) {
     const totalUnitSaving = sorted.reduce((s, i) => s + Math.max(0, i.actual - (
       cmode === 'hybrid' && !isNaN(i.adjCost) ? i.adjCost :
       cmode === 'cost'   && !isNaN(i.estimated) && i.estimated > 0 ? i.estimated :
-      (i.trendY || 0)
+      (i.trendY ?? i.actual)
     )), 0);
     html += `<tr class="total-row">
       <td colspan="5" style="text-align:right;font-weight:700">${currentLang === 'ko' ? `합계 (${sorted.length}개 제품)` : `Total (${sorted.length} items)`}</td>
@@ -6320,7 +6371,7 @@ function exportCsv() {
   const headers = [dict.colProduct, dict.colSeries, 'X', dict.colActual, dict.colTrend, 'Peer Gap%', 'Cost Gap%', dict.colQty, dict.colSavingPotential, 'Classification'];
   const rows = lastAnalysis.items.map(i => [
     i.name, i.series, i.x?.toFixed(2), i.actual,
-    Math.round(i.trendY||0),
+    i.trendY != null ? Math.round(i.trendY) : '',
     i.peerGap?.toFixed(2),
     isNaN(i.costGap) ? '' : i.costGap.toFixed(2),
     i.qty, Math.round(i.savingPotential||0), i.classification
@@ -6416,6 +6467,15 @@ document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
    RENDER ORCHESTRATION
 ============================================================= */
 function renderAll(analysis) {
+  // 보정원가 X축 옵션 label에 실제 K값 반영
+  const adjOpt = document.querySelector('#xAxisSelect option[value="adj_estimated"]');
+  if (adjOpt) {
+    const ko = currentLang === 'ko';
+    adjOpt.textContent = analysis.correctionK
+      ? (ko ? `보정원가 (×${analysis.correctionK.toFixed(3)})` : `Adj. cost (×${analysis.correctionK.toFixed(3)})`)
+      : (ko ? '보정원가 (×K, 데이터 부족)' : 'Adj. cost (×K, insufficient data)');
+    adjOpt.disabled = !analysis.correctionK;
+  }
   renderStats(analysis);
   renderChart(analysis);
   renderTable(analysis, currentClass);
