@@ -1404,7 +1404,7 @@ body.dark {
   }
 
   .class-tab.danger .dot { background: var(--red); }
-  .class-tab.warn .dot { background: var(--orange); }
+  .class-tab.warn .dot { background: var(--yellow); }
   .class-tab.good .dot { background: var(--green); }
   .class-tab.info .dot { background: var(--blue); }
 
@@ -1472,7 +1472,7 @@ body.dark {
   }
 
   .pill.danger { background: var(--red-t); color: var(--red); }
-  .pill.warn { background: var(--orange-t); color: var(--orange); }
+  .pill.warn { background: var(--yellow-t); color: var(--yellow); }
   .pill.good { background: var(--green-t); color: var(--green); }
   .pill.info { background: var(--blue-t); color: var(--blue); }
   .pill.na { background: #e5e7eb; color: #6b7280; font-style: italic; }
@@ -4176,7 +4176,15 @@ function classifyItem(peerGap, costGap, threshold, mode, adjGap) {
 
   // ── 보정원가 기준 (K 보정 후 추정원가 대비) ──
   // adjGap = (실구매가 - 추정원가×K) / (추정원가×K) × 100
-  if (isNaN(adjGap))         return 'good';   // 추정원가 없는 항목은 판단 불가
+  if (isNaN(adjGap)) {
+    // P3 fix: 추정원가 없으면 peerGap으로 fallback (peerGap도 없으면 판단 불가 → good)
+    if (peerGap != null) {
+      if (peerGap > absHigh)  return 'danger';
+      if (peerGap > absMid)   return 'warn';
+      if (peerGap < -absHigh) return 'info';
+    }
+    return 'good';
+  }
   if (adjGap > absHigh)      return 'danger';
   if (adjGap > absMid)       return 'warn';
   if (adjGap < -absHigh)     return 'info';
@@ -4216,12 +4224,16 @@ function analyze(items) {
   const seriesFilter = document.getElementById('seriesFilterSelect').value;
   const classMode = document.getElementById('classModeSelect')?.value || 'hybrid';
 
-  // 1-pre. 보정원가 X축을 위한 사전 K 계산 (adj_estimated 선택 시 필요)
-  const preItemsWithBoth = items.filter(i => !isNaN(i.estimated) && i.estimated > 0 && !isNaN(i.actual));
-  const preK = preItemsWithBoth.length >= 5
+  // 1-pre. correctionK를 먼저 계산해 X축과 adjCostReg Y값에 동일한 K 사용
+  // → adjCostReg 회귀선의 기울기가 정확히 1이 됨 (X=est*K, Y=est*K → Y=X)
+  const preItemsWithBoth = items
+    .filter(i => seriesFilter !== 'all' ? i.series === seriesFilter : true)
+    .filter(i => !isNaN(i.estimated) && i.estimated > 0 && !isNaN(i.actual) && i.actual > 0);
+  const correctionK = preItemsWithBoth.length >= 5
     ? preItemsWithBoth.reduce((s, i) => s + i.actual * (i.qty || 1), 0) /
       preItemsWithBoth.reduce((s, i) => s + i.estimated * (i.qty || 1), 0)
     : null;
+  const preK = correctionK; // X축 계산용 (동일한 K 사용 → slope=1 보장)
 
   // 1. Map to {x, y} and drop invalid rows
   let enriched = items.map(item => ({
@@ -4239,17 +4251,10 @@ function analyze(items) {
   const regressions = buildRegressions(enriched, trendMode, i => i.y);
   const hasEstimated = enriched.some(i => !isNaN(i.estimated));
   const costRegressions = hasEstimated
-    ? buildRegressions(enriched, trendMode, i => i.estimated)
+    ? buildRegressions(enriched, trendMode, i => (i.estimated > 0 ? i.estimated : NaN))
     : {};
 
-  // 4-A. 보정계수 K 계산 (hybrid 모드용)
-  //   qty-weighted Ratio of Means: Σ(actual×qty) / Σ(estimated×qty)
-  //   구매수량이 많은 품목이 K에 더 큰 영향 — 포트폴리오 총 실구매액 대 추정원가 비율
-  //   최소 5개 품목 미만이면 신뢰도 부족으로 null 처리
-  const itemsWithBoth = enriched.filter(i => !isNaN(i.estimated) && i.estimated > 0 && !isNaN(i.actual));
-  const correctionK = itemsWithBoth.length >= 5
-    ? itemsWithBoth.reduce((s, i) => s + i.actual * i.qty, 0) / itemsWithBoth.reduce((s, i) => s + i.estimated * i.qty, 0)
-    : null;
+  // 4-A. correctionK는 1-pre 단계에서 이미 계산됨 (preK와 동일한 값)
   // 보정원가 회귀선: 추정원가 × K를 Y값으로 사용
   const adjCostRegressions = (correctionK && hasEstimated)
     ? buildRegressions(enriched, trendMode, i =>
@@ -5489,20 +5494,35 @@ function renderMatrixChart(analysis) {
     return;
   }
 
-  const filtered = analysis.filtered.filter(i => !isNaN(i.costGap));
+  // P2/P7 fix: hybrid 모드에서 X축을 adjGap으로 전환 (보정원가 대비 편차)
+  const useAdj = analysis.classMode === 'hybrid';
+  const getX = i => (useAdj && !isNaN(i.adjGap)) ? i.adjGap : i.costGap;
+  // P7 fix: 필터 게이트를 모드에 맞게 변경
+  const filtered = analysis.filtered.filter(i => useAdj ? !isNaN(i.adjGap) : !isNaN(i.costGap));
   const threshold = analysis.threshold;
   const maxQty = Math.max(...filtered.map(i => i.qty || 1), 1);
   const minQty = Math.min(...filtered.map(i => i.qty || 1), 1);
 
-  // Group by classification for color coding
+  // Group by 2D quadrant logic (xGap × peerGap) for scatter chart colors
+  // This must match the quadrant shading and renderMatrixInsight counts
   const groups = { danger: [], warn: [], good: [], info: [] };
   filtered.forEach(i => {
-    (groups[i.classification] || groups.good).push(i);
+    const xGap = getX(i);
+    const cHigh = xGap > threshold;
+    const pHigh = i.peerGap != null && i.peerGap > threshold;
+    const cLow  = xGap < -threshold;
+    const pLow  = i.peerGap != null && i.peerGap < -threshold;
+    let cls;
+    if (cHigh && pHigh)      cls = 'danger';
+    else if (cHigh || pHigh) cls = 'warn';
+    else if (cLow && pLow)   cls = 'info';
+    else                     cls = 'good';
+    groups[cls].push(i);
   });
 
   const classColors = {
     danger: getCss('--red'),
-    warn: getCss('--orange'),
+    warn: getCss('--yellow'),
     good: getCss('--green'),
     info: getCss('--blue')
   };
@@ -5518,7 +5538,7 @@ function renderMatrixChart(analysis) {
     label: classLabels[k],
     type: 'bubble',
     data: groups[k].map(i => ({
-      x: i.costGap, y: i.peerGap ?? 0, r: bubbleRadius(i.qty, maxQty, minQty),
+      x: getX(i), y: i.peerGap ?? 0, r: bubbleRadius(i.qty, maxQty, minQty),
       raw: i
     })),
     backgroundColor: classColors[k] + '99',
@@ -5529,10 +5549,13 @@ function renderMatrixChart(analysis) {
   if (mainChart) mainChart.destroy();
 
   // Compute axis ranges with "nice" rounded values (10의 배수로 올림)
-  const allXVals = filtered.map(i => i.costGap);
+  const allXVals = filtered.map(i => getX(i));
   const allYVals = filtered.filter(i => i.peerGap != null).map(i => i.peerGap);
   const rawXAbs = Math.max(Math.abs(Math.min(...allXVals)), Math.abs(Math.max(...allXVals)), threshold + 10);
-  const rawYAbs = Math.max(Math.abs(Math.min(...allYVals)), Math.abs(Math.max(...allYVals)), threshold + 10);
+  // P4 fix: allYVals가 빈 배열이면 Math.min/max가 ±Infinity 반환 → fallback
+  const rawYAbs = allYVals.length
+    ? Math.max(Math.abs(Math.min(...allYVals)), Math.abs(Math.max(...allYVals)), threshold + 10)
+    : threshold + 10;
 
   // Round up to nearest 10 for clean tick values
   const niceRoundUp = (x) => {
@@ -5566,10 +5589,13 @@ function renderMatrixChart(analysis) {
             label: (ctx) => {
               const raw = ctx.raw?.raw;
               if (!raw) return '';
+              const xLabel = useAdj
+                ? `보정원가 편차: ${!isNaN(raw.adjGap) ? (raw.adjGap > 0 ? '+' : '') + raw.adjGap.toFixed(1) + '%' : '—'}`
+                : `Cost gap: ${!isNaN(raw.costGap) ? (raw.costGap > 0 ? '+' : '') + raw.costGap.toFixed(1) + '%' : '—'}`;
               return [
                 raw.name,
                 `${dict.colSeries}: ${raw.series}`,
-                `Cost gap: ${raw.costGap > 0 ? '+' : ''}${raw.costGap.toFixed(1)}%`,
+                xLabel,
                 `동급 편차: ${raw.peerGap == null ? 'N/A (비교군 부족)' : (raw.peerGap > 0 ? '+' : '') + raw.peerGap.toFixed(1) + '%'}`,
                 `${dict.colActual}: ${fmtInt(raw.actual)}`,
                 `${dict.colQty}: ${fmtInt(raw.qty)}`
@@ -5587,7 +5613,7 @@ function renderMatrixChart(analysis) {
         x: {
           type: 'linear', position: 'bottom',
           min: -xAbs, max: xAbs,
-          title: { display: true, text: (currentLang === 'ko' ? '원가 대비 편차 (%)' : 'Cost deviation (%)'), color: getCss('--l2'), font: { weight: 600, size: 12 } },
+          title: { display: true, text: (useAdj ? (currentLang === 'ko' ? '보정원가 대비 편차 (%)' : 'Adj.cost deviation (%)') : (currentLang === 'ko' ? '원가 대비 편차 (%)' : 'Cost deviation (%)')), color: getCss('--l2'), font: { weight: 600, size: 12 } },
           grid: { color: getCss('--border'), drawOnChartArea: true },
           ticks: {
             color: getCss('--l3'),
@@ -5620,7 +5646,7 @@ function renderMatrixChart(analysis) {
 function renderMatrixLegend() {
   const classColors = {
     danger: getCss('--red'),
-    warn: getCss('--orange'),
+    warn: getCss('--yellow'),
     good: getCss('--green'),
     info: getCss('--blue')
   };
@@ -5638,23 +5664,27 @@ function renderMatrixLegend() {
 function renderMatrixInsight(analysis) {
   const insight = document.getElementById('matrixInsight');
   insight.style.display = 'block';
-  const items = analysis.filtered.filter(i => !isNaN(i.costGap));
+  // P5/P7 fix: hybrid 모드에서 X 기준을 adjGap으로 통일
+  const insightUseAdj = analysis.classMode === 'hybrid';
+  const insightGetX = i => (insightUseAdj && !isNaN(i.adjGap)) ? i.adjGap : i.costGap;
+  const items = analysis.filtered.filter(i => insightUseAdj ? !isNaN(i.adjGap) : !isNaN(i.costGap));
   const threshold = analysis.threshold;
 
-  const q1 = items.filter(i => i.costGap > threshold && i.peerGap != null && i.peerGap > threshold);
-  const q2 = items.filter(i => i.costGap <= threshold && i.peerGap != null && i.peerGap > threshold);
-  const q4 = items.filter(i => i.costGap > threshold && (i.peerGap == null || i.peerGap <= threshold));
-  const q3 = items.filter(i => i.costGap < -threshold && i.peerGap != null && i.peerGap < -threshold);
+  const q1 = items.filter(i => insightGetX(i) > threshold && i.peerGap != null && i.peerGap > threshold);
+  const q2 = items.filter(i => insightGetX(i) <= threshold && i.peerGap != null && i.peerGap > threshold);
+  const q4 = items.filter(i => insightGetX(i) > threshold && (i.peerGap == null || i.peerGap <= threshold));
+  const q3 = items.filter(i => insightGetX(i) < -threshold && i.peerGap != null && i.peerGap < -threshold);
 
-  const q1Saving = q1.reduce((s, i) => s + Math.max(i.peerSaving, i.costSaving), 0);
+  // P5 fix: hybrid 모드에서 adjSaving 사용
+  const q1Saving = q1.reduce((s, i) => s + (insightUseAdj ? (i.adjSaving ?? 0) : Math.max(i.peerSaving ?? 0, i.costSaving ?? 0)), 0);
   const savingStr = currentLang === 'ko' ? `₩${fmtMoney(q1Saving)}` : `₩${fmtMoneyEn(q1Saving)}`;
 
   if (currentLang === 'ko') {
     insight.innerHTML = `
       <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
         <div><strong style="color:${getCss('--red')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 협상 여지</div>
-        <div><strong style="color:${getCss('--orange')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
-        <div><strong style="color:${getCss('--orange')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
+        <div><strong style="color:${getCss('--yellow')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
+        <div><strong style="color:${getCss('--yellow')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
         <div><strong style="color:${getCss('--blue')};">🔵 좌하단 (${q3.length}개)</strong><br>이중 저평가 · <b>인상 방어 우선</b></div>
       </div>
     `;
@@ -5662,8 +5692,8 @@ function renderMatrixInsight(analysis) {
     insight.innerHTML = `
       <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
         <div><strong style="color:${getCss('--red')};">🔴 Top-right (${q1.length})</strong><br>Double overpriced · <b>highest priority</b><br>Annual ${savingStr} potential</div>
-        <div><strong style="color:${getCss('--orange')};">🟡 Top (${q2.length})</strong><br>Peer-expensive only · series outlier</div>
-        <div><strong style="color:${getCss('--orange')};">🟡 Right (${q4.length})</strong><br>Cost-expensive only · margin review</div>
+        <div><strong style="color:${getCss('--yellow')};">🟡 Top (${q2.length})</strong><br>Peer-expensive only · series outlier</div>
+        <div><strong style="color:${getCss('--yellow')};">🟡 Right (${q4.length})</strong><br>Cost-expensive only · margin review</div>
         <div><strong style="color:${getCss('--blue')};">🔵 Bottom-left (${q3.length})</strong><br>Double underpriced · <b>defend against increase</b></div>
       </div>
     `;

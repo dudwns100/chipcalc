@@ -32,6 +32,7 @@ body.dark {
   --orange-t: rgba(242,90,0,0.15); --orange-s: rgba(242,90,0,0.35);
   --red-t: rgba(228,54,42,0.15); --red-s: rgba(228,54,42,0.35);
   --purple-t: rgba(110,68,204,0.18); --purple-s: rgba(110,68,204,0.35);
+  --yellow: #e6a800; --yellow-t: rgba(200,150,12,0.18); --yellow-s: rgba(200,150,12,0.35);
   --sh: 0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.18);
   --sh2: 0 4px 16px rgba(0,0,0,0.30), 0 2px 6px rgba(0,0,0,0.20);
   --topbar-bg: rgba(28,28,30,0.92);
