@@ -3067,7 +3067,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
       </div>
       <div class="stat-card" data-stat-key="manage" id="manageCard">
         <div class="stat-label">
-          <span data-i18n="manageTarget">관리 대상</span>
+          <span data-i18n="manageTarget">우선협상</span>
           <span class="help-icon" data-tip-key="manageTarget"></span>
         </div>
         <div class="stat-value" id="stat-manage">—</div>
@@ -3105,7 +3105,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
     <div class="class-tabs" id="classTabs">
       <button class="class-tab danger active" data-class="danger">
         <span class="dot"></span>
-        <span data-i18n="classDanger">관리 대상</span>
+        <span data-i18n="classDanger">우선협상</span>
         <span class="count" id="count-danger">0</span>
       </button>
       <button class="class-tab warn" data-class="warn">
@@ -3423,12 +3423,12 @@ const i18n = {
     clickToExpand: "클릭하여 상세 보기 ▼",
     clickToCollapse: "클릭하여 접기 ▲",
     simDetailTitle: "제품별 세부 내역",
-    drilldownManageTitle: "관리 대상 제품 상세",
+    drilldownManageTitle: "우선협상 제품 상세",
     drilldownSavingTitle: "가격 최적화 여지 산출 내역",
 
     // tooltip text for help icons
     tip_xaxis: "차트의 X축으로 사용할 성능/스펙 지표입니다.\n\n데이터에 포함된 숫자 컬럼들이 자동으로 후보에 나타납니다 (예: 전류, 전압, 가중치, Flash 용량 등).\n\nY축(실구매가)과의 관계를 보기 위한 '성능 대리 지표'로 생각하세요.",
-    tip_threshold: "제품을 '관리 대상'으로 분류하는 편차 기준입니다.\n\n예: 15%로 설정 시, 추세선 대비 +15% 이상 비싼 제품이 '관리 대상'으로 분류됩니다.\n\n일반적으로 10~20% 사이가 적정합니다. 낮을수록 엄격, 높을수록 관대.",
+    tip_threshold: "제품을 '우선협상'으로 분류하는 편차 기준입니다.\n\n예: 15%로 설정 시, 보정원가 대비 +15% 이상 비싼 제품이 '우선협상'으로 분류됩니다.\n\n일반적으로 10~20% 사이가 적정합니다. 낮을수록 엄격, 높을수록 관대.",
     tip_trendMode: "가격 합리성 기준선을 어떻게 그을지 결정합니다.\n\n• 전체 통합: 모든 제품을 하나의 추세선으로 비교. 전체 구매 포트폴리오의 일관성 검토용.\n\n• 시리즈별: 각 시리즈마다 별도 추세선. 예: AURIX2와 AURIX1을 각자의 기준으로 비교. 시리즈 내부 일관성 검토용.",
     tip_classMode: "어떤 기준으로 가격 이상 여부를 판단할지 선택합니다.\n\n① 실구매가 기준\n  → 우리가 실제 구매한 가격들의 평균 추세선을 그어, 그 선보다 일정 % 이상 비싼 제품을 탐지합니다.\n  → 추정원가가 없어도 사용 가능.\n  → 단점: 시장 전체가 비싸면 이상치를 못 잡음.\n\n② 추정원가 기준\n  → 담당자가 입력한 이론적 원가 대비 편차로 판단합니다.\n  → 단점: 추정원가 자체가 낮게 잡혀 있으면 모든 제품이 위험으로 나옴.\n\n③ 보정원가 기준 (권장 ★)\n  → 추정원가가 전반적으로 얼마나 낮게 잡혔는지 계산해(보정계수 K), 그만큼 보정한 후 이상치를 탐지합니다.\n  → 체계적인 오차를 감안하여 진짜 이상 품목만 골라냅니다.",
     tip_seriesFilter: "특정 시리즈만 선택해서 분석할 수 있습니다.\n\n예: 'A-Series'만 선택하면 A-Series 제품만으로 추세선과 통계가 재계산됩니다.\n\n특정 공급사/제품군에 집중한 협상 준비 시 유용.",
@@ -3436,10 +3436,10 @@ const i18n = {
 
     tip_totalProducts: "현재 분석 범위에 포함된 제품 수와 연간 거래 규모입니다.\n\n시리즈 필터를 적용하면 그 범위에 맞춰 재계산됩니다.",
     tip_rSquared: "가격 체계의 합리성을 나타내는 통계 지표입니다 (0~1 사이).\n\n• 0.9 이상: 우수 — 매우 일관된 가격 체계\n• 0.75~0.9: 양호 — 합리적 가격 체계\n• 0.5~0.75: 보통 — 일부 비합리 존재\n• 0.5 미만: 미흡 — 가격 체계 재점검 필요\n\n높을수록 '성능에 비례해서 가격이 매겨졌다'는 뜻입니다.",
-    tip_manageTarget: "클릭하면 관리 대상으로 분류된 제품의 상세 목록을 볼 수 있습니다.\n\n각 제품의 추세선 대비 편차와 협상 여지을 확인하세요.",
-    tip_savingPotential: "클릭하면 관리 대상 제품별 협상 여지 상세를 볼 수 있습니다.\n\n【 분류 기준별 산출 방식 】\n① 실구매가 기준: (실구매가 − 추세선값) × 연간수량\n② 추정원가 기준: (실구매가 − 추정원가) × 연간수량\n③ 보정원가 기준: (실구매가 − 보정원가) × 연간수량  ※ 보정원가 = 추정원가 × K\n\n추세선 이하 품목은 협상 기준가 절감 = 0으로 처리됩니다.",
+    tip_manageTarget: "클릭하면 우선협상으로 분류된 제품의 상세 목록을 볼 수 있습니다.\n\n각 제품의 보정원가 대비 편차와 협상 여지를 확인하세요.",
+    tip_savingPotential: "클릭하면 우선협상 제품별 협상 여지 상세를 볼 수 있습니다.\n\n【 분류 기준별 산출 방식 】\n① 실구매가 기준: (실구매가 − 추세선값) × 연간수량\n② 추정원가 기준: (실구매가 − 추정원가) × 연간수량\n③ 보정원가 기준: (실구매가 − 보정원가) × 연간수량  ※ 보정원가 = 추정원가 × K\n\n추세선 이하 품목은 협상 기준가 절감 = 0으로 처리됩니다.",
 
-    tip_simulator: "관리 대상 제품들을 일괄 X% 인하했을 때 연간 얼마가 절감되는지 실시간으로 계산합니다.\n\n아래 제품별 표에서 슬라이더 조정 시 각 제품의 현재가, 인하 후 가격, 절감액이 즉시 업데이트됩니다.",
+    tip_simulator: "우선협상 제품들을 일괄 X% 인하했을 때 연간 얼마가 절감되는지 실시간으로 계산합니다.\n\n아래 제품별 표에서 슬라이더 조정 시 각 제품의 현재가, 인하 후 가격, 절감액이 즉시 업데이트됩니다.",
     previewTitle: "인식된 데이터",
     miniChartLabel: "실시간 미리보기",
     miniChartHint: "설정을 바꾸면 즉시 반영됩니다",
@@ -3476,13 +3476,13 @@ const i18n = {
     totalProducts: "총 제품",
     readyToAnalyze: "분석 준비 완료",
     rSquared: "가격 체계 R²",
-    manageTarget: "관리 대상",
+    manageTarget: "우선협상",
     savingPotential: "가격 최적화 여지",
     yearlyEstimate: "추세선 기준 연간 추정",
     chartSection: "버블 산점도",
     chartTitle: "가격 합리성 분포 (버블 크기 = 연간수량)",
     classSection: "분류별 제품 상세",
-    classDanger: "관리 대상",
+    classDanger: "우선협상",
     classWarn: "주의",
     classGood: "합리 구간",
     classInfo: "저평가",
@@ -3513,7 +3513,7 @@ const i18n = {
     exportReportTitle: "반도체 포트폴리오 가격 합리성 분석 리포트",
     exportGeneratedAt: "생성일시",
     exportTotal: "총 제품 수",
-    exportManagement: "관리 대상 건수",
+    exportManagement: "우선협상 건수",
     exportSaving: "가격 최적화 여지(연간)",
     exportR2: "가격 체계 R² 지수"
   },
@@ -5325,7 +5325,7 @@ function renderMiniChart(analysis) {
   if (hintEl) {
     if (appliesReduction) {
       hintEl.textContent = currentLang === 'ko'
-        ? `🎯 시뮬레이션 반영: 관리 대상 ${simPct.toFixed(1)}% 인하 (점선 = 인하 전)`
+        ? `🎯 시뮬레이션 반영: 우선협상 ${simPct.toFixed(1)}% 인하 (점선 = 인하 전)`
         : `🎯 Simulating: managed items reduced by ${simPct.toFixed(1)}% (dashed = before)`;
       hintEl.style.color = 'var(--green)';
     } else {
@@ -6106,7 +6106,7 @@ function updateSimulator() {
 
   if (detailWrap) detailWrap.style.display = 'block';
   countEl.textContent = currentLang === 'ko'
-    ? `총 ${managed.length}개 관리 대상 제품`
+    ? `총 ${managed.length}개 우선협상 제품`
     : `${managed.length} managed products`;
 
   // Sort by price optimization opportunity (descending)
@@ -6231,7 +6231,7 @@ function renderDrilldown(key) {
     </div>`;
 
     if (!items.length) {
-      html += `<div class="drilldown-empty">${currentLang === 'ko' ? '관리 대상 제품이 없습니다. 현재 설정 기준으로는 모든 제품이 합리 구간입니다.' : 'No managed items under current settings.'}</div>`;
+      html += `<div class="drilldown-empty">${currentLang === 'ko' ? '우선협상 대상 제품이 없습니다. 현재 설정 기준으로는 모든 제품이 합리 구간입니다.' : 'No managed items under current settings.'}</div>`;
       wrap.classList.remove('hidden');
       titleEl.textContent = title;
       bodyEl.innerHTML = html;
