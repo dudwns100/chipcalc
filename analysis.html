@@ -6131,7 +6131,7 @@ function updateSimulator() {
     <th>${headers[1]}</th>
     <th class="num">${headers[2]}</th>
     <th class="num" style="color:var(--green)">${headers[3]}</th>
-    <th class="num" style="color:var(--red)">${headers[4]}</th>
+    <th class="num" style="color:var(--orange)">${headers[4]}</th>
     <th class="num">${headers[5]}</th>
     <th class="num">${headers[6]}</th>
   </tr></thead><tbody>`;
@@ -6158,7 +6158,7 @@ function updateSimulator() {
       <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
       <td class="num">${fmtInt(i.actual)}</td>
       <td class="num" style="color:var(--green)">${fmtInt(Math.round(reduced))}</td>
-      <td class="num" style="color:var(--red)">−${fmtInt(Math.round(unitSave))}</td>
+      <td class="num" style="color:var(--orange)">−${fmtInt(Math.round(unitSave))}</td>
       <td class="num">${fmtInt(i.qty)}</td>
       <td class="num" title="${rowFormula}"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(annualSave) : '₩'+fmtMoneyEn(annualSave)}</strong></td>
     </tr>`;
@@ -6318,7 +6318,7 @@ function renderDrilldown(key) {
         : `Actual ${fmtInt(i.actual)} − Ref ${fmtInt(Math.round(refVal))} = ${fmtInt(Math.round(unitDiff))} × ${fmtInt(i.qty)} = ₩${fmtMoneyEn(saving)}`;
 
       // 절감단가: "얼마나 낮춰야 하나" → 마이너스(-) 부호
-      const unitDiffColor = unitDiff > 0 ? 'color:var(--red)' : 'color:var(--green)';
+      const unitDiffColor = unitDiff > 0 ? 'color:var(--orange)' : 'color:var(--green)';
       const unitDiffStr   = unitDiff > 0 ? `−${fmtInt(Math.round(unitDiff))}` : `+${fmtInt(Math.round(Math.abs(unitDiff)))}`;
 
       html += `<tr>
@@ -6340,7 +6340,7 @@ function renderDrilldown(key) {
     )), 0);
     html += `<tr class="total-row">
       <td colspan="5" style="text-align:right;font-weight:700">${currentLang === 'ko' ? `합계 (${sorted.length}개 제품)` : `Total (${sorted.length} items)`}</td>
-      <td class="num" style="color:var(--red);font-weight:700">+${fmtInt(Math.round(totalUnitSaving / Math.max(sorted.length,1)))}<span class="sub-percent" style="font-size:10px"> 평균/단</span></td>
+      <td class="num" style="color:var(--orange);font-weight:700">+${fmtInt(Math.round(totalUnitSaving / Math.max(sorted.length,1)))}<span class="sub-percent" style="font-size:10px"> 평균/단</span></td>
       <td class="num" style="font-weight:700">${fmtInt(sorted.reduce((s,i)=>s+(i.qty||0),0))}</td>
       <td class="num" style="color:var(--blue);font-weight:700"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</strong></td>
     </tr>`;
