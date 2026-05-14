@@ -32,8 +32,8 @@ tailwind.config = {
       colors: {
         primary:      '#0f172a',
         surface:      '#f8fafc',
-        danger:       '#dc2626',
-        'danger-bg':  '#fef2f2',
+        danger:       '#f25a00',
+        'danger-bg':  '#fff5ef',
         success:      '#16a34a',
         'success-bg': '#f0fdf4',
         warning:      '#d97706',
@@ -1263,7 +1263,7 @@ body.dark {
     letter-spacing: -0.01em;
   }
 
-  .pill.danger + .sub-percent { color: var(--red); }
+  .pill.danger + .sub-percent { color: var(--orange); }
 
   .stat-label {
     font-size: 11px;
@@ -1403,7 +1403,7 @@ body.dark {
     border-radius: 50%;
   }
 
-  .class-tab.danger .dot { background: var(--red); }
+  .class-tab.danger .dot { background: var(--orange); }
   .class-tab.warn .dot { background: var(--yellow); }
   .class-tab.good .dot { background: var(--green); }
   .class-tab.info .dot { background: var(--blue); }
@@ -1471,7 +1471,7 @@ body.dark {
     font-family: var(--mono);
   }
 
-  .pill.danger { background: var(--red-t); color: var(--red); }
+  .pill.danger { background: var(--orange-t); color: var(--orange); }
   .pill.warn { background: var(--yellow-t); color: var(--yellow); }
   .pill.good { background: var(--green-t); color: var(--green); }
   .pill.info { background: var(--blue-t); color: var(--blue); }
@@ -2207,7 +2207,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 }
 .cc-kpi-label { font-size: 0.75rem; color: var(--l3); margin-bottom: 0.2rem; }
 .cc-kpi-value { font-size: 1rem; font-weight: 700; color: var(--l1); }
-.cc-kpi-value.danger { color: #dc2626; }
+.cc-kpi-value.danger { color: #f25a00; }
 .cc-kpi-value.ok { color: #16a34a; }
 .cc-kpi-copy-btn {
   font-size: 0.7rem; padding: 0.2rem 0.5rem;
@@ -2370,7 +2370,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 .rv-item-row { cursor: pointer; }
 .rv-item-row:hover td { background: var(--blue-t, #eff6ff); }
 .rv-item-row.selected td { background: #eff6ff; font-weight: 600; }
-.rv-table td.danger { color: #dc2626; font-weight: 600; }
+.rv-table td.danger { color: #f25a00; font-weight: 600; }
 .rv-table td.ok { color: #16a34a; }
 /* K 경고 */
 #rv-k-warning {
@@ -2412,12 +2412,12 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 }
 .rv-kpi-card.neutral  { border-left: 4px solid #94a3b8; }
 .rv-kpi-card.success  { border-left: 4px solid #16a34a; background: #f0fdf4; }
-.rv-kpi-card.danger   { border-left: 4px solid #dc2626; background: #fef2f2; }
+.rv-kpi-card.danger   { border-left: 4px solid #f25a00; background: #fff5ef; }
 .rv-kpi-card.warn     { border-left: 4px solid #f59e0b; background: #fffbeb; }
 .rv-kpi-label    { font-size: 0.75rem; color: var(--l3); margin-bottom: 0.3rem; }
 .rv-kpi-value    { font-size: 1.25rem; font-weight: 700; font-family: monospace; color: var(--l1); }
 .rv-kpi-card.success .rv-kpi-value { color: #16a34a; }
-.rv-kpi-card.danger  .rv-kpi-value { color: #dc2626; }
+.rv-kpi-card.danger  .rv-kpi-value { color: #f25a00; }
 .rv-kpi-card.warn    .rv-kpi-value { color: #d97706; }
 .rv-kpi-sublabel { font-size: 0.7rem; color: var(--l3); margin-top: 0.2rem; }
 .rv-badge {
@@ -2462,7 +2462,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 }
 .rv-verdict-btn:hover { background: var(--surface-2, #f1f5f9); }
 .dark .rv-kpi-card.success { background: #052e16; }
-.dark .rv-kpi-card.danger  { background: #450a0a; }
+.dark .rv-kpi-card.danger  { background: #431506; }
 .dark .rv-kpi-card.warn    { background: #451a03; }
 .dark #rv-k-warning { background: #451a03; border-color: #d97706; color: #fcd34d; }
 .dark #rv-k-warning button { background: #1c1917; color: #fcd34d; border-color: #d97706; }
@@ -4413,8 +4413,8 @@ function renderStats(analysis) {
 
   const pct = total > 0 ? (managed / total * 100).toFixed(0) : 0;
   const manageLabel = currentLang === 'ko'
-    ? `🔴 위험 ${dangerCnt}개 + 🟡 주의 ${warnCnt}개`
-    : `🔴 ${dangerCnt} danger + 🟡 ${warnCnt} warn`;
+    ? `🟠 우선협상 ${dangerCnt}개 + 🟡 주의 ${warnCnt}개`
+    : `🟠 ${dangerCnt} high priority + 🟡 ${warnCnt} watch`;
   document.getElementById('stat-manage').innerHTML = `${managed}<span class="unit">/${total}</span>`;
   document.getElementById('stat-manageSub').textContent = manageLabel;
 
@@ -4502,11 +4502,11 @@ function updateKFactorPanel(analysis) {
         ? `<span style="color:var(--yellow);font-weight:700">⚠ 추세선 위 ≠ 비싸다</span>`
           + ` &mdash; K 보정 후 약 절반은 항상 추세선 위에 위치합니다. `
           + `합리구간(±${thr}%) 이내: <strong style="color:var(--green)">${inBand}개</strong>`
-          + ` &nbsp;/&nbsp; 초과: <strong style="color:var(--red)">${outBand}개</strong>`
+          + ` &nbsp;/&nbsp; 초과: <strong style="color:var(--orange)">${outBand}개</strong>`
         : `<span style="color:var(--yellow);font-weight:700">⚠ Above trend ≠ overpriced</span>`
           + ` &mdash; After K correction, ~half always land above the trendline. `
           + `Within rational band (±${thr}%): <strong style="color:var(--green)">${inBand}</strong>`
-          + ` &nbsp;/&nbsp; Outside: <strong style="color:var(--red)">${outBand}</strong>`;
+          + ` &nbsp;/&nbsp; Outside: <strong style="color:var(--orange)">${outBand}</strong>`;
       ratCtx.style.display = 'block';
     } else {
       ratCtx.style.display = 'none';
@@ -4561,7 +4561,7 @@ function renderTable(analysis, cls) {
       ${showCost ? `<th class="num">${tableKo ? '추정원가 편차' : 'Cost gap'}</th>` : ''}
       ${showAdj  ? `<th class="num" style="color:var(--blue)">${tableKo ? `보정원가 편차 (${kStr})` : `Adj. gap (${kStr})`}</th>` : ''}
       ${showTarget ? `<th class="num" style="color:var(--blue)">${tgtColLabel}</th>` : ''}
-      ${showTarget ? `<th class="num" style="color:var(--red)">절감단가</th>` : ''}
+      ${showTarget ? `<th class="num" style="color:var(--orange)">절감단가</th>` : ''}
       <th class="num">${dict.colQty}</th>
       <th class="num">${dict.colSavingPotential}</th>
     </tr></thead><tbody>`;
@@ -4623,7 +4623,7 @@ function renderTable(analysis, cls) {
     let unitSaveCell = '';
     if (showTarget) {
       if (!isNaN(unitSave) && unitSave > 0) {
-        unitSaveCell = `<td class="num" style="color:var(--red);font-weight:600">−${fmtInt(Math.round(unitSave))}</td>`;
+        unitSaveCell = `<td class="num" style="color:var(--orange);font-weight:600">−${fmtInt(Math.round(unitSave))}</td>`;
       } else if (!isNaN(unitSave) && unitSave <= 0) {
         unitSaveCell = `<td class="num" style="color:var(--green)">−${fmtInt(Math.round(Math.abs(unitSave)))}</td>`;
       } else {
@@ -4666,7 +4666,7 @@ function renderTable(analysis, cls) {
       <td colspan="${3 + extraCols}" style="text-align:right;font-weight:700;color:var(--l1)">
         ${tableKo ? `합계 (${items.length}개 제품)` : `Total (${items.length} items)`}
       </td>
-      <td class="num" style="color:var(--red);font-weight:700">평균 −${fmtInt(Math.round(totalUnitSave / Math.max(items.length,1)))}</td>
+      <td class="num" style="color:var(--orange);font-weight:700">평균 −${fmtInt(Math.round(totalUnitSave / Math.max(items.length,1)))}</td>
       <td class="num" style="font-weight:700">${fmtInt(totalQty)}</td>
       <td class="num" style="color:var(--blue);font-weight:700">₩${fmtMoney(totalSaving)}</td>
     </tr>`;
@@ -5228,7 +5228,7 @@ function renderMiniChart(analysis) {
       type: 'bubble',
       data: ghostData.map(g => ({ x: g.x, y: g.y, r: miniRadius(g.qty) })),
       backgroundColor: 'transparent',
-      borderColor: getCss('--red') + '88',
+      borderColor: getCss('--orange') + '88',
       borderWidth: 1,
       borderDash: [3, 3]
     });
@@ -5596,7 +5596,7 @@ function renderMatrixChart(analysis) {
   });
 
   const classColors = {
-    danger: getCss('--red'),
+    danger: getCss('--orange'),
     warn: getCss('--yellow'),
     good: getCss('--green'),
     info: getCss('--blue')
@@ -5720,7 +5720,7 @@ function renderMatrixChart(analysis) {
 
 function renderMatrixLegend() {
   const classColors = {
-    danger: getCss('--red'),
+    danger: getCss('--orange'),
     warn: getCss('--yellow'),
     good: getCss('--green'),
     info: getCss('--blue')
@@ -5757,7 +5757,7 @@ function renderMatrixInsight(analysis) {
   if (currentLang === 'ko') {
     insight.innerHTML = `
       <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
-        <div><strong style="color:${getCss('--red')};">🔴 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 협상 여지</div>
+        <div><strong style="color:${getCss('--orange')};">🟠 우상단 (${q1.length}개)</strong><br>이중 overprice · <b>최우선 협상 타겟</b><br>연간 ${savingStr} 협상 여지</div>
         <div><strong style="color:${getCss('--yellow')};">🟡 상단 (${q2.length}개)</strong><br>동급 대비만 비쌈 · 시리즈 내 이상치</div>
         <div><strong style="color:${getCss('--yellow')};">🟡 우측 (${q4.length}개)</strong><br>원가 대비만 비쌈 · 공급사 마진 검토</div>
         <div><strong style="color:${getCss('--blue')};">🔵 좌하단 (${q3.length}개)</strong><br>이중 저평가 · <b>인상 방어 우선</b></div>
@@ -5766,7 +5766,7 @@ function renderMatrixInsight(analysis) {
   } else {
     insight.innerHTML = `
       <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;">
-        <div><strong style="color:${getCss('--red')};">🔴 Top-right (${q1.length})</strong><br>Double overpriced · <b>highest priority</b><br>Annual ${savingStr} potential</div>
+        <div><strong style="color:${getCss('--orange')};">🟠 Top-right (${q1.length})</strong><br>Double overpriced · <b>highest priority</b><br>Annual ${savingStr} potential</div>
         <div><strong style="color:${getCss('--yellow')};">🟡 Top (${q2.length})</strong><br>Peer-expensive only · series outlier</div>
         <div><strong style="color:${getCss('--yellow')};">🟡 Right (${q4.length})</strong><br>Cost-expensive only · margin review</div>
         <div><strong style="color:${getCss('--blue')};">🔵 Bottom-left (${q3.length})</strong><br>Double underpriced · <b>defend against increase</b></div>
