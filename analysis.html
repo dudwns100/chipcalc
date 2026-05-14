@@ -3010,6 +3010,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
           </div>
         </div>
       </div>
+      <div id="kRationalContext" style="display:none;margin-top:10px;padding-top:8px;border-top:1px solid var(--blue-s);font-size:11.5px;color:var(--l2);line-height:1.65"></div>
     </div>
   </div>
 
@@ -4489,6 +4490,28 @@ function updateKFactorPanel(analysis) {
         `Consider revisiting the cost model.`;
   }
   document.getElementById('kFactorDesc').textContent = desc;
+
+  const ratCtx = document.getElementById('kRationalContext');
+  if (ratCtx) {
+    const thr = analysis.threshold || 15;
+    const adjItems = analysis.items.filter(i => !isNaN(i.adjGap));
+    const inBand = adjItems.filter(i => Math.abs(i.adjGap) <= thr).length;
+    const outBand = adjItems.length - inBand;
+    if (adjItems.length > 0) {
+      ratCtx.innerHTML = ko
+        ? `<span style="color:var(--yellow);font-weight:700">⚠ 추세선 위 ≠ 비싸다</span>`
+          + ` &mdash; K 보정 후 약 절반은 항상 추세선 위에 위치합니다. `
+          + `합리구간(±${thr}%) 이내: <strong style="color:var(--green)">${inBand}개</strong>`
+          + ` &nbsp;/&nbsp; 초과: <strong style="color:var(--red)">${outBand}개</strong>`
+        : `<span style="color:var(--yellow);font-weight:700">⚠ Above trend ≠ overpriced</span>`
+          + ` &mdash; After K correction, ~half always land above the trendline. `
+          + `Within rational band (±${thr}%): <strong style="color:var(--green)">${inBand}</strong>`
+          + ` &nbsp;/&nbsp; Outside: <strong style="color:var(--red)">${outBand}</strong>`;
+      ratCtx.style.display = 'block';
+    } else {
+      ratCtx.style.display = 'none';
+    }
+  }
 }
 
 
@@ -4742,6 +4765,14 @@ function withAlpha(color, alpha) {
     // 이미 hsla → alpha만 교체
     return color.replace(/,\s*[\d.]+\)$/, `, ${alpha})`);
   }
+  if (color.startsWith('rgba(')) {
+    // 이미 rgba → alpha만 교체
+    return color.replace(/,\s*[\d.]+\)$/, `, ${alpha})`);
+  }
+  if (color.startsWith('rgb(')) {
+    // rgb → rgba
+    return color.replace('rgb(', 'rgba(').replace(')', `, ${alpha})`);
+  }
   return color;  // 기타 형식은 그대로
 }
 
@@ -4916,11 +4947,12 @@ function renderScatterChart(analysis) {
       tension: 0, showLine: true,
       _trendDesc: mainTrendDesc    // 설명 문자열
     });
+    const bandGreen = getCss('--green');
     bandConfigs.push({
       regression: reg,
       xRange: range,
-      fillColor: withAlpha(mainColor, 0.08),
-      strokeColor: withAlpha(mainColor, 0.4)
+      fillColor: isHybrid ? withAlpha(bandGreen, 0.13) : withAlpha(mainColor, 0.08),
+      strokeColor: isHybrid ? withAlpha(bandGreen, 0.55) : withAlpha(mainColor, 0.4)
     });
 
     // 보조 추세선 (cost 모드: 실구매가 추세선 / peer모드: 추정원가 overlay)
@@ -4962,8 +4994,8 @@ function renderScatterChart(analysis) {
       bandConfigs.push({
         regression: reg,
         xRange: range,
-        fillColor: sc + '18',
-        strokeColor: sc + '55'
+        fillColor: isHybrid ? withAlpha(getCss('--green'), 0.12) : sc + '18',
+        strokeColor: isHybrid ? withAlpha(getCss('--green'), 0.50) : sc + '55'
       });
 
       if (showExtra && extraRegs && extraRegs[s]) {
