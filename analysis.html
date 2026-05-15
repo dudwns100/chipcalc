@@ -7349,7 +7349,7 @@ function closeAdminPanel() {
 
 // ── URL Hash 탭 라우팅 ────────────────────────────────────────
 function activateTab(tabName) {
-  var validTabs = ['cogs', 'bubble', 'review'];
+  var validTabs = ['cogs', 'bubble', 'history', 'review'];
   // 이전 hash 'portfolio' → 'cogs' 로 리다이렉트
   var target = tabName === 'portfolio' ? 'cogs'
              : validTabs.indexOf(tabName) !== -1 ? tabName
