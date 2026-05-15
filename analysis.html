@@ -1407,6 +1407,7 @@ body.dark {
   .class-tab.warn .dot { background: var(--yellow); }
   .class-tab.good .dot { background: var(--green); }
   .class-tab.info .dot { background: var(--blue); }
+  .class-tab.all .dot { background: var(--l3); }
 
   .class-tab .count {
     font-family: var(--mono);
@@ -3129,6 +3130,11 @@ body.dark #ap-confirm-box p { color: var(--l1); }
         <span data-i18n="classInfo">저평가</span>
         <span class="count" id="count-info">0</span>
       </button>
+      <button class="class-tab all" data-class="all">
+        <span class="dot"></span>
+        <span>전체</span>
+        <span class="count" id="count-all">0</span>
+      </button>
     </div>
 
     <div id="tableContainer">
@@ -4526,13 +4532,16 @@ function updateKFactorPanel(analysis) {
 ============================================================= */
 function renderTable(analysis, cls) {
   const dict = i18n[currentLang];
-  const items = analysis.items.filter(i => i.classification === cls);
+  const items = cls === 'all'
+    ? analysis.items.slice()
+    : analysis.items.filter(i => i.classification === cls);
   const container = document.getElementById('tableContainer');
 
   document.getElementById('count-danger').textContent = analysis.items.filter(i => i.classification === 'danger').length;
   document.getElementById('count-warn').textContent = analysis.items.filter(i => i.classification === 'warn').length;
   document.getElementById('count-good').textContent = analysis.items.filter(i => i.classification === 'good').length;
   document.getElementById('count-info').textContent = analysis.items.filter(i => i.classification === 'info').length;
+  document.getElementById('count-all').textContent = analysis.items.length;
 
   if (items.length === 0) {
     container.innerHTML = `<div class="empty">${dict.emptyTable}</div>`;
@@ -4540,6 +4549,12 @@ function renderTable(analysis, cls) {
   }
 
   items.sort((a, b) => {
+    if (cls === 'all') {
+      // 절감액(양수=인하여지) 내림차순, 동률이면 연간실구매금액 내림차순
+      const sA = (a.actual - (a.adjCost || a.estimated || a.trendY || 0)) * (a.qty || 0);
+      const sB = (b.actual - (b.adjCost || b.estimated || b.trendY || 0)) * (b.qty || 0);
+      return sB - sA;
+    }
     if (cls === 'danger' || cls === 'warn') return (b.savingPotential || 0) - (a.savingPotential || 0);
     if (cls === 'info') return (a.peerGap ?? -Infinity) - (b.peerGap ?? -Infinity);
     return (b.qty || 0) - (a.qty || 0);
@@ -4557,24 +4572,37 @@ function renderTable(analysis, cls) {
     return (!isNaN(i.trendY) && i.trendY > 0) ? i.trendY : NaN;
   };
 
+  // 열 레이블 인덱스 (품목명 제외, 순서대로 A·B·C…)
+  const sub = t => `<br><span style="font-size:10px;font-weight:400;opacity:.6">${t}</span>`;
+  let _li = 0;
+  const L = () => String.fromCharCode(65 + _li++);
+  const lA = L();                        // 실구매가
+  const lB = showCost ? L() : null;     // 추정원가 (optional)
+  const lC = L();                        // 보정원가
+  const lD = L();                        // 연간수량
+  const lE = L();                        // 연간실구매금액
+  const lF = L();                        // 연간예상금액
+  const lG = L();                        // 예상절감액
+  const lH = L();                        // 절감율
+
   const adjColLabel = tableKo
-    ? (showAdj ? `보정원가<br><span style="font-size:10px;font-weight:400;opacity:.75">${kStr}</span>` : '기준원가')
-    : (showAdj ? `Adj.Cost<br><span style="font-size:10px;font-weight:400;opacity:.75">${kStr}</span>` : 'Ref.Cost');
+    ? (showAdj ? `보정원가${sub(`[${lC}]  ${kStr}`)}` : `기준원가${sub(`[${lC}]`)}`)
+    : (showAdj ? `Adj.Cost${sub(`[${lC}]  ${kStr}`)}` : `Ref.Cost${sub(`[${lC}]`)}`);
   const annualExpLabel = tableKo
-    ? `연간예상금액<br><span style="font-size:10px;font-weight:400;opacity:.75">(보정원가)</span>`
-    : `Annual Est.<br><span style="font-size:10px;font-weight:400;opacity:.75">(adj.cost)</span>`;
+    ? `연간예상금액${sub(`[${lF}=${lC}×${lD}]`)}`
+    : `Annual Est.${sub(`[${lF}=${lC}×${lD}]`)}`;
 
   let html = `<div class="drilldown-table-wrap"><table class="drilldown-table" style="min-width:100%">
     <thead><tr>
       <th>${dict.colProduct}</th>
-      <th class="num">${tableKo ? '실구매가' : 'Actual'}</th>
-      ${showCost ? `<th class="num">${tableKo ? '추정원가' : 'Est.Cost'}</th>` : ''}
+      <th class="num">${tableKo ? `실구매가${sub(`[${lA}]`)}` : `Actual${sub(`[${lA}]`)}`}</th>
+      ${showCost ? `<th class="num">${tableKo ? `추정원가${sub(`[${lB}]`)}` : `Est.Cost${sub(`[${lB}]`)}`}</th>` : ''}
       <th class="num" style="color:var(--blue)">${adjColLabel}</th>
-      <th class="num">${dict.colQty}</th>
-      <th class="num">${tableKo ? '연간실구매금액' : 'Annual Buy'}</th>
+      <th class="num">${tableKo ? `연간수량${sub(`[${lD}]`)}` : `Qty${sub(`[${lD}]`)}`}</th>
+      <th class="num">${tableKo ? `연간실구매금액${sub(`[${lE}=${lA}×${lD}]`)}` : `Annual Buy${sub(`[${lE}=${lA}×${lD}]`)}`}</th>
       <th class="num" style="color:var(--blue)">${annualExpLabel}</th>
-      <th class="num">${tableKo ? '절감액' : 'Saving'}</th>
-      <th class="num">${tableKo ? '절감율' : 'Save%'}</th>
+      <th class="num">${tableKo ? `예상절감액${sub(`[${lG}=${lE}−${lF}]`)}` : `Est.Saving${sub(`[${lG}=${lE}−${lF}]`)}`}</th>
+      <th class="num">${tableKo ? `절감율${sub(`[${lH}=${lG}÷${lE}]`)}` : `Save%${sub(`[${lH}=${lG}÷${lE}]`)}`}</th>
     </tr></thead><tbody>`;
 
   items.forEach(i => {
@@ -4603,8 +4631,9 @@ function renderTable(analysis, cls) {
       ? `<td class="num" style="color:var(--blue)">${tableKo ? `₩${fmtMoney(annualExp)}` : `₩${fmtMoneyEn(annualExp)}`}</td>`
       : `<td class="num"><span style="color:var(--l3)">—</span></td>`;
 
-    const savingCell = !isNaN(saving)
-      ? `<td class="num" style="color:${savColor};font-weight:600">${saving >= 0 ? '' : '−'}${tableKo ? `₩${fmtMoney(Math.abs(saving))}` : `₩${fmtMoneyEn(Math.abs(saving))}`}</td>`
+    const dispSaving = !isNaN(saving) ? -saving : NaN;
+    const savingCell = !isNaN(dispSaving)
+      ? `<td class="num" style="color:${savColor};font-weight:600">${dispSaving >= 0 ? '+' : '−'}₩${tableKo ? fmtMoney(Math.abs(dispSaving)) : fmtMoneyEn(Math.abs(dispSaving))}</td>`
       : `<td class="num"><span style="color:var(--l3)">—</span></td>`;
 
     const dispRate = !isNaN(saveRate) ? -saveRate : NaN;
@@ -4648,7 +4677,7 @@ function renderTable(analysis, cls) {
       <td class="num" style="font-weight:700">${fmtInt(totalQty)}</td>
       <td class="num" style="font-weight:700">${tableKo ? `₩${fmtMoney(totalBuy)}` : `₩${fmtMoneyEn(totalBuy)}`}</td>
       <td class="num" style="color:var(--blue);font-weight:700">${refItems.length > 0 ? (tableKo ? `₩${fmtMoney(totalExp)}` : `₩${fmtMoneyEn(totalExp)}`) : '—'}</td>
-      <td class="num" style="color:${savTotColor};font-weight:700">${!isNaN(totalSaving) ? (totalSaving >= 0 ? '' : '−') + (tableKo ? `₩${fmtMoney(Math.abs(totalSaving))}` : `₩${fmtMoneyEn(Math.abs(totalSaving))}`) : '—'}</td>
+      <td class="num" style="color:${savTotColor};font-weight:700">${!isNaN(totalSaving) ? ((-totalSaving) >= 0 ? '+' : '−') + (tableKo ? `₩${fmtMoney(Math.abs(totalSaving))}` : `₩${fmtMoneyEn(Math.abs(totalSaving))}`) : '—'}</td>
       <td class="num" style="color:${savTotColor};font-weight:700">${!isNaN(totalRate) ? ((-totalRate) >= 0 ? '+' : '') + (-totalRate).toFixed(1) + '%' : '—'}</td>
     </tr>`;
   }
@@ -6321,7 +6350,7 @@ function renderDrilldown(key) {
     )), 0);
     html += `<tr class="total-row">
       <td colspan="5" style="text-align:right;font-weight:700">${currentLang === 'ko' ? `합계 (${sorted.length}개 제품)` : `Total (${sorted.length} items)`}</td>
-      <td class="num" style="color:var(--orange);font-weight:700">+${fmtInt(Math.round(totalUnitSaving / Math.max(sorted.length,1)))}<span class="sub-percent" style="font-size:10px"> 평균/단</span></td>
+      <td class="num" style="color:var(--orange);font-weight:700">−${fmtInt(Math.round(totalUnitSaving / Math.max(sorted.length,1)))}<span class="sub-percent" style="font-size:10px"> 평균/단</span></td>
       <td class="num" style="font-weight:700">${fmtInt(sorted.reduce((s,i)=>s+(i.qty||0),0))}</td>
       <td class="num" style="color:var(--blue);font-weight:700"><strong>${currentLang === 'ko' ? '₩'+fmtMoney(totalSaving) : '₩'+fmtMoneyEn(totalSaving)}</strong></td>
     </tr>`;
