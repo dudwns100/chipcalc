@@ -1626,12 +1626,23 @@ body.dark {
   /* UTILS */
   .hidden { display: none !important; }
 
-  /* PRINT / EXPORT MODE */
-  .export-mode header .header-controls,
+  /* PRINT / EXPORT MODE — 결과 섹션(차트·통계·테이블)만 남김 */
+  .export-mode header,
+  .export-mode nav,
+  .export-mode #chipcalc-tab-nav,
+  .export-mode #k-warning-banner,
+  .export-mode .pf-section-header,
+  .export-mode .pf-section-divider,
+  .export-mode #guideCard,
   .export-mode .paste-section,
+  .export-mode #controlsCard,
+  .export-mode #simCard,
   .export-mode .export-bar {
     display: none !important;
   }
+  /* export-mode 여백 최소화 */
+  .export-mode .pf-wrap { padding: 0 !important; }
+  .export-mode main { gap: 10px !important; }
 
 /* layout override: ChipCalc .layout 클래스와 충돌 방지 */
 .pf-wrap main {
@@ -3074,13 +3085,13 @@ body.dark #ap-confirm-box p { color: var(--l1); }
       </div>
       <div class="stat-card" data-stat-key="manage" id="manageCard">
         <div class="stat-label">
-          <span data-i18n="manageTarget">우선협상</span>
+          <span data-i18n="manageTarget">검토대상</span>
           <span class="help-icon" data-tip-key="manageTarget"></span>
         </div>
         <div class="stat-value" id="stat-manage">—</div>
         <div class="stat-sub" id="stat-manageSub">—</div>
       </div>
-      <div class="stat-card highlight stat-clickable" data-stat-key="saving" id="savingCard">
+      <div class="stat-card" data-stat-key="saving" id="savingCard">
         <div class="stat-label">
           <span data-i18n="savingPotential">가격 최적화 여지</span>
           <span class="help-icon tip-right" data-tip-key="savingPotential"></span>
@@ -3093,16 +3104,6 @@ body.dark #ap-confirm-box p { color: var(--l1); }
     <!-- 표본 부족 시리즈 공지 -->
     <div id="peerNotice" style="display:none;margin:8px 0 4px;padding:9px 12px;background:var(--blue-t);border:1px solid var(--blue-s);border-radius:7px;font-size:11.5px;color:var(--l2);line-height:1.7"></div>
 
-    <!-- Drilldown area: shown when a stat card is clicked -->
-    <div id="statDrilldown" class="stat-drilldown hidden">
-      <div class="drilldown-header">
-        <span class="drilldown-title" id="drilldownTitle"></span>
-        <button class="btn-mini ghost" id="drilldownCloseBtn">
-          <span>✕</span>
-        </button>
-      </div>
-      <div class="drilldown-body" id="drilldownBody"></div>
-    </div>
   </section>
 
   <!-- CLASSIFICATION -->
@@ -3143,7 +3144,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
   </section>
 
   <!-- SIMULATOR -->
-  <section class="card">
+  <section class="card" id="simCard">
     <div class="section-title">
       <span data-i18n="simSection">협상 시나리오 시뮬레이터</span>
       <span class="help-icon" data-tip-key="simulator"></span>
@@ -3435,7 +3436,7 @@ const i18n = {
     clickToExpand: "클릭하여 상세 보기 ▼",
     clickToCollapse: "클릭하여 접기 ▲",
     simDetailTitle: "제품별 세부 내역",
-    drilldownManageTitle: "우선협상 제품 상세",
+    drilldownManageTitle: "검토대상 제품 상세",
     drilldownSavingTitle: "가격 최적화 여지 산출 내역",
 
     // tooltip text for help icons
@@ -3488,7 +3489,7 @@ const i18n = {
     totalProducts: "총 제품",
     readyToAnalyze: "분석 준비 완료",
     rSquared: "가격 체계 R²",
-    manageTarget: "우선협상",
+    manageTarget: "검토대상",
     savingPotential: "가격 최적화 여지",
     yearlyEstimate: "추세선 기준 연간 추정",
     chartSection: "버블 산점도",
@@ -4372,7 +4373,11 @@ function fmtInt(n) {
 function fmtMoney(n) {
   if (isNaN(n) || n == null || n === 0) return '0';
   const abs = Math.abs(n);
-  if (abs >= 1e8) return (n / 1e8).toFixed(1) + '억';
+  if (abs >= 1e8) {
+    const parts = (n / 1e8).toFixed(1).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.') + '억';
+  }
   if (abs >= 1e7) return (n / 1e7).toFixed(1) + '천만';
   if (abs >= 1e4) return (n / 1e4).toFixed(1) + '만';
   return fmtInt(n);
@@ -4398,7 +4403,10 @@ function renderStats(analysis) {
   const managed = managedItems.length;
   // Match drilldown: price optimization opportunity is only for managed (danger) items
   // 잠재 절감액 = 관리 대상 중 실제로 추세선 위에 있는 항목(savingPotential>0)만 합산
-  const totalSaving = managedItems.reduce((s, i) => s + Math.max(0, i.savingPotential || 0), 0);
+  const totalSaving  = managedItems.reduce((s, i) => s + Math.max(0, i.savingPotential || 0), 0);
+  const dangerSaving = dangerItems.reduce((s, i) => s + Math.max(0, i.savingPotential || 0), 0);
+  const warnItems    = items.filter(i => i.classification === 'warn');
+  const warnSaving   = warnItems.reduce((s, i) => s + Math.max(0, i.savingPotential || 0), 0);
   const dangerCnt = dangerItems.length;
   const warnCnt   = managedItems.length - dangerCnt;
   const totalAnnualBuy = items.reduce((s, i) => s + (i.actual * i.qty), 0);
@@ -4434,7 +4442,9 @@ function renderStats(analysis) {
     ? `₩${fmtMoney(totalSaving)}`
     : `₩${fmtMoneyEn(totalSaving)}`;
   document.getElementById('stat-saving').innerHTML = savingText;
-  document.getElementById('stat-savingSub').textContent = dict.yearlyEstimate;
+  document.getElementById('stat-savingSub').innerHTML = currentLang === 'ko'
+    ? `🟠 우선협상 ₩${fmtMoney(dangerSaving)} &nbsp;+&nbsp; 🟡 주의 ₩${fmtMoney(warnSaving)}`
+    : `🟠 High ₩${fmtMoneyEn(dangerSaving)} &nbsp;+&nbsp; 🟡 Watch ₩${fmtMoneyEn(warnSaving)}`;
 
   // K 패널 업데이트 (hybrid 모드에서만 표시)
   updateKFactorPanel(analysis);
@@ -6207,6 +6217,7 @@ function renderDrilldown(key) {
   const wrap = document.getElementById('statDrilldown');
   const titleEl = document.getElementById('drilldownTitle');
   const bodyEl = document.getElementById('drilldownBody');
+  if (!wrap || !titleEl || !bodyEl) return;
 
   // Highlight the active stat card
   document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
@@ -6365,7 +6376,7 @@ function renderDrilldown(key) {
 
 function closeDrilldown() {
   const wrap = document.getElementById('statDrilldown');
-  wrap.classList.add('hidden');
+  if (wrap) wrap.classList.add('hidden');
   document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
   currentDrilldown = null;
   updateExpandHintTexts();
@@ -6383,8 +6394,9 @@ document.querySelectorAll('.stat-clickable').forEach(card => {
   });
 });
 
-// Close button
-document.getElementById('drilldownCloseBtn').addEventListener('click', (e) => {
+// Close button (drilldown 제거 시 null 방어)
+const _drilldownCloseBtn = document.getElementById('drilldownCloseBtn');
+if (_drilldownCloseBtn) _drilldownCloseBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   closeDrilldown();
 });
@@ -6506,14 +6518,12 @@ async function exportPdf() {
   const dict = i18n[currentLang];
   const { jsPDF } = window.jspdf;
 
-  const htmlEl = document.body;
   const body = document.body;
-  const originalTheme = (htmlEl.classList.contains('dark') ? 'dark' : 'light');
+  const originalTheme = body.classList.contains('dark') ? 'dark' : 'light';
   const needsSwitch = originalTheme === 'dark';
 
-  // Switch to light for export if currently dark
   if (needsSwitch) {
-    htmlEl.classList.remove('dark');
+    body.classList.remove('dark');
     const distinctSeries = [...new Set((rawItems || []).map(i => i.series))];
     buildSeriesColorMap(distinctSeries);
     renderChart(lastAnalysis);
@@ -6522,51 +6532,94 @@ async function exportPdf() {
   body.classList.add('export-mode');
 
   try {
-    // Give the browser time to apply the theme switch & re-render
-    await new Promise(r => setTimeout(r, needsSwitch ? 300 : 100));
-    const target = document.querySelector('main');
-    const canvas = await html2canvas(target, {
-      backgroundColor: '#ffffff',  // force white background regardless of theme
-      scale: 2,
+    await new Promise(r => setTimeout(r, needsSwitch ? 400 : 150));
+
+    const main = document.querySelector('.tab-panel:not(.hidden) main') || document.querySelector('main');
+
+    // 차트·통계·테이블 세 영역을 개별 캡처
+    const chartSection  = main.querySelector('#kFactorPanel')?.closest('section') || main.querySelector('section');
+    const statsSection  = main.querySelector('#statsGrid')?.closest('section');
+    const tableSection  = main.querySelector('#classTabs')?.closest('section');
+
+    // 전체 main 캡처 (export-mode로 불필요한 요소 숨긴 상태)
+    const canvas = await html2canvas(main, {
+      backgroundColor: '#f8fafc',
+      scale: 1.8,
       useCORS: true,
-      logging: false
+      logging: false,
+      windowWidth: 1200
     });
 
+    const pdf = new jsPDF({ orientation: 'l', unit: 'mm', format: 'a4' }); // landscape
+    const pageW = pdf.internal.pageSize.getWidth();   // 297mm
+    const pageH = pdf.internal.pageSize.getHeight();  // 210mm
+    const margin = 8;
+    const headerH = 12;
+    const footerH = 6;
+    const contentH = pageH - margin * 2 - headerH - footerH;
+
+    // ── 헤더 (첫 페이지) ──────────────────────────────────────
+    const drawHeader = (pageNum) => {
+      // 상단 파란색 바
+      pdf.setFillColor(15, 23, 42);
+      pdf.rect(0, 0, pageW, headerH, 'F');
+      pdf.setFontSize(10);
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('ChipCalc · 포트폴리오 가격 합리성 분석 리포트', margin, 8);
+      pdf.setFont(undefined, 'normal');
+      pdf.setFontSize(8);
+      pdf.setTextColor(180, 180, 180);
+      const dateStr = new Date().toLocaleString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+      pdf.text(dateStr, pageW - margin, 8, { align: 'right' });
+      if (pageNum > 1) {
+        pdf.setTextColor(160, 160, 160);
+        pdf.text(`${pageNum} / ?`, pageW - margin, pageH - 3, { align: 'right' });
+      }
+    };
+
     const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-    const pageW = pdf.internal.pageSize.getWidth();
-    const pageH = pdf.internal.pageSize.getHeight();
-    const imgW = pageW - 14;
-    const imgH = (canvas.height * imgW) / canvas.width;
+    const imgW    = pageW - margin * 2;
+    const imgH    = (canvas.height * imgW) / canvas.width;
 
-    pdf.setFontSize(9);
-    pdf.setTextColor(100);
-    pdf.text(`${dict.exportReportTitle} · ${dict.exportGeneratedAt}: ${new Date().toLocaleString(currentLang === 'ko' ? 'ko-KR' : 'en-US')}`, 7, 8);
+    drawHeader(1);
 
-    if (imgH < pageH - 20) {
-      pdf.addImage(imgData, 'PNG', 7, 12, imgW, imgH);
+    const topY     = margin + headerH;
+    const pageAvail = contentH;  // mm available per page for image
+
+    if (imgH <= pageAvail) {
+      // 한 페이지에 모두 들어가는 경우
+      pdf.addImage(imgData, 'PNG', margin, topY, imgW, imgH);
     } else {
-      let position = 12;
-      let remaining = imgH;
+      // 여러 페이지 — 테이블 행이 중간에 잘리지 않도록 최대한 페이지에 맞춤
+      // px per mm 비율
+      const scale  = canvas.width / imgW;      // px/mm
+      const pageHpx = pageAvail * scale;       // 한 페이지에 들어가는 px 높이
       let srcY = 0;
-      const pageAvail = pageH - 14;
-      while (remaining > 0) {
-        pdf.addImage(imgData, 'PNG', 7, position, imgW, imgH, undefined, 'FAST', 0, -srcY);
-        remaining -= pageAvail;
-        srcY += pageAvail;
-        if (remaining > 0) {
+
+      while (srcY < canvas.height) {
+        const sliceH = Math.min(pageHpx, canvas.height - srcY);
+        // 슬라이스 캔버스 생성
+        const slice = document.createElement('canvas');
+        slice.width  = canvas.width;
+        slice.height = sliceH;
+        slice.getContext('2d').drawImage(canvas, 0, -srcY);
+        const sliceData = slice.toDataURL('image/png');
+        const sliceHmm  = sliceH / scale;
+        pdf.addImage(sliceData, 'PNG', margin, topY, imgW, sliceHmm);
+        srcY += pageHpx;
+        if (srcY < canvas.height) {
           pdf.addPage();
-          position = 12;
+          drawHeader(Math.round(srcY / pageHpx) + 1);
         }
       }
     }
 
-    pdf.save(`portfolio-report-${new Date().toISOString().slice(0,10)}.pdf`);
+    pdf.save(`chipcalc-report-${new Date().toISOString().slice(0,10)}.pdf`);
   } finally {
     body.classList.remove('export-mode');
-    // Restore theme
     if (needsSwitch) {
-      htmlEl.classList.toggle('dark', originalTheme==='dark');
+      body.classList.add('dark');
       const distinctSeries = [...new Set((rawItems || []).map(i => i.series))];
       buildSeriesColorMap(distinctSeries);
       renderChart(lastAnalysis);
