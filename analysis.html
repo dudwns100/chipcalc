@@ -4569,13 +4569,33 @@ function updateKFactorPanel(analysis) {
         sigmaColor = 'var(--orange)';
         sigmaDesc = ko ? '정밀도 낮음 — 개별 수치보다 포트폴리오 등급 분류에 집중' : 'Low precision — focus on portfolio classification, not individual figures';
       }
+      const twoSigma = (sigma * 2).toFixed(1);
+      const sigmaTipKo = [
+        'K 보정 후 개별 품목 가격 오차(adjGap)의 표준편차입니다.',
+        '',
+        '• σ ≤ 10%: 우수 — adjGap 수치를 협상 근거로 직접 활용 가능',
+        '• σ 10~20%: 양호 — 방향성 신뢰, 세부 협상 시 오차 감안',
+        '• σ > 20%: 낮음 — 개별 수치보다 등급 분류 중심 활용 권장',
+        '',
+        `📌 |adjGap| > 2σ (${twoSigma}%) = 통계적 이상치 (95% 신뢰)`,
+        '📌 σ가 높으면 시리즈·공정노드별로 분리 분석 시 정밀도 향상 가능',
+      ].join('\n');
+      const sigmaTipEn = [
+        'Std deviation of per-item adjGap after K correction.',
+        '',
+        '• σ ≤ 10%: Excellent — use adjGap values directly in negotiation',
+        '• σ 10–20%: Good — directionally reliable, allow for margin',
+        '• σ > 20%: Low — rely on tier classification, not individual figures',
+        '',
+        `📌 |adjGap| > 2σ (${twoSigma}%) = statistical outlier (95% confidence)`,
+        '📌 High σ: try segmenting by series or process node',
+      ].join('\n');
+      const sigmaTipAttr = (ko ? sigmaTipKo : sigmaTipEn).replace(/"/g, '&quot;').replace(/\n/g, '&#10;');
       sigmaLine = ko
-        ? `<br><span style="margin-top:6px;display:inline-block">📏 <strong>모델 정밀도 σ = <span style="color:${sigmaColor}">${sigma.toFixed(1)}%</span></strong>`
-          + ` &mdash; K 보정 후 개별 품목 추정 오차의 표준편차. `
-          + `<span style="color:${sigmaColor}">${sigmaDesc}</span></span>`
-        : `<br><span style="margin-top:6px;display:inline-block">📏 <strong>Model Precision σ = <span style="color:${sigmaColor}">${sigma.toFixed(1)}%</span></strong>`
-          + ` &mdash; Std. deviation of per-item estimation error after K correction. `
-          + `<span style="color:${sigmaColor}">${sigmaDesc}</span></span>`;
+        ? `<br><span style="margin-top:6px;display:inline-block">📏 <strong>모델 정밀도 σ = <span style="color:${sigmaColor}">${sigma.toFixed(1)}%</span></strong><span class="help-icon tip-left" data-tip="${sigmaTipAttr}"></span>`
+          + ` &mdash; <span style="color:${sigmaColor}">${sigmaDesc}</span></span>`
+        : `<br><span style="margin-top:6px;display:inline-block">📏 <strong>Model Precision σ = <span style="color:${sigmaColor}">${sigma.toFixed(1)}%</span></strong><span class="help-icon tip-left" data-tip="${sigmaTipAttr}"></span>`
+          + ` &mdash; <span style="color:${sigmaColor}">${sigmaDesc}</span></span>`;
     }
 
     if (adjItems.length > 0) {
