@@ -2546,7 +2546,8 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 </nav>
 <!-- ChipCalc 탭 내비게이션 (Story 1.5) -->
 <div id="chipcalc-tab-nav">
-  <button class="chipcalc-tab-btn cc-tab-active" data-tab="portfolio" id="tab-btn-portfolio">포트폴리오 분석</button>
+  <button class="chipcalc-tab-btn cc-tab-active" data-tab="cogs" id="tab-btn-cogs">원가분석</button>
+  <button class="chipcalc-tab-btn" data-tab="bubble" id="tab-btn-bubble">버블 산점도</button>
   <button class="chipcalc-tab-btn" data-tab="review" id="tab-btn-review">인상 검토</button>
   <button id="admin-panel-btn" title="관리자 설정">⚙️</button>
 </div>
@@ -2557,7 +2558,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 </div>
 
 <div class="pf-wrap">
-<div id="tab-portfolio" class="tab-panel">
+<div id="tab-cogs" class="tab-panel">
 <main>
 
   <!-- ── COGS 원가 분석 섹션 헤더 ──────────────────────────────── -->
@@ -2706,8 +2707,13 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 
   </div><!-- /#cc-step2-wrap -->
 
-  <!-- ── 버블 산점도 분석 섹션 구분 ───────────────────────────────── -->
-  <div class="pf-section-divider"></div>
+</main>
+</div><!-- /#tab-cogs -->
+
+<div id="tab-bubble" class="tab-panel hidden">
+<main>
+
+  <!-- ── 버블 산점도 분석 섹션 헤더 ────────────────────────────── -->
   <div class="pf-section-header">
     <span class="pf-section-icon">🫧</span>
     <div>
@@ -3203,7 +3209,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
   </section>
 
 </main>
-</div><!-- /#tab-portfolio -->
+</div><!-- /#tab-bubble -->
 <div id="tab-review" class="tab-panel hidden">
 <main>
 
@@ -4360,7 +4366,7 @@ function fmtInt(n) {
 function fmtMoney(n) {
   if (isNaN(n) || n == null || n === 0) return '0';
   const abs = Math.abs(n);
-  if (abs >= 1e9) return (n / 1e9).toFixed(2) + '억';
+  if (abs >= 1e8) return (n / 1e8).toFixed(1) + '억';
   if (abs >= 1e7) return (n / 1e7).toFixed(1) + '천만';
   if (abs >= 1e4) return (n / 1e4).toFixed(1) + '만';
   return fmtInt(n);
@@ -4543,132 +4549,107 @@ function renderTable(analysis, cls) {
   const showAdj    = analysis.classMode === 'hybrid' && !!analysis.correctionK;
   const kStr       = showAdj ? `K=${analysis.correctionK.toFixed(3)}` : '';
   const tableKo    = currentLang === 'ko';
-  // 목표단가·절감단가는 danger/warn 탭에서만 표시
-  const showTarget = (cls === 'danger' || cls === 'warn');
 
-  // 모드별 기준값 컬럼 레이블
-  let tgtColLabel;
-  if (analysis.classMode === 'hybrid') tgtColLabel = tableKo ? `목표단가(보정원가)` : 'Target(AdjCost)';
-  else if (analysis.classMode === 'cost') tgtColLabel = tableKo ? '목표단가(추정원가)' : 'Target(Est.)';
-  else tgtColLabel = tableKo ? '목표단가(추세선)' : 'Target(Trend)';
+  // 모드별 기준원가 결정 함수
+  const getRefCost = i => {
+    if (showAdj && !isNaN(i.adjCost) && i.adjCost > 0) return i.adjCost;
+    if (showCost && !isNaN(i.estimated) && i.estimated > 0) return i.estimated;
+    return (!isNaN(i.trendY) && i.trendY > 0) ? i.trendY : NaN;
+  };
+
+  const adjColLabel = tableKo
+    ? (showAdj ? `보정원가<br><span style="font-size:10px;font-weight:400;opacity:.75">${kStr}</span>` : '기준원가')
+    : (showAdj ? `Adj.Cost<br><span style="font-size:10px;font-weight:400;opacity:.75">${kStr}</span>` : 'Ref.Cost');
+  const annualExpLabel = tableKo
+    ? `연간예상금액<br><span style="font-size:10px;font-weight:400;opacity:.75">(보정원가)</span>`
+    : `Annual Est.<br><span style="font-size:10px;font-weight:400;opacity:.75">(adj.cost)</span>`;
 
   let html = `<div class="drilldown-table-wrap"><table class="drilldown-table" style="min-width:100%">
     <thead><tr>
       <th>${dict.colProduct}</th>
-      <th>${dict.colSeries}</th>
-      <th class="num">${dict.colActual}</th>
-      <th class="num">${tableKo ? '실구매가 편차' : 'Market gap'}</th>
-      ${showCost ? `<th class="num">${tableKo ? '추정원가 편차' : 'Cost gap'}</th>` : ''}
-      ${showAdj  ? `<th class="num" style="color:var(--blue)">${tableKo ? `보정원가 편차 (${kStr})` : `Adj. gap (${kStr})`}</th>` : ''}
-      ${showTarget ? `<th class="num" style="color:var(--blue)">${tgtColLabel}</th>` : ''}
-      ${showTarget ? `<th class="num" style="color:var(--orange)">절감단가</th>` : ''}
+      <th class="num">${tableKo ? '실구매가' : 'Actual'}</th>
+      ${showCost ? `<th class="num">${tableKo ? '추정원가' : 'Est.Cost'}</th>` : ''}
+      <th class="num" style="color:var(--blue)">${adjColLabel}</th>
       <th class="num">${dict.colQty}</th>
-      <th class="num">${dict.colSavingPotential}</th>
+      <th class="num">${tableKo ? '연간실구매금액' : 'Annual Buy'}</th>
+      <th class="num" style="color:var(--blue)">${annualExpLabel}</th>
+      <th class="num">${tableKo ? '절감액' : 'Saving'}</th>
+      <th class="num">${tableKo ? '절감율' : 'Save%'}</th>
     </tr></thead><tbody>`;
 
   items.forEach(i => {
-    const peerPillClass = i.peerGap == null ? 'na' :
-                         i.peerGap > analysis.threshold ? 'danger' :
-                         i.peerGap > analysis.threshold/2 ? 'warn' :
-                         i.peerGap < -analysis.threshold ? 'info' : 'good';
-    const peerStr = i.peerGap == null ? 'N/A' :
-                   i.peerGap > 0 ? `+${i.peerGap.toFixed(1)}%` : `${i.peerGap.toFixed(1)}%`;
+    const refCost   = getRefCost(i);
+    const hasRef    = !isNaN(refCost) && refCost > 0;
+    const qty       = i.qty || 0;
+    const annualBuy = i.actual * qty;
+    const annualExp = hasRef ? refCost * qty : NaN;
+    const saving    = hasRef ? annualBuy - annualExp : NaN;
+    const saveRate  = (hasRef && annualBuy > 0) ? saving / annualBuy * 100 : NaN;
 
-    // 보정원가 편차 셀
-    let adjCell = '';
-    if (showAdj) {
-      if (isNaN(i.adjGap)) {
-        adjCell = `<td class="num"><span style="color:var(--l3)">—</span></td>`;
-      } else {
-        const adjPillClass = i.adjGap > analysis.threshold ? 'danger' :
-                             i.adjGap > analysis.threshold/2 ? 'warn' :
-                             i.adjGap < -analysis.threshold ? 'info' : 'good';
-        const adjStr = i.adjGap > 0 ? `+${i.adjGap.toFixed(1)}%` : `${i.adjGap.toFixed(1)}%`;
-        adjCell = `<td class="num"><span class="pill ${adjPillClass}">${adjStr}</span></td>`;
-      }
-    }
+    const savColor  = !isNaN(saving)   ? (saving   > 0 ? 'var(--orange)' : 'var(--green)') : 'var(--l3)';
+    const rateColor = !isNaN(saveRate) ? (saveRate  > 0 ? 'var(--orange)' : 'var(--green)') : 'var(--l3)';
 
-    let costCell = '';
-    if (showCost) {
-      if (isNaN(i.costGap)) {
-        costCell = `<td class="num"><span style="color:var(--l3)">—</span></td>`;
-      } else {
-        const costPillClass = i.costGap > analysis.threshold ? 'danger' :
-                             i.costGap > analysis.threshold/2 ? 'warn' :
-                             i.costGap < -analysis.threshold ? 'info' : 'good';
-        const costStr = i.costGap > 0 ? `+${i.costGap.toFixed(1)}%` : `${i.costGap.toFixed(1)}%`;
-        costCell = `<td class="num"><span class="pill ${costPillClass}">${costStr}</span></td>`;
-      }
-    }
-
-    // 목표단가 = 모드별 기준값 (refVal)
-    let refVal;
-    if (analysis.classMode === 'hybrid' && !isNaN(i.adjCost))             refVal = i.adjCost;
-    else if (analysis.classMode === 'cost' && !isNaN(i.estimated) && i.estimated > 0) refVal = i.estimated;
-    else                                                                   refVal = i.trendY;
-    const hasRef   = !isNaN(refVal) && refVal > 0;
-    const unitSave = hasRef ? (i.actual - refVal) : NaN;  // 양수 = 현재가가 기준보다 비쌈
-    const savingStr = i.savingPotential > 0
-      ? (tableKo ? `₩${fmtMoney(i.savingPotential)}` : `₩${fmtMoneyEn(i.savingPotential)}`)
-      : '—';
-
-    // 목표단가 셀
-    const tgtCell = showTarget
-      ? (hasRef
-          ? `<td class="num" style="color:var(--blue);font-weight:600">${fmtInt(Math.round(refVal))}</td>`
+    const estCell = showCost
+      ? (!isNaN(i.estimated) && i.estimated > 0
+          ? `<td class="num">${fmtInt(Math.round(i.estimated))}</td>`
           : `<td class="num"><span style="color:var(--l3)">—</span></td>`)
       : '';
 
-    // 절감단가 셀 — 마이너스(-) 부호: 이 만큼 낮춰야 한다
-    let unitSaveCell = '';
-    if (showTarget) {
-      if (!isNaN(unitSave) && unitSave > 0) {
-        unitSaveCell = `<td class="num" style="color:var(--orange);font-weight:600">−${fmtInt(Math.round(unitSave))}</td>`;
-      } else if (!isNaN(unitSave) && unitSave <= 0) {
-        unitSaveCell = `<td class="num" style="color:var(--green)">−${fmtInt(Math.round(Math.abs(unitSave)))}</td>`;
-      } else {
-        unitSaveCell = `<td class="num"><span style="color:var(--l3)">—</span></td>`;
-      }
-    }
+    const adjCostCell = hasRef
+      ? `<td class="num" style="color:var(--blue)">${fmtInt(Math.round(refCost))}</td>`
+      : `<td class="num"><span style="color:var(--l3)">—</span></td>`;
+
+    const annualExpCell = !isNaN(annualExp)
+      ? `<td class="num" style="color:var(--blue)">${tableKo ? `₩${fmtMoney(annualExp)}` : `₩${fmtMoneyEn(annualExp)}`}</td>`
+      : `<td class="num"><span style="color:var(--l3)">—</span></td>`;
+
+    const savingCell = !isNaN(saving)
+      ? `<td class="num" style="color:${savColor};font-weight:600">${saving >= 0 ? '' : '−'}${tableKo ? `₩${fmtMoney(Math.abs(saving))}` : `₩${fmtMoneyEn(Math.abs(saving))}`}</td>`
+      : `<td class="num"><span style="color:var(--l3)">—</span></td>`;
+
+    const dispRate = !isNaN(saveRate) ? -saveRate : NaN;
+    const rateCell = !isNaN(dispRate)
+      ? `<td class="num" style="color:${rateColor};font-weight:600">${dispRate >= 0 ? '+' : ''}${dispRate.toFixed(1)}%</td>`
+      : `<td class="num"><span style="color:var(--l3)">—</span></td>`;
 
     html += `<tr
       class="sim-row"
       data-name="${i.name.replace(/"/g, '&quot;')}"
       style="cursor:pointer"
-      onclick="highlightSimRow(this, '${i.name.replace(/'/g, "\'")}')"
+      onclick="highlightSimRow(this, '${i.name.replace(/'/g, "\\'")}')"
     >
       <td><strong>${i.name}</strong></td>
-      <td><span class="series-tag"><span class="dot" style="background:${seriesColor(i.series)}"></span>${i.series}</span></td>
       <td class="num">${fmtInt(i.actual)}</td>
-      <td class="num"><span class="pill ${peerPillClass}">${peerStr}</span></td>
-      ${costCell}
-      ${adjCell}
-      ${tgtCell}
-      ${unitSaveCell}
-      <td class="num">${fmtInt(i.qty)}</td>
-      <td class="num">${savingStr}</td>
+      ${estCell}
+      ${adjCostCell}
+      <td class="num">${fmtInt(qty)}</td>
+      <td class="num">${tableKo ? `₩${fmtMoney(annualBuy)}` : `₩${fmtMoneyEn(annualBuy)}`}</td>
+      ${annualExpCell}
+      ${savingCell}
+      ${rateCell}
     </tr>`;
   });
 
-  // 합계 행 (danger/warn 탭에서만)
-  if (showTarget && items.length > 0) {
-    const totalQty    = items.reduce((s, i) => s + (i.qty || 0), 0);
-    const totalSaving = items.reduce((s, i) => s + (i.savingPotential || 0), 0);
-    const totalUnitSave = items.reduce((s, i) => {
-      let rv;
-      if (analysis.classMode === 'hybrid' && !isNaN(i.adjCost)) rv = i.adjCost;
-      else if (analysis.classMode === 'cost' && !isNaN(i.estimated) && i.estimated > 0) rv = i.estimated;
-      else rv = i.trendY;
-      return s + ((!isNaN(rv) && rv > 0 && i.actual > rv) ? (i.actual - rv) : 0);
-    }, 0);
-    const extraCols = (showCost ? 1 : 0) + (showAdj ? 1 : 0) + 2; // 편차 + target + unitSave
+  // 합계 행
+  if (items.length > 0) {
+    const totalQty      = items.reduce((s, i) => s + (i.qty || 0), 0);
+    const totalBuy      = items.reduce((s, i) => s + i.actual * (i.qty || 0), 0);
+    const refItems      = items.filter(i => !isNaN(getRefCost(i)) && getRefCost(i) > 0);
+    const totalExp      = refItems.reduce((s, i) => s + getRefCost(i) * (i.qty || 0), 0);
+    const totalSaving   = refItems.length > 0 ? totalBuy - totalExp : NaN;
+    const totalRate     = (!isNaN(totalSaving) && totalBuy > 0) ? totalSaving / totalBuy * 100 : NaN;
+    const savTotColor   = !isNaN(totalSaving) ? (totalSaving > 0 ? 'var(--orange)' : 'var(--green)') : 'var(--l3)';
+    const extraCols     = showCost ? 1 : 0;
     html += `<tr class="total-row">
-      <td colspan="${3 + extraCols}" style="text-align:right;font-weight:700;color:var(--l1)">
+      <td colspan="${2 + extraCols}" style="text-align:right;font-weight:700;color:var(--l1)">
         ${tableKo ? `합계 (${items.length}개 제품)` : `Total (${items.length} items)`}
       </td>
-      <td class="num" style="color:var(--orange);font-weight:700">평균 −${fmtInt(Math.round(totalUnitSave / Math.max(items.length,1)))}</td>
+      <td class="num"></td>
       <td class="num" style="font-weight:700">${fmtInt(totalQty)}</td>
-      <td class="num" style="color:var(--blue);font-weight:700">₩${fmtMoney(totalSaving)}</td>
+      <td class="num" style="font-weight:700">${tableKo ? `₩${fmtMoney(totalBuy)}` : `₩${fmtMoneyEn(totalBuy)}`}</td>
+      <td class="num" style="color:var(--blue);font-weight:700">${refItems.length > 0 ? (tableKo ? `₩${fmtMoney(totalExp)}` : `₩${fmtMoneyEn(totalExp)}`) : '—'}</td>
+      <td class="num" style="color:${savTotColor};font-weight:700">${!isNaN(totalSaving) ? (totalSaving >= 0 ? '' : '−') + (tableKo ? `₩${fmtMoney(Math.abs(totalSaving))}` : `₩${fmtMoneyEn(Math.abs(totalSaving))}`) : '—'}</td>
+      <td class="num" style="color:${savTotColor};font-weight:700">${!isNaN(totalRate) ? ((-totalRate) >= 0 ? '+' : '') + (-totalRate).toFixed(1) + '%' : '—'}</td>
     </tr>`;
   }
 
@@ -7061,8 +7042,11 @@ function closeAdminPanel() {
 
 // ── URL Hash 탭 라우팅 ────────────────────────────────────────
 function activateTab(tabName) {
-  var validTabs = ['portfolio', 'review'];
-  var target = validTabs.indexOf(tabName) !== -1 ? tabName : 'portfolio';
+  var validTabs = ['cogs', 'bubble', 'review'];
+  // 이전 hash 'portfolio' → 'cogs' 로 리다이렉트
+  var target = tabName === 'portfolio' ? 'cogs'
+             : validTabs.indexOf(tabName) !== -1 ? tabName
+             : 'cogs';
 
   // 모든 패널 숨김
   document.querySelectorAll('.tab-panel').forEach(function(el) {
@@ -7094,7 +7078,7 @@ window.addEventListener('hashchange', function() {
 
 // 초기 로드: hash 값으로 탭 결정
 (function() {
-  var initHash = window.location.hash.replace('#', '') || 'portfolio';
+  var initHash = window.location.hash.replace('#', '') || 'cogs';
   activateTab(initHash);
 })();
 
