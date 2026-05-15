@@ -3760,8 +3760,52 @@ const sampleData = [
 ];
 
 function buildSampleTSV() {
-  const header = "제품명\t시리즈\t성능지표\t실구매가\t추정원가\t연간수량";
-  const rows = sampleData.map(r => r.join("\t"));
+  // YoY rates [22→23, 23→24, 24→25] for each item.
+  // Annotations for demo: ⚠ warn = recent spike, ↓ info = deceleration.
+  const yearRates = [
+    [0.04, 0.05, 0.14], // 0  APX-A100  ⚠
+    [0.03, 0.04, 0.05], // 1  APX-A090
+    [0.04, 0.04, 0.04], // 2  APX-A080
+    [0.03, 0.03, 0.04], // 3  APX-A075
+    [0.08, 0.08, 0.00], // 4  APX-A070  ↓
+    [0.03, 0.04, 0.04], // 5  APX-A065
+    [0.04, 0.04, 0.04], // 6  APX-A060
+    [0.04, 0.05, 0.14], // 7  BPX-B070  ⚠
+    [0.04, 0.05, 0.05], // 8  BPX-B070H
+    [0.03, 0.03, 0.04], // 9  BPX-B070L
+    [0.04, 0.05, 0.05], // 10 BPX-B065
+    [0.03, 0.04, 0.04], // 11 BPX-B060
+    [0.08, 0.08, 0.00], // 12 BPX-B060L ↓
+    [0.03, 0.04, 0.04], // 13 BPX-B050
+    [0.02, 0.03, 0.04], // 14 BPX-B045
+    [0.03, 0.03, 0.03], // 15 BPX-B045L
+    [0.03, 0.04, 0.04], // 16 CPX-C030
+    [0.04, 0.04, 0.04], // 17 CPX-C030B
+    [0.03, 0.03, 0.04], // 18 CPX-C040
+    [0.04, 0.05, 0.04], // 19 CPX-C040B
+    [0.04, 0.05, 0.14], // 20 CPX-C045  ⚠
+    [0.09, 0.09, 0.01], // 21 CPX-C045B ↓
+    [0.03, 0.04, 0.04], // 22 CPX-C050
+    [0.03, 0.03, 0.04], // 23 CPX-C050B
+    [0.04, 0.04, 0.04], // 24 CPX-C050C
+    [0.04, 0.05, 0.14], // 25 CPX-C055  ⚠
+    [0.08, 0.08, 0.00], // 26 CPX-C060  ↓
+    [0.05, 0.05, 0.05], // 27 XPX-X100
+    [0.04, 0.04, 0.04], // 28 XPX-X080
+    [0.03, 0.04, 0.05], // 29 YPX-Y200
+  ];
+  const header = "제품명\t시리즈\t성능지표\t추정원가\t22년구매단가\t22년구매수량\t23년구매단가\t23년구매수량\t24년구매단가\t24년구매수량\t25년구매단가\t25년구매수량";
+  const rows = sampleData.map((r, i) => {
+    const [name, series, metric, actual, estimated, qty] = r;
+    const [r0, r1, r2] = yearRates[i] || [0.04, 0.04, 0.04];
+    const p25 = actual;
+    const p24 = Math.round(p25 / (1 + r2));
+    const p23 = Math.round(p24 / (1 + r1));
+    const p22 = Math.round(p23 / (1 + r0));
+    return [name, series, metric, estimated,
+            p22, Math.round(qty/1.15), p23, Math.round(qty/1.10),
+            p24, Math.round(qty/1.05), p25, qty].join("\t");
+  });
   return header + "\n" + rows.join("\n");
 }
 
@@ -3917,6 +3961,9 @@ function parseTSV(text) {
 
   // Data rows (as array of cells)
   const dataRows = lines.slice(1).map(l => l.split('\t'));
+
+  // Expose yearCols on meta for preview table badge rendering
+  meta.yearCols = yearCols;
 
   // Extra numeric columns: NOT reserved, NOT year-columns, looks numeric
   const yearColIndices = yearCols
@@ -7015,6 +7062,9 @@ function renderPreview(text) {
     if (idx !== -1) reservedByIndex[idx] = role;
   });
   const extraSet = new Set(meta.extraNumericCols);
+  const yearColIndexSet = meta.yearCols
+    ? new Set([...Object.values(meta.yearCols.priceMap), ...Object.values(meta.yearCols.qtyMap)])
+    : new Set();
 
   const roleLabels = {
     name: '제품명', series: '시리즈', actual: '실구매가',
@@ -7032,6 +7082,8 @@ function renderPreview(text) {
     let badge = '';
     if (role) {
       badge = `<span class="col-badge reserved">${labels[role] || role}</span>`;
+    } else if (yearColIndexSet.has(i)) {
+      badge = `<span class="col-badge extra">${currentLang === 'ko' ? '연도' : 'year'}</span>`;
     } else if (extraSet.has(h)) {
       badge = `<span class="col-badge extra">${currentLang === 'ko' ? '숫자' : 'numeric'}</span>`;
     } else {
