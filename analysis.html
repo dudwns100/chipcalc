@@ -3849,6 +3849,23 @@ function detectHeaderRole(headerText) {
   return null;  // unclassified → becomes an extra numeric candidate
 }
 
+// Detect wide-format year columns: "24년구매단가", "2024년수량", etc.
+// Returns { years:[2023,2024,...], priceMap:{year→colIdx}, qtyMap:{year→colIdx} } or null.
+function detectYearColumns(headers) {
+  const priceRe = /^(\d{2,4})년?\s*(?:구매단가|단가|가격|구매가|price)/i;
+  const qtyRe   = /^(\d{2,4})년?\s*(?:구매수량|수량|qty|quantity|volume)/i;
+  const normYear = y => (y >= 0 && y <= 99) ? 2000 + y : y;
+  const priceMap = {}, qtyMap = {};
+  headers.forEach((h, i) => {
+    const hp = priceRe.exec(h.trim());
+    if (hp) { priceMap[normYear(parseInt(hp[1]))] = i; return; }
+    const hq = qtyRe.exec(h.trim());
+    if (hq) { qtyMap[normYear(parseInt(hq[1]))] = i; }
+  });
+  const years = [...new Set([...Object.keys(priceMap), ...Object.keys(qtyMap)].map(Number))].sort((a, b) => a - b);
+  return years.length > 0 ? { years, priceMap, qtyMap } : null;
+}
+
 function isNumericColumn(rows, colIdx) {
   let hits = 0, tries = 0;
   for (const r of rows) {
@@ -3874,6 +3891,9 @@ function parseTSV(text) {
   const headers = lines[0].split('\t').map(h => h.trim());
   meta.headers = headers;
 
+  // Wide-format year-column detection ("24년구매단가", "24년구매수량", etc.)
+  const yearCols = detectYearColumns(headers);
+
   // Role detection for each header
   const roleMap = {};
   headers.forEach((h, i) => {
@@ -3884,11 +3904,25 @@ function parseTSV(text) {
     }
   });
 
+  // If year columns found, override actual/qty with latest year's columns
+  if (yearCols) {
+    const latestYear = yearCols.years[yearCols.years.length - 1];
+    if (yearCols.priceMap[latestYear] !== undefined) roleMap.actual = yearCols.priceMap[latestYear];
+    if (yearCols.qtyMap[latestYear] !== undefined)   roleMap.qty   = yearCols.qtyMap[latestYear];
+    meta.hasYearData = true;
+    meta.warnings.push(`연도 이력 모드 (${yearCols.years.join(', ')}): 최신 연도(${latestYear}) 기준으로 분석, 전체 이력은 [가격 이력] 탭에서 확인`);
+  } else {
+    meta.hasYearData = false;
+  }
+
   // Data rows (as array of cells)
   const dataRows = lines.slice(1).map(l => l.split('\t'));
 
-  // Extra numeric columns: headers that are NOT reserved AND look numeric
-  const reservedIndices = new Set(Object.values(roleMap));
+  // Extra numeric columns: NOT reserved, NOT year-columns, looks numeric
+  const yearColIndices = yearCols
+    ? new Set([...Object.values(yearCols.priceMap), ...Object.values(yearCols.qtyMap)])
+    : new Set();
+  const reservedIndices = new Set([...Object.values(roleMap), ...yearColIndices]);
   const extras = [];
   headers.forEach((h, i) => {
     if (reservedIndices.has(i)) return;
@@ -3905,10 +3939,11 @@ function parseTSV(text) {
     meta.warnings.push(`제품명 컬럼을 찾지 못해 첫 번째 컬럼(${headers[0]})을 제품명으로 사용합니다.`);
   }
   if (roleMap.actual === undefined) {
-    // Heuristic: highest-mean numeric column that isn't qty/estimated
+    // Heuristic: highest-mean numeric column that isn't qty/estimated/year-col
     let bestIdx = -1, bestMean = 0;
     headers.forEach((h, i) => {
       if (i === roleMap.name || i === roleMap.qty || i === roleMap.estimated) return;
+      if (yearColIndices.has(i)) return;
       if (!isNumericColumn(dataRows, i)) return;
       const vals = dataRows.map(r => toNum(r[i])).filter(v => !isNaN(v));
       if (!vals.length) return;
@@ -3928,7 +3963,14 @@ function parseTSV(text) {
     const name = cols[roleMap.name]?.trim();
     if (!name) continue;
 
-    const actual = roleMap.actual !== undefined ? toNum(cols[roleMap.actual]) : NaN;
+    let actual = roleMap.actual !== undefined ? toNum(cols[roleMap.actual]) : NaN;
+    // If latest-year price cell is empty, walk backwards to find the most recent available price
+    if (isNaN(actual) && yearCols) {
+      for (let k = yearCols.years.length - 1; k >= 0; k--) {
+        const idx = yearCols.priceMap[yearCols.years[k]];
+        if (idx !== undefined) { const v = toNum(cols[idx]); if (!isNaN(v)) { actual = v; break; } }
+      }
+    }
     if (isNaN(actual)) continue;
 
     const series = roleMap.series !== undefined
@@ -3942,6 +3984,21 @@ function parseTSV(text) {
       if (!isNaN(v)) extrasObj[header] = v;
     });
 
+    // Build yearHistory from wide-format year columns (one row = one product)
+    let yearHistory = null;
+    if (yearCols) {
+      yearHistory = {};
+      for (const yr of yearCols.years) {
+        const priceIdx = yearCols.priceMap[yr];
+        const qtyIdx   = yearCols.qtyMap[yr];
+        const price = priceIdx !== undefined ? toNum(cols[priceIdx]) : NaN;
+        const qty   = qtyIdx   !== undefined ? toNum(cols[qtyIdx])   : NaN;
+        if (!isNaN(price) || !isNaN(qty)) {
+          yearHistory[yr] = { price: isNaN(price) ? null : price, qty: isNaN(qty) ? null : qty };
+        }
+      }
+    }
+
     const item = {
       name,
       series,
@@ -3950,27 +4007,17 @@ function parseTSV(text) {
       qty: roleMap.qty !== undefined ? toNum(cols[roleMap.qty]) : NaN,
       supplier: roleMap.supplier !== undefined ? cols[roleMap.supplier]?.trim() : null,
       period: roleMap.period !== undefined ? cols[roleMap.period]?.trim() : null,
-      extras: extrasObj
+      extras: extrasObj,
+      yearHistory
     };
     if (isNaN(item.qty) || item.qty < 1) item.qty = 1;
     items.push(item);
   }
 
-  // Year-mode: period가 4자리 연도(2000~2035)처럼 보이면 year 필드 추가
-  const looksLikeYear = s => { const n = parseInt(s); return !isNaN(n) && n >= 2000 && n <= 2099; };
-  const yearCount = items.filter(i => i.period && looksLikeYear(i.period)).length;
-  meta.hasYearData = yearCount > 0 && yearCount / items.length >= 0.5;
-  if (meta.hasYearData) {
-    items.forEach(i => { i.year = (i.period && looksLikeYear(i.period)) ? parseInt(i.period) : null; });
-    meta.warnings.push(`연도 이력 모드: ${items.length}개 행 → 최신 연도 기준으로 분석, 전체 이력은 [가격 이력] 탭에서 확인`);
-  }
-
-  // 연도 모드면 동일 품목명 + 다른 연도는 중복이 아님
-  if (!meta.hasYearData) {
-    const seen = new Set(), dups = new Set();
-    items.forEach(it => seen.has(it.name) ? dups.add(it.name) : seen.add(it.name));
-    if (dups.size) meta.warnings.push(`중복 제품명: ${[...dups].join(', ')}`);
-  }
+  // Duplicate detection (wide-format = one row per product, so always check)
+  const seen = new Set(), dups = new Set();
+  items.forEach(it => seen.has(it.name) ? dups.add(it.name) : seen.add(it.name));
+  if (dups.size) meta.warnings.push(`중복 제품명: ${[...dups].join(', ')}`);
 
   return { items, meta };
 }
@@ -6641,52 +6688,40 @@ document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
 document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
 
 /* =============================================================
-   PRICE HISTORY: buildPriceHistory / getLatestYearItems / render
+   PRICE HISTORY: buildPriceHistory / render
 ============================================================= */
 function buildPriceHistory(items) {
-  const byName = {};
-  for (const item of items) {
-    if (item.year == null || isNaN(item.actual)) continue;
-    if (!byName[item.name]) byName[item.name] = [];
-    byName[item.name].push({ year: item.year, price: item.actual, qty: item.qty, series: item.series });
-  }
   const products = {};
   const allYearsSet = new Set();
-  for (const [name, pts] of Object.entries(byName)) {
-    pts.sort((a, b) => a.year - b.year);
-    // 같은 연도 중복 행 제거 (마지막 행 우선) — 중복 시 false YoY 방지
-    const uniq = [];
-    for (const pt of pts) {
-      if (uniq.length && uniq[uniq.length - 1].year === pt.year) uniq[uniq.length - 1] = pt;
-      else uniq.push(pt);
-    }
-    uniq.forEach(p => allYearsSet.add(p.year));
+
+  for (const item of items) {
+    if (!item.yearHistory || !Object.keys(item.yearHistory).length) continue;
+    const pts = Object.keys(item.yearHistory)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .filter(yr => item.yearHistory[yr].price != null)
+      .map(yr => ({ year: yr, price: item.yearHistory[yr].price, qty: item.yearHistory[yr].qty, series: item.series }));
+    if (pts.length === 0) continue;
+    // All years in yearHistory (incl. qty-only) contribute columns in the history table
+    Object.keys(item.yearHistory).map(Number).forEach(yr => allYearsSet.add(yr));
+
     const yoyRates = [];
-    for (let i = 1; i < uniq.length; i++) {
-      yoyRates.push((uniq[i].price - uniq[i-1].price) / uniq[i-1].price * 100);
+    for (let i = 1; i < pts.length; i++) {
+      yoyRates.push((pts[i].price - pts[i-1].price) / pts[i-1].price * 100);
     }
     const avgRate = yoyRates.length > 0 ? yoyRates.reduce((s, r) => s + r, 0) / yoyRates.length : null;
     const latestRate = yoyRates.length > 0 ? yoyRates[yoyRates.length - 1] : null;
-    const n = uniq.length;
+    const n = pts.length;
     const reliability = n >= 5 ? 'high' : n >= 3 ? 'mid' : 'low';
     let signal = null;
     if (latestRate != null && avgRate != null && n >= 2) {
       if (latestRate > avgRate + 5) signal = 'warn';
       else if (latestRate < avgRate - 5) signal = 'info';
     }
-    products[name] = { points: uniq, series: uniq[uniq.length-1].series, yoyRates, avgRate, latestRate, reliability, signal, latestYear: uniq[uniq.length-1].year, firstYear: uniq[0].year, n };
+    products[item.name] = { points: pts, series: pts[pts.length-1].series, yoyRates, avgRate, latestRate, reliability, signal, latestYear: pts[pts.length-1].year, firstYear: pts[0].year, n };
   }
-  return { products, allYears: [...allYearsSet].sort((a, b) => a - b) };
-}
 
-function getLatestYearItems(items) {
-  const latest = {};
-  for (const item of items) {
-    if (!latest[item.name] || (item.year || 0) > (latest[item.name].year || 0)) {
-      latest[item.name] = item;
-    }
-  }
-  return Object.values(latest);
+  return { products, allYears: [...allYearsSet].sort((a, b) => a - b) };
 }
 
 function updateHistoryView() {
@@ -6870,15 +6905,10 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
       return;
     }
     const { items, meta } = parseTSV(text);
-    // 연도 모드: 전체 이력으로 priceHistory 구성, 최신연도 품목만 분석에 사용
-    if (meta.hasYearData) {
-      priceHistory = buildPriceHistory(items);
-      parsed = getLatestYearItems(items);
-    } else {
-      priceHistory = null;
-      parsed = items;
-    }
+    // 연도 이력 모드: 각 행이 이미 한 제품 = actual/qty는 최신 연도 기준으로 설정됨
+    priceHistory = meta.hasYearData ? buildPriceHistory(items) : null;
     _lastRenderedHistory = null;
+    parsed = items;
     mergedMeta = meta;
   } else {
     const textA = document.getElementById('pasteInputB1').value;
