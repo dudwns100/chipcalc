@@ -2345,6 +2345,13 @@ body.dark #ap-confirm-box p { color: var(--l1); }
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
 }
 .rv-section-title { font-size: 0.9rem; font-weight: 700; color: var(--l1); margin-bottom: 0.625rem; }
+/* 가격 이력 테이블 */
+.history-table { width:100%; border-collapse:collapse; font-size:12px; }
+.history-table th { background:var(--bg2); padding:5px 10px; font-weight:600; color:var(--l2); border-bottom:1px solid var(--border); white-space:nowrap; }
+.history-table td { padding:5px 10px; border-bottom:1px solid var(--border); color:var(--l1); }
+.history-table tr:hover td { background:var(--bg2); }
+.history-table tr:last-child td { border-bottom:none; }
+
 .rv-table { width: 100%; border-collapse: collapse; font-size: 0.775rem; }
 .rv-table th {
   padding: 0.35rem 0.6rem; background: var(--blue-t, #eff6ff);
@@ -3000,6 +3007,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
             <div class="mode-tabs" style="margin-bottom:0;" id="viewTabs">
               <button class="mode-tab active" data-view="scatter" data-i18n="viewScatter">합리성 산점도</button>
               <button class="mode-tab" data-view="matrix" data-i18n="viewMatrix">종합 매트릭스</button>
+              <button class="mode-tab" data-view="history" id="historyTabBtn" style="display:none" data-i18n="viewHistory">가격 이력</button>
             </div>
             <label style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:var(--l2); cursor:pointer;" id="costOverlayWrap">
               <input type="checkbox" id="costOverlayChk" style="accent-color: var(--blue); cursor:pointer;" />
@@ -3018,6 +3026,11 @@ body.dark #ap-confirm-box p { color: var(--l1); }
       </div>
       <div id="matrixInsight" style="margin-top:12px; display:none; padding:12px 14px; background:var(--s3); border-radius:8px; font-size:12px; line-height:1.7; color:var(--l2);"></div>
     </div>
+  </section>
+
+  <!-- PRICE HISTORY VIEW -->
+  <section id="historySection" style="display:none;padding-top:0">
+    <div id="historyView"></div>
   </section>
 
   <!-- STATS -->
@@ -3440,6 +3453,7 @@ const i18n = {
     summary: "분석 요약",
     totalProducts: "총 제품",
     readyToAnalyze: "분석 준비 완료",
+    viewHistory: "가격 이력",
     rSquared: "가격 체계 R²",
     manageTarget: "검토대상",
     savingPotential: "가격 최적화 여지",
@@ -3575,6 +3589,7 @@ const i18n = {
     summary: "Summary",
     totalProducts: "Total Products",
     readyToAnalyze: "Ready to analyze",
+    viewHistory: "Price History",
     rSquared: "Pricing R²",
     manageTarget: "Managed Items",
     savingPotential: "Price Optimization",
@@ -3941,9 +3956,21 @@ function parseTSV(text) {
     items.push(item);
   }
 
-  const seen = new Set(), dups = new Set();
-  items.forEach(it => seen.has(it.name) ? dups.add(it.name) : seen.add(it.name));
-  if (dups.size) meta.warnings.push(`중복 제품명: ${[...dups].join(', ')}`);
+  // Year-mode: period가 4자리 연도(2000~2035)처럼 보이면 year 필드 추가
+  const looksLikeYear = s => { const n = parseInt(s); return !isNaN(n) && n >= 2000 && n <= 2099; };
+  const yearCount = items.filter(i => i.period && looksLikeYear(i.period)).length;
+  meta.hasYearData = yearCount > 0 && yearCount / items.length >= 0.5;
+  if (meta.hasYearData) {
+    items.forEach(i => { i.year = (i.period && looksLikeYear(i.period)) ? parseInt(i.period) : null; });
+    meta.warnings.push(`연도 이력 모드: ${items.length}개 행 → 최신 연도 기준으로 분석, 전체 이력은 [가격 이력] 탭에서 확인`);
+  }
+
+  // 연도 모드면 동일 품목명 + 다른 연도는 중복이 아님
+  if (!meta.hasYearData) {
+    const seen = new Set(), dups = new Set();
+    items.forEach(it => seen.has(it.name) ? dups.add(it.name) : seen.add(it.name));
+    if (dups.size) meta.warnings.push(`중복 제품명: ${[...dups].join(', ')}`);
+  }
 
   return { items, meta };
 }
@@ -4025,6 +4052,8 @@ function linearRegression(points) {
    설정이 바뀔 때마다 analyze(rawItems) 재실행으로 전체 동기화
 ============================================================= */
 let rawItems = [];
+let priceHistory = null;
+let _lastRenderedHistory = null;
 let lastAnalysis = null;
 let currentClass = 'danger';
 let currentMode = 'single';
@@ -6612,6 +6641,162 @@ document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
 document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
 
 /* =============================================================
+   PRICE HISTORY: buildPriceHistory / getLatestYearItems / render
+============================================================= */
+function buildPriceHistory(items) {
+  const byName = {};
+  for (const item of items) {
+    if (item.year == null || isNaN(item.actual)) continue;
+    if (!byName[item.name]) byName[item.name] = [];
+    byName[item.name].push({ year: item.year, price: item.actual, qty: item.qty, series: item.series });
+  }
+  const products = {};
+  const allYearsSet = new Set();
+  for (const [name, pts] of Object.entries(byName)) {
+    pts.sort((a, b) => a.year - b.year);
+    // 같은 연도 중복 행 제거 (마지막 행 우선) — 중복 시 false YoY 방지
+    const uniq = [];
+    for (const pt of pts) {
+      if (uniq.length && uniq[uniq.length - 1].year === pt.year) uniq[uniq.length - 1] = pt;
+      else uniq.push(pt);
+    }
+    uniq.forEach(p => allYearsSet.add(p.year));
+    const yoyRates = [];
+    for (let i = 1; i < uniq.length; i++) {
+      yoyRates.push((uniq[i].price - uniq[i-1].price) / uniq[i-1].price * 100);
+    }
+    const avgRate = yoyRates.length > 0 ? yoyRates.reduce((s, r) => s + r, 0) / yoyRates.length : null;
+    const latestRate = yoyRates.length > 0 ? yoyRates[yoyRates.length - 1] : null;
+    const n = uniq.length;
+    const reliability = n >= 5 ? 'high' : n >= 3 ? 'mid' : 'low';
+    let signal = null;
+    if (latestRate != null && avgRate != null && n >= 2) {
+      if (latestRate > avgRate + 5) signal = 'warn';
+      else if (latestRate < avgRate - 5) signal = 'info';
+    }
+    products[name] = { points: uniq, series: uniq[uniq.length-1].series, yoyRates, avgRate, latestRate, reliability, signal, latestYear: uniq[uniq.length-1].year, firstYear: uniq[0].year, n };
+  }
+  return { products, allYears: [...allYearsSet].sort((a, b) => a - b) };
+}
+
+function getLatestYearItems(items) {
+  const latest = {};
+  for (const item of items) {
+    if (!latest[item.name] || (item.year || 0) > (latest[item.name].year || 0)) {
+      latest[item.name] = item;
+    }
+  }
+  return Object.values(latest);
+}
+
+function updateHistoryView() {
+  const btn = document.getElementById('historyTabBtn');
+  const hs  = document.getElementById('historySection');
+  if (!btn || !hs) return;
+  const hasHistory = priceHistory && Object.keys(priceHistory.products).length > 0;
+  btn.style.display = hasHistory ? '' : 'none';
+  if (!hasHistory) {
+    hs.style.display = 'none';
+    if (currentView === 'history') {
+      currentView = 'scatter';
+      syncViewTabActive();
+    }
+    return;
+  }
+  if (priceHistory !== _lastRenderedHistory) {
+    _lastRenderedHistory = priceHistory;
+    renderPriceHistory(priceHistory);
+  }
+}
+
+function renderPriceHistory(history) {
+  const view = document.getElementById('historyView');
+  if (!view) return;
+  const { products, allYears } = history;
+  const ko = currentLang === 'ko';
+  const fmtPct = v => v == null ? '—' : (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  const fmtPrice = v => v == null ? '—' : Math.round(v).toLocaleString();
+
+  const reliabilityBadge = (r, n) => {
+    const color = r === 'high' ? 'var(--green)' : r === 'mid' ? 'var(--yellow)' : 'var(--l3)';
+    return `<span style="color:${color}">●</span> ${n}${ko ? '년' : 'yr'}`;
+  };
+  const signalCell = (signal, n) => {
+    if (n < 2) return `<span style="color:var(--l3)">—</span>`;
+    if (signal === 'warn') return `<span style="color:var(--orange);font-weight:700">⚠ ${ko ? '이상' : 'Anomaly'}</span>`;
+    if (signal === 'info') return `<span style="color:var(--blue)">↓ ${ko ? '감속' : 'Decel'}</span>`;
+    return `<span style="color:var(--green)">${ko ? '정상' : 'Normal'}</span>`;
+  };
+
+  const sorted = Object.entries(products).sort(([,a], [,b]) => {
+    const ord = { warn: 0, info: 2 };
+    const oa = ord[a.signal] ?? 1, ob = ord[b.signal] ?? 1;
+    return oa !== ob ? oa - ob : (b.avgRate || 0) - (a.avgRate || 0);
+  });
+
+  let rows = '';
+  for (const [name, p] of sorted) {
+    const priceByYear = {};
+    const rateByYear  = {};
+    p.points.forEach(pt => { priceByYear[pt.year] = pt.price; });
+    for (let i = 1; i < p.points.length; i++) {
+      rateByYear[p.points[i].year] = (p.points[i].price - p.points[i-1].price) / p.points[i-1].price * 100;
+    }
+    const latestYrStyle = p.signal === 'warn' ? 'color:var(--orange);font-weight:600' : p.signal === 'info' ? 'color:var(--blue)' : '';
+    const yearCells = allYears.map(y => {
+      const price = priceByYear[y];
+      const rate  = rateByYear[y];
+      if (price == null) return `<td style="color:var(--l3);text-align:right">—</td>`;
+      const isLatest = y === p.latestYear;
+      const cellStyle = isLatest ? latestYrStyle : '';
+      const rateLine = rate != null ? `<br><span style="font-size:10px;color:var(--l3)">${fmtPct(rate)}</span>` : '';
+      return `<td style="${cellStyle};text-align:right">${fmtPrice(price)}${rateLine}</td>`;
+    }).join('');
+    rows += `<tr>
+      <td style="white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${name}">${name}</td>
+      <td style="color:var(--l3);font-size:11px">${p.series || '—'}</td>
+      ${yearCells}
+      <td style="text-align:right">${fmtPct(p.avgRate)}</td>
+      <td style="text-align:right;${latestYrStyle}">${fmtPct(p.latestRate)}</td>
+      <td style="text-align:center">${reliabilityBadge(p.reliability, p.n)}</td>
+      <td style="text-align:center">${signalCell(p.signal, p.n)}</td>
+    </tr>`;
+  }
+
+  if (!allYears.length) { view.innerHTML = ''; return; }
+  const warnCount = sorted.filter(([,p]) => p.signal === 'warn').length;
+  const infoCount = sorted.filter(([,p]) => p.signal === 'info').length;
+  const total = sorted.length;
+  const yearRange = allYears.length > 1 ? `${allYears[0]}–${allYears[allYears.length-1]}` : `${allYears[0]}`;
+
+  view.innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+      <span style="font-size:12px;color:var(--l2)">${ko ? `총 ${total}개 품목 · ${yearRange}년` : `${total} products · ${yearRange}`}</span>
+      ${warnCount > 0 ? `<span class="pill pill-danger">⚠ ${ko ? '이상' : 'Anomaly'} ${warnCount}${ko ? '개' : ''}</span>` : ''}
+      ${infoCount > 0 ? `<span class="pill pill-info">↓ ${ko ? '감속' : 'Decel'} ${infoCount}${ko ? '개' : ''}</span>` : ''}
+    </div>
+    <div style="font-size:11px;color:var(--l3);margin-bottom:10px">
+      ${ko
+        ? '⚠ 이상: 최근 인상률이 역사적 평균보다 5%p 이상 높음 &nbsp;|&nbsp; ↓ 감속: 역사적 평균보다 5%p 이상 낮음 (협상에 유리) &nbsp;|&nbsp; 신뢰도: ●초록=5년+, ●노랑=3~4년, ●회색=1~2년'
+        : '⚠ Anomaly: latest YoY 5pp+ above avg &nbsp;|&nbsp; ↓ Decel: 5pp+ below avg (favorable) &nbsp;|&nbsp; Reliability: ●green=5yr+, ●yellow=3–4yr, ●gray=1–2yr'}
+    </div>
+    <div style="overflow-x:auto">
+      <table class="history-table">
+        <thead><tr>
+          <th style="text-align:left">${ko ? '제품명' : 'Product'}</th>
+          <th style="text-align:left">${ko ? '시리즈' : 'Series'}</th>
+          ${allYears.map(y => `<th style="text-align:right">${y}</th>`).join('')}
+          <th style="text-align:right">${ko ? '연평균↑' : 'Avg YoY'}</th>
+          <th style="text-align:right">${ko ? '최근↑' : 'Latest↑'}</th>
+          <th style="text-align:center">${ko ? '신뢰도' : 'Reliability'}</th>
+          <th style="text-align:center">${ko ? '판정' : 'Signal'}</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+/* =============================================================
    RENDER ORCHESTRATION
 ============================================================= */
 function renderAll(analysis) {
@@ -6636,6 +6821,8 @@ function renderAll(analysis) {
   updateXAxisGuide();
   // classTabs active 상태 재동기화
   syncClassTabActive();
+  // 가격 이력 뷰 업데이트
+  updateHistoryView();
   // 분석 완료 후 manage 드릴다운 자동 표시
   setTimeout(() => {
     if (analysis.items.some(i => i.classification === 'danger' || i.classification === 'warn')) {
@@ -6651,10 +6838,15 @@ function syncViewTabActive() {
   const cmode = document.getElementById('classModeSelect')?.value || 'hybrid';
   const isPeerMode = cmode === 'peer';
   const isScatter = currentView === 'scatter';
+  const isHistory = currentView === 'history';
   const ow = document.getElementById('costOverlayWrap');
   const aw = document.getElementById('actualTrendWrap');
   if (ow) ow.style.display = (isScatter && isPeerMode) ? 'inline-flex' : 'none';
   if (aw) aw.style.display = (isScatter && !isPeerMode) ? 'inline-flex' : 'none';
+  const cw = document.getElementById('chartWrap');
+  const hs = document.getElementById('historySection');
+  if (cw) cw.style.display = isHistory ? 'none' : '';
+  if (hs) hs.style.display = isHistory ? '' : 'none';
 }
 
 function syncClassTabActive() {
@@ -6678,7 +6870,15 @@ document.getElementById('analyzeBtn').addEventListener('click', () => {
       return;
     }
     const { items, meta } = parseTSV(text);
-    parsed = items;
+    // 연도 모드: 전체 이력으로 priceHistory 구성, 최신연도 품목만 분석에 사용
+    if (meta.hasYearData) {
+      priceHistory = buildPriceHistory(items);
+      parsed = getLatestYearItems(items);
+    } else {
+      priceHistory = null;
+      parsed = items;
+    }
+    _lastRenderedHistory = null;
     mergedMeta = meta;
   } else {
     const textA = document.getElementById('pasteInputB1').value;
@@ -6869,8 +7069,11 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   document.getElementById('pasteInputB2').value = '';
   document.getElementById('previewContainer').classList.add('hidden');
   rawItems = [];
+  priceHistory = null;
+  _lastRenderedHistory = null;
   lastAnalysis = null;
   seriesColorMap = {};
+  updateHistoryView();
   if (mainChart) { mainChart.destroy(); mainChart = null; }
   if (miniChart) { miniChart.destroy(); miniChart = null; }
   clearMiniChart(currentLang === 'ko' ? '데이터를 입력하면 여기에 미리보기가 나타납니다' : 'Paste data to see a preview here');
@@ -6957,8 +7160,11 @@ document.querySelectorAll('#viewTabs .mode-tab').forEach(tab => {
     document.querySelectorAll('#viewTabs .mode-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentView = tab.dataset.view;
-    document.getElementById('costOverlayWrap').style.display = currentView === 'scatter' ? 'inline-flex' : 'none';
-    if (lastAnalysis) renderChart(lastAnalysis);
+    const isHistory = currentView === 'history';
+    document.getElementById('chartWrap').style.display = isHistory ? 'none' : '';
+    const hs = document.getElementById('historySection');
+    if (hs) hs.style.display = isHistory ? '' : 'none';
+    if (!isHistory && lastAnalysis) renderChart(lastAnalysis);
   });
 });
 
@@ -6990,6 +7196,7 @@ document.querySelectorAll('#modeTabs .mode-tab').forEach(tab => {
     // 모드 전환 시 rawItems·분석 결과·시리즈 필터 완전 초기화
     // (SUP-A/SUP-B 같은 이전 모드 태그가 단일 모드에서 보이지 않도록)
     rawItems = [];
+    priceHistory = null;
     lastAnalysis = null;
     seriesColorMap = {};
     const sfsEl = document.getElementById('seriesFilterSelect');
