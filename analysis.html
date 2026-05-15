@@ -1630,7 +1630,6 @@ body.dark {
   .export-mode header,
   .export-mode nav,
   .export-mode #chipcalc-tab-nav,
-  .export-mode #k-warning-banner,
   .export-mode .pf-section-header,
   .export-mode .pf-section-divider,
   .export-mode #guideCard,
@@ -1707,31 +1706,6 @@ body.dark .chipcalc-tab-btn.cc-tab-active { color: #60a5fa; border-bottom-color:
 }
 #admin-panel-btn:hover { background: #f1f5f9; }
 
-/* K=1.0 경고 배너 */
-#k-warning-banner {
-  background: #fffbeb;
-  border: 1px solid #fcd34d;
-  border-radius: 0.375rem;
-  padding: 0.75rem 1rem;
-  margin: 0.75rem 1rem;
-  font-size: 0.8125rem;
-  color: #92400e;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-#k-warning-banner button {
-  margin-left: auto;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.8125rem;
-  background: #fef3c7;
-  border: 1px solid #fcd34d;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  color: #92400e;
-  white-space: nowrap;
-}
-#k-warning-banner button:hover { background: #fde68a; }
 
 /* 관리자 패널 오버레이 */
 #admin-panel-overlay {
@@ -2384,18 +2358,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 .rv-item-row.selected td { background: #eff6ff; font-weight: 600; }
 .rv-table td.danger { color: #f25a00; font-weight: 600; }
 .rv-table td.ok { color: #16a34a; }
-/* K 경고 */
-#rv-k-warning {
-  margin: 0.75rem 0; padding: 0.625rem 1rem;
-  background: #fffbeb; border-left: 4px solid #f59e0b;
-  border-radius: 0 6px 6px 0; font-size: 0.8125rem; color: #92400e;
-  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
-}
-#rv-k-warning button {
-  padding: 0.15rem 0.6rem; font-size: 0.775rem;
-  border: 1px solid #f59e0b; border-radius: 4px; cursor: pointer;
-  background: #fff; color: #92400e; flex-shrink: 0;
-}
+
 /* 공개 지수 섹션 */
 #rv-index-section {
   margin: 0.75rem 0; padding: 0.875rem 1rem;
@@ -2476,8 +2439,6 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 .dark .rv-kpi-card.success { background: #052e16; }
 .dark .rv-kpi-card.danger  { background: #431506; }
 .dark .rv-kpi-card.warn    { background: #451a03; }
-.dark #rv-k-warning { background: #451a03; border-color: #d97706; color: #fcd34d; }
-.dark #rv-k-warning button { background: #1c1917; color: #fcd34d; border-color: #d97706; }
 .dark #rv-row-warning { background: #451a03; border-color: #d97706; color: #fcd34d; }
 .dark .rv-item-row.selected td { background: #1e3a5f; }
 </style>
@@ -2563,11 +2524,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
   <button class="chipcalc-tab-btn" data-tab="review" id="tab-btn-review">인상 검토</button>
   <button id="admin-panel-btn" title="관리자 설정">⚙️</button>
 </div>
-<!-- K=1.0 경고 배너 -->
-<div id="k-warning-banner" class="hidden">
-  <span>⚠️ K값이 기본값(1.0)입니다. 이 분석은 추정 원가 모델의 절대값 편향을 보정하지 않은 결과입니다. 참고용으로만 활용하세요.</span>
-  <button onclick="openAdminPanel()">⚙️ K값 설정</button>
-</div>
+
 
 <div class="pf-wrap">
 <div id="tab-cogs" class="tab-panel">
@@ -3266,11 +3223,6 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 
   <!-- ── Story 3.2 + 3.3: 분석 결과 ──────────────────────────────── -->
   <div id="rv-analysis-section" class="hidden">
-    <!-- K 경고 배너 -->
-    <div id="rv-k-warning" class="hidden">
-      <span>⚠️ K값이 기본값(1.0)입니다. 추정 원가 모델의 절대값 편향이 보정되지 않은 결과입니다. 참고용으로만 활용하세요.</span>
-      <button onclick="openAdminPanel()">⚙️ K값 설정</button>
-    </div>
 
     <!-- 원가 변동 입력 -->
     <div id="rv-cogs-section">
@@ -7216,16 +7168,7 @@ window.addEventListener('hashchange', function() {
     }
   }
 
-  // K=1.0 경고 배너 체크 (ARCH-9)
-  var kValues = store && store.kValues ? store.kValues : {};
-  var hasUncalibratedK = Object.keys(kValues).some(function(cat) {
-    return Math.abs(kValues[cat] - 1.0) < 1e-9;
-  });
-  // kValues가 비어있으면 기본값(1.0)으로 간주 → 경고 표시
-  if (hasUncalibratedK || Object.keys(kValues).length === 0) {
-    var banner = document.getElementById('k-warning-banner');
-    if (banner) banner.classList.remove('hidden');
-  }
+
 })();
 
 // ── Story 2.1: ChipCalc 포트폴리오 데이터 입력 & 열 매핑 ─────────
@@ -7772,19 +7715,12 @@ window.addEventListener('hashchange', function() {
     if (chartSec) chartSec.classList.toggle('hidden', _reviewData.length === 0)
     var histSec = document.getElementById('rv-history-section')
     if (histSec) histSec.classList.remove('hidden')
-    renderKWarning()
     renderKpiCards()
     renderReviewBarChart()
     renderHistoryTable()
   }
 
-  function renderKWarning() {
-    var engine = window.ChipCalc && window.ChipCalc.engine
-    if (!engine) return
-    var allDefault = ['MCU','PMIC','파워IC','기타'].every(function(k){ return engine.getKValue(k)===1.0 })
-    var el = document.getElementById('rv-k-warning')
-    if (el) el.classList.toggle('hidden', !allDefault)
-  }
+
 
   function renderKpiCards() {
     if (!_reviewData.length) return
