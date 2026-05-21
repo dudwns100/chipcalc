@@ -2304,47 +2304,174 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 .dark #cc-calc-basis-toggle:hover { background: #334155; }
 .dark #cc-kpi-copy-btn:hover { background: #334155; }
 .dark #cc-png-modal-box { background: #1e293b; }
-/* ── Epic 3: 인상 검토 탭 ─────────────────────────────────────── */
-#rv-input-card {
-  margin: 1rem 0;
-  padding: 1rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-.rv-card-title { font-size: 1rem; font-weight: 700; color: var(--l1); margin-bottom: 0.25rem; }
-.rv-card-sub   { font-size: 0.8125rem; color: var(--l3); margin-bottom: 0.625rem; }
-#rv-paste {
-  width: 100%; min-height: 110px; padding: 0.625rem 0.75rem;
-  border: 1px solid var(--border); border-radius: 8px;
-  font-size: 0.8rem; font-family: monospace;
-  background: var(--surface); color: var(--l1); resize: vertical;
-  box-sizing: border-box;
-}
-#rv-row-warning {
-  margin: 0.5rem 0; padding: 0.5rem 0.75rem;
-  background: #fffbeb; border: 1px solid #f59e0b; border-radius: 6px;
-  display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
-  font-size: 0.8125rem; color: #92400e;
-}
-#rv-row-warning button {
-  padding: 0.2rem 0.6rem; font-size: 0.775rem;
-  border: 1px solid #f59e0b; border-radius: 4px; cursor: pointer;
-  background: #fff; color: #92400e;
-}
-#rv-confirm-btn {
-  margin-top: 0.75rem; padding: 0.5rem 1.5rem;
-  background: #2563eb; color: #fff; border: none;
-  border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;
-}
-#rv-confirm-btn:hover { background: #1d4ed8; }
-#rv-confirm-btn:disabled { background: #94a3b8; cursor: default; }
-/* 검토 품목 목록 */
-#rv-items-section {
+/* ── Epic 3: 가격변동 검토 탭 ────────────────────────────────── */
+.rv2-card {
   margin: 1rem 0; padding: 1rem 1.25rem;
   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
 }
-.rv-section-title { font-size: 0.9rem; font-weight: 700; color: var(--l1); margin-bottom: 0.625rem; }
+.rv2-card-title { font-size: 1rem; font-weight: 700; color: var(--l1); margin-bottom: 0.25rem; }
+.rv2-card-sub   { font-size: 0.8125rem; color: var(--l3); margin-bottom: 0.75rem; }
+/* 헤더 기본정보 행 */
+.rv2-header-row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end; margin-bottom: 0.25rem; }
+.rv2-field { display: flex; flex-direction: column; gap: 0.25rem; }
+.rv2-field label { font-size: 0.75rem; color: var(--l3); font-weight: 600; }
+.rv2-field input[type=text], .rv2-field input[type=number], .rv2-field input[type=date] {
+  padding: 0.375rem 0.625rem; border: 1px solid var(--border); border-radius: 6px;
+  font-size: 0.875rem; background: var(--surface); color: var(--l1); width: 8rem;
+}
+.rv2-field input[type=text] { width: 10rem; }
+.rv2-dir-group { display: flex; gap: 0.75rem; align-items: center; padding-bottom: 0.375rem; font-size: 0.875rem; }
+/* 붙여넣기 */
+#rv2-paste {
+  width: 100%; min-height: 100px; padding: 0.625rem 0.75rem;
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: 0.8rem; font-family: monospace;
+  background: var(--surface); color: var(--l1); resize: vertical; box-sizing: border-box;
+}
+/* 지수 입력 그리드 */
+.rv2-index-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 2rem; margin-bottom: 0.875rem; }
+.rv2-index-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; }
+.rv2-index-row span:first-child { flex: 1; color: var(--l2); min-width: 9rem; }
+.rv2-index-row input { width: 5rem; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.875rem; background: var(--surface); color: var(--l1); text-align: right; }
+.rv2-index-row a { font-size: 0.75rem; color: var(--blue); text-decoration: none; }
+.rv2-index-row a:hover { text-decoration: underline; }
+.rv2-index-section-label { font-size: 0.75rem; font-weight: 700; color: var(--l3); text-transform: uppercase; letter-spacing: 0.05em; grid-column: 1/-1; margin-top: 0.375rem; }
+#rv2-calc-btn {
+  padding: 0.5rem 1.5rem; background: var(--blue); color: #fff;
+  border: none; border-radius: 8px; font-size: 0.875rem; font-weight: 600; cursor: pointer;
+}
+#rv2-calc-btn:hover { opacity: 0.88; }
+/* 히어로 숫자 */
+#rv2-hero { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+.rv2-hero-item { text-align: center; padding: 0.875rem 1.25rem; border-radius: 10px; background: var(--surface-2, var(--surface)); border: 1px solid var(--border); min-width: 8rem; }
+.rv2-hero-item.justified { background: var(--blue); border-color: var(--blue); }
+.rv2-hero-item.gap-item  { background: var(--surface); border: 2px solid var(--orange); }
+.rv2-hero-label { font-size: 0.7rem; color: var(--l3); margin-bottom: 0.25rem; font-weight: 600; }
+.rv2-hero-item.justified .rv2-hero-label { color: rgba(255,255,255,0.8); }
+.rv2-hero-value { font-size: 2rem; font-weight: 800; color: var(--l1); line-height: 1; }
+.rv2-hero-item.justified .rv2-hero-value { color: #fff; }
+.rv2-hero-item.gap-item .rv2-hero-value  { color: var(--orange); }
+.rv2-hero-vs { font-size: 1.25rem; color: var(--l3); font-weight: 300; }
+#rv2-excess-summary { font-size: 0.875rem; color: var(--l2); margin-bottom: 1rem; }
+#rv2-excess-summary strong { color: var(--orange); }
+/* 결과 테이블 */
+.rv2-table { width: 100%; border-collapse: collapse; font-size: 0.8125rem; }
+.rv2-table th { background: var(--surface-2, var(--border)); color: var(--l2); font-weight: 700; padding: 0.5rem 0.625rem; text-align: right; white-space: nowrap; border-bottom: 2px solid var(--border); }
+.rv2-table th:first-child { text-align: left; }
+.rv2-table td { padding: 0.4rem 0.625rem; text-align: right; border-bottom: 1px solid var(--border); color: var(--l1); }
+.rv2-table td:first-child { text-align: left; }
+.rv2-table tfoot td { font-weight: 700; border-top: 2px solid var(--border); background: var(--surface); }
+.rv2-table .over { color: var(--orange); font-weight: 700; }
+.rv2-table .under { color: var(--green); }
+.rv2-table tr:hover td { background: var(--surface-2, rgba(0,0,0,0.03)); }
+
+/* ── 원가 티어다운 ── */
+.td-row { display: grid; grid-template-columns: 1fr 7rem 6rem 5.5rem; align-items: center; gap: 0; min-height: 2rem; border-bottom: 1px solid var(--border); padding: 0.1rem 0; }
+.td-row:last-child { border-bottom: none; }
+.td-row.td-total { border-top: 2px solid var(--border); border-bottom: none; font-weight: 700; margin-top: 0.25rem; padding-top: 0.375rem; }
+.td-label { display: flex; align-items: center; gap: 0.25rem; font-size: 0.8rem; padding: 0.2rem 0; }
+.td-label .td-indent { flex-shrink: 0; color: var(--l3); font-family: monospace; font-size: 0.75rem; white-space: pre; }
+.td-label .td-text  { color: var(--l2); }
+.td-label .td-text.bold { font-weight: 700; color: var(--l1); }
+.td-bar-cell { position: relative; height: 1.375rem; display: flex; align-items: center; }
+.td-bar-bg   { position: absolute; left: 0; top: 0; height: 100%; border-radius: 2px; opacity: 0.18; }
+.td-bar-fg   { position: absolute; left: 0; top: 0; height: 100%; border-radius: 2px; }
+.td-share    { position: relative; font-size: 0.75rem; color: var(--l2); text-align: right; width: 100%; padding-right: 0.25rem; font-variant-numeric: tabular-nums; }
+.td-chg      { font-size: 0.75rem; text-align: right; padding-right: 0.5rem; color: var(--l3); font-variant-numeric: tabular-nums; }
+.td-chg.pos  { color: var(--orange); font-weight: 600; }
+.td-chg.neg  { color: var(--green);  font-weight: 600; }
+.td-contrib  { font-size: 0.75rem; text-align: right; padding-right: 0.25rem; color: var(--l3); font-variant-numeric: tabular-nums; }
+.td-contrib.sig.pos { color: var(--orange); font-weight: 700; }
+.td-contrib.sig.neg { color: var(--green);  font-weight: 700; }
+.td-header { display: grid; grid-template-columns: 1fr 7rem 6rem 5.5rem; font-size: 0.7rem; font-weight: 700; color: var(--l3); text-transform: uppercase; letter-spacing: 0.04em; padding-bottom: 0.375rem; border-bottom: 2px solid var(--border); margin-bottom: 0.125rem; }
+.td-header > div { text-align: right; padding-right: 0.5rem; }
+.td-header > div:first-child { text-align: left; }
+
+/* ── 확인 버튼 ── */
+#rv2-confirm-btn {
+  margin-top: 0.75rem; padding: 0.55rem 1.5rem;
+  background: var(--blue); color: #fff; border: none; border-radius: 8px;
+  font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s;
+}
+#rv2-confirm-btn:hover:not(:disabled) { opacity: 0.88; }
+#rv2-confirm-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* ── 원가구성 기준표 버튼 ── */
+#rv2-ref-btn {
+  font-size: 0.75rem; padding: 0.3rem 0.75rem;
+  background: transparent; border: 1px solid var(--border); border-radius: 6px;
+  color: var(--l2); cursor: pointer; white-space: nowrap;
+}
+#rv2-ref-btn:hover { background: var(--surface-2, var(--surface)); }
+
+/* ── 원가구성 기준표 모달 ── */
+#rv2-ref-modal {
+  display: none; position: fixed; inset: 0; z-index: 9000;
+  background: rgba(0,0,0,0.45); align-items: flex-start; justify-content: center;
+  padding-top: 5vh; overflow-y: auto;
+}
+#rv2-ref-modal.open { display: flex; }
+#rv2-ref-inner {
+  background: var(--surface); border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  width: min(940px, 97vw); padding: 1.5rem 1.75rem 2rem; position: relative;
+}
+#rv2-ref-inner h2 { font-size: 1rem; font-weight: 700; color: var(--l1); margin: 0 0 1.25rem; }
+#rv2-ref-inner h3 { font-size: 0.8125rem; font-weight: 700; color: var(--l2); margin: 1.25rem 0 0.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+#rv2-ref-inner h3:first-of-type { border-top: none; margin-top: 0; }
+#rv2-ref-close {
+  position: absolute; top: 1rem; right: 1.25rem;
+  background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--l3); line-height: 1;
+}
+#rv2-ref-close:hover { color: var(--l1); }
+.ref-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.ref-table th { background: var(--surface-2, var(--border)); color: var(--l2); font-weight: 700; padding: 0.4rem 0.625rem; text-align: right; white-space: nowrap; border-bottom: 2px solid var(--border); }
+.ref-table th:first-child { text-align: left; }
+.ref-table td { padding: 0.35rem 0.625rem; border-bottom: 1px solid var(--border); color: var(--l1); text-align: right; }
+.ref-table td:first-child { text-align: left; font-weight: 500; }
+.ref-table .ref-sub { color: var(--l3); font-size: 0.75rem; font-weight: 400; }
+.ref-note { font-size: 0.72rem; color: var(--l3); margin-top: 0.5rem; line-height: 1.6; }
+.ref-table th { vertical-align: middle; }
+.ref-group-hd { background: #f1f5f9; color: #475569; border-left: 2px solid #94a3b8; border-right: 2px solid #94a3b8; }
+body.dark .ref-group-hd { background: #1e293b; color: #94a3b8; border-color: #475569; }
+.ref-table .ref-mat-sub { border-left: 2px solid #cbd5e1; }
+.ref-table .ref-mat-last { border-right: 2px solid #cbd5e1; }
+body.dark .ref-table .ref-mat-sub { border-color: #475569; }
+body.dark .ref-table .ref-mat-last { border-color: #475569; }
+.ref-table .ref-total { font-weight: 700; color: var(--l1); }
+.ref-table .ref-mat-sum { font-weight: 700; }
+.ref-row-asp td { background: var(--surface-2, #f1f5f9); }
+.ref-row-cogs td { background: #fff7ed; }
+body.dark .ref-row-cogs td { background: #2d1a00; }
+.ref-row-fe > td:first-child { color: #1d4ed8; }
+body.dark .ref-row-fe > td:first-child { color: #93c5fd; }
+.ref-row-be > td:first-child { color: #15803d; }
+body.dark .ref-row-be > td:first-child { color: #86efac; }
+.ref-row-fe-sub td, .ref-row-be-sub td { color: var(--l3); font-size: 0.775rem; }
+/* 출력 섹션 */
+.rv2-output-section { margin-bottom: 1rem; }
+.rv2-output-title { font-size: 0.85rem; font-weight: 700; color: var(--l2); margin-bottom: 0.375rem; }
+#rv2-report-box {
+  padding: 0.875rem 1rem; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 0.875rem; line-height: 1.7; color: var(--l1); background: var(--surface);
+  white-space: pre-wrap;
+}
+.rv2-copy-btn, .rv2-pdf-btn {
+  margin-top: 0.5rem; padding: 0.375rem 0.875rem; font-size: 0.8125rem;
+  border: 1px solid var(--border); border-radius: 6px; cursor: pointer;
+  background: var(--surface); color: var(--l1);
+}
+.rv2-copy-btn:hover, .rv2-pdf-btn:hover { background: var(--border); }
+.rv2-final-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; flex-wrap: wrap; }
+.rv2-final-row input { width: 5rem; padding: 0.3rem 0.5rem; border: 1px solid var(--border); border-radius: 6px; font-size: 0.875rem; background: var(--surface); color: var(--l1); }
+.rv2-final-row button { padding: 0.3rem 0.75rem; font-size: 0.8125rem; background: var(--blue); color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+.rv2-symmetric { font-size: 0.8rem; color: var(--l3); font-style: italic; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+/* 오류 배지 */
+.rv2-err { color: var(--l3); font-style: italic; font-size: 0.775rem; }
+@media (max-width: 640px) {
+  .rv2-index-grid { grid-template-columns: 1fr; }
+  #rv2-hero { gap: 0.5rem; }
+  .rv2-hero-value { font-size: 1.5rem; }
+}
 /* 가격 이력 테이블 */
 .history-table { width:100%; border-collapse:collapse; font-size:12px; }
 .history-table th { background:var(--bg2); padding:5px 10px; font-weight:600; color:var(--l2); border-bottom:1px solid var(--border); white-space:nowrap; }
@@ -2529,7 +2656,7 @@ body.dark #ap-confirm-box p { color: var(--l1); }
   <button class="chipcalc-tab-btn cc-tab-active" data-tab="cogs" id="tab-btn-cogs">원가분석</button>
   <button class="chipcalc-tab-btn" data-tab="bubble" id="tab-btn-bubble">버블 산점도</button>
   <button class="chipcalc-tab-btn" data-tab="history" id="tab-btn-history">가격 이력</button>
-  <button class="chipcalc-tab-btn" data-tab="review" id="tab-btn-review">인상 검토</button>
+  <button class="chipcalc-tab-btn" data-tab="review" id="tab-btn-review">가격변동 검토</button>
   <button id="admin-panel-btn" title="관리자 설정">⚙️</button>
 </div>
 
@@ -3185,157 +3312,238 @@ body.dark #ap-confirm-box p { color: var(--l1); }
 <div id="tab-review" class="tab-panel hidden">
 <main>
 
-  <!-- ── Story 3.1: 인상 검토 데이터 입력 ─────────────────────────── -->
-  <div id="rv-input-card">
-    <div class="rv-card-title">📋 가격 인상 검토 데이터 입력</div>
-    <div class="rv-card-sub">품목명·현재단가·요청인상률(선택: 공정노드·웨이퍼사이즈·다이면적·패키지)을 붙여넣으세요</div>
-    <textarea id="rv-paste" placeholder="품목명&#9;현재단가&#9;요청인상률&#9;공정노드&#9;웨이퍼사이즈&#9;...&#10;APX-A100&#9;3.50&#9;3%&#9;28nm&#9;300&#9;..."></textarea>
-    <div style="display:flex;gap:0.5rem;margin-top:0.5rem;margin-bottom:0.5rem;">
-      <button id="rv-sample-btn" class="btn-mini">샘플</button>
-      <button id="rv-clear-btn" class="btn-mini ghost">초기화</button>
-    </div>
-    <div id="rv-mapping-preview" class="hidden">
-      <div id="rv-mapping-summary"></div>
-      <div id="rv-row-warning" class="hidden">
-        <span id="rv-row-warning-msg"></span>
-        <button id="rv-row-continue-btn">계속 진행</button>
-        <button id="rv-row-cancel-btn">취소</button>
+  <!-- ── S1: 기본 정보 ──────────────────────────────────────────── -->
+  <div class="rv2-card">
+    <div class="rv2-card-title">📋 인상 요청 기본 정보</div>
+    <div class="rv2-header-row">
+      <div class="rv2-field">
+        <label>공급사명</label>
+        <input type="text" id="rv2-supplier" placeholder="예: ACME Semiconductor">
       </div>
+      <div class="rv2-field">
+        <label>요청 변동률 (%)</label>
+        <input type="number" id="rv2-requested-rate" placeholder="예: 8" step="0.1">
+      </div>
+      <div class="rv2-field">
+        <label>방향</label>
+        <div class="rv2-dir-group">
+          <label><input type="radio" name="rv2-dir" value="up" checked> 인상</label>
+          <label><input type="radio" name="rv2-dir" value="down"> 인하</label>
+        </div>
+      </div>
+      <div class="rv2-field">
+        <label>요청일</label>
+        <input type="date" id="rv2-request-date">
+      </div>
+    </div>
+  </div>
+
+  <!-- ── S2: 제품 데이터 입력 ──────────────────────────────────── -->
+  <div class="rv2-card">
+    <div class="rv2-card-title">📊 제품 데이터 붙여넣기</div>
+    <div class="rv2-card-sub">품목명·현재단가·수량·공정노드·웨이퍼사이즈·다이면적·패키지타입을 붙여넣으세요 (헤더 포함)</div>
+    <textarea id="rv2-paste" placeholder="품목명&#9;현재단가&#9;수량&#9;공정노드&#9;웨이퍼사이즈&#9;다이면적&#9;패키지&#10;APX-A100&#9;3500&#9;100000&#9;28nm&#9;300&#9;25&#9;QFP-64"></textarea>
+    <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+      <button id="rv2-sample-btn" class="btn-mini">샘플</button>
+      <button id="rv2-clear-btn" class="btn-mini ghost">초기화</button>
+    </div>
+    <div id="rv2-mapping-preview" class="hidden">
+      <div id="rv2-mapping-summary" style="font-size:0.8125rem;color:var(--l3);margin:0.5rem 0"></div>
       <div class="cc-mapping-table-wrap">
-        <table class="cc-mapping-table" id="rv-mapping-table">
+        <table class="cc-mapping-table" id="rv2-mapping-table">
           <thead>
-            <tr class="cc-select-row" id="rv-select-row"></tr>
-            <tr class="cc-header-row" id="rv-header-row"></tr>
+            <tr class="cc-select-row" id="rv2-select-row"></tr>
+            <tr class="cc-header-row" id="rv2-header-row"></tr>
           </thead>
-          <tbody id="rv-data-rows"></tbody>
+          <tbody id="rv2-data-rows"></tbody>
         </table>
       </div>
-      <button id="rv-confirm-btn" disabled>✓ 확인 — 분석 실행</button>
+      <button id="rv2-confirm-btn" disabled>✓ 확인 — 다음 단계</button>
     </div>
   </div>
 
-  <!-- 검토 품목 목록 -->
-  <div id="rv-items-section" class="hidden">
-    <div class="rv-section-title">📄 검토 품목 목록</div>
-    <div style="overflow-x:auto;">
-      <table class="rv-table">
+  <!-- ── S3: 원가 지수 입력 ───────────────────────────────────── -->
+  <div class="rv2-card" id="rv2-index-card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem">
+      <div class="rv2-card-title" style="margin-bottom:0">📈 원가 변동 지수 입력</div>
+      <button id="rv2-ref-btn">📋 원가구성 기준표 보기</button>
+    </div>
+    <div class="rv2-card-sub">요청 기간 대비 주요 지수 변화율을 입력하세요. 비어 있으면 0%로 계산합니다.</div>
+    <div class="rv2-index-grid">
+
+      <div class="rv2-index-section-label">전공정 (Fab) — 구성비 기준 가중 합산</div>
+      <div class="rv2-index-section-label"></div>
+
+      <div class="rv2-index-row">
+        <span>실리콘 기판 변화율 <small style="color:var(--l3)">(구성비 18%)</small></span>
+        <input type="number" id="rv2-substrate-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.semi.org/en/products-services/market-data" target="_blank" rel="noopener">SEMI</a>
+      </div>
+      <div class="rv2-index-row">
+        <span>특수가스·화학물질 변화율 <small style="color:var(--l3)">(구성비 12%)</small></span>
+        <input type="number" id="rv2-gas-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.icis.com/explore/resources/news/chemical-prices" target="_blank" rel="noopener">ICIS</a>
+      </div>
+      <div class="rv2-index-row">
+        <span>팹 전력 변화율 <small style="color:var(--l3)">(구성비 18%)</small></span>
+        <input type="number" id="rv2-fab-energy-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.iea.org/data-and-statistics/data-product/world-energy-prices" target="_blank" rel="noopener">IEA</a>
+      </div>
+      <div style="font-size:0.75rem;color:var(--l3);display:flex;align-items:center;gap:0.25rem;padding-left:0.25rem">
+        <span>장비·감가(35%) · 인건비(17%) → 단기 변동 없음, 0% 처리</span>
+      </div>
+
+      <div class="rv2-index-section-label" style="margin-top:0.5rem">후공정 원소재 (OSAT · LME)</div>
+      <div class="rv2-index-section-label"></div>
+
+      <div class="rv2-index-row">
+        <span>LME 구리 변화율</span>
+        <input type="number" id="rv2-copper-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.lme.com/en/metals/non-ferrous/lme-copper" target="_blank" rel="noopener">LME</a>
+      </div>
+      <div class="rv2-index-row">
+        <span>LME 금 변화율</span>
+        <input type="number" id="rv2-gold-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.lme.com/en/metals/precious-metals/lme-gold" target="_blank" rel="noopener">LME</a>
+      </div>
+      <div class="rv2-index-row">
+        <span>LME 은 변화율</span>
+        <input type="number" id="rv2-silver-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.lme.com/en/metals/precious-metals/lme-silver" target="_blank" rel="noopener">LME</a>
+      </div>
+      <div class="rv2-index-row">
+        <span>LME 주석 변화율</span>
+        <input type="number" id="rv2-tin-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.lme.com/en/metals/non-ferrous/lme-tin" target="_blank" rel="noopener">LME</a>
+      </div>
+
+      <div class="rv2-index-section-label" style="margin-top:0.5rem">에너지 (OSAT)</div>
+      <div class="rv2-index-section-label"></div>
+
+      <div class="rv2-index-row">
+        <span>OSAT 전력 가격 변화율</span>
+        <input type="number" id="rv2-energy-chg" placeholder="0" step="0.1">
+        <span>%</span>
+        <a href="https://www.iea.org/data-and-statistics" target="_blank" rel="noopener">IEA</a>
+      </div>
+      <div></div>
+    </div>
+    <button id="rv2-calc-btn">🔍 합리적 인상률 산출</button>
+  </div>
+
+  <!-- ── S4: 분석 결과 ─────────────────────────────────────────── -->
+  <div class="rv2-card" id="rv2-result-card" style="display:none">
+    <div class="rv2-card-title">📊 분석 결과</div>
+    <div id="rv2-hero">
+      <div class="rv2-hero-item">
+        <div class="rv2-hero-label">요청 변동률</div>
+        <div class="rv2-hero-value" id="rv2-hero-requested">—</div>
+        <div class="rv2-hero-label" id="rv2-hero-dir-label" style="margin-top:0.25rem;color:var(--l3)">—</div>
+      </div>
+      <div class="rv2-hero-vs">vs</div>
+      <div class="rv2-hero-item justified">
+        <div class="rv2-hero-label">합리적 인상률</div>
+        <div class="rv2-hero-value" id="rv2-hero-justified">—</div>
+        <div class="rv2-hero-label" style="color:rgba(255,255,255,0.75);margin-top:0.25rem">원가 기반 산출</div>
+      </div>
+      <div class="rv2-hero-vs">=</div>
+      <div class="rv2-hero-item gap-item">
+        <div class="rv2-hero-label">과다 요청</div>
+        <div class="rv2-hero-value" id="rv2-hero-gap">—</div>
+        <div class="rv2-hero-label" style="color:var(--orange);margin-top:0.25rem">요청 − 합리적</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;font-size:0.75rem;color:var(--l3);line-height:1.8">
+        <div>분석 일시: <span id="rv2-calc-time">—</span></div>
+        <div>대상 제품: <span id="rv2-prod-count">—</span>종</div>
+        <div>가중 cogsRatio: <span id="rv2-cogs-ratio-avg">—</span></div>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;margin-top:0.875rem">
+      <table class="rv2-table" id="rv2-detail-table">
         <thead>
           <tr>
-            <th>품목명</th><th>현재단가</th><th>요청률</th><th>웨이퍼비중</th><th>정당률</th><th>갭</th>
+            <th>품목명</th><th>제품군</th><th>패키지</th>
+            <th>FE 비중</th><th>BE 비중</th>
+            <th>합리적 인상률</th><th>요청 대비</th><th>연간절감(원)</th>
           </tr>
         </thead>
-        <tbody id="rv-items-list"></tbody>
+        <tbody id="rv2-detail-tbody"></tbody>
       </table>
     </div>
-  </div>
 
-  <!-- ── Story 3.2 + 3.3: 분석 결과 ──────────────────────────────── -->
-  <div id="rv-analysis-section" class="hidden">
-
-    <!-- 원가 변동 입력 -->
-    <div id="rv-cogs-section">
-      <div class="rv-index-title">🏭 원가 변동 입력 (공급사 주장 근거)</div>
-      <div class="rv-index-row">
-        <span>웨이퍼 가격 변화율</span>
-        <input type="number" id="rv-cogs-wafer-chg" placeholder="예: 10" step="0.1" style="width:5rem">
-        <span>%</span>
+    <!-- 원가 티어다운 -->
+    <div style="margin-top:1.5rem" id="rv2-teardown-wrap">
+      <div style="font-size:0.8125rem;font-weight:700;color:var(--l2);margin-bottom:0.75rem">🔬 원가 구조 티어다운 — 구매가 100% 기준</div>
+      <div id="rv2-teardown"></div>
+      <div style="font-size:0.75rem;color:var(--l3);margin-top:0.5rem">
+        * 구매가 = COGS ÷ cogsRatio · 전/후공정 비중은 제품 스펙 기반 산출 · 원소재 구성비는 패키지 타입별 추정값
       </div>
-      <div class="rv-index-row">
-        <span>웨이퍼 비중 <small style="color:var(--l3)">(구매가 기준)</small></span>
-        <input type="number" id="rv-cogs-wafer-frac" placeholder="예: 48" min="0" max="100" step="1" style="width:5rem">
-        <span>% &nbsp;<span id="rv-cogs-frac-note" style="font-size:0.75rem;color:var(--l3);font-style:italic;"></span></span>
-      </div>
-      <div class="rv-index-row">
-        <span>기타 원가 변화율</span>
-        <input type="number" id="rv-cogs-other-chg" placeholder="예: 3" step="0.1" style="width:5rem">
-        <span>%</span>
-      </div>
-      <div style="margin-top:0.375rem;display:flex;align-items:center;gap:0.75rem;">
-        <button id="rv-calc-cogs-btn">적용</button>
-        <span id="rv-cogs-result" style="font-size:0.8125rem;color:var(--l3);font-style:italic;">미입력</span>
-      </div>
-    </div>
-
-    <!-- 공개 지수 참고값 입력 -->
-    <div id="rv-index-section">
-      <div class="rv-index-title">📊 공개 지수 참고값 (선택)</div>
-      <div class="rv-index-row">
-        <span>LME 구리 변화율</span>
-        <input type="number" id="rv-index-copper" placeholder="예: 5" step="0.1">
-        <span>% · 가중치</span>
-        <input type="number" id="rv-index-copper-w" value="50" min="0" max="100">
-        <span>%</span>
-      </div>
-      <div class="rv-index-row">
-        <span>웨이퍼 인덱스 변화율</span>
-        <input type="number" id="rv-index-wafer" placeholder="예: 2" step="0.1">
-        <span>% · 가중치</span>
-        <input type="number" id="rv-index-wafer-w" value="50" min="0" max="100">
-        <span>%</span>
-      </div>
-      <div style="margin-top:0.375rem;display:flex;align-items:center;gap:0.75rem;">
-        <button id="rv-calc-index-btn">적용</button>
-        <span id="rv-index-result" style="font-size:0.8125rem;color:var(--l3);font-style:italic;">미입력</span>
-      </div>
-    </div>
-
-    <!-- KPI 카드 4개 -->
-    <div id="rv-kpi-grid">
-      <div class="rv-kpi-card neutral" id="rv-kpi-requested">
-        <div class="rv-kpi-label">요청 인상률</div>
-        <div class="rv-kpi-value">—</div>
-        <div class="rv-kpi-sublabel"></div>
-      </div>
-      <div class="rv-kpi-card neutral" id="rv-kpi-cogs">
-        <div class="rv-kpi-label">원가 기준 정당 인상률</div>
-        <div class="rv-kpi-value">—</div>
-        <div class="rv-kpi-sublabel"></div>
-      </div>
-      <div class="rv-kpi-card neutral" id="rv-kpi-index">
-        <div class="rv-kpi-label">공개지수 참고값</div>
-        <div class="rv-kpi-value">—</div>
-        <div class="rv-kpi-sublabel"></div>
-      </div>
-      <div class="rv-kpi-card neutral" id="rv-kpi-gap">
-        <div class="rv-kpi-label">과다 인상 추정</div>
-        <div class="rv-kpi-value">—</div>
-        <div class="rv-kpi-sublabel"></div>
-      </div>
-    </div>
-    <div class="rv-action-bar">
-      <button class="rv-btn-ghost" id="rv-copy-gap-btn">📋 갭 수치 복사</button>
     </div>
   </div>
 
-  <!-- ── Story 3.4: 인상 검토 바차트 ──────────────────────────────── -->
-  <div id="rv-chart-section" class="hidden">
-    <div class="rv-chart-header">
-      <span class="rv-section-title">📊 품목별 비교 차트</span>
-      <button class="rv-btn-primary" id="rv-png-btn" disabled>📥 PNG 저장</button>
+  <!-- ── S5: 출력 ──────────────────────────────────────────────── -->
+  <div class="rv2-card" id="rv2-output-card" style="display:none">
+    <div class="rv2-card-title">📝 협상 지원 출력</div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:0.8125rem;font-weight:700;color:var(--l2);margin-bottom:0.375rem">📋 경영보고 요약문</div>
+      <textarea id="rv2-mgmt-text" readonly style="width:100%;min-height:7rem;font-size:0.8125rem;line-height:1.65;padding:0.625rem;border:1px solid var(--border);border-radius:8px;background:var(--surface-2,var(--surface));color:var(--l1);resize:vertical;box-sizing:border-box"></textarea>
+      <button id="rv2-copy-mgmt-btn" class="btn-mini" style="margin-top:0.375rem">📋 복사</button>
     </div>
-    <div id="rv-bar-chart"></div>
+    <div style="margin-bottom:1rem">
+      <div style="font-size:0.8125rem;font-weight:700;color:var(--l2);margin-bottom:0.375rem">⚖️ 대칭 조항 (원자재 하락 시 자동 인하)</div>
+      <div id="rv2-symmetric-text" style="font-size:0.8125rem;color:var(--l2);line-height:1.65;padding:0.5rem 0.75rem;border-left:3px solid var(--blue);background:var(--surface-2,var(--surface));border-radius:0 6px 6px 0">—</div>
+    </div>
+    <div>
+      <button id="rv2-save-btn" class="btn-mini">💾 협상 기록 저장</button>
+      <span id="rv2-save-msg" style="margin-left:0.5rem;font-size:0.75rem;color:var(--l3)"></span>
+    </div>
   </div>
 
-  <!-- ── Story 3.5: 인상 검토 이력 ───────────────────────────────── -->
-  <div id="rv-history-section" class="hidden">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.625rem;">
-      <span class="rv-section-title">📁 인상 검토 이력</span>
-      <button class="rv-btn-primary" id="rv-save-btn">💾 결과 저장</button>
-    </div>
-    <div style="overflow-x:auto;">
-      <table class="rv-table">
-        <thead>
-          <tr>
-            <th>날짜</th><th>품목명</th><th>요청률</th><th>COGS기준</th><th>결과</th><th>협의결과</th>
-          </tr>
-        </thead>
-        <tbody id="rv-history-tbody"></tbody>
+  <!-- ── 협상 기록 이력 ────────────────────────────────────────── -->
+  <div class="rv2-card" id="rv2-history-card">
+    <div class="rv2-card-title">📁 협상 기록 이력</div>
+    <div id="rv2-history-empty" style="font-size:0.8125rem;color:var(--l3)">저장된 기록이 없습니다.</div>
+    <div style="overflow-x:auto;display:none" id="rv2-history-wrap">
+      <table class="rv2-table" id="rv2-history-table">
+        <thead><tr><th>날짜</th><th>공급사</th><th>요청률</th><th>합리적률</th><th>절감(추정)</th><th>삭제</th></tr></thead>
+        <tbody id="rv2-history-tbody"></tbody>
       </table>
     </div>
   </div>
 
 </main>
 </div><!-- /#tab-review -->
+
+<!-- ── 원가구성 기준표 모달 ─────────────────────────────────── -->
+<div id="rv2-ref-modal" role="dialog" aria-modal="true">
+  <div id="rv2-ref-inner">
+    <button id="rv2-ref-close" aria-label="닫기">✕</button>
+    <h2>📋 원가구성 기준표</h2>
+
+    <h3>① 전공정 (Fab) 원가 구성비</h3>
+    <table class="ref-table">
+      <thead><tr><th>항목</th><th>구성비</th><th>변동 추적</th><th>참고 지수</th></tr></thead>
+      <tbody>
+        <tr><td>실리콘 기판 (Silicon Wafer)</td><td>18%</td><td>✓ 입력</td><td>SEMI WWT, Shin-Etsu IR</td></tr>
+        <tr><td>특수가스·화학물질 (Ne·Kr·H₂O₂ 등)</td><td>12%</td><td>✓ 입력</td><td>ICIS Chemical Prices</td></tr>
+        <tr><td>팹 전력 (Fab Electricity)</td><td>18%</td><td>✓ 입력</td><td>IEA World Energy Prices</td></tr>
+        <tr><td>장비·감가상각 (Equipment Depreciation)</td><td>35%</td><td>— 고정</td><td>단기 변동 없음</td></tr>
+        <tr><td>인건비 (Labor)</td><td>17%</td><td>— 고정</td><td>단기 변동 없음</td></tr>
+      </tbody>
+    </table>
+    <p class="ref-note">※ 구성비 출처: SEMI, IC Insights, TechInsights 팹 원가 분석 기반 추정값. 실제 파운드리별 편차 있음.</p>
+
+    <div id="rv2-ref-body"></div>
+  </div>
+</div>
 
 <div id="tab-history" class="tab-panel hidden">
 <main>
@@ -7705,601 +7913,776 @@ window.addEventListener('hashchange', function() {
   }
 })();
 
-// ── Epic 3: 가격 인상 검토 & 반박 근거 생성 (Story 3.1~3.5) ──────
+// ── Epic 3: 가격변동 검토 탭 ────────────────────────────────────
 ;(function () {
   'use strict'
 
-  var _reviewData         = []
-  var _selectedIdx        = 0
-  var _indexRefRate       = null
-  var _rvParsed           = null
-  var _rvRowLimitConfirmed= false
-  var _rvBarChart         = null
-
-  var RV_FIELD_LABELS = {
+  var RV2_FIELD_LABELS = {
     '': '(무시)', name: '품목명', currentPrice: '현재단가',
-    requestedRate: '요청인상률', node: '공정노드', waferSize: '웨이퍼사이즈',
+    qty: '수량', node: '공정노드', waferSize: '웨이퍼사이즈',
     dieArea: '다이면적', 'yield': '수율', pkgType: '패키지타입',
-    pins: '핀수', productFamily: '제품군'
+    pins: '핀수', productFamily: '제품군',
+    fabCountry: '팹국가', osatCountry: 'OSAT국가'
+  }
+  var RV2_FIELDS = Object.keys(RV2_FIELD_LABELS)
+
+  var _rv2Items = []
+  var _rv2Parsed = null
+  var _rv2LastResult = null
+  var _rv2ColMap = {}
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
   }
 
-  function loadSavedReviewMapping() {
-    var s = window.ChipCalc && window.ChipCalc.storage
-    if (!s) return {}
-    try { var st = s.load(); return (st.columnMapping && st.columnMapping.review) || {} }
-    catch(e) { return {} }
+  // ── localStorage 이력 ──
+  var LS_KEY = 'chipcalc_rv2_history'
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]') } catch(e) { return [] }
+  }
+  function saveHistory(arr) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)) } catch(e) {}
   }
 
-  function renderRvMappingPreview(text, savedMapping) {
-    var p = window.ChipCalc && window.ChipCalc.parser
-    if (!p || !text || !text.trim()) return
-    var parsed = p.parseTSV(text)
-    if (!parsed.headers.length && !parsed.rows.length) return
-    var headers = parsed.headers, rows = parsed.rows
+  // ── 열 드롭다운 HTML ──
+  function makeSelectHtml(colIdx, detected) {
+    var sel = '<select data-col="' + colIdx + '">'
+    RV2_FIELDS.forEach(function(f) {
+      var sel2 = (detected === f) ? ' selected' : ''
+      sel += '<option value="' + f + '"' + sel2 + '>' + (RV2_FIELD_LABELS[f] || f) + '</option>'
+    })
+    sel += '</select>'
+    return sel
+  }
 
-    if (rows.length > 300 && !_rvRowLimitConfirmed) {
-      document.getElementById('rv-row-warning').classList.remove('hidden')
-      document.getElementById('rv-row-warning-msg').textContent =
-        '300행 초과(' + rows.length + '행). 계속 진행하시겠습니까?'
-      document.getElementById('rv-mapping-preview').classList.remove('hidden')
-      _rvParsed = parsed; return
+  // ── 붙여넣기 미리보기 렌더 ──
+  function renderMappingPreview(text) {
+    var parser = window.ChipCalc && window.ChipCalc.parser
+    if (!parser) return
+    var parsed = parser.parseTSV(text)
+    _rv2Parsed = parsed
+    var preview = document.getElementById('rv2-mapping-preview')
+    if (!preview) return
+    if (!parsed.rows || parsed.rows.length === 0) {
+      preview.classList.add('hidden')
+      return
     }
-    _rvParsed = parsed
-    var autoDetected = p.detectReviewColumns(headers)
-    var mapping = {}
-    Object.keys(RV_FIELD_LABELS).filter(function(k){return k}).forEach(function(f) {
-      if (savedMapping && savedMapping[f] !== undefined) mapping[f] = savedMapping[f]
-      else if (autoDetected[f] !== undefined) mapping[f] = autoDetected[f]
-    })
-    document.getElementById('rv-mapping-summary').textContent =
-      headers.length + '개 컬럼 감지, ' + Object.keys(mapping).filter(function(f){return mapping[f]!==undefined}).length + '개 역할 인식'
+    var detected = parser.detectReviewColumns(parsed.headers)
+    _rv2ColMap = detected
 
-    var selectRow = document.getElementById('rv-select-row')
-    selectRow.innerHTML = ''
-    headers.forEach(function(h, colIdx) {
-      var th = document.createElement('th')
-      var sel = document.createElement('select')
-      sel.className = 'cc-field-select'
-      sel.dataset.col = colIdx
-      Object.keys(RV_FIELD_LABELS).forEach(function(k) {
-        var opt = document.createElement('option')
-        opt.value = k; opt.textContent = RV_FIELD_LABELS[k]
-        sel.appendChild(opt)
-      })
-      var assigned = null
-      Object.keys(mapping).forEach(function(f) { if (mapping[f] === colIdx) assigned = f })
-      sel.value = assigned || ''
-      if (assigned) sel.classList.add('cc-matched')
-      sel.addEventListener('change', function() { this.classList.toggle('cc-matched', !!this.value) })
-      th.appendChild(sel); selectRow.appendChild(th)
-    })
-    var headerRow = document.getElementById('rv-header-row')
-    headerRow.innerHTML = ''
-    headers.forEach(function(h) {
-      var th = document.createElement('th'); th.textContent = h; headerRow.appendChild(th)
-    })
-    var tbody = document.getElementById('rv-data-rows')
-    tbody.innerHTML = ''
-    rows.slice(0, 5).forEach(function(row) {
-      var tr = document.createElement('tr')
-      headers.forEach(function(_, i) {
-        var td = document.createElement('td'); td.textContent = (row[i]||'').trim(); tr.appendChild(td)
-      })
-      tbody.appendChild(tr)
-    })
-    if (rows.length > 5) {
-      var tr = document.createElement('tr'), td = document.createElement('td')
-      td.colSpan = headers.length
-      td.style.cssText = 'color:var(--l3);text-align:center;padding:0.25rem'
-      td.textContent = '... 외 ' + (rows.length - 5) + '행'
-      tr.appendChild(td); tbody.appendChild(tr)
+    var summary = document.getElementById('rv2-mapping-summary')
+    if (summary) {
+      var detected_fields = Object.keys(detected).filter(function(k) { return detected[k] !== undefined })
+      summary.textContent = parsed.rows.length + '행 감지 · 자동 매핑: ' + detected_fields.length + '개 열'
     }
-    document.getElementById('rv-mapping-preview').classList.remove('hidden')
-    document.getElementById('rv-confirm-btn').disabled = false
-  }
 
-  function buildRvMapping() {
-    var result = {}
-    document.querySelectorAll('#rv-mapping-table .cc-field-select').forEach(function(sel) {
-      if (!sel.value) return
-      result[sel.value] = parseInt(sel.dataset.col, 10)
+    // Select row
+    var selRow = document.getElementById('rv2-select-row')
+    var hdrRow = document.getElementById('rv2-header-row')
+    var dataBody = document.getElementById('rv2-data-rows')
+    if (!selRow || !hdrRow || !dataBody) return
+
+    var headers = parsed.headers.length ? parsed.headers : parsed.rows[0]
+
+    // Build reverse map: colIdx → field
+    var reverseMap = {}
+    Object.keys(detected).forEach(function(field) {
+      if (detected[field] !== undefined) reverseMap[detected[field]] = field
     })
-    return result
+
+    selRow.innerHTML = headers.map(function(h, i) {
+      return '<th>' + makeSelectHtml(i, reverseMap[i] || '') + '</th>'
+    }).join('')
+
+    hdrRow.innerHTML = headers.map(function(h) {
+      return '<th style="font-size:0.75rem;color:var(--l3)">' + esc(h) + '</th>'
+    }).join('')
+
+    var preview_rows = parsed.rows.slice(0, 5)
+    dataBody.innerHTML = preview_rows.map(function(row) {
+      return '<tr>' + headers.map(function(h, i) {
+        return '<td style="font-size:0.75rem">' + esc(row[i] || '') + '</td>'
+      }).join('') + '</tr>'
+    }).join('')
+
+    preview.classList.remove('hidden')
+    var confirmBtn = document.getElementById('rv2-confirm-btn')
+    if (confirmBtn) confirmBtn.disabled = false
   }
 
-  // 품목 스펙으로 웨이퍼 비중(구매가 기준) 추정
-  function estimateItemWaferFrac(item) {
+  // ── 매핑 셀렉트 변경 시 colMap 갱신 ──
+  function updateColMapFromSelects() {
+    var selects = document.querySelectorAll('#rv2-select-row select')
+    var newMap = {}
+    selects.forEach(function(sel) {
+      var field = sel.value
+      if (field) {
+        var col = parseInt(sel.dataset.col, 10)
+        newMap[field] = col
+      }
+    })
+    _rv2ColMap = newMap
+  }
+
+  // ── 확인 → 아이템 파싱 ──
+  function confirmMapping() {
+    updateColMapFromSelects()
+    var parser = window.ChipCalc && window.ChipCalc.parser
+    if (!parser || !_rv2Parsed) return
+    var result = parser.parseReviewRows(_rv2Parsed.rows, _rv2Parsed.headers, _rv2ColMap)
+    if (result.warnings && result.warnings.length) {
+      var ui = window.ChipCalc && window.ChipCalc.ui
+      if (ui) result.warnings.forEach(function(w) { ui.toast(w, 'warn') })
+    }
+    _rv2Items = result.items || []
+    var indexCard = document.getElementById('rv2-index-card')
+    if (indexCard) indexCard.style.display = ''
+    var resultCard = document.getElementById('rv2-result-card')
+    if (resultCard) resultCard.style.display = 'none'
+    var outputCard = document.getElementById('rv2-output-card')
+    if (outputCard) outputCard.style.display = 'none'
+  }
+
+  // ── 합리적 인상률 산출 ──
+  function calcAll() {
     var engine = window.ChipCalc && window.ChipCalc.engine
-    if (!engine || !item.node || !item.waferSize || !item.dieArea || !item.pkgType) return null
-    try {
-      var r = engine.calcCOGS({
-        node: item.node, dieArea: item.dieArea, waferSize: item.waferSize,
-        'yield': item['yield'] != null ? item['yield'] : 0.95,
-        pkgType: item.pkgType, pins: item.pins, kValue: 1.0
-      })
-      return {
-        fracOfAsp:  r.frontendCost / r.estimatedASP,
-        fracOfCogs: r.frontendCost / r.totalCOGS,
-        frontendCost: r.frontendCost,
-        totalCOGS:  r.totalCOGS,
-        estimatedASP: r.estimatedASP
-      }
-    } catch(e) { return null }
-  }
+    if (!engine || !engine.calcJustifiedRate) return
 
-  function calcCogsJustified() {
-    var waferChg    = parseFloat(document.getElementById('rv-cogs-wafer-chg').value)
-    var fallbackFrac = parseFloat(document.getElementById('rv-cogs-wafer-frac').value)
-    var otherChg    = parseFloat(document.getElementById('rv-cogs-other-chg').value)
-    var resultEl    = document.getElementById('rv-cogs-result')
-    var hasWafer    = !isNaN(waferChg)
-    var hasOther    = !isNaN(otherChg)
-    var hasFallback = !isNaN(fallbackFrac) && fallbackFrac >= 0 && fallbackFrac <= 100
+    // 전공정: 구성비 가중 합산 → 유효 웨이퍼 변화율
+    var FE_COST = { substrate: 0.18, gases: 0.12, energy: 0.18, equipment: 0.35, labor: 0.17 }
+    var substrateChg  = parseFloat(document.getElementById('rv2-substrate-chg').value)   || 0
+    var gasChg        = parseFloat(document.getElementById('rv2-gas-chg').value)          || 0
+    var fabEnergyChg  = parseFloat(document.getElementById('rv2-fab-energy-chg').value)  || 0
+    var waferChg = FE_COST.substrate * substrateChg
+                 + FE_COST.gases    * gasChg
+                 + FE_COST.energy   * fabEnergyChg
+    // 구성비 합(trackable) = 0.48 → 나머지 0.52(장비·인건비)는 0% 적용됨
 
-    if (!hasWafer && !hasOther) {
-      _reviewData.forEach(function(it) {
-        it.cogsChangedRate = null; it.waferFracPct = null; it.waferFracBasis = ''
-      })
-      if (resultEl) { resultEl.textContent = '미입력'; resultEl.style.color = 'var(--l3)' }
-      renderReviewItemsList(); renderKpiCards()
-      if (_rvBarChart) renderReviewBarChart()
-      return
+    var copperChg = parseFloat(document.getElementById('rv2-copper-chg').value) || 0
+    var goldChg   = parseFloat(document.getElementById('rv2-gold-chg').value)   || 0
+    var silverChg = parseFloat(document.getElementById('rv2-silver-chg').value) || 0
+    var tinChg    = parseFloat(document.getElementById('rv2-tin-chg').value)    || 0
+    var energyChg = parseFloat(document.getElementById('rv2-energy-chg').value) || 0
+
+    var requestedRateRaw = parseFloat(document.getElementById('rv2-requested-rate').value) || 0
+    var dir = document.querySelector('input[name="rv2-dir"]:checked')
+    var dirVal = dir ? dir.value : 'up'
+    var requestedSign = dirVal === 'down' ? -1 : 1
+    var requestedRate = requestedSign * requestedRateRaw
+
+    var results = []
+    var totalSpend = 0
+    var weightedJustified = 0
+    var weightedCogsRatio = 0
+    var KRW_PER_USD = 1380
+
+    // "QFP-64" → { basePkg: "QFP", pins: 64 } 형식으로 분리
+    function parsePkgStr(pkgType) {
+      var s = String(pkgType || '').trim()
+      var m = s.match(/^(.+?)-(\d+)$/)
+      if (m) return { basePkg: m[1], pins: parseInt(m[2], 10) }
+      return { basePkg: s, pins: null }
     }
 
-    var wp = hasWafer ? waferChg / 100 : 0
-    var op = hasOther ? otherChg / 100 : 0
-    var computed = 0
+    _rv2Items.forEach(function(item) {
+      var parsed = parsePkgStr(item.pkgType || '')
+      var pins   = item.pins != null ? item.pins : parsed.pins
+      var r = engine.calcJustifiedRate({
+        node:          item.node,
+        dieArea:       item.dieArea,
+        waferSize:     item.waferSize || 300,
+        'yield':       item['yield'] || 0.95,
+        pkgType:       parsed.basePkg,
+        pins:          pins,
+        productFamily: item.productFamily || '기타',
+        waferChg:      waferChg,
+        copperChg:     copperChg,
+        goldChg:       goldChg,
+        silverChg:     silverChg,
+        tinChg:        tinChg,
+        osatEnergyChg: energyChg
+      })
 
-    _reviewData.forEach(function(it) {
-      var est = estimateItemWaferFrac(it)
-      var frac, basis
+      var spend = ((item.currentPrice || 0) * (item.qty || 0)) || 0
 
-      if (est) {
-        frac  = est.fracOfAsp
-        basis = it.node + ' / ' + it.waferSize + 'mm / 다이 ' + it.dieArea + 'mm² / 수율 ' +
-                ((it['yield']||0.95)*100).toFixed(0) + '% → 구매가 기준 추정'
-      } else if (hasFallback) {
-        frac  = fallbackFrac / 100
-        basis = '스펙 없음 — 입력값 ' + fallbackFrac + '% 사용'
+      if (r) {
+        results.push({ item: item, r: r, spend: spend })
+        totalSpend        += spend
+        weightedJustified += r.justifiedRate * spend
+        weightedCogsRatio += r.cogsRatio * spend
       } else {
-        it.cogsChangedRate = null; it.waferFracPct = null
-        it.waferFracBasis  = '스펙 없음 (비중 입력 필요)'
-        return
+        results.push({ item: item, r: null, spend: spend })
       }
-
-      it.waferFracPct    = frac * 100
-      it.waferFracBasis  = basis
-      it.cogsChangedRate = wp * frac + op * (1 - frac)
-      computed++
     })
 
-    if (resultEl) {
-      var total = _reviewData.length
-      resultEl.textContent = computed === total
-        ? '품목별 계산 완료 (' + computed + '개)'
-        : computed + '/' + total + '개 완료 (' + (total - computed) + '개 스펙 없음 — 비중 직접 입력 필요)'
-      resultEl.style.color = computed < total ? '#f59e0b' : 'var(--l1)'
+    var avgJustified = totalSpend > 0 ? weightedJustified / totalSpend : null
+    var avgCogsRatio = totalSpend > 0 ? weightedCogsRatio / totalSpend : null
+
+    // Hero display
+    var heroReq = document.getElementById('rv2-hero-requested')
+    var heroJus = document.getElementById('rv2-hero-justified')
+    var heroGap = document.getElementById('rv2-hero-gap')
+    var heroDirLbl = document.getElementById('rv2-hero-dir-label')
+    var heroTime = document.getElementById('rv2-calc-time')
+    var heroProdCount = document.getElementById('rv2-prod-count')
+    var heroCOGSAvg = document.getElementById('rv2-cogs-ratio-avg')
+
+    if (heroReq) heroReq.textContent = requestedRate.toFixed(1) + '%'
+    if (heroDirLbl) heroDirLbl.textContent = dirVal === 'down' ? '인하 요청' : '인상 요청'
+    if (heroJus) heroJus.textContent = avgJustified != null ? avgJustified.toFixed(2) + '%' : '—'
+    if (heroGap) {
+      var gap = avgJustified != null ? requestedRate - avgJustified : null
+      heroGap.textContent = gap != null ? (gap >= 0 ? '+' : '') + gap.toFixed(2) + '%p' : '—'
+    }
+    if (heroTime) heroTime.textContent = new Date().toLocaleString('ko-KR', { month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' })
+    if (heroProdCount) heroProdCount.textContent = _rv2Items.length
+    if (heroCOGSAvg) heroCOGSAvg.textContent = avgCogsRatio != null ? (avgCogsRatio * 100).toFixed(0) + '%' : '—'
+
+    // Detail table
+    var tbody = document.getElementById('rv2-detail-tbody')
+    if (tbody) {
+      tbody.innerHTML = results.map(function(row) {
+        var item = row.item
+        var r = row.r
+        if (!r) {
+          return '<tr><td>' + esc(item.name) + '</td><td colspan="7" style="color:var(--l3);font-style:italic">원가 계산 불가 (데이터 부족)</td></tr>'
+        }
+        var justified = r.justifiedRate
+        var gap = requestedRate - justified
+        var gapClass = gap > 0.5 ? ' class="over"' : gap < -0.5 ? ' class="under"' : ''
+        var annualSaving = row.spend > 0 ? (Math.abs(gap) / 100) * row.spend * KRW_PER_USD : null
+        var savingStr = annualSaving != null ? Math.round(annualSaving).toLocaleString() : '—'
+        return '<tr>' +
+          '<td>' + esc(item.name) + '</td>' +
+          '<td>' + esc(item.productFamily || '—') + '</td>' +
+          '<td>' + esc(item.pkgType || '—') + '</td>' +
+          '<td>' + (r.fracFE * 100).toFixed(0) + '%</td>' +
+          '<td>' + (r.fracBE * 100).toFixed(0) + '%</td>' +
+          '<td>' + justified.toFixed(2) + '%</td>' +
+          '<td' + gapClass + '>' + (gap >= 0 ? '+' : '') + gap.toFixed(2) + '%p</td>' +
+          '<td>' + savingStr + '</td>' +
+          '</tr>'
+      }).join('')
     }
 
-    renderReviewItemsList(); renderKpiCards()
-    if (_rvBarChart) renderReviewBarChart()
+    var resultCard = document.getElementById('rv2-result-card')
+    if (resultCard) resultCard.style.display = ''
+
+    // 원가 티어다운
+    renderTeardown(results, {
+      waferChg: waferChg,
+      substrateChg: substrateChg, gasChg: gasChg, fabEnergyChg: fabEnergyChg,
+      copperChg: copperChg, goldChg: goldChg,
+      silverChg: silverChg, tinChg: tinChg, energyChg: energyChg
+    })
+
+    // Generate output text
+    generateOutput(requestedRate, avgJustified, results, totalSpend, KRW_PER_USD)
+
+    _rv2LastResult = {
+      requestedRate: requestedRate,
+      justifiedRate: avgJustified,
+      cogsRatio: avgCogsRatio,
+      totalSpend: totalSpend,
+      itemCount: _rv2Items.length,
+      ts: new Date().toISOString()
+    }
   }
 
-  // 품목 선택 시 해당 품목의 추정 비중을 폴백 입력란에 표시
-  function autoEstimateWaferFrac(item) {
-    var est = estimateItemWaferFrac(item)
-    var fracInput = document.getElementById('rv-cogs-wafer-frac')
-    var noteEl    = document.getElementById('rv-cogs-frac-note')
-    if (!est) {
-      if (noteEl) noteEl.textContent = '스펙 없음 — 직접 입력'
+  // ── 원소재 기여 분해 테이블 ──
+  function renderTeardown(results, idx) {
+    var wrap = document.getElementById('rv2-teardown')
+    if (!wrap) return
+
+    // ── 가중 평균 파라미터 산출 (성공 항목, spend 기준) ──────────────
+    var wSum = 0, wFE = 0, wBE = 0, wCR = 0, wMatKey = {}
+    results.forEach(function(row) {
+      if (!row.r || row.spend <= 0) return
+      wSum += row.spend
+      wFE  += row.r.fracFE    * row.spend
+      wBE  += row.r.fracBE    * row.spend
+      wCR  += row.r.cogsRatio * row.spend
+      var mk = row.r.matKey || 'leadframe'
+      wMatKey[mk] = (wMatKey[mk] || 0) + row.spend
+    })
+    if (wSum <= 0) { wrap.innerHTML = '<p style="color:var(--l3);font-size:0.8rem">계산 가능한 제품 없음</p>'; return }
+
+    var fFE = wFE / wSum
+    var fBE = wBE / wSum
+    var cR  = wCR / wSum
+
+    var domKey = 'leadframe', domMax = 0
+    Object.keys(wMatKey).forEach(function(k) { if (wMatKey[k] > domMax) { domMax = wMatKey[k]; domKey = k } })
+
+    var PM = {
+      leadframe: { material: 0.25, energy: 0.11, lme: { copper: 0.55, gold: 0.25, silver: 0.05, tin: 0.15 } },
+      power:     { material: 0.32, energy: 0.11, lme: { copper: 0.65, gold: 0.05, silver: 0.20, tin: 0.10 } },
+      bga:       { material: 0.22, energy: 0.12, lme: { copper: 0.48, gold: 0.08, silver: 0.12, tin: 0.32 } },
+      wlcsp:     { material: 0.18, energy: 0.13, lme: { copper: 0.38, gold: 0.10, silver: 0.15, tin: 0.37 } },
+      module:    { material: 0.30, energy: 0.13, lme: { copper: 0.58, gold: 0.03, silver: 0.12, tin: 0.27 } },
+      baredie:   { material: 0.00, energy: 0.10, lme: { copper: 0,    gold: 0,    silver: 0,    tin: 0    } }
+    }
+    var mat = PM[domKey] || PM.leadframe
+    var lme = mat.lme
+
+    // ── FE 구성비 상수 ────────────────────────────────────────────────
+    var FEC = { substrate: 0.18, gases: 0.12, energy: 0.18, equipment: 0.35, labor: 0.17 }
+
+    // ── 구매가 100% 기준 각 항목 비중 ────────────────────────────────
+    var feBase = fFE * cR * 100
+    var beBase = fBE * cR * 100
+    var s = {
+      nonCogs:     (1 - cR) * 100,
+      cogs:        cR * 100,
+      fe:          feBase,
+      feSubstrate: FEC.substrate * feBase,
+      feGases:     FEC.gases     * feBase,
+      feEnergy:    FEC.energy    * feBase,
+      feEquipment: FEC.equipment * feBase,
+      feLabor:     FEC.labor     * feBase,
+      be:          beBase,
+      beMatTot:    mat.material * beBase,
+      beCu:        lme.copper * mat.material * beBase,
+      beAu:        lme.gold   * mat.material * beBase,
+      beAg:        lme.silver * mat.material * beBase,
+      beSn:        lme.tin    * mat.material * beBase,
+      beEnergy:    mat.energy * beBase,
+      beOther:     (1 - mat.material - mat.energy) * beBase
+    }
+
+    // ── 각 항목 기여(%p) ─────────────────────────────────────────────
+    var c = {
+      feSubstrate: s.feSubstrate / 100 * (idx.substrateChg || 0),
+      feGases:     s.feGases     / 100 * (idx.gasChg       || 0),
+      feEnergy:    s.feEnergy    / 100 * (idx.fabEnergyChg || 0),
+      cu:          s.beCu        / 100 * idx.copperChg,
+      au:          s.beAu        / 100 * idx.goldChg,
+      ag:          s.beAg        / 100 * idx.silverChg,
+      sn:          s.beSn        / 100 * idx.tinChg,
+      en:          s.beEnergy    / 100 * idx.energyChg
+    }
+    c.fe = c.feSubstrate + c.feGases + c.feEnergy
+    var totalContrib = c.fe + c.cu + c.au + c.ag + c.sn + c.en
+
+    // ── 행 렌더 헬퍼 ─────────────────────────────────────────────────
+    var COLORS = {
+      nonCogs: '#94a3b8', cogs: '#64748b',
+      fe: '#3b82f6', feDetail: '#93c5fd',
+      be: '#10b981', mat: '#f59e0b',
+      cu: '#ef4444', au: '#eab308', ag: '#8b5cf6', sn: '#06b6d4',
+      energy: '#f97316', other: '#cbd5e1', fixed: '#e2e8f0'
+    }
+
+    function pct(v) { return v.toFixed(1) + '%' }
+    function sgn(v) { return v >= 0 ? '+' : '' }
+    function chgHtml(v, isFixed) {
+      if (isFixed) return '<div class="td-chg" style="color:var(--l3);font-style:italic">고정</div>'
+      if (v == null || v === 0) return '<div class="td-chg">—</div>'
+      return '<div class="td-chg ' + (v > 0 ? 'pos' : 'neg') + '">' + sgn(v) + v.toFixed(1) + '%</div>'
+    }
+    function contribHtml(v, isFixed) {
+      if (isFixed) return '<div class="td-contrib" style="color:var(--l3)">0.000%p</div>'
+      if (v == null) return '<div class="td-contrib">—</div>'
+      var sig = Math.abs(v) >= 0.01 ? ' sig' : ''
+      var dir = v >= 0 ? ' pos' : ' neg'
+      return '<div class="td-contrib' + sig + dir + '">' + sgn(v) + v.toFixed(3) + '%p</div>'
+    }
+    function barHtml(sharePct, color) {
+      var w = Math.min(sharePct, 100)
+      return '<div class="td-bar-cell">' +
+        '<div class="td-bar-bg" style="width:' + w + '%;background:' + color + '"></div>' +
+        '<div class="td-bar-fg" style="width:' + (w * 0.55) + '%;background:' + color + '"></div>' +
+        '<div class="td-share">' + pct(sharePct) + '</div>' +
+        '</div>'
+    }
+    function mkRow(indentStr, label, bold, sharePct, color, chgVal, contribVal, isFixed) {
+      var textCls = bold ? ' bold' : ''
+      return '<div class="td-row">' +
+        '<div class="td-label"><span class="td-indent" style="white-space:pre">' + indentStr + '</span>' +
+        '<span class="td-text' + textCls + '">' + label + '</span></div>' +
+        barHtml(sharePct, color) +
+        chgHtml(chgVal, isFixed) +
+        contribHtml(contribVal, isFixed) +
+        '</div>'
+    }
+    function row(lvl, label, bold, share, color, chg, contrib, fixed) {
+      var ind = ['', '└ ', '   ├ ', '      ├ ', '      └ ']
+      return mkRow(ind[lvl] || '', label, bold, share, color, chg, contrib, fixed)
+    }
+    function rowLast(lvl, label, bold, share, color, chg, contrib, fixed) {
+      var ind = ['', '└ ', '   └ ', '      └ ']
+      return mkRow(ind[lvl] || '', label, bold, share, color, chg, contrib, fixed)
+    }
+
+    var html =
+      '<div class="td-header">' +
+        '<div>구성항목</div><div>구매가 비중</div><div>변화율</div><div>기여(%p)</div>' +
+      '</div>' +
+      row(0, '전체 구매가 (ASP)',            true,  100,            '#1e40af',     undefined,        undefined) +
+      row(1, '비원가 (R&D · SG&A · 영업이익)', false, s.nonCogs,  COLORS.nonCogs, 0,                0) +
+      row(1, 'COGS (원가)',                  true,  s.cogs,         COLORS.cogs,   undefined,        undefined) +
+      row(2, '전공정 — 웨이퍼',             true,  s.fe,           COLORS.fe,     idx.waferChg,     c.fe) +
+      row(3, '실리콘 기판',                 false, s.feSubstrate,  COLORS.feDetail,idx.substrateChg, c.feSubstrate) +
+      row(3, '특수가스·화학물질',           false, s.feGases,      COLORS.feDetail,idx.gasChg,       c.feGases) +
+      row(3, '팹 전력',                     false, s.feEnergy,     COLORS.feDetail,idx.fabEnergyChg, c.feEnergy) +
+      row(3, '장비·감가상각',               false, s.feEquipment,  COLORS.fixed,  undefined,        undefined, true) +
+      rowLast(3, '인건비',                  false, s.feLabor,      COLORS.fixed,  undefined,        undefined, true) +
+      row(2, '후공정 — OSAT',               true,  s.be,           COLORS.be,     undefined,        undefined) +
+      row(3, '원소재 합계',                 false, s.beMatTot,     COLORS.mat,    undefined,        undefined) +
+      mkRow('      ├ ', '구리 (Cu)',         false, s.beCu,   COLORS.cu,    idx.copperChg,  c.cu) +
+      mkRow('      ├ ', '금 (Au)',           false, s.beAu,   COLORS.au,    idx.goldChg,    c.au) +
+      mkRow('      ├ ', '은 (Ag)',           false, s.beAg,   COLORS.ag,    idx.silverChg,  c.ag) +
+      mkRow('      └ ', '주석 (Sn)',         false, s.beSn,   COLORS.sn,    idx.tinChg,     c.sn) +
+      row(3, 'OSAT 전력',                   false, s.beEnergy,     COLORS.energy, idx.energyChg,    c.en) +
+      rowLast(3, '기타 (인건비·감가)',       false, s.beOther,      COLORS.other,  undefined,        undefined, true) +
+      '<div class="td-row td-total">' +
+        '<div class="td-label"><span class="td-text bold">합리적 인상률 (구매가 기준)</span></div>' +
+        '<div></div><div></div>' +
+        '<div class="td-contrib sig ' + (totalContrib >= 0 ? 'pos' : 'neg') + '" style="font-size:0.9rem">' +
+          sgn(totalContrib) + totalContrib.toFixed(2) + '%p</div>' +
+      '</div>'
+
+    wrap.innerHTML = html
+  }
+
+  // ── 경영보고문 + 대칭 조항 생성 ──
+  function generateOutput(requestedRate, justifiedRate, results, totalSpend, KRW_PER_USD) {
+    var supplier = (document.getElementById('rv2-supplier').value || '공급사').trim()
+    var reqDate = document.getElementById('rv2-request-date').value || ''
+    var dateStr = reqDate ? ' (' + reqDate + ')' : ''
+    var gap = justifiedRate != null ? requestedRate - justifiedRate : null
+    var annualGapAmt = (gap != null && totalSpend > 0)
+      ? Math.round(Math.abs(gap) / 100 * totalSpend * KRW_PER_USD).toLocaleString()
+      : null
+
+    var mgmtLines = []
+    mgmtLines.push('[가격변동 협상 결과 보고]')
+    mgmtLines.push('')
+    mgmtLines.push('■ 대상 공급사: ' + supplier + dateStr)
+    mgmtLines.push('■ 요청 변동률: ' + requestedRate.toFixed(1) + '% (' + (requestedRate >= 0 ? '인상' : '인하') + ')')
+    if (justifiedRate != null) {
+      mgmtLines.push('■ 원가 기반 합리적 변동률: ' + justifiedRate.toFixed(2) + '%')
+      mgmtLines.push('  (웨이퍼·LME 원소재·OSAT 에너지 변동 반영, 패키지별 원가 구조 기반 산출)')
+    }
+    if (gap != null) {
+      var gapDesc = gap > 0
+        ? '요청이 합리적 수준 대비 ' + gap.toFixed(2) + '%p 과다'
+        : '요청이 합리적 수준보다 ' + Math.abs(gap).toFixed(2) + '%p 낮음 (인하 여지)'
+      mgmtLines.push('■ 평가: ' + gapDesc)
+      if (annualGapAmt) mgmtLines.push('  → 연간 절감 추정: ' + annualGapAmt + '원')
+    }
+    mgmtLines.push('')
+    mgmtLines.push('■ 협상 방침: 원가 지수 변동에 근거한 합리적 수준으로 조정 요청 예정')
+    mgmtLines.push('  원자재 하락 시 동일 조건 인하 조항 포함 협의')
+
+    var mgmtEl = document.getElementById('rv2-mgmt-text')
+    if (mgmtEl) mgmtEl.value = mgmtLines.join('\n')
+
+    var symEl = document.getElementById('rv2-symmetric-text')
+    if (symEl && justifiedRate != null) {
+      symEl.textContent = '본 가격 조정은 웨이퍼·LME 원소재·에너지 지수 변동을 근거로 합니다. ' +
+        '향후 동일 지수가 현 수준 대비 하락할 경우 동등한 방법론으로 산출한 인하율을 ' +
+        supplier + '에 요청할 수 있으며, ' + supplier + '는 이에 성실히 응해야 합니다.'
+    }
+
+    var outputCard = document.getElementById('rv2-output-card')
+    if (outputCard) outputCard.style.display = ''
+  }
+
+  // ── 이력 렌더 ──
+  function renderHistoryTable() {
+    var arr = loadHistory()
+    var empty = document.getElementById('rv2-history-empty')
+    var wrap = document.getElementById('rv2-history-wrap')
+    var tbody = document.getElementById('rv2-history-tbody')
+    if (!tbody) return
+    if (!arr.length) {
+      if (empty) empty.style.display = ''
+      if (wrap) wrap.style.display = 'none'
       return
     }
-    var fracOfAsp  = est.fracOfAsp  * 100
-    var fracOfCogs = est.fracOfCogs * 100
-    if (fracInput && !fracInput.dataset.manualSet) fracInput.value = fracOfAsp.toFixed(0)
-    if (noteEl) noteEl.textContent =
-      '구매가 기준 ' + fracOfAsp.toFixed(0) + '% (제조원가 기준 ' + fracOfCogs.toFixed(0) + '%)'
-  }
-
-  function confirmRvMapping() {
-    var p = window.ChipCalc && window.ChipCalc.parser
-    var storage = window.ChipCalc && window.ChipCalc.storage
-    var ui = window.ChipCalc && window.ChipCalc.ui
-    if (!p || !_rvParsed) return
-    var columnMapping = buildRvMapping()
-    var result = p.parseReviewRows(_rvParsed.rows, _rvParsed.headers, columnMapping)
-    if (result.warnings.length > 0 && result.items.length === 0) {
-      if (ui) ui.toast(result.warnings[0], 'error'); return
-    }
-    if (storage) {
-      var store = storage.load()
-      if (!store.columnMapping) store.columnMapping = { portfolio: {}, review: {} }
-      store.columnMapping.review = columnMapping
-      storage.save(store)
-    }
-    _reviewData = result.items.map(function(item) {
-      return Object.assign({}, item, {
-        cogsChangedRate: null,
-        indexRefRate: _indexRefRate
-      })
-    })
-    _selectedIdx = 0
-    renderReviewItemsList()
-    renderAnalysisSection()
-  }
-
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-  }
-
-  function renderReviewItemsList() {
-    var listEl = document.getElementById('rv-items-list')
-    if (!listEl) return
-    var rows = ''
-    _reviewData.forEach(function(item, idx) {
-      var req  = item.requestedRate != null ? (item.requestedRate*100).toFixed(1)+'%' : '—'
-      var cogs = item.cogsChangedRate != null ? (item.cogsChangedRate*100).toFixed(1)+'%' : '—'
-      var fracStr = item.waferFracPct != null
-        ? item.waferFracPct.toFixed(1)+'%'+(item.waferFracBasis&&item.waferFracBasis.indexOf('입력값')>=0?' (수동)':' (추정)')
+    if (empty) empty.style.display = 'none'
+    if (wrap) wrap.style.display = ''
+    tbody.innerHTML = arr.map(function(entry, idx) {
+      var saving = entry.totalSpend > 0 && entry.justifiedRate != null
+        ? Math.round(Math.abs(entry.requestedRate - entry.justifiedRate) / 100 * entry.totalSpend * 1380).toLocaleString()
         : '—'
-      var gapVal = (item.requestedRate != null && item.cogsChangedRate != null)
-        ? (item.requestedRate - item.cogsChangedRate)*100 : null
-      var gapStr = gapVal != null ? (gapVal>0?'+':'')+gapVal.toFixed(1)+'%p' : '—'
-      var isOver = gapVal != null && gapVal > 0
-      rows += '<tr class="rv-item-row'+(idx===_selectedIdx?' selected':'')+'" data-idx="'+idx+'">' +
-        '<td>'+escHtml(item.name||'')+'</td>' +
-        '<td>'+(item.currentPrice!=null?'$'+item.currentPrice.toFixed(4):'—')+'</td>' +
-        '<td>'+req+'</td>' +
-        '<td title="'+escHtml(item.waferFracBasis||'')+'">'+fracStr+'</td>' +
-        '<td>'+cogs+'</td>' +
-        '<td class="'+(isOver?'danger':'ok')+'">'+gapStr+'</td></tr>'
-    })
-    listEl.innerHTML = rows
-    listEl.querySelectorAll('.rv-item-row').forEach(function(tr) {
-      tr.addEventListener('click', function() { selectItem(parseInt(this.dataset.idx,10)) })
-    })
-    var sec = document.getElementById('rv-items-section')
-    if (sec) sec.classList.toggle('hidden', _reviewData.length === 0)
-  }
+      return '<tr>' +
+        '<td>' + (entry.ts ? entry.ts.slice(0, 10) : '—') + '</td>' +
+        '<td>' + esc(entry.supplier || '—') + '</td>' +
+        '<td>' + (entry.requestedRate != null ? entry.requestedRate.toFixed(1) + '%' : '—') + '</td>' +
+        '<td>' + (entry.justifiedRate != null ? entry.justifiedRate.toFixed(2) + '%' : '—') + '</td>' +
+        '<td>' + saving + '</td>' +
+        '<td><button class="btn-mini ghost rv2-del-btn" data-idx="' + idx + '">삭제</button></td>' +
+        '</tr>'
+    }).join('')
 
-  function selectItem(idx) {
-    _selectedIdx = idx
-    renderReviewItemsList()
-    autoEstimateWaferFrac(_reviewData[idx])
-    renderKpiCards()
-    if (_rvBarChart) {
-      _rvBarChart.dispatchAction({ type: 'downplay', seriesIndex: [0,1,2] })
-      _rvBarChart.dispatchAction({ type: 'highlight', seriesIndex: 0, dataIndex: idx })
-    }
-  }
-
-  function renderAnalysisSection() {
-    var sec = document.getElementById('rv-analysis-section')
-    if (sec) sec.classList.toggle('hidden', _reviewData.length === 0)
-    var chartSec = document.getElementById('rv-chart-section')
-    if (chartSec) chartSec.classList.toggle('hidden', _reviewData.length === 0)
-    var histSec = document.getElementById('rv-history-section')
-    if (histSec) histSec.classList.remove('hidden')
-    renderKpiCards()
-    renderReviewBarChart()
-    renderHistoryTable()
-  }
-
-
-
-  function renderKpiCards() {
-    if (!_reviewData.length) return
-    var item = _reviewData[_selectedIdx] || _reviewData[0]
-    var req  = item.requestedRate
-    var cogs = item.cogsChangedRate
-    var idx  = _indexRefRate
-
-    setKpiCard('rv-kpi-requested', req!=null?(req*100).toFixed(1)+'%':'—', '요청 인상률', 'neutral', '')
-
-    var cogsSub = ''
-    if (cogs != null) {
-      cogsSub = item.waferFracPct != null
-        ? '웨이퍼비중 '+item.waferFracPct.toFixed(1)+'% (구매가 기준)'
-        : '(웨이퍼변화율×비중 + 기타)'
-    }
-    setKpiCard('rv-kpi-cogs',
-      cogs!=null?(cogs*100).toFixed(1)+'%':'미입력',
-      '원가 기준 정당 인상률',
-      cogs==null?'neutral':(req==null||cogs<=req?'success':'warn'),
-      cogsSub
-    )
-
-    setKpiCard('rv-kpi-index',
-      idx!=null?(idx*100).toFixed(1)+'%':'미입력',
-      '공개지수 참고값',
-      idx==null?'neutral':(req==null||idx<=req?'success':'warn'),
-      idx!=null?'(LME·웨이퍼인덱스 가중평균)':''
-    )
-
-    // 갭: 더 작은 근거값 기준
-    var justified = null
-    if (cogs!=null && idx!=null) justified = Math.min(cogs, idx)
-    else if (cogs!=null) justified = cogs
-    else if (idx!=null) justified = idx
-    renderGapCard(req, justified)
-
-    // 협상 추천 배지
-    var cEl = document.getElementById('rv-kpi-cogs')
-    var iEl = document.getElementById('rv-kpi-index')
-    if (cEl) { var bc=cEl.querySelector('.rv-badge'); if(bc) bc.remove() }
-    if (iEl) { var bi=iEl.querySelector('.rv-badge'); if(bi) bi.remove() }
-    if (cogs!=null || idx!=null) {
-      var targetId
-      if (cogs!=null && idx!=null) targetId = cogs<=idx ? 'rv-kpi-cogs' : 'rv-kpi-index'
-      else targetId = cogs!=null ? 'rv-kpi-cogs' : 'rv-kpi-index'
-      var badgeEl = document.getElementById(targetId)
-      if (badgeEl) { var b=document.createElement('div'); b.className='rv-badge'; b.textContent='🏷 협상 추천 근거'; badgeEl.appendChild(b) }
-    }
-  }
-
-  function setKpiCard(id, value, label, type, subLabel) {
-    var el = document.getElementById(id); if (!el) return
-    el.className = 'rv-kpi-card ' + (type||'')
-    var vEl=el.querySelector('.rv-kpi-value'); if(vEl) vEl.textContent=value
-    var lEl=el.querySelector('.rv-kpi-label'); if(lEl) lEl.textContent=label
-    var sEl=el.querySelector('.rv-kpi-sublabel'); if(sEl) sEl.textContent=subLabel||''
-  }
-
-  function renderGapCard(req, justified) {
-    var el = document.getElementById('rv-kpi-gap'); if(!el) return
-    if (req==null||justified==null) { setKpiCard('rv-kpi-gap','—','과다 인상 추정','neutral',''); return }
-    var gapPct = (req-justified)*100
-    if (gapPct > 0) setKpiCard('rv-kpi-gap','▲ +'+gapPct.toFixed(1)+'%p 과다','과다 인상 추정','danger','요청이 근거보다 큼')
-    else            setKpiCard('rv-kpi-gap','✓ 범위 내 ('+gapPct.toFixed(1)+'%p)','과다 인상 추정','success','')
-  }
-
-  function calcIndexRefRate() {
-    var copperVal = parseFloat(document.getElementById('rv-index-copper').value)
-    var waferVal  = parseFloat(document.getElementById('rv-index-wafer').value)
-    var copperW   = parseFloat(document.getElementById('rv-index-copper-w').value)||50
-    var waferW    = parseFloat(document.getElementById('rv-index-wafer-w').value)||50
-    var hasC = !isNaN(copperVal), hasW = !isNaN(waferVal)
-    if (!hasC && !hasW) {
-      _indexRefRate = null
-      document.getElementById('rv-index-result').textContent = '미입력'
-    } else {
-      var totalW = (hasC?copperW:0)+(hasW?waferW:0)
-      var w = 0
-      if (hasC) w += (copperVal/100)*copperW
-      if (hasW) w += (waferVal/100)*waferW
-      _indexRefRate = w/totalW
-      _reviewData.forEach(function(it){ it.indexRefRate=_indexRefRate })
-      document.getElementById('rv-index-result').textContent =
-        '공개 지수 참고값: +'+(_indexRefRate*100).toFixed(1)+'% (참고값 — 수동 입력)'
-    }
-    renderKpiCards()
-    if (_rvBarChart) renderReviewBarChart()
-  }
-
-  function renderReviewBarChart() {
-    var el = document.getElementById('rv-bar-chart')
-    if (!el || !_reviewData.length) return
-    if (!_rvBarChart) _rvBarChart = echarts.init(el)
-    else _rvBarChart.clear()
-    var isDark = document.documentElement.classList.contains('dark')
-    var axisColor = isDark?'#94a3b8':'#64748b', gridColor = isDark?'#334155':'#e2e8f0'
-    var names    = _reviewData.map(function(it){ return it.name||'?' })
-    var reqData  = _reviewData.map(function(it){ return it.requestedRate!=null?+(it.requestedRate*100).toFixed(2):null })
-    var cogsData = _reviewData.map(function(it){ return it.cogsChangedRate!=null?+(it.cogsChangedRate*100).toFixed(2):null })
-    var idxData  = _reviewData.map(function(it){ return it.indexRefRate!=null?+(it.indexRefRate*100).toFixed(2):null })
-    _rvBarChart.setOption({
-      backgroundColor:'transparent',
-      grid:{ left:50,right:90,top:40,bottom:60 },
-      tooltip:{ trigger:'axis' },
-      legend:{ right:10,top:30,textStyle:{color:axisColor,fontSize:11} },
-      graphic:[{ type:'text',right:12,top:8,style:{text:'[단위: %]',fontSize:10,fill:axisColor} }],
-      xAxis:{ type:'category',data:names,axisLabel:{color:axisColor,rotate:names.length>5?30:0},axisLine:{lineStyle:{color:gridColor}} },
-      yAxis:{ type:'value',axisLabel:{color:axisColor,formatter:'{value}%'},splitLine:{lineStyle:{color:gridColor}} },
-      series:[
-        { name:'요청인상률', type:'bar', data:reqData, itemStyle:{color:'#3b82f6'},
-          label:{ show:true, position:'top', fontSize:10,
-            formatter:function(p){
-              var it=_reviewData[p.dataIndex]
-              if(it.cogsChangedRate==null) return ''
-              var gap=(it.requestedRate-it.cogsChangedRate)*100
-              return gap>0?'Δ+'+gap.toFixed(1)+'%p':''
-            }, color:'#dc2626' }
-        },
-        { name:'원가기준 정당인상률', type:'bar', data:cogsData, itemStyle:{color:'#16a34a'} },
-        { name:'공개지수참고값', type:'bar', data:idxData,  itemStyle:{color:'#f59e0b'} }
-      ]
-    })
-    var pngBtn = document.getElementById('rv-png-btn')
-    if (pngBtn) pngBtn.disabled = true
-    _rvBarChart.on('finished', function(){ if(pngBtn) pngBtn.disabled=false })
-    _rvBarChart.on('click', function(params){ selectItem(params.dataIndex) })
-  }
-
-  function exportRvPng() {
-    if (!_rvBarChart) return
-    var url = _rvBarChart.getDataURL({ type:'png', pixelRatio:2, backgroundColor:'#ffffff' })
-    var a = document.createElement('a')
-    a.href = url
-    a.download = 'chipcalc-review-' + new Date().toISOString().slice(0,10) + '.png'
-    a.click()
-    var ui = window.ChipCalc && window.ChipCalc.ui
-    if (ui) ui.toast('PNG 저장 완료', 'info')
-  }
-
-  function saveReviewHistory() {
-    if (!_reviewData.length) return
-    var storage = window.ChipCalc && window.ChipCalc.storage
-    var ui = window.ChipCalc && window.ChipCalc.ui
-    if (!storage) return
-    var item = _reviewData[_selectedIdx] || _reviewData[0]
-    var store = storage.load()
-    if (!store.priceReviewHistory) store.priceReviewHistory = []
-    store.priceReviewHistory.unshift({
-      id: Date.now(), date: new Date().toISOString().slice(0,10),
-      partNumber: item.name||'', currentPrice: item.currentPrice,
-      requestedRate: item.requestedRate, cogsChangedRate: item.cogsChangedRate,
-      indexRefRate: _indexRefRate, verdict: 'pending'
-    })
-    if (store.priceReviewHistory.length > 100)
-      store.priceReviewHistory = store.priceReviewHistory.slice(0, 100)
-    storage.save(store)
-    if (ui) ui.toast('이력 저장 완료', 'info')
-    renderHistoryTable()
-  }
-
-  function updateVerdict(id, verdict) {
-    var storage = window.ChipCalc && window.ChipCalc.storage; if (!storage) return
-    var store = storage.load()
-    var entry = (store.priceReviewHistory||[]).find(function(e){ return e.id===id })
-    if (entry) { entry.verdict=verdict; storage.save(store); renderHistoryTable() }
-  }
-
-  function renderHistoryTable() {
-    var tbody = document.getElementById('rv-history-tbody'); if (!tbody) return
-    var storage = window.ChipCalc && window.ChipCalc.storage; if (!storage) return
-    var store = storage.load()
-    var history = (store.priceReviewHistory||[]).slice().sort(function(a,b){ return b.id-a.id })
-    if (!history.length) {
-      tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--l3);padding:1rem">저장된 이력이 없습니다</td></tr>'; return
-    }
-    var LABELS={pending:'검토중',accepted:'수용',rejected:'반박'}
-    var rows=''
-    history.forEach(function(e) {
-      var reqPct  = e.requestedRate!=null?(e.requestedRate*100).toFixed(1)+'%':'—'
-      var cogsPct = e.cogsChangedRate!=null?(e.cogsChangedRate*100).toFixed(1)+'%':'—'
-      var vc = e.verdict==='accepted'?'ok':e.verdict==='rejected'?'danger':''
-      rows += '<tr class="rv-history-row" data-id="'+e.id+'">' +
-        '<td>'+e.date+'</td><td>'+escHtml(e.partNumber||'')+'</td>' +
-        '<td>'+reqPct+'</td><td>'+cogsPct+'</td>' +
-        '<td class="'+vc+'">'+(LABELS[e.verdict]||e.verdict)+'</td>' +
-        '<td>'+(e.verdict==='pending'?
-          '<button class="rv-verdict-btn" data-id="'+e.id+'" data-v="accepted">수용</button>'+
-          '<button class="rv-verdict-btn" data-id="'+e.id+'" data-v="rejected">반박</button>':'')+
-        '</td></tr>'
-    })
-    tbody.innerHTML = rows
-    tbody.querySelectorAll('.rv-history-row').forEach(function(tr) {
-      tr.addEventListener('click', function(e) {
-        if (e.target.classList.contains('rv-verdict-btn')) return
-        var id = parseInt(tr.dataset.id,10)
-        var entry = history.find(function(h){ return h.id===id })
-        if (entry) restoreHistory(entry)
-      })
-    })
-    tbody.querySelectorAll('.rv-verdict-btn').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.stopPropagation(); updateVerdict(parseInt(this.dataset.id,10), this.dataset.v)
+    tbody.querySelectorAll('.rv2-del-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var i = parseInt(this.dataset.idx, 10)
+        var arr2 = loadHistory()
+        arr2.splice(i, 1)
+        saveHistory(arr2)
+        renderHistoryTable()
       })
     })
   }
 
-  function restoreHistory(entry) {
-    _indexRefRate = entry.indexRefRate
-    _reviewData = [{ name:entry.partNumber, currentPrice:entry.currentPrice,
-      requestedRate:entry.requestedRate, cogsChangedRate:entry.cogsChangedRate,
-      indexRefRate:entry.indexRefRate }]
-    _selectedIdx = 0
-    var sec = document.getElementById('rv-analysis-section')
-    if (sec) sec.classList.remove('hidden')
-    renderReviewItemsList(); renderKpiCards(); renderReviewBarChart()
-  }
-
-  // ── 이벤트 바인딩 ─────────────────────────────────────────────────
-  var rvPasteEl = document.getElementById('rv-paste')
-  if (rvPasteEl) {
-    var rvTimer = null
-    var schedulePreview = function() {
-      clearTimeout(rvTimer)
-      rvTimer = setTimeout(function() {
-        _rvRowLimitConfirmed = false
-        renderRvMappingPreview(rvPasteEl.value, loadSavedReviewMapping())
-      }, 200)
-    }
-    rvPasteEl.addEventListener('input', schedulePreview)
-    rvPasteEl.addEventListener('paste', function(){ setTimeout(schedulePreview, 20) })
-  }
-  var el; el=document.getElementById('rv-row-continue-btn')
-  if(el) el.addEventListener('click', function(){
-    document.getElementById('rv-row-warning').classList.add('hidden')
-    _rvRowLimitConfirmed=true; if(rvPasteEl) renderRvMappingPreview(rvPasteEl.value, loadSavedReviewMapping())
-  })
-  el=document.getElementById('rv-row-cancel-btn')
-  if(el) el.addEventListener('click', function(){
-    document.getElementById('rv-row-warning').classList.add('hidden')
-    document.getElementById('rv-confirm-btn').disabled=true; _rvParsed=null
-  })
-  el=document.getElementById('rv-confirm-btn')
-  if(el) el.addEventListener('click', confirmRvMapping)
-
-  el=document.getElementById('rv-sample-btn')
-  if(el) el.addEventListener('click', function(){
-    var sample = [
-      '품목명\t현재단가\t요청인상률\t공정노드\t웨이퍼사이즈\t다이면적\t수율\t패키지타입\t핀수\t제품군',
-      'APX-A100\t3.50\t3%\t28nm\t300\t25\t0.95\tQFP\t64\tMCU',
-      'BPX-B070\t2.10\t5%\t40nm\t300\t18\t0.92\tQFN\t32\tPMIC',
-      'CPX-PWR-002\t4.20\t2.5%\t65nm\t300\t12\t0.94\tBGA (AEC)\t256\t파워IC'
-    ].join('\n')
-    if(rvPasteEl){ rvPasteEl.value=sample; _rvRowLimitConfirmed=false; renderRvMappingPreview(sample, loadSavedReviewMapping()) }
-  })
-  el=document.getElementById('rv-clear-btn')
-  if(el) el.addEventListener('click', function(){
-    if(rvPasteEl) rvPasteEl.value=''
-    document.getElementById('rv-mapping-preview').classList.add('hidden')
-    _rvParsed=null; _rvRowLimitConfirmed=false
-  })
-  el=document.getElementById('rv-calc-cogs-btn')
-  if(el) el.addEventListener('click', calcCogsJustified)
-  ;['rv-cogs-wafer-chg','rv-cogs-wafer-frac','rv-cogs-other-chg'].forEach(function(id){
-    var inp=document.getElementById(id)
-    if(inp) {
-      inp.addEventListener('keydown', function(e){ if(e.key==='Enter') calcCogsJustified() })
-      inp.addEventListener('input', function(){ inp.dataset.manualSet = '1' })
-    }
-  })
-  el=document.getElementById('rv-calc-index-btn')
-  if(el) el.addEventListener('click', calcIndexRefRate)
-  ;['rv-index-copper','rv-index-wafer','rv-index-copper-w','rv-index-wafer-w'].forEach(function(id){
-    var inp=document.getElementById(id)
-    if(inp) inp.addEventListener('keydown', function(e){ if(e.key==='Enter') calcIndexRefRate() })
-  })
-  el=document.getElementById('rv-copy-gap-btn')
-  if(el) el.addEventListener('click', function(){
-    var item=_reviewData[_selectedIdx]||_reviewData[0]; if(!item) return
-    var req  = item.requestedRate!=null?(item.requestedRate*100).toFixed(1)+'%':'?'
-    var itemCogs = item.cogsChangedRate
-    var cogs = itemCogs!=null?(itemCogs*100).toFixed(1)+'%':'?'
-    var idx  = _indexRefRate!=null?(_indexRefRate*100).toFixed(1)+'%':'?'
-    var justified = (itemCogs!=null&&_indexRefRate!=null)
-      ? Math.min(itemCogs,_indexRefRate)
-      : (itemCogs||_indexRefRate)
-    var gap = (item.requestedRate!=null&&justified!=null)
-      ? ((item.requestedRate-justified)*100).toFixed(1)+'%p':'?'
-    var text='요청 '+req+' / 원가기준 '+cogs+' / 공개지수 '+idx+' / 과다 '+gap
-    navigator.clipboard && navigator.clipboard.writeText(text).then(function(){
-      var ui=window.ChipCalc&&window.ChipCalc.ui; if(ui) ui.toast('복사됨','info')
-    })
-  })
-  el=document.getElementById('rv-png-btn')
-  if(el) el.addEventListener('click', exportRvPng)
-  el=document.getElementById('rv-save-btn')
-  if(el) el.addEventListener('click', saveReviewHistory)
-  window.addEventListener('resize', function(){ if(_rvBarChart) _rvBarChart.resize() })
-
+  // ── 탭 활성화 ──
   function onReviewTabActivated() {
-    if(rvPasteEl && rvPasteEl.value.trim()) renderRvMappingPreview(rvPasteEl.value, loadSavedReviewMapping())
     renderHistoryTable()
-    var histSec = document.getElementById('rv-history-section')
-    if(histSec) histSec.classList.remove('hidden')
   }
-  window.addEventListener('hashchange', function(){
-    if(window.location.hash.replace('#','') === 'review') onReviewTabActivated()
-  })
-  if(window.location.hash.replace('#','') === 'review') onReviewTabActivated()
 
-  // 초기 이력 로드
-  var histSec = document.getElementById('rv-history-section')
-  if(histSec) histSec.classList.remove('hidden')
-  renderHistoryTable()
+  // ── 이벤트 바인딩 ──
+  ;(function init() {
+    // 샘플
+    var sampleBtn = document.getElementById('rv2-sample-btn')
+    if (sampleBtn) {
+      sampleBtn.addEventListener('click', function() {
+        var sample = [
+          '품목명\t현재단가\t수량\t공정노드\t웨이퍼사이즈\t다이면적\t패키지\t수율\t제품군',
+          'APX-A100\t3500\t100000\t28nm\t300\t25\tQFP-64\t0.95\tMCU',
+          'APX-B070\t1800\t200000\t40nm\t300\t18\tQFN-32\t0.92\tMCU',
+          'BPX-PMIC\t850\t300000\t180nm\t200\t8\tSOIC-8\t0.97\tPMIC',
+          'CPX-PWR\t4200\t80000\t65nm\t300\t12\tBGA-256\t0.94\t파워IC'
+        ].join('\n')
+        var el = document.getElementById('rv2-paste')
+        if (el) {
+          el.value = sample
+          renderMappingPreview(sample)
+        }
+      })
+    }
+
+    // 초기화
+    var clearBtn = document.getElementById('rv2-clear-btn')
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        var el = document.getElementById('rv2-paste')
+        if (el) el.value = ''
+        var preview = document.getElementById('rv2-mapping-preview')
+        if (preview) preview.classList.add('hidden')
+        _rv2Parsed = null
+        _rv2Items = []
+        var indexCard = document.getElementById('rv2-index-card')
+        if (indexCard) indexCard.style.display = 'none'
+        var resultCard = document.getElementById('rv2-result-card')
+        if (resultCard) resultCard.style.display = 'none'
+        var outputCard = document.getElementById('rv2-output-card')
+        if (outputCard) outputCard.style.display = 'none'
+      })
+    }
+
+    // 붙여넣기
+    var pasteEl = document.getElementById('rv2-paste')
+    if (pasteEl) {
+      pasteEl.addEventListener('input', function() {
+        renderMappingPreview(pasteEl.value)
+      })
+      pasteEl.addEventListener('paste', function() {
+        setTimeout(function() { renderMappingPreview(pasteEl.value) }, 0)
+      })
+    }
+
+    // 셀렉트 변경
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.closest && e.target.closest('#rv2-select-row')) {
+        updateColMapFromSelects()
+      }
+    })
+
+    // 확인
+    var confirmBtn = document.getElementById('rv2-confirm-btn')
+    if (confirmBtn) confirmBtn.addEventListener('click', confirmMapping)
+
+    // 산출
+    var calcBtn = document.getElementById('rv2-calc-btn')
+    if (calcBtn) calcBtn.addEventListener('click', calcAll)
+
+    // 복사
+    var copyBtn = document.getElementById('rv2-copy-mgmt-btn')
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function() {
+        var el = document.getElementById('rv2-mgmt-text')
+        if (el && navigator.clipboard) {
+          navigator.clipboard.writeText(el.value).then(function() {
+            var ui = window.ChipCalc && window.ChipCalc.ui
+            if (ui) ui.toast('복사됨', 'info')
+          })
+        }
+      })
+    }
+
+    // 저장
+    var saveBtn = document.getElementById('rv2-save-btn')
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function() {
+        if (!_rv2LastResult) return
+        var supplier = (document.getElementById('rv2-supplier').value || '').trim()
+        var entry = Object.assign({ supplier: supplier }, _rv2LastResult)
+        var arr = loadHistory()
+        arr.unshift(entry)
+        if (arr.length > 50) arr.length = 50
+        saveHistory(arr)
+        renderHistoryTable()
+        var msg = document.getElementById('rv2-save-msg')
+        if (msg) {
+          msg.textContent = '저장됨 ✓'
+          setTimeout(function() { msg.textContent = '' }, 2500)
+        }
+      })
+    }
+
+    // 원가구성 기준표 — 제품군×패키지 티어다운 테이블 동적 생성
+    function buildRefContent() {
+      var body = document.getElementById('rv2-ref-body')
+      if (!body || body.dataset.built === '1') return
+
+      var PKG_KEYS = ['leadframe', 'power', 'bga', 'wlcsp', 'module', 'baredie']
+      var PKG = {
+        leadframe: { label: '리드프레임', sub: 'QFP·QFN·SOIC',      material: 0.25, energy: 0.11, lme: { copper: 0.55, gold: 0.25, silver: 0.05, tin: 0.15 } },
+        power:     { label: '파워',       sub: 'TO-220·D2PAK·SOT',   material: 0.32, energy: 0.11, lme: { copper: 0.65, gold: 0.05, silver: 0.20, tin: 0.10 } },
+        bga:       { label: 'BGA',        sub: 'BGA·FCBGA·PBGA',     material: 0.22, energy: 0.12, lme: { copper: 0.48, gold: 0.08, silver: 0.12, tin: 0.32 } },
+        wlcsp:     { label: 'WLCSP',      sub: 'WLCSP·eWLCSP',       material: 0.18, energy: 0.13, lme: { copper: 0.38, gold: 0.10, silver: 0.15, tin: 0.37 } },
+        module:    { label: '모듈',        sub: 'IPM·Power Mod',      material: 0.30, energy: 0.13, lme: { copper: 0.58, gold: 0.03, silver: 0.12, tin: 0.27 } },
+        baredie:   { label: '베어다이',    sub: 'KGD·Bare Die',       material: 0.00, energy: 0.10, lme: { copper: 0,    gold: 0,    silver: 0,    tin: 0    } }
+      }
+      var FE_ITEMS = [
+        { label: '│ ├ 실리콘 기판', frac: 0.18 },
+        { label: '│ ├ 특수가스',    frac: 0.12 },
+        { label: '│ ├ 팹 전력',     frac: 0.18 },
+        { label: '│ ├ 장비 감가',   frac: 0.35 },
+        { label: '│ └ 인건비',      frac: 0.17 }
+      ]
+      var LME_ITEMS = [
+        { label: '  │ ├ Cu (구리)', key: 'copper' },
+        { label: '  │ ├ Au (금)',   key: 'gold' },
+        { label: '  │ ├ Ag (은)',   key: 'silver' },
+        { label: '  │ └ Sn (주석)', key: 'tin' }
+      ]
+      var FAMILIES = [
+        { num: '②', name: 'MCU',    cogsRatio: 0.65, fracFE: 0.75 },
+        { num: '③', name: 'PMIC',   cogsRatio: 0.67, fracFE: 0.70 },
+        { num: '④', name: '파워IC', cogsRatio: 0.75, fracFE: 0.60 },
+        { num: '⑤', name: '기타',   cogsRatio: 0.69, fracFE: 0.67 }
+      ]
+
+      function p(v) { return (Math.round(v * 1000) / 10) + '%' }
+      function dash(v) { return v > 0.0001 ? p(v) : '<span class="ref-sub">—</span>' }
+
+      var h = ''
+      FAMILIES.forEach(function(fam) {
+        var cr  = fam.cogsRatio
+        var fFE = fam.fracFE
+        var fBE = 1 - fFE
+
+        h += '<h3>' + fam.num + ' ' + fam.name + ' — 구매가(ASP) = 100%'
+        h += ' <span class="ref-sub">COGS ' + Math.round(cr*100) + '% · 전공정 ' + Math.round(fFE*100) + '% · 후공정 ' + Math.round(fBE*100) + '%</span></h3>'
+        h += '<div style="overflow-x:auto"><table class="ref-table" style="min-width:820px">'
+        h += '<thead><tr><th style="text-align:left;min-width:170px">항목</th>'
+        PKG_KEYS.forEach(function(k) {
+          h += '<th>' + PKG[k].label + '<br><span class="ref-sub">' + PKG[k].sub + '</span></th>'
+        })
+        h += '</tr></thead><tbody>'
+
+        // ASP
+        h += '<tr class="ref-row-asp"><td><strong>구매가 (ASP)</strong></td>'
+        PKG_KEYS.forEach(function() { h += '<td class="ref-total"><strong>100%</strong></td>' })
+        h += '</tr>'
+
+        // 비원가
+        h += '<tr><td>비원가 <span class="ref-sub">(R&amp;D · SG&amp;A · 이익)</span></td>'
+        PKG_KEYS.forEach(function() { h += '<td>' + p(1 - cr) + '</td>' })
+        h += '</tr>'
+
+        // COGS
+        h += '<tr class="ref-row-cogs"><td><strong>COGS (원가)</strong></td>'
+        PKG_KEYS.forEach(function() { h += '<td class="ref-mat-sum"><strong>' + p(cr) + '</strong></td>' })
+        h += '</tr>'
+
+        // 전공정
+        h += '<tr class="ref-row-fe"><td>├ 전공정 <span class="ref-sub">(웨이퍼)</span></td>'
+        PKG_KEYS.forEach(function() { h += '<td>' + p(cr * fFE) + '</td>' })
+        h += '</tr>'
+
+        // FE sub-items (identical across all pkg columns)
+        FE_ITEMS.forEach(function(fi) {
+          h += '<tr class="ref-row-fe-sub"><td><span class="ref-sub">' + fi.label + '</span></td>'
+          PKG_KEYS.forEach(function() { h += '<td class="ref-mat-sub">' + p(cr * fFE * fi.frac) + '</td>' })
+          h += '</tr>'
+        })
+
+        // 후공정
+        h += '<tr class="ref-row-be"><td>└ 후공정 <span class="ref-sub">(OSAT)</span></td>'
+        PKG_KEYS.forEach(function() { h += '<td>' + p(cr * fBE) + '</td>' })
+        h += '</tr>'
+
+        // 원소재 소계
+        h += '<tr class="ref-row-be-sub"><td><span class="ref-sub">  ├ 원소재 소계</span></td>'
+        PKG_KEYS.forEach(function(k) { h += '<td class="ref-mat-sub">' + p(cr * fBE * PKG[k].material) + '</td>' })
+        h += '</tr>'
+
+        // LME breakdown
+        LME_ITEMS.forEach(function(li) {
+          h += '<tr class="ref-row-be-sub"><td><span class="ref-sub">' + li.label + '</span></td>'
+          PKG_KEYS.forEach(function(k) {
+            var mat = PKG[k]
+            h += '<td class="ref-mat-sub">' + dash(cr * fBE * mat.material * mat.lme[li.key]) + '</td>'
+          })
+          h += '</tr>'
+        })
+
+        // 에너지
+        h += '<tr class="ref-row-be-sub"><td><span class="ref-sub">  ├ 에너지</span></td>'
+        PKG_KEYS.forEach(function(k) { h += '<td class="ref-mat-sub">' + p(cr * fBE * PKG[k].energy) + '</td>' })
+        h += '</tr>'
+
+        // 기타
+        h += '<tr class="ref-row-be-sub"><td><span class="ref-sub">  └ 기타 <span style="font-size:0.7em">(인건비·감가)</span></span></td>'
+        PKG_KEYS.forEach(function(k) {
+          h += '<td class="ref-mat-sub">' + p(cr * fBE * (1 - PKG[k].material - PKG[k].energy)) + '</td>'
+        })
+        h += '</tr>'
+
+        h += '</tbody></table></div>'
+      })
+
+      h += '<p class="ref-note">※ 전공정(웨이퍼) 항목은 패키지 유형과 무관하게 제품군 내 동일. 후공정(OSAT) 원소재 구성비는 패키지별 추정값 (ECTC · SEMI · TechInsights).<br>'
+      h += '※ 합리적 인상률 산출: FE 기여 = cogsRatio × fracFE × 지수가중변동 / BE 기여 = cogsRatio × fracBE × (원소재 blended + OSAT 에너지). 실제 fracFE·fracBE는 제품 스펙으로 자동 계산됩니다.</p>'
+
+      body.innerHTML = h
+      body.dataset.built = '1'
+    }
+
+    // 원가구성 기준표 모달
+    var refBtn   = document.getElementById('rv2-ref-btn')
+    var refModal = document.getElementById('rv2-ref-modal')
+    var refClose = document.getElementById('rv2-ref-close')
+    if (refBtn && refModal) {
+      refBtn.addEventListener('click', function() { buildRefContent(); refModal.classList.add('open') })
+      refClose && refClose.addEventListener('click', function() { refModal.classList.remove('open') })
+      refModal.addEventListener('click', function(e) {
+        if (e.target === refModal) refModal.classList.remove('open')
+      })
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') refModal.classList.remove('open')
+      })
+    }
+
+    // 탭 전환 감지
+    document.addEventListener('chipcalc:tabchange', function(e) {
+      if (e.detail && e.detail.tab === 'review') onReviewTabActivated()
+    })
+    window.addEventListener('hashchange', function() {
+      if (window.location.hash.replace('#', '') === 'review') onReviewTabActivated()
+    })
+    if (window.location.hash.replace('#', '') === 'review') onReviewTabActivated()
+
+    // 초기 이력 로드
+    renderHistoryTable()
+  })()
+
 })();
 
 // ── Story 2.4 & 2.5: 이상치 상세 패널 & 내보내기 ────────────────

@@ -165,14 +165,16 @@
   var REVIEW_FIELD_PATTERNS = {
     name:          /품목|품명|제품명|모델명?|part\b|product(?!.?famil|.?group)|mpn|model\b|item\b|^name$/i,
     currentPrice:  /현재단가|현재가|기존단가|기존가|current.?price|^단가$|^price$/i,
-    requestedRate: /요청인상률?|요청률?|인상률?|인상율|requested.?rate|increase.?rate|인상/i,
+    qty:           /수량|물량|qty|quantity|volume|연간.*수량|수량.*연간/i,
     node:          /공정|노드|node|process|tech/i,
-    waferSize:     /웨이퍼|wafer/i,
+    waferSize:     /웨이퍼.*사이즈|wafer.*size|웨이퍼크기/i,
     dieArea:       /다이.*면적|다이.*크기|die.?area|die.?size|칩.*면적/i,
     'yield':       /수율|yield/i,
     pkgType:       /패키지|package|pkg/i,
     pins:          /핀수?$|^핀$|pin|ball/i,
-    productFamily: /제품군|품종|family|category|카테고리/i
+    productFamily: /제품군|품종|family|category|카테고리/i,
+    fabCountry:    /팹.*국가|팹.*country|fab.*country|팹.*위치|fab.*location/i,
+    osatCountry:   /osat.*국가|osat.*country|패키지.*국가|assembly.*country/i
   }
 
   function detectReviewColumns(headers) {
@@ -204,13 +206,15 @@
       var item = {}
       item.name          = String(get('name')).trim() || ('행' + (i + 1))
       item.currentPrice  = parseCurrency(get('currentPrice'))
-      item.requestedRate = parsePercent(get('requestedRate'))
+      item.qty           = parseInteger(get('qty'))
       item.node          = normalizeNode(get('node'))
       item.waferSize     = parseInteger(get('waferSize'))
       item.dieArea       = parseDecimal(get('dieArea'))
       item.pkgType       = String(get('pkgType')).trim()
       item.pins          = parseInteger(get('pins'))
       item.productFamily = String(get('productFamily')).trim() || '기타'
+      item.fabCountry    = String(get('fabCountry')).trim()
+      item.osatCountry   = String(get('osatCountry')).trim()
 
       var yieldRaw = get('yield')
       if (yieldRaw !== '') {

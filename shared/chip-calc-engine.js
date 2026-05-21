@@ -63,6 +63,23 @@
 
   const K_VALUES_DEFAULT = { MCU: 1.0, PMIC: 1.0, '파워IC': 1.0, '기타': 1.0 }
 
+  // 패키지 타입별 백엔드 원소재·에너지 비중 (백엔드 원가 대비)
+  // lme 내 비중합 = 1.0 (LME 추적 금속 내 상대 비중)
+  const PKG_MATERIAL = {
+    leadframe: { material: 0.25, energy: 0.11,
+      lme: { copper: 0.55, gold: 0.25, silver: 0.05, tin: 0.15 } },
+    power:     { material: 0.32, energy: 0.11,
+      lme: { copper: 0.65, gold: 0.05, silver: 0.20, tin: 0.10 } },
+    bga:       { material: 0.22, energy: 0.12,
+      lme: { copper: 0.48, gold: 0.08, silver: 0.12, tin: 0.32 } },
+    wlcsp:     { material: 0.18, energy: 0.13,
+      lme: { copper: 0.38, gold: 0.10, silver: 0.15, tin: 0.37 } },
+    module:    { material: 0.30, energy: 0.13,
+      lme: { copper: 0.58, gold: 0.03, silver: 0.12, tin: 0.27 } },
+    baredie:   { material: 0.00, energy: 0.10,
+      lme: { copper: 0, gold: 0, silver: 0, tin: 0 } }
+  }
+
   // ── 런타임 변수 (loadWaferData로 교체 가능) ──────────────────────
   var _wafer = JSON.parse(JSON.stringify(DEF_WAFER_DEFAULT))
   var _pkgs  = JSON.parse(JSON.stringify(DEF_PKGS_DEFAULT))
@@ -169,10 +186,72 @@
     return {
       frontendCost:    frontendCost,
       backendCost:     backendCost,
+      asmCost:         pkg.asm,
+      testCost:        pkg.test,
       totalCOGS:       totalCOGS,
       totalCOGSFmt:    '$' + totalCOGS.toFixed(4),
       estimatedASP:    estimatedASP,
       estimatedASPFmt: '$' + estimatedASP.toFixed(4)
+    }
+  }
+
+  function getPkgMaterialKey(pkgType) {
+    var u = String(pkgType || '').toUpperCase()
+    if (/TO-?\d{2,3}|D[23]PAK|DPAK|SOT-?\d/.test(u))         return 'power'
+    if (/FCBGA|PBGA/.test(u))                                  return 'bga'
+    if (/BGA/.test(u))                                         return 'bga'
+    if (/WLCSP|eWLCSP/i.test(pkgType || ''))                  return 'wlcsp'
+    if (/MODULE|IPM|POWER.?MOD/i.test(pkgType || ''))         return 'module'
+    if (/BARE.?DIE|KGD/i.test(pkgType || ''))                 return 'baredie'
+    return 'leadframe'
+  }
+
+  // 합리적 가격변동률 계산
+  // params: { node, dieArea, waferSize, yield, pkgType, pins, productFamily,
+  //   waferChg, copperChg, goldChg, silverChg, tinChg, osatEnergyChg }
+  // 반환: { justifiedRate, fracFE, fracBE, cogsRatio, feContrib, beContrib, matBlended }
+  function calcJustifiedRate(params) {
+    var r
+    try {
+      r = calcCOGS({
+        node: params.node, dieArea: params.dieArea, waferSize: params.waferSize,
+        'yield': params['yield'] || 0.95, pkgType: params.pkgType, pins: params.pins,
+        kValue: 1.0, productFamily: params.productFamily || '기타'
+      })
+    } catch(e) { return null }
+
+    var fe    = r.frontendCost
+    var be    = r.asmCost + r.testCost
+    var total = fe + be
+    if (!total || total <= 0) return null
+
+    var fracFE     = fe / total
+    var fracBE     = be / total
+    var cogsRatio  = getCOGSRatio(params.productFamily || '기타')
+    var matKey     = getPkgMaterialKey(params.pkgType)
+    var mat        = PKG_MATERIAL[matKey]
+    var lme        = mat.lme
+    var wChg       = params.waferChg       || 0
+    var cChg       = params.copperChg      || 0
+    var gChg       = params.goldChg        || 0
+    var sChg       = params.silverChg      || 0
+    var tChg       = params.tinChg         || 0
+    var eChg       = params.osatEnergyChg  || 0
+
+    var matBlended = lme.copper * cChg + lme.gold * gChg + lme.silver * sChg + lme.tin * tChg
+    var beChg      = mat.material * matBlended + mat.energy * eChg
+    var rawChg     = fracFE * wChg + fracBE * beChg
+    var justified  = cogsRatio * rawChg
+
+    return {
+      justifiedRate: justified,
+      fracFE:        fracFE,
+      fracBE:        fracBE,
+      cogsRatio:     cogsRatio,
+      feContrib:     cogsRatio * fracFE * wChg,
+      beContrib:     cogsRatio * fracBE * beChg,
+      matBlended:    matBlended,
+      matKey:        matKey
     }
   }
 
@@ -286,6 +365,8 @@
   Object.assign(window.ChipCalc, {
     engine: {
       calcCOGS:            calcCOGS,
+      getPkgMaterialKey:   getPkgMaterialKey,
+      calcJustifiedRate:   calcJustifiedRate,
       getWaferPrice:       getWaferPrice,
       setWaferPrice:       setWaferPrice,
       getWaferTable:       getWaferTable,
