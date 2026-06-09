@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230071e3'/%3E%3Ctext x='32' y='44' font-family='system-ui,-apple-system,sans-serif' font-size='32' font-weight='800' fill='white' text-anchor='middle' letter-spacing='-1'%3EIC%3C/text%3E%3C/svg%3E">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>차량용 MCU 카탈로그 — 37개 품목 DB | ChipCalc</title>
-<meta name="description" content="Infineon AURIX / TRAVEO, NXP S32K / S32R / MPC 등 차량용 MCU 37개의 공정·패키지·스펙을 한 곳에서 검색. 클릭 한 번으로 원가 계산기로 연동.">
+<title>차량용 반도체 카탈로그 — 774개 품목 DB | ChipCalc</title>
+<meta name="description" content="MCU·Analog·Power IC·Discrete 등 차량용 반도체 774개의 공정·패키지·다이 사이즈·가격 가이드를 한 곳에서 검색. 클릭 한 번으로 원가 계산기로 연동.">
 <meta name="keywords" content="차량용 MCU, AURIX 데이터베이스, TRAVEO, S32K, NXP MCU, automotive MCU catalog, semiconductor database">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
@@ -231,7 +231,7 @@ body.dark .search-box{background-color:var(--s2)}
     <a class="app-icon" href="index.html">IC</a>
     <div>
       <a class="app-name" href="index.html">ChipCalc</a>
-      <span class="app-sub">· MCU 카탈로그</span>
+      <span class="app-sub">· 반도체 카탈로그</span>
     </div>
   </div>
   <nav class="nav-center">
@@ -303,9 +303,9 @@ body.dark .search-box{background-color:var(--s2)}
     <h1>차량용 반도체 카탈로그</h1>
     <p class="hero-desc">파트 넘버·공정·패키지·스펙을 한 곳에서 검색.<br>원하는 제품을 클릭하면 원가 계산기가 자동 실행됩니다.</p>
     <div class="hero-chips">
-      <span class="hero-chip">🏢 3개 메이커</span>
-      <span class="hero-chip">📦 8개 시리즈</span>
-      <span class="hero-chip">🔢 37개 품목</span>
+      <span class="hero-chip" id="stat-makers">🏢 26개 메이커</span>
+      <span class="hero-chip" id="stat-cats">📂 7개 카테고리</span>
+      <span class="hero-chip" id="stat-products">🔢 774개 품목</span>
     </div>
   </div>
 </div>
@@ -318,7 +318,7 @@ body.dark .search-box{background-color:var(--s2)}
   <!-- 검색·필터 툴바 -->
   <div class="toolbar">
     <div class="search-row">
-      <input type="text" class="search-box" id="searchInput" placeholder="Part Number, 시리즈, 메이커로 검색 (예: TC397, S32K, TRAVEO...)" oninput="applyFilter()">
+      <input type="text" class="search-box" id="searchInput" placeholder="Part Number, 메이커, 분류로 검색…" oninput="applyFilter()">
     </div>
 
     <div class="filter-row" id="filterRow">
@@ -326,9 +326,6 @@ body.dark .search-box{background-color:var(--s2)}
         <div class="filter-label">메이커</div>
         <select class="filter-select" id="f-maker" onchange="applyFilter();updateFilterStyle(this)">
           <option value="">전체</option>
-          <option value="Infineon">Infineon</option>
-          <option value="Cypress(Infineon)">Cypress(Infineon)</option>
-          <option value="NXP">NXP</option>
         </select>
       </div>
       <div class="filter-select-wrap">
@@ -341,11 +338,14 @@ body.dark .search-box{background-color:var(--s2)}
         <div class="filter-label">웨이퍼 사이즈</div>
         <select class="filter-select" id="f-wafer" onchange="applyFilter();updateFilterStyle(this)">
           <option value="">전체</option>
+          <option value="4">4인치</option>
+          <option value="5">5인치</option>
+          <option value="6">6인치</option>
           <option value="8">8인치</option>
           <option value="12">12인치</option>
         </select>
       </div>
-      <div class="filter-select-wrap">
+      <div class="filter-select-wrap" id="wrap-pkg">
         <div class="filter-label">패키지 계열</div>
         <select class="filter-select" id="f-pkg" onchange="applyFilter();updateFilterStyle(this)">
           <option value="">전체</option>
@@ -355,7 +355,19 @@ body.dark .search-box{background-color:var(--s2)}
           <option value="QFP">HDQFP/TEQFP</option>
         </select>
       </div>
-      <div class="filter-select-wrap">
+      <div class="filter-select-wrap" id="wrap-process" style="display:none">
+        <div class="filter-label">공정 타입</div>
+        <select class="filter-select" id="f-process" onchange="applyFilter();updateFilterStyle(this)">
+          <option value="">전체</option>
+          <option value="digital">Digital</option>
+          <option value="analog_std">Analog STD</option>
+          <option value="bcd">BCD</option>
+          <option value="hv_cmos">HV CMOS</option>
+          <option value="bipolar">Bipolar</option>
+          <option value="sic">SiC</option>
+        </select>
+      </div>
+      <div class="filter-select-wrap" id="wrap-asil">
         <div class="filter-label">ASIL 등급</div>
         <select class="filter-select" id="f-asil" onchange="applyFilter();updateFilterStyle(this)">
           <option value="">전체</option>
@@ -364,7 +376,7 @@ body.dark .search-box{background-color:var(--s2)}
           <option value="QM">QM (비안전)</option>
         </select>
       </div>
-      <div class="filter-select-wrap">
+      <div class="filter-select-wrap" id="wrap-hsm">
         <div class="filter-label">HSM 보안칩</div>
         <select class="filter-select" id="f-hsm" onchange="applyFilter();updateFilterStyle(this)">
           <option value="">전체</option>
@@ -372,7 +384,7 @@ body.dark .search-box{background-color:var(--s2)}
           <option value="false">미탑재</option>
         </select>
       </div>
-      <div class="filter-select-wrap">
+      <div class="filter-select-wrap" id="wrap-core">
         <div class="filter-label">코어 수</div>
         <select class="filter-select" id="f-core" onchange="applyFilter();updateFilterStyle(this)">
           <option value="">전체</option>
@@ -422,106 +434,182 @@ body.dark .search-box{background-color:var(--s2)}
 <script src="shared-auth-supabase.js"></script>
 
 <script>
-/* ═══════════════════════════════════════════════
-   Supabase에서 제품 불러오기
-═══════════════════════════════════════════════ */
 var SUPABASE_URL = 'https://azouxvpthllgczbihppi.supabase.co';
 var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6b3V4dnB0aGxsZ2N6YmlocHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYwNzIzMTcsImV4cCI6MjA5MTY0ODMxN30.NCxy8WXBIyJ0INZkAzlsZMLZurfhCrIF4n_V1aUZQO0';
 var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 var ALL_PRODUCTS = [];
 var ALL_CATEGORIES = [];
+var CATEGORY_COUNTS = {};
 var CURRENT_CATEGORY = 'mcu';
-var filters = { maker:'all', node:'all', asil:'all', search:'' };
+var sortKey = 'maker';
+var sortDir = 1;
 
+var PROCESS_LABELS = {
+  digital:'Digital', analog_std:'Analog', bcd:'BCD',
+  hv_cmos:'HV CMOS', bipolar:'Bipolar', sic:'SiC'
+};
+
+var COLUMNS_MCU = [
+  {key:'maker',            label:'메이커',      cls:'col-maker'},
+  {key:'part_number',      label:'Part Number', cls:'col-pn'},
+  {key:'series_name',      label:'시리즈',      cls:'col-series'},
+  {key:'grade',            label:'등급',        cls:''},
+  {key:'node_nm',          label:'노드(nm)',     cls:'col-num'},
+  {key:'wafer_size_inch',  label:'웨이퍼',      cls:'col-num'},
+  {key:'package_type',     label:'패키지',      cls:'col-pkg'},
+  {key:'package_pin_count',label:'핀',          cls:'col-num'},
+  {key:'core_count',       label:'코어',        cls:'col-num'},
+  {key:'freq_mhz',         label:'MHz',         cls:'col-num'},
+  {key:'flash_mb',         label:'Flash',       cls:'col-num'},
+  {key:'asil_level',       label:'ASIL',        cls:''},
+  {key:'wafer_price_usd',  label:'웨이퍼$',     cls:'col-num'},
+  {key:'package_cost_usd', label:'Pkg$',        cls:'col-num'},
+  {key:'test_cost_usd',    label:'Test$',       cls:'col-num'},
+  {key:'_actions',         label:'',            cls:'col-actions', nosort:true},
+];
+
+var COLUMNS_GENERAL = [
+  {key:'maker',            label:'메이커',      cls:'col-maker'},
+  {key:'part_number',      label:'Part Number', cls:'col-pn'},
+  {key:'internal_category',label:'분류',        cls:'col-series'},
+  {key:'process_type',     label:'공정',        cls:''},
+  {key:'node_nm',          label:'노드(nm)',     cls:'col-num'},
+  {key:'_die_size',        label:'다이(mm)',     cls:'col-num'},
+  {key:'wafer_size_inch',  label:'웨이퍼',      cls:'col-num'},
+  {key:'package_type',     label:'패키지',      cls:'col-pkg'},
+  {key:'package_pin_count',label:'핀',          cls:'col-num'},
+  {key:'wafer_price_usd',  label:'웨이퍼$',     cls:'col-num'},
+  {key:'package_cost_usd', label:'Pkg$',        cls:'col-num'},
+  {key:'test_cost_usd',    label:'Test$',       cls:'col-num'},
+  {key:'_actions',         label:'',            cls:'col-actions', nosort:true},
+];
+
+/* ─── 데이터 로드 ─── */
 async function loadCategories() {
-  var {data, error} = await sb
-    .from('product_categories')
-    .select('*')
-    .eq('is_active', true)
-    .order('display_order');
+  var {data, error} = await sb.from('product_categories').select('*').eq('is_active', true).order('display_order');
   if(error){console.error(error); return []}
   return data || [];
 }
 
-async function loadProducts() {
-  var {data, error} = await sb
-    .from('products')
-    .select('*, product_series(series_name, series_code, typical_application)')
-    .eq('is_active', true)
-    .order('maker')
-    .order('node_nm', {ascending: false});
-  if(error){console.error(error); return []}
-  return data || [];
-}
-
-function renderCategoryTabs() {
-  // 각 카테고리별 제품 수 계산 (현재는 MCU만 데이터 있음)
+async function loadAllCategoryIds() {
+  var {data, error} = await sb.from('products').select('category_id').eq('is_active', true);
+  if(error){console.error(error); return {}}
   var counts = {};
-  ALL_PRODUCTS.forEach(function(p){
-    // category_id → slug 연결 필요. 현재 모두 mcu
-  });
-  var mcuCount = ALL_PRODUCTS.length;
+  (data||[]).forEach(function(r){ counts[r.category_id] = (counts[r.category_id]||0) + 1; });
+  return counts;
+}
 
+async function loadProducts(categoryId, isMcu) {
+  var sel = isMcu ? '*, product_series(series_name, series_code, typical_application)' : '*';
+  var {data, error} = await sb.from('products').select(sel)
+    .eq('is_active', true).eq('category_id', categoryId)
+    .order('maker').order('part_number');
+  if(error){console.error(error); return []}
+  return data || [];
+}
+
+/* ─── 카테고리 탭 ─── */
+function renderCategoryTabs() {
   var html = ALL_CATEGORIES.map(function(c){
     var isActive = c.slug === CURRENT_CATEGORY;
-    var cnt = c.slug === 'mcu' ? mcuCount : 0;
-    var isDisabled = c.slug !== 'mcu';  // 현재는 MCU만 활성
-    var cls = 'cat-tab' + (isActive ? ' on' : '') + (isDisabled ? ' disabled' : '');
-    var onClick = isDisabled ? '' : ' onclick="switchCategory(\'' + c.slug + '\')"';
-    return '<button class="' + cls + '"' + onClick + '>' + c.icon + ' ' + c.name_ko
+    var cnt = CATEGORY_COUNTS[c.id] || 0;
+    var cls = 'cat-tab' + (isActive ? ' on' : '');
+    return '<button class="' + cls + '" onclick="switchCategory(\'' + c.slug + '\')">'
+      + c.icon + ' ' + c.name_ko
       + '<span class="cnt">' + cnt + '</span></button>';
   }).join('');
   document.getElementById('catTabs').innerHTML = html;
 }
 
-function switchCategory(slug) {
+async function switchCategory(slug) {
+  await loadAndShowCategory(slug);
+}
+
+async function loadAndShowCategory(slug) {
   CURRENT_CATEGORY = slug;
   renderCategoryTabs();
+  var catObj = ALL_CATEGORIES.find(function(c){ return c.slug === slug; });
+  if(!catObj) return;
+  document.getElementById('productsContainer').innerHTML =
+    '<div class="loading"><div class="loading-spinner"></div><div>제품 정보를 불러오는 중…</div></div>';
+  var isMcu = slug === 'mcu';
+  ALL_PRODUCTS = await loadProducts(catObj.id, isMcu);
+  updateCategoryFilters(isMcu);
+  resetFiltersInternal();
+  buildFilterOptions(isMcu);
   applyFilter();
 }
 
-function resetFilters() {
-  ['f-maker','f-node','f-wafer','f-pkg','f-asil','f-hsm','f-core'].forEach(function(id){
+/* ─── 필터 ─── */
+function updateCategoryFilters(isMcu) {
+  ['wrap-pkg','wrap-asil','wrap-hsm','wrap-core'].forEach(function(id){
     var el = document.getElementById(id);
-    if(el){ el.value = ''; el.classList.remove('active'); }
+    if(el) el.style.display = isMcu ? '' : 'none';
   });
-  document.getElementById('searchInput').value = '';
-  applyFilter();
+  var pw = document.getElementById('wrap-process');
+  if(pw) pw.style.display = isMcu ? 'none' : '';
+  sortKey = isMcu ? 'node_nm' : 'maker';
+  sortDir = isMcu ? -1 : 1;
+}
+
+function buildFilterOptions(isMcu) {
+  var makers = Array.from(new Set(ALL_PRODUCTS.map(function(p){return p.maker}).filter(Boolean))).sort();
+  var ms = document.getElementById('f-maker');
+  if(ms) ms.innerHTML = '<option value="">전체</option>' + makers.map(function(m){
+    return '<option value="'+m+'">'+m+'</option>';
+  }).join('');
+
+  var nodes = Array.from(new Set(ALL_PRODUCTS.map(function(p){return p.node_nm}).filter(Boolean))).sort(function(a,b){return a-b});
+  var ns = document.getElementById('f-node');
+  if(ns) ns.innerHTML = '<option value="">전체</option>' + nodes.map(function(n){
+    return '<option value="'+n+'">'+n+'nm</option>';
+  }).join('');
+
+  if(isMcu) {
+    var cores = Array.from(new Set(ALL_PRODUCTS.map(function(p){return p.core_count}).filter(Boolean))).sort(function(a,b){return a-b});
+    var cs = document.getElementById('f-core');
+    if(cs) cs.innerHTML = '<option value="">전체</option>' + cores.map(function(c){
+      return '<option value="'+c+'">'+c+'코어</option>';
+    }).join('');
+  }
 }
 
 function pkgFamilyMatch(pkgType, fam){
   if(!pkgType || !fam) return true;
   var p = pkgType.toUpperCase();
-  if(fam === 'BGA') return p.indexOf('BGA') >= 0;
+  if(fam === 'BGA')  return p.indexOf('BGA') >= 0;
   if(fam === 'LQFP') return p.indexOf('LQFP') >= 0;
   if(fam === 'TQFP') return p.indexOf('TQFP') >= 0 && p.indexOf('LQFP') < 0;
-  if(fam === 'QFP') return (p.indexOf('HDQFP') >= 0 || p.indexOf('TEQFP') >= 0 || p.indexOf('MAPBGA') >= 0);
+  if(fam === 'QFP')  return p.indexOf('HDQFP') >= 0 || p.indexOf('TEQFP') >= 0 || p.indexOf('MAPBGA') >= 0;
   return true;
 }
 
 function applyFilter() {
-  var fMaker  = (document.getElementById('f-maker')?.value  || '').trim();
-  var fNode   = (document.getElementById('f-node')?.value   || '').trim();
-  var fWafer  = (document.getElementById('f-wafer')?.value  || '').trim();
-  var fPkg    = (document.getElementById('f-pkg')?.value    || '').trim();
-  var fAsil   = (document.getElementById('f-asil')?.value   || '').trim();
-  var fHsm    = (document.getElementById('f-hsm')?.value    || '').trim();
-  var fCore   = (document.getElementById('f-core')?.value   || '').trim();
-  var search  = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+  var fMaker   = (document.getElementById('f-maker')?.value   || '').trim();
+  var fNode    = (document.getElementById('f-node')?.value    || '').trim();
+  var fWafer   = (document.getElementById('f-wafer')?.value   || '').trim();
+  var fPkg     = (document.getElementById('f-pkg')?.value     || '').trim();
+  var fProcess = (document.getElementById('f-process')?.value || '').trim();
+  var fAsil    = (document.getElementById('f-asil')?.value    || '').trim();
+  var fHsm     = (document.getElementById('f-hsm')?.value     || '').trim();
+  var fCore    = (document.getElementById('f-core')?.value    || '').trim();
+  var search   = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
 
   var filtered = ALL_PRODUCTS.filter(function(p){
-    if(fMaker && p.maker !== fMaker) return false;
-    if(fNode  && p.node_nm != fNode) return false;
-    if(fWafer && p.wafer_size_inch != fWafer) return false;
-    if(fPkg   && !pkgFamilyMatch(p.package_type, fPkg)) return false;
-    if(fAsil  && p.asil_level !== fAsil) return false;
+    if(fMaker   && p.maker !== fMaker) return false;
+    if(fNode    && p.node_nm != fNode) return false;
+    if(fWafer   && p.wafer_size_inch != fWafer) return false;
+    if(fPkg     && !pkgFamilyMatch(p.package_type, fPkg)) return false;
+    if(fProcess && p.process_type !== fProcess) return false;
+    if(fAsil    && p.asil_level !== fAsil) return false;
     if(fHsm === 'true'  && !p.hsm) return false;
     if(fHsm === 'false' && p.hsm)  return false;
-    if(fCore  && p.core_count != fCore) return false;
+    if(fCore    && p.core_count != fCore) return false;
     if(search){
       var hay = [
         p.part_number, p.full_part_number, p.maker, p.grade, p.package_type,
+        p.internal_category, p.process_type,
         p.product_series && p.product_series.series_name,
         p.product_series && p.product_series.series_code,
         p.typical_use
@@ -535,55 +623,38 @@ function applyFilter() {
   renderProducts(filtered);
 }
 
-var sortKey = 'node_nm';
-var sortDir = 1;  // 1=asc, -1=desc
+function updateFilterStyle(sel){ sel.classList.toggle('active', sel.value !== ''); }
 
-/* 필터 드롭다운 활성 스타일 */
-function updateFilterStyle(sel){
-  sel.classList.toggle('active', sel.value !== '');
+function resetFiltersInternal() {
+  ['f-maker','f-node','f-wafer','f-pkg','f-process','f-asil','f-hsm','f-core'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.value = ''; el.classList.remove('active'); }
+  });
+  document.getElementById('searchInput').value = '';
 }
 
-/* 노드·코어 드롭다운 옵션 동적 생성 */
-function buildFilterOptions(){
-  // 노드
-  var nodes = [...new Set(ALL_PRODUCTS.map(function(p){return p.node_nm}).filter(Boolean))].sort(function(a,b){return a-b});
-  var ns = document.getElementById('f-node');
-  if(ns){
-    var cur = ns.value;
-    ns.innerHTML = '<option value="">전체</option>' + nodes.map(function(n){return '<option value="'+n+'"'+( n==cur?' selected':'')+'>'+ n+'nm</option>';}).join('');
-  }
-  // 코어 수
-  var cores = [...new Set(ALL_PRODUCTS.map(function(p){return p.core_count}).filter(Boolean))].sort(function(a,b){return a-b});
-  var cs = document.getElementById('f-core');
-  if(cs){
-    var cur2 = cs.value;
-    cs.innerHTML = '<option value="">전체</option>' + cores.map(function(c){return '<option value="'+c+'"'+(c==cur2?' selected':'')+'>'+ c+'코어</option>';}).join('');
-  }
+function resetFilters() {
+  resetFiltersInternal();
+  applyFilter();
 }
 
-var COLUMNS = [
-  {key:'maker',       label:'메이커',   cls:'col-maker'},
-  {key:'part_number', label:'Part Number', cls:'col-pn'},
-  {key:'series_name', label:'시리즈',   cls:'col-series'},
-  {key:'grade',       label:'등급',     cls:''},
-  {key:'node_nm',     label:'노드(nm)', cls:'col-num'},
-  {key:'wafer_size_inch',label:'웨이퍼', cls:'col-num'},
-  {key:'package_type',label:'패키지',   cls:'col-pkg'},
-  {key:'package_pin_count',label:'핀',  cls:'col-num'},
-  {key:'core_count',  label:'코어',     cls:'col-num'},
-  {key:'freq_mhz',    label:'MHz',      cls:'col-num'},
-  {key:'flash_mb',    label:'Flash',    cls:'col-num'},
-  {key:'asil_level',  label:'ASIL',     cls:''},
-  {key:'wafer_price_usd',label:'웨이퍼$',cls:'col-num'},
-  {key:'package_cost_usd',label:'Pkg$', cls:'col-num'},
-  {key:'test_cost_usd',label:'Test$',   cls:'col-num'},
-  {key:'_actions',    label:'',         cls:'col-actions', nosort:true},
-];
+/* ─── 테이블 렌더링 ─── */
+function setSort(key){
+  if(sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = 1; }
+  applyFilter();
+}
+
+function getCellVal(p, key){
+  if(key === 'series_name') return p.product_series ? p.product_series.series_name : '';
+  if(key === '_die_size') return (p.die_width_mm||0) * (p.die_height_mm||0);
+  if(key === 'process_type') return PROCESS_LABELS[p.process_type] || p.process_type || '';
+  return p[key] != null ? p[key] : null;
+}
 
 function sortProducts(list){
   return list.slice().sort(function(a,b){
-    var av = getCellVal(a, sortKey);
-    var bv = getCellVal(b, sortKey);
+    var av = getCellVal(a, sortKey), bv = getCellVal(b, sortKey);
     if(av == null) return 1;
     if(bv == null) return -1;
     if(typeof av === 'number' && typeof bv === 'number') return (av - bv) * sortDir;
@@ -591,142 +662,141 @@ function sortProducts(list){
   });
 }
 
-function getCellVal(p, key){
-  if(key === 'series_name') return p.product_series ? p.product_series.series_name : '';
-  return p[key] != null ? p[key] : null;
+function renderCellValue(p, key){
+  if(key === 'series_name') return p.product_series ? p.product_series.series_name : '—';
+  if(key === 'node_nm') return p.node_nm != null ? p.node_nm + 'nm' : '—';
+  if(key === 'wafer_size_inch') return p.wafer_size_inch != null ? p.wafer_size_inch + '″' : '—';
+  if(key === 'flash_mb'){
+    if(p.flash_mb == null) return '—';
+    return p.flash_mb >= 1 ? p.flash_mb + 'MB' : Math.round(p.flash_mb * 1024) + 'KB';
+  }
+  if(key === 'asil_level'){
+    var ac = p.asil_level === 'D' ? 'badge-asil-d' : (p.asil_level === 'B' ? 'badge-asil-b' : 'badge-asil-qm');
+    return '<span class="pc-badge '+ac+'">ASIL-'+(p.asil_level||'QM')+'</span>'
+      + (p.hsm ? '<span class="pc-badge badge-hsm">HSM</span>' : '');
+  }
+  if(key === 'wafer_price_usd') return p.wafer_price_usd != null ? '$'+p.wafer_price_usd.toLocaleString() : '—';
+  if(key === 'package_cost_usd') return '$'+(p.package_cost_usd||0).toFixed(2);
+  if(key === 'test_cost_usd') return '$'+(p.test_cost_usd||0).toFixed(2);
+  if(key === '_die_size'){
+    if(p.die_width_mm && p.die_height_mm) return p.die_width_mm.toFixed(2)+'×'+p.die_height_mm.toFixed(2);
+    return '—';
+  }
+  if(key === 'process_type') return PROCESS_LABELS[p.process_type] || (p.process_type||'—');
+  var v = p[key];
+  return v != null ? String(v) : '—';
 }
 
-function setSort(key){
-  if(sortKey === key) sortDir *= -1;
-  else { sortKey = key; sortDir = 1; }
-  applyFilter();
-}
-
-function renderProducts(list) {
+function renderProducts(list){
   var ct = document.getElementById('productsContainer');
   if(list.length === 0){
     ct.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>검색 조건에 맞는 제품이 없습니다.<br><span style="font-size:11px;color:var(--l4)">다른 조건으로 시도해보세요.</span></div>';
     return;
   }
-
+  var isMcu = CURRENT_CATEGORY === 'mcu';
+  var COLS = isMcu ? COLUMNS_MCU : COLUMNS_GENERAL;
   var sorted = sortProducts(list);
 
-  // 헤더
-  var thead = '<thead><tr>' + COLUMNS.map(function(c){
-    if(c.nosort) return '<th class="' + c.cls + '">' + c.label + '</th>';
+  var thead = '<thead><tr>' + COLS.map(function(c){
+    if(c.nosort) return '<th class="'+(c.cls||'')+'">'+c.label+'</th>';
     var sc = sortKey === c.key ? (sortDir > 0 ? ' sorted-asc' : ' sorted-desc') : '';
-    return '<th class="' + c.cls + sc + '" onclick="setSort(\'' + c.key + '\')">' + c.label + '</th>';
+    return '<th class="'+(c.cls||'')+sc+'" onclick="setSort(\''+c.key+'\')">'+c.label+'</th>';
   }).join('') + '</tr></thead>';
 
-  // 행
-  var tbody = '<tbody>' + sorted.map(function(p){ return rowHtml(p); }).join('') + '</tbody>';
-
-  ct.innerHTML = '<div class="prod-table-wrap"><table class="prod-table">' + thead + tbody + '</table></div>';
+  var tbody = '<tbody>' + sorted.map(function(p){ return rowHtml(p, COLS); }).join('') + '</tbody>';
+  ct.innerHTML = '<div class="prod-table-wrap"><table class="prod-table">'+thead+tbody+'</table></div>';
 }
 
-function rowHtml(p){
-  var sn = p.product_series ? p.product_series.series_name : '—';
-  var flashMb = p.flash_mb >= 1 ? p.flash_mb + 'MB' : Math.round(p.flash_mb * 1024) + 'KB';
-  var asilCls = p.asil_level === 'D' ? 'badge-asil-d' : (p.asil_level === 'B' ? 'badge-asil-b' : 'badge-asil-qm');
-  var calcUrl = 'calculator.html?part=' + encodeURIComponent(p.part_number);
+function rowHtml(p, COLS){
   var id = p.id.replace(/'/g,"\\'");
-  var pid = p.id;
-
-  return '<tr data-maker="' + (p.maker||'') + '" onclick="openDetail(\'' + id + '\')">'
-    + '<td class="col-maker">' + (p.maker||'—') + '</td>'
-    + '<td class="col-pn">' + p.part_number + '</td>'
-    + '<td class="col-series">' + sn + '</td>'
-    + '<td>' + (p.grade||'—') + '</td>'
-    + '<td class="col-num">' + p.node_nm + '</td>'
-    + '<td class="col-num">' + p.wafer_size_inch + '″</td>'
-    + '<td class="col-pkg">' + (p.package_type||'—') + '</td>'
-    + '<td class="col-num">' + (p.package_pin_count||'—') + '</td>'
-    + '<td class="col-num">' + p.core_count + '</td>'
-    + '<td class="col-num">' + p.freq_mhz + '</td>'
-    + '<td class="col-num">' + flashMb + '</td>'
-    + '<td><span class="pc-badge ' + asilCls + '">ASIL-' + (p.asil_level||'QM') + '</span>'
-        + (p.hsm ? '<span class="pc-badge badge-hsm">HSM</span>' : '') + '</td>'
-    + '<td class="col-num">$' + (p.wafer_price_usd||0).toLocaleString() + '</td>'
-    + '<td class="col-num">$' + (p.package_cost_usd||0).toFixed(2) + '</td>'
-    + '<td class="col-num">$' + (p.test_cost_usd||0).toFixed(2) + '</td>'
-    + '<td class="col-actions" onclick="event.stopPropagation()">'
-        + '<button class="btn-detail" onclick="openDetail(\'' + id + '\')">상세</button>'
-        + '<a class="btn-calc" href="' + calcUrl + '">🧮</a>'
-    + '</td>'
-  + '</tr>';
+  var calcUrl = 'calculator.html?part=' + encodeURIComponent(p.part_number);
+  var cells = COLS.map(function(c){
+    if(c.key === '_actions') return '<td class="col-actions" onclick="event.stopPropagation()">'
+      + '<button class="btn-detail" onclick="openDetail(\''+id+'\')">상세</button>'
+      + '<a class="btn-calc" href="'+calcUrl+'">🧮</a></td>';
+    return '<td class="'+(c.cls||'')+'">'+renderCellValue(p, c.key)+'</td>';
+  }).join('');
+  return '<tr data-maker="'+(p.maker||'')+'" onclick="openDetail(\''+id+'\')">'+cells+'</tr>';
 }
 
-/* ───── 상세 모달 ───── */
+/* ─── 상세 모달 ─── */
 function openDetail(id){
   var p = ALL_PRODUCTS.find(function(x){return x.id === id});
   if(!p) return;
-
-  document.getElementById('modal-maker-series').textContent = p.maker + ' · ' + (p.product_series && p.product_series.series_name);
+  var isMcu = CURRENT_CATEGORY === 'mcu';
+  var subtitle = p.maker + ' · ' + (isMcu && p.product_series ? p.product_series.series_name : (p.internal_category||''));
+  document.getElementById('modal-maker-series').textContent = subtitle;
   document.getElementById('modal-title').textContent = p.full_part_number || p.part_number;
   document.getElementById('modal-calc-link').href = 'calculator.html?part=' + encodeURIComponent(p.part_number);
-
-  var flashMb = p.flash_mb >= 1 ? p.flash_mb + ' MB' : Math.round(p.flash_mb * 1024) + ' KB';
-  var ramMb = p.ram_mb >= 1 ? p.ram_mb + ' MB' : Math.round(p.ram_mb * 1024) + ' KB';
-
-  var body = '<div class="modal-section">'
-    + '<div class="modal-section-title">기본 정보</div>'
-    + '<div class="modal-grid">'
-      + '<div><div class="pc-spec-lbl">시리즈</div><div class="pc-spec-val">' + (p.product_series && p.product_series.series_name) + '</div></div>'
-      + '<div><div class="pc-spec-lbl">등급</div><div class="pc-spec-val">' + (p.grade || '—') + '</div></div>'
-      + '<div><div class="pc-spec-lbl">주 용도</div><div class="pc-spec-val small">' + (p.typical_use || '—') + '</div></div>'
-      + '<div><div class="pc-spec-lbl">ASIL / HSM</div><div class="pc-spec-val">ASIL-' + (p.asil_level || 'QM') + (p.hsm ? ' + HSM' : '') + '</div></div>'
-    + '</div></div>'
-    + '<div class="modal-section">'
-    + '<div class="modal-section-title">MCU 스펙</div>'
-    + '<div class="modal-grid">'
-      + '<div><div class="pc-spec-lbl">코어</div><div class="pc-spec-val">' + p.core_count + '× ' + (p.core_arch || '-') + '</div></div>'
-      + '<div><div class="pc-spec-lbl">주파수</div><div class="pc-spec-val">' + p.freq_mhz + ' MHz</div></div>'
-      + '<div><div class="pc-spec-lbl">Flash</div><div class="pc-spec-val">' + flashMb + '</div></div>'
-      + '<div><div class="pc-spec-lbl">RAM</div><div class="pc-spec-val">' + ramMb + '</div></div>'
-    + '</div></div>'
-    + '<div class="modal-section">'
-    + '<div class="modal-section-title">공정 & 웨이퍼 (업계 시세)</div>'
-    + '<div class="modal-grid">'
-      + '<div><div class="pc-spec-lbl">공정 노드</div><div class="pc-spec-val">' + p.node_nm + ' nm</div></div>'
-      + '<div><div class="pc-spec-lbl">웨이퍼 사이즈</div><div class="pc-spec-val">' + p.wafer_size_inch + " inch</div></div>"
-      + '<div><div class="pc-spec-lbl">웨이퍼 장당 시세</div><div class="pc-spec-val">$' + (p.wafer_price_usd || 0).toLocaleString() + '</div></div>'
-      + '<div><div class="pc-spec-lbl">웨이퍼 수율</div><div class="pc-spec-val">' + (p.wafer_yield_pct || 90) + '%</div></div>'
-    + '</div></div>'
-    + '<div class="modal-section">'
-    + '<div class="modal-section-title">패키지 & 테스트 (업계 시세)</div>'
-    + '<div class="modal-grid">'
-      + '<div><div class="pc-spec-lbl">패키지 타입</div><div class="pc-spec-val small">' + (p.package_type || '—') + '</div></div>'
-      + '<div><div class="pc-spec-lbl">핀 수</div><div class="pc-spec-val">' + (p.package_pin_count || '—') + '</div></div>'
-      + '<div><div class="pc-spec-lbl">패키지 비용</div><div class="pc-spec-val">$' + (p.package_cost_usd || 0).toFixed(3) + '/unit</div></div>'
-      + '<div><div class="pc-spec-lbl">테스트 비용</div><div class="pc-spec-val">$' + (p.test_cost_usd || 0).toFixed(3) + '/unit</div></div>'
-    + '</div></div>'
-    + '<div class="modal-note">'
-    + '<strong>📝 참고</strong><br>'
-    + '웨이퍼 단가·패키지·테스트 비용은 공개된 업계 시세로 저장돼 있습니다. 실제 거래가는 계약 조건에 따라 다르며, '
-    + '<strong>Die 사이즈는 DB에 저장되지 않음</strong>(협상 민감 정보). 계산기에서 직접 입력해주세요.'
-    + '</div>';
-
-  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-body').innerHTML = isMcu ? renderMcuModal(p) : renderGeneralModal(p);
   document.getElementById('detailModal').classList.add('open');
 }
+
+function renderMcuModal(p){
+  var flashMb = p.flash_mb != null ? (p.flash_mb >= 1 ? p.flash_mb+' MB' : Math.round(p.flash_mb*1024)+' KB') : '—';
+  var ramMb   = p.ram_mb  != null ? (p.ram_mb  >= 1 ? p.ram_mb +' MB' : Math.round(p.ram_mb *1024)+' KB') : '—';
+  return '<div class="modal-section"><div class="modal-section-title">기본 정보</div><div class="modal-grid">'
+    + '<div><div class="pc-spec-lbl">시리즈</div><div class="pc-spec-val">'+(p.product_series && p.product_series.series_name||'—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">등급</div><div class="pc-spec-val">'+(p.grade||'—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">주 용도</div><div class="pc-spec-val small">'+(p.typical_use||'—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">ASIL / HSM</div><div class="pc-spec-val">ASIL-'+(p.asil_level||'QM')+(p.hsm?' + HSM':'')+'</div></div>'
+    + '</div></div>'
+    + '<div class="modal-section"><div class="modal-section-title">MCU 스펙</div><div class="modal-grid">'
+    + '<div><div class="pc-spec-lbl">코어</div><div class="pc-spec-val">'+(p.core_count||'—')+'× '+(p.core_arch||'-')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">주파수</div><div class="pc-spec-val">'+(p.freq_mhz||'—')+' MHz</div></div>'
+    + '<div><div class="pc-spec-lbl">Flash</div><div class="pc-spec-val">'+flashMb+'</div></div>'
+    + '<div><div class="pc-spec-lbl">RAM</div><div class="pc-spec-val">'+ramMb+'</div></div>'
+    + '</div></div>'
+    + renderWaferPkgSection(p)
+    + '<div class="modal-note"><strong>📝 참고</strong><br>웨이퍼·패키지·테스트 비용은 업계 시세 기반 가이드값입니다. 실제 거래가는 계약 조건에 따라 다릅니다.</div>';
+}
+
+function renderGeneralModal(p){
+  var dw = p.die_width_mm, dh = p.die_height_mm;
+  var dieSz = (dw && dh) ? dw.toFixed(3)+'×'+dh.toFixed(3)+' mm' : '—';
+  var dieAr = (dw && dh) ? (dw*dh).toFixed(3)+' mm²' : '—';
+  return '<div class="modal-section"><div class="modal-section-title">기본 정보</div><div class="modal-grid">'
+    + '<div><div class="pc-spec-lbl">분류</div><div class="pc-spec-val">'+(p.internal_category||'—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">공정 타입</div><div class="pc-spec-val">'+(PROCESS_LABELS[p.process_type]||p.process_type||'—')+'</div></div>'
+    + '</div></div>'
+    + '<div class="modal-section"><div class="modal-section-title">다이 & 공정</div><div class="modal-grid">'
+    + '<div><div class="pc-spec-lbl">다이 사이즈</div><div class="pc-spec-val small">'+dieSz+'</div></div>'
+    + '<div><div class="pc-spec-lbl">다이 면적</div><div class="pc-spec-val">'+dieAr+'</div></div>'
+    + '<div><div class="pc-spec-lbl">공정 노드</div><div class="pc-spec-val">'+(p.node_nm ? p.node_nm+' nm' : '—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">웨이퍼 사이즈</div><div class="pc-spec-val">'+(p.wafer_size_inch ? p.wafer_size_inch+' inch' : '—')+'</div></div>'
+    + '</div></div>'
+    + renderWaferPkgSection(p)
+    + '<div class="modal-note"><strong>📝 참고</strong><br>웨이퍼·패키지·테스트 비용은 업계 시세 기반 가이드값입니다. 실제 거래가는 계약 조건에 따라 다릅니다.</div>';
+}
+
+function renderWaferPkgSection(p){
+  return '<div class="modal-section"><div class="modal-section-title">공정 시세 (업계 가이드)</div><div class="modal-grid">'
+    + '<div><div class="pc-spec-lbl">웨이퍼 장당 시세</div><div class="pc-spec-val">'+(p.wafer_price_usd ? '$'+p.wafer_price_usd.toLocaleString() : '—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">웨이퍼 수율</div><div class="pc-spec-val">'+(p.wafer_yield_pct||90)+'%</div></div>'
+    + '</div></div>'
+    + '<div class="modal-section"><div class="modal-section-title">패키지 & 테스트</div><div class="modal-grid">'
+    + '<div><div class="pc-spec-lbl">패키지 타입</div><div class="pc-spec-val small">'+(p.package_type||'—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">핀 수</div><div class="pc-spec-val">'+(p.package_pin_count||'—')+'</div></div>'
+    + '<div><div class="pc-spec-lbl">패키지 비용</div><div class="pc-spec-val">$'+(p.package_cost_usd||0).toFixed(3)+'/unit</div></div>'
+    + '<div><div class="pc-spec-lbl">테스트 비용</div><div class="pc-spec-val">$'+(p.test_cost_usd||0).toFixed(3)+'/unit</div></div>'
+    + '</div></div>';
+}
+
 function closeDetailModal(){
   document.getElementById('detailModal').classList.remove('open');
 }
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDetailModal(); });
 
-// ESC 키로 모달 닫기
-document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape') closeDetailModal();
-});
-
-/* ───── 초기화 ───── */
+/* ─── 초기화 ─── */
 (async function init(){
   try {
-    var [cats, prods] = await Promise.all([loadCategories(), loadProducts()]);
+    var [cats, catCounts] = await Promise.all([loadCategories(), loadAllCategoryIds()]);
     ALL_CATEGORIES = cats;
-    ALL_PRODUCTS = prods;
-    renderCategoryTabs();
-    buildFilterOptions();
-    applyFilter();
+    CATEGORY_COUNTS = catCounts;
+    var total = Object.values(CATEGORY_COUNTS).reduce(function(a,b){return a+b}, 0);
+    var sp = document.getElementById('stat-products');
+    if(sp) sp.textContent = '🔢 ' + total + '개 품목';
+    await loadAndShowCategory('mcu');
   } catch(e) {
     console.error(e);
     document.getElementById('productsContainer').innerHTML =
