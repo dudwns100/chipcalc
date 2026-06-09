@@ -2817,6 +2817,16 @@ function applyCatalogProduct(p){
     if(tst){ tst.value = p.test_cost_usd; }
   }
 
+  /* 다이 사이즈 (DB에 저장된 경우 자동 입력) */
+  if(p.die_width_mm){
+    var dw = document.getElementById('dieW');
+    if(dw){ dw.value = parseFloat(p.die_width_mm).toFixed(2); }
+  }
+  if(p.die_height_mm){
+    var dh = document.getElementById('dieH');
+    if(dh){ dh.value = parseFloat(p.die_height_mm).toFixed(2); }
+  }
+
   /* 재계산 */
   if(typeof calc === 'function') calc();
 }
@@ -2834,7 +2844,9 @@ function showCatalogBanner(p){
       + '<span style="color:#475569">(' + p.maker + ' ' + (p.product_series ? p.product_series.series_name : '') + ')</span>'
       + '<div style="font-size:11px;color:#475569;margin-top:2px">'
         + '공정 · 웨이퍼 단가 · 패키지 · 테스트 비용이 자동 입력됐습니다. '
-        + '<strong>Die 크기는 직접 입력</strong>해주세요.'
+        + (p.die_width_mm && p.die_height_mm
+            ? 'Die 크기도 자동 입력됐습니다.'
+            : '<strong>Die 크기는 직접 입력</strong>해주세요.')
       + '</div>'
     + '</div></div>'
     + '<div style="display:flex;gap:6px">'
