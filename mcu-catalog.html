@@ -21,6 +21,7 @@
 <script src="shared-analytics.js"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8001568484522021" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -395,7 +396,10 @@ body.dark .search-box{background-color:var(--s2)}
 
     <div class="result-meta">
       <span id="resultCount">로딩 중…</span>
-      <span style="font-size:10.5px">공정 시세 기준 · 실제 가격은 협상 필요</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="filter-reset" id="downloadBtn" onclick="downloadExcel()" style="color:var(--blue);border-color:var(--blue-s)">⬇ Excel 다운로드</button>
+        <span style="font-size:10.5px">공정 시세 기준 · 실제 가격은 협상 필요</span>
+      </div>
     </div>
   </div>
 
@@ -441,6 +445,7 @@ var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 var ALL_PRODUCTS = [];
 var ALL_CATEGORIES = [];
 var CATEGORY_COUNTS = {};
+var FILTERED_PRODUCTS = [];
 var CURRENT_CATEGORY = 'mcu';
 var sortKey = 'maker';
 var sortDir = 1;
@@ -619,6 +624,7 @@ function applyFilter() {
     return true;
   });
 
+  FILTERED_PRODUCTS = filtered;
   document.getElementById('resultCount').textContent = filtered.length + ' / ' + ALL_PRODUCTS.length + '개 제품';
   renderProducts(filtered);
 }
@@ -780,6 +786,62 @@ function renderWaferPkgSection(p){
     + '<div><div class="pc-spec-lbl">패키지 비용</div><div class="pc-spec-val">$'+(p.package_cost_usd||0).toFixed(3)+'/unit</div></div>'
     + '<div><div class="pc-spec-lbl">테스트 비용</div><div class="pc-spec-val">$'+(p.test_cost_usd||0).toFixed(3)+'/unit</div></div>'
     + '</div></div>';
+}
+
+/* ─── Excel 다운로드 ─── */
+function downloadExcel(){
+  if(!FILTERED_PRODUCTS.length){ alert('다운로드할 제품이 없습니다.'); return; }
+  var isMcu = CURRENT_CATEGORY === 'mcu';
+  var catObj = ALL_CATEGORIES.find(function(c){ return c.slug === CURRENT_CATEGORY; });
+  var catLabel = catObj ? catObj.name_ko : CURRENT_CATEGORY;
+
+  var rows = FILTERED_PRODUCTS.map(function(p){
+    if(isMcu){
+      return {
+        '메이커': p.maker,
+        'Part Number': p.part_number,
+        '시리즈': p.product_series ? p.product_series.series_name : '',
+        '등급': p.grade || '',
+        '공정 노드(nm)': p.node_nm,
+        '웨이퍼 사이즈(inch)': p.wafer_size_inch,
+        '패키지': p.package_type || '',
+        '핀 수': p.package_pin_count,
+        '코어 수': p.core_count,
+        '주파수(MHz)': p.freq_mhz,
+        'Flash(MB)': p.flash_mb,
+        'ASIL': p.asil_level || '',
+        'HSM': p.hsm ? 'O' : '',
+        '웨이퍼 단가($)': p.wafer_price_usd,
+        '패키지 비용($)': p.package_cost_usd,
+        '테스트 비용($)': p.test_cost_usd,
+      };
+    } else {
+      var area = (p.die_width_mm && p.die_height_mm)
+        ? parseFloat((p.die_width_mm * p.die_height_mm).toFixed(4)) : null;
+      return {
+        '메이커': p.maker,
+        'Part Number': p.part_number,
+        '분류': p.internal_category || '',
+        '공정 타입': PROCESS_LABELS[p.process_type] || p.process_type || '',
+        '공정 노드(nm)': p.node_nm,
+        '다이 가로(mm)': p.die_width_mm,
+        '다이 세로(mm)': p.die_height_mm,
+        '다이 면적(mm²)': area,
+        '웨이퍼 사이즈(inch)': p.wafer_size_inch,
+        '패키지': p.package_type || '',
+        '핀 수': p.package_pin_count,
+        '웨이퍼 단가($)': p.wafer_price_usd,
+        '패키지 비용($)': p.package_cost_usd,
+        '테스트 비용($)': p.test_cost_usd,
+      };
+    }
+  });
+
+  var ws = window.XLSX.utils.json_to_sheet(rows);
+  var wb = window.XLSX.utils.book_new();
+  window.XLSX.utils.book_append_sheet(wb, ws, catLabel);
+  var today = new Date().toISOString().slice(0,10);
+  window.XLSX.writeFile(wb, 'chipcalc_' + catLabel + '_' + today + '.xlsx');
 }
 
 function closeDetailModal(){
