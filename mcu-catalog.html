@@ -82,6 +82,7 @@ body.dark .filter-select.active{background-color:rgba(0,113,227,0.15)}
   border-radius:12px;overflow:hidden;
   box-shadow:var(--sh);
 }
+.prod-table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .prod-table{
   width:100%;border-collapse:collapse;
   font-size:12.5px;
@@ -710,7 +711,7 @@ function renderProducts(list){
   }).join('') + '</tr></thead>';
 
   var tbody = '<tbody>' + sorted.map(function(p){ return rowHtml(p, COLS); }).join('') + '</tbody>';
-  ct.innerHTML = '<div class="prod-table-wrap"><table class="prod-table">'+thead+tbody+'</table></div>';
+  ct.innerHTML = '<div class="prod-table-wrap"><div class="prod-table-scroll"><table class="prod-table">'+thead+tbody+'</table></div></div>';
 }
 
 function rowHtml(p, COLS){
@@ -839,7 +840,8 @@ function downloadExcel(){
 
   var ws = window.XLSX.utils.json_to_sheet(rows);
   var wb = window.XLSX.utils.book_new();
-  window.XLSX.utils.book_append_sheet(wb, ws, catLabel);
+  var sheetName = catLabel.replace(/[\/\\*?\:\[\]]/g, '-').slice(0, 31);
+  window.XLSX.utils.book_append_sheet(wb, ws, sheetName);
   var today = new Date().toISOString().slice(0,10);
   window.XLSX.writeFile(wb, 'chipcalc_' + catLabel + '_' + today + '.xlsx');
 }
