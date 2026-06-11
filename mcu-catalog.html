@@ -448,6 +448,7 @@ var ALL_CATEGORIES = [];
 var CATEGORY_COUNTS = {};
 var FILTERED_PRODUCTS = [];
 var CURRENT_CATEGORY = 'mcu';
+var MCU_CATEGORY_ID = null;
 var sortKey = 'maker';
 var sortDir = 1;
 
@@ -470,6 +471,23 @@ var COLUMNS_MCU = [
   {key:'freq_mhz',         label:'MHz',         cls:'col-num'},
   {key:'flash_mb',         label:'Flash',       cls:'col-num'},
   {key:'asil_level',       label:'ASIL',        cls:''},
+  {key:'wafer_price_usd',  label:'웨이퍼$',     cls:'col-num'},
+  {key:'package_cost_usd', label:'Pkg$',        cls:'col-num'},
+  {key:'test_cost_usd',    label:'Test$',       cls:'col-num'},
+  {key:'_actions',         label:'',            cls:'col-actions', nosort:true},
+];
+
+var COLUMNS_ALL = [
+  {key:'maker',                 label:'메이커',      cls:'col-maker'},
+  {key:'part_number',           label:'Part Number', cls:'col-pn'},
+  {key:'part_number_internal',  label:'자체 PN',     cls:'col-pn'},
+  {key:'internal_category',     label:'분류',        cls:'col-series'},
+  {key:'process_type',     label:'공정',        cls:''},
+  {key:'node_nm',          label:'노드(nm)',     cls:'col-num'},
+  {key:'_die_size',        label:'다이(mm)',     cls:'col-num'},
+  {key:'wafer_size_inch',  label:'웨이퍼',      cls:'col-num'},
+  {key:'package_type',     label:'패키지',      cls:'col-pkg'},
+  {key:'package_pin_count',label:'핀',          cls:'col-num'},
   {key:'wafer_price_usd',  label:'웨이퍼$',     cls:'col-num'},
   {key:'package_cost_usd', label:'Pkg$',        cls:'col-num'},
   {key:'test_cost_usd',    label:'Test$',       cls:'col-num'},
@@ -517,9 +535,21 @@ async function loadProducts(categoryId, isMcu) {
   return data || [];
 }
 
+async function loadAllProducts() {
+  var {data, error} = await sb.from('products').select('*')
+    .eq('is_active', true)
+    .order('maker').order('part_number')
+    .limit(5000);
+  if(error){console.error(error); return []}
+  return data || [];
+}
+
 /* ─── 카테고리 탭 ─── */
 function renderCategoryTabs() {
-  var html = ALL_CATEGORIES.map(function(c){
+  var totalCnt = Object.values(CATEGORY_COUNTS).reduce(function(a,b){return a+b}, 0);
+  var allTab = '<button class="cat-tab' + (CURRENT_CATEGORY === 'all' ? ' on' : '') + '" onclick="switchCategory(\'all\')">'
+    + '📋 전체<span class="cnt">' + totalCnt + '</span></button>';
+  var html = allTab + ALL_CATEGORIES.map(function(c){
     var isActive = c.slug === CURRENT_CATEGORY;
     var cnt = CATEGORY_COUNTS[c.id] || 0;
     var cls = 'cat-tab' + (isActive ? ' on' : '');
@@ -537,10 +567,18 @@ async function switchCategory(slug) {
 async function loadAndShowCategory(slug) {
   CURRENT_CATEGORY = slug;
   renderCategoryTabs();
-  var catObj = ALL_CATEGORIES.find(function(c){ return c.slug === slug; });
-  if(!catObj) return;
   document.getElementById('productsContainer').innerHTML =
     '<div class="loading"><div class="loading-spinner"></div><div>제품 정보를 불러오는 중…</div></div>';
+  if(slug === 'all') {
+    ALL_PRODUCTS = await loadAllProducts();
+    updateCategoryFilters(false);
+    resetFiltersInternal();
+    buildFilterOptions(false);
+    applyFilter();
+    return;
+  }
+  var catObj = ALL_CATEGORIES.find(function(c){ return c.slug === slug; });
+  if(!catObj) return;
   var isMcu = slug === 'mcu';
   ALL_PRODUCTS = await loadProducts(catObj.id, isMcu);
   updateCategoryFilters(isMcu);
@@ -703,7 +741,7 @@ function renderProducts(list){
     return;
   }
   var isMcu = CURRENT_CATEGORY === 'mcu';
-  var COLS = isMcu ? COLUMNS_MCU : COLUMNS_GENERAL;
+  var COLS = CURRENT_CATEGORY === 'all' ? COLUMNS_ALL : (isMcu ? COLUMNS_MCU : COLUMNS_GENERAL);
   var sorted = sortProducts(list);
 
   var thead = '<thead><tr>' + COLS.map(function(c){
@@ -732,7 +770,7 @@ function rowHtml(p, COLS){
 function openDetail(id){
   var p = ALL_PRODUCTS.find(function(x){return x.id === id});
   if(!p) return;
-  var isMcu = CURRENT_CATEGORY === 'mcu';
+  var isMcu = CURRENT_CATEGORY === 'mcu' || (CURRENT_CATEGORY === 'all' && MCU_CATEGORY_ID && p.category_id === MCU_CATEGORY_ID);
   var subtitle = p.maker + ' · ' + (isMcu && p.product_series ? p.product_series.series_name : (p.internal_category||''));
   document.getElementById('modal-maker-series').textContent = subtitle;
   document.getElementById('modal-title').textContent = p.full_part_number || p.part_number;
@@ -798,10 +836,10 @@ function downloadExcel(){
   if(!FILTERED_PRODUCTS.length){ alert('다운로드할 제품이 없습니다.'); return; }
   var isMcu = CURRENT_CATEGORY === 'mcu';
   var catObj = ALL_CATEGORIES.find(function(c){ return c.slug === CURRENT_CATEGORY; });
-  var catLabel = catObj ? catObj.name_ko : CURRENT_CATEGORY;
+  var catLabel = CURRENT_CATEGORY === 'all' ? '전체' : (catObj ? catObj.name_ko : CURRENT_CATEGORY);
 
   var rows = FILTERED_PRODUCTS.map(function(p){
-    if(isMcu){
+    if(isMcu && CURRENT_CATEGORY !== 'all'){
       return {
         '메이커': p.maker,
         'Part Number': p.part_number,
@@ -863,6 +901,8 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeDe
     var [cats, catCounts] = await Promise.all([loadCategories(), loadAllCategoryIds()]);
     ALL_CATEGORIES = cats;
     CATEGORY_COUNTS = catCounts;
+    var mcuCat = cats.find(function(c){ return c.slug === 'mcu'; });
+    if(mcuCat) MCU_CATEGORY_ID = mcuCat.id;
     var total = Object.values(CATEGORY_COUNTS).reduce(function(a,b){return a+b}, 0);
     var sp = document.getElementById('stat-products');
     if(sp) sp.textContent = '🔢 ' + total + '개 품목';
