@@ -457,9 +457,10 @@ var PROCESS_LABELS = {
 };
 
 var COLUMNS_MCU = [
-  {key:'maker',            label:'메이커',      cls:'col-maker'},
-  {key:'part_number',      label:'Part Number', cls:'col-pn'},
-  {key:'series_name',      label:'시리즈',      cls:'col-series'},
+  {key:'maker',                 label:'메이커',      cls:'col-maker'},
+  {key:'part_number',           label:'Part Number', cls:'col-pn'},
+  {key:'part_number_internal',  label:'자체 PN',     cls:'col-pn'},
+  {key:'series_name',           label:'시리즈',      cls:'col-series'},
   {key:'grade',            label:'등급',        cls:''},
   {key:'node_nm',          label:'노드(nm)',     cls:'col-num'},
   {key:'wafer_size_inch',  label:'웨이퍼',      cls:'col-num'},
@@ -476,9 +477,10 @@ var COLUMNS_MCU = [
 ];
 
 var COLUMNS_GENERAL = [
-  {key:'maker',            label:'메이커',      cls:'col-maker'},
-  {key:'part_number',      label:'Part Number', cls:'col-pn'},
-  {key:'internal_category',label:'분류',        cls:'col-series'},
+  {key:'maker',                 label:'메이커',      cls:'col-maker'},
+  {key:'part_number',           label:'Part Number', cls:'col-pn'},
+  {key:'part_number_internal',  label:'자체 PN',     cls:'col-pn'},
+  {key:'internal_category',     label:'분류',        cls:'col-series'},
   {key:'process_type',     label:'공정',        cls:''},
   {key:'node_nm',          label:'노드(nm)',     cls:'col-num'},
   {key:'_die_size',        label:'다이(mm)',     cls:'col-num'},
@@ -614,7 +616,7 @@ function applyFilter() {
     if(fCore    && p.core_count != fCore) return false;
     if(search){
       var hay = [
-        p.part_number, p.full_part_number, p.maker, p.grade, p.package_type,
+        p.part_number, p.full_part_number, p.part_number_internal, p.maker, p.grade, p.package_type,
         p.internal_category, p.process_type,
         p.product_series && p.product_series.series_name,
         p.product_series && p.product_series.series_code,
@@ -745,6 +747,7 @@ function renderMcuModal(p){
   return '<div class="modal-section"><div class="modal-section-title">기본 정보</div><div class="modal-grid">'
     + '<div><div class="pc-spec-lbl">시리즈</div><div class="pc-spec-val">'+(p.product_series && p.product_series.series_name||'—')+'</div></div>'
     + '<div><div class="pc-spec-lbl">등급</div><div class="pc-spec-val">'+(p.grade||'—')+'</div></div>'
+    + (p.part_number_internal ? '<div><div class="pc-spec-lbl">자체 Part No.</div><div class="pc-spec-val">'+p.part_number_internal+'</div></div>' : '')
     + '<div><div class="pc-spec-lbl">주 용도</div><div class="pc-spec-val small">'+(p.typical_use||'—')+'</div></div>'
     + '<div><div class="pc-spec-lbl">ASIL / HSM</div><div class="pc-spec-val">ASIL-'+(p.asil_level||'QM')+(p.hsm?' + HSM':'')+'</div></div>'
     + '</div></div>'
@@ -765,6 +768,7 @@ function renderGeneralModal(p){
   return '<div class="modal-section"><div class="modal-section-title">기본 정보</div><div class="modal-grid">'
     + '<div><div class="pc-spec-lbl">분류</div><div class="pc-spec-val">'+(p.internal_category||'—')+'</div></div>'
     + '<div><div class="pc-spec-lbl">공정 타입</div><div class="pc-spec-val">'+(PROCESS_LABELS[p.process_type]||p.process_type||'—')+'</div></div>'
+    + (p.part_number_internal ? '<div><div class="pc-spec-lbl">자체 Part No.</div><div class="pc-spec-val">'+p.part_number_internal+'</div></div>' : '')
     + '</div></div>'
     + '<div class="modal-section"><div class="modal-section-title">다이 & 공정</div><div class="modal-grid">'
     + '<div><div class="pc-spec-lbl">다이 사이즈</div><div class="pc-spec-val small">'+dieSz+'</div></div>'
@@ -801,6 +805,7 @@ function downloadExcel(){
       return {
         '메이커': p.maker,
         'Part Number': p.part_number,
+        '자체 PN': p.part_number_internal || '',
         '시리즈': p.product_series ? p.product_series.series_name : '',
         '등급': p.grade || '',
         '공정 노드(nm)': p.node_nm,
@@ -822,6 +827,7 @@ function downloadExcel(){
       return {
         '메이커': p.maker,
         'Part Number': p.part_number,
+        '자체 PN': p.part_number_internal || '',
         '분류': p.internal_category || '',
         '공정 타입': PROCESS_LABELS[p.process_type] || p.process_type || '',
         '공정 노드(nm)': p.node_nm,
